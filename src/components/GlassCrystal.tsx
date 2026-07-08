@@ -57,7 +57,7 @@ export default function GlassCrystal() {
           scale: useTransform(rotateX, [-22, 22], [0.95, 1.05]),
           opacity: useTransform(rotateX, [-22, 22], [0.45, 0.65]),
         }}
-        className="absolute bottom-4 left-1/2 -translate-x-1/2 w-4/5 h-12 bg-radial from-brand-terracotta/20 to-transparent blur-2xl pointer-events-none transition-all duration-300"
+        className="absolute bottom-4 left-1/2 -translate-x-1/2 w-4/5 h-12 bg-radial from-brand-terracotta/20 to-transparent blur-2xl pointer-events-none"
       />
 
       {/* Behind Ambient Neon Glow (only visible when hovered) */}
@@ -76,7 +76,7 @@ export default function GlassCrystal() {
           rotateY,
           transformStyle: 'preserve-3d',
         }}
-        className="relative w-[90%] h-[90%] rounded-3xl overflow-hidden shadow-[0_30px_100px_rgba(189,91,130,0.12),inset_0_2px_4px_rgba(255,255,255,0.7)] border border-white/60 transition-all duration-300 backdrop-blur-[24px] bg-white/20"
+        className="relative w-[90%] h-[90%] rounded-3xl overflow-hidden shadow-[0_30px_100px_rgba(189,91,130,0.12),inset_0_2px_4px_rgba(255,255,255,0.7)] border border-white/60 backdrop-blur-[24px] bg-white/20"
       >
         {/* PREMIUM MINIMALIST GLASSMORPHIC BRAND LOGO SVG */}
         <svg 
@@ -199,15 +199,10 @@ export default function GlassCrystal() {
           animate={{ opacity: isHovered ? 1 : 0 }}
           transition={{ duration: 0.4 }}
           style={{
-            background: useTransform(
-              [lightX, lightY],
-              (latest) => {
-                const [lx, ly] = latest;
-                return `radial-gradient(circle at ${lx}% ${ly}%, rgba(255, 255, 255, 0.45) 0%, rgba(255, 150, 150, 0.15) 35%, transparent 70%)`;
-              }
-            ),
+            x: useTransform(lightX, (x) => `${x - 50}%`),
+            y: useTransform(lightY, (y) => `${y - 50}%`),
           }}
-          className="absolute inset-0 mix-blend-screen pointer-events-none"
+          className="absolute w-[180%] h-[180%] top-[-40%] left-[-40%] bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.45)_0%,rgba(255,150,150,0.15)_35%,transparent_70%)] mix-blend-screen pointer-events-none"
         />
 
         {/* Dynamic Coral Shimmer Layer (Color Dodge, only visible when hovered) */}
@@ -216,15 +211,11 @@ export default function GlassCrystal() {
           animate={{ opacity: isHovered ? 0.8 : 0 }}
           transition={{ duration: 0.4 }}
           style={{
-            background: useTransform(
-              [lightX, lightY],
-              (latest) => {
-                const [lx, ly] = latest;
-                return `linear-gradient(${lx}deg, rgba(201, 111, 115, 0) 20%, rgba(201, 111, 115, 0.2) 50%, rgba(189, 91, 130, 0.25) 70%, rgba(255, 255, 255, 0) 90%)`;
-              }
-            ),
+            x: useTransform(lightX, (x) => `${(x - 50) * 0.3}%`),
+            y: useTransform(lightY, (y) => `${(y - 50) * 0.3}%`),
+            rotate: useTransform(lightX, (x) => (x - 50) * 0.4),
           }}
-          className="absolute inset-0 mix-blend-color-dodge pointer-events-none"
+          className="absolute w-[200%] h-[200%] top-[-50%] left-[-50%] bg-[linear-gradient(45deg,rgba(201,111,115,0)_20%,rgba(201,111,115,0.2)_50%,rgba(189,91,130,0.25)_70%,rgba(255,255,255,0)_90%)] mix-blend-color-dodge pointer-events-none"
         />
 
         {/* Ultra-sharp Edge Highlight Lines */}
@@ -237,10 +228,10 @@ export default function GlassCrystal() {
           animate={{ opacity: isHovered ? 0.3 : 0 }}
           transition={{ duration: 0.4 }}
           style={{
-            top: useTransform(lightY, (y) => `${y}%`),
-            left: useTransform(lightX, (x) => `${x}%`),
+            x: useTransform(lightX, (x) => `${x}%`),
+            y: useTransform(lightY, (y) => `${y}%`),
           }}
-          className="absolute -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-white rounded-full blur-2xl mix-blend-overlay pointer-events-none"
+          className="absolute w-48 h-48 bg-white rounded-full blur-2xl mix-blend-overlay pointer-events-none -mt-24 -ml-24 top-0 left-0"
         />
       </motion.div>
 

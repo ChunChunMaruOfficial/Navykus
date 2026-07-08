@@ -8,6 +8,8 @@ export interface Tournament {
   skills: string[];
   mentors: string[];
   maxParticipants: number;
+  suitableFor?: string;
+  format?: string;
 }
 
 export interface ApplicationForm {
@@ -27,3 +29,34 @@ export interface Ticket {
   coordinate: string;
   status: 'confirmed' | 'pending';
 }
+
+export interface Pillar {
+  label: string;
+  title: string;
+  description: string;
+}
+
+export interface Expert {
+  id: string;
+  name: string;
+  role: string;
+  expertise: string;
+  description: string;
+  isCmsPlaceholder?: boolean;
+}
+
+export interface ParticipationScenario {
+  id: string;
+  title: string;
+  who: string;
+  why: string;
+  ctaText: string;
+  actionType: 'apply' | 'team' | 'activity' | 'general';
+}
+
+export interface TrustPoint {
+  id: string;
+  title: string;
+  description: string;
+}
+

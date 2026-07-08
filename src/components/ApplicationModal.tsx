@@ -129,26 +129,26 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
               <X className="w-5 h-5" />
             </button>
 
-            <div className="p-5 sm:p-10">
+            <div className="p-4 sm:p-8 lg:p-10">
               {!ticket ? (
                 /* Application Form */
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                   <div>
-                    <span className="text-[10px] font-mono tracking-widest text-brand-rose-deep/80 block mb-2">
+                    <span className="text-[9px] sm:text-[10px] font-mono tracking-widest text-brand-rose-deep/80 block mb-1">
                       REGISTRATION FORM
                     </span>
-                    <h2 className="text-3xl font-serif text-brand-dark tracking-tight">
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-serif text-brand-dark tracking-tight">
                       Подать заявку на участие
                     </h2>
-                    <p className="text-sm text-brand-slate mt-1.5 font-light">
+                    <p className="text-xs sm:text-sm text-brand-slate mt-1 font-light">
                       Заполните форму, чтобы присоединиться к международной платформе «Навыкус». Мы свяжемся с вами в течение 24 часов.
                     </p>
                   </div>
 
                   {/* Input fields */}
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     <div>
-                      <label className="block text-xs font-mono tracking-wider text-brand-dark/70 mb-1.5 uppercase">
+                      <label className="block text-[10px] sm:text-xs font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">
                         ФИО школьника
                       </label>
                       <input
@@ -157,13 +157,13 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
                         value={form.name}
                         onChange={(e) => setForm({ ...form, name: e.target.value })}
                         placeholder="Константин Константинопольский"
-                        className="w-full bg-white/25 hover:bg-white/45 focus:bg-white/70 backdrop-blur-md border border-white/40 focus:border-brand-terracotta rounded-xl px-4 py-3 text-sm text-brand-dark outline-none transition-all duration-300 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]"
+                        className="w-full bg-white/25 hover:bg-white/45 focus:bg-white/70 backdrop-blur-md border border-white/40 focus:border-brand-terracotta rounded-xl px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-300 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]"
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div>
-                        <label className="block text-xs font-mono tracking-wider text-brand-dark/70 mb-1.5 uppercase">
+                        <label className="block text-[10px] sm:text-xs font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">
                           Электронная почта
                         </label>
                         <input
@@ -172,11 +172,11 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
                           value={form.email}
                           onChange={(e) => setForm({ ...form, email: e.target.value })}
                           placeholder="name@example.com"
-                          className="w-full bg-white/25 hover:bg-white/45 focus:bg-white/70 backdrop-blur-md border border-white/40 focus:border-brand-terracotta rounded-xl px-4 py-3 text-sm text-brand-dark outline-none transition-all duration-300 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]"
+                          className="w-full bg-white/25 hover:bg-white/45 focus:bg-white/70 backdrop-blur-md border border-white/40 focus:border-brand-terracotta rounded-xl px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-300 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-mono tracking-wider text-brand-dark/70 mb-1.5 uppercase">
+                        <label className="block text-[10px] sm:text-xs font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">
                           Город проживания
                         </label>
                         <input
@@ -185,20 +185,20 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
                           value={form.city}
                           onChange={(e) => setForm({ ...form, city: e.target.value })}
                           placeholder="Москва"
-                          className="w-full bg-white/25 hover:bg-white/45 focus:bg-white/70 backdrop-blur-md border border-white/40 focus:border-brand-terracotta rounded-xl px-4 py-3 text-sm text-brand-dark outline-none transition-all duration-300 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]"
+                          className="w-full bg-white/25 hover:bg-white/45 focus:bg-white/70 backdrop-blur-md border border-white/40 focus:border-brand-terracotta rounded-xl px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-300 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]"
                         />
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div>
-                        <label className="block text-xs font-mono tracking-wider text-brand-dark/70 mb-1.5 uppercase">
+                        <label className="block text-[10px] sm:text-xs font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">
                           Класс обучения
                         </label>
                         <select
                           value={form.grade}
                           onChange={(e) => setForm({ ...form, grade: e.target.value })}
-                          className="w-full bg-white/25 hover:bg-white/45 focus:bg-white/70 backdrop-blur-md border border-white/40 focus:border-brand-terracotta rounded-xl px-4 py-3 text-sm text-brand-dark outline-none transition-all duration-300 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]"
+                          className="w-full bg-white/25 hover:bg-white/45 focus:bg-white/70 backdrop-blur-md border border-white/40 focus:border-brand-terracotta rounded-xl px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-300 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]"
                         >
                           <option className="bg-brand-bg-2 text-brand-dark">8 класс</option>
                           <option className="bg-brand-bg-2 text-brand-dark">9 класс</option>
@@ -209,13 +209,13 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
                       </div>
 
                       <div>
-                        <label className="block text-xs font-mono tracking-wider text-brand-dark/70 mb-1.5 uppercase">
+                        <label className="block text-[10px] sm:text-xs font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">
                           Главное направление
                         </label>
                         <select
                           value={form.interest}
                           onChange={(e) => setForm({ ...form, interest: e.target.value })}
-                          className="w-full bg-white/25 hover:bg-white/45 focus:bg-white/70 backdrop-blur-md border border-white/40 focus:border-brand-terracotta rounded-xl px-4 py-3 text-sm text-brand-dark outline-none transition-all duration-300 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]"
+                          className="w-full bg-white/25 hover:bg-white/45 focus:bg-white/70 backdrop-blur-md border border-white/40 focus:border-brand-terracotta rounded-xl px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-300 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]"
                         >
                           <option className="bg-brand-bg-2 text-brand-dark">Разработка проектов</option>
                           <option className="bg-brand-bg-2 text-brand-dark">Решение кейсов</option>
@@ -226,13 +226,13 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
                     </div>
 
                     <div>
-                      <label className="block text-xs font-mono tracking-wider text-brand-dark/70 mb-1.5 uppercase">
+                      <label className="block text-[10px] sm:text-xs font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">
                         Выбрать программу / мероприятие
                       </label>
                       <select
                         value={form.tournamentId}
                         onChange={(e) => setForm({ ...form, tournamentId: e.target.value })}
-                        className="w-full bg-white/25 hover:bg-white/45 focus:bg-white/70 backdrop-blur-md border border-white/40 focus:border-brand-terracotta rounded-xl px-4 py-3 text-sm text-brand-dark outline-none transition-all duration-300 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]"
+                        className="w-full bg-white/25 hover:bg-white/45 focus:bg-white/70 backdrop-blur-md border border-white/40 focus:border-brand-terracotta rounded-xl px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-300 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]"
                       >
                         <option value="" className="bg-brand-bg-2 text-brand-dark">Общая заявка в сообщество</option>
                         {TOURNAMENTS.map((t) => (
