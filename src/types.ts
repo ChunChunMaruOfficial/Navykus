@@ -19,6 +19,7 @@ export interface ApplicationForm {
   city: string;
   interest: string;
   tournamentId?: string;
+  projectFile?: File | null;
 }
 
 export interface Ticket {

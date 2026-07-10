@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import {
+  fadeUp,
+  fadeUpLarge,
+  fadeInScale,
+} from '../motion-animations';
 import { 
   Award, 
   Calendar, 
@@ -376,272 +381,16 @@ export default function ChampionshipPage({
     <div className="relative w-full text-brand-dark pb-16 pt-24">
       <div className="max-w-6xl mx-auto px-[6%] md:px-[10%] space-y-16">
         
-        {/* Back navigation & CMS Trigger button */}
-        <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 z-20 relative">
+        {/* Back navigation */}
+        <div className="flex justify-start mb-8 sm:mb-12">
           <button 
             onClick={onBackToHome}
-            className="group inline-flex items-center gap-2 px-4 py-2 border border-[#d8d1cc]/60 hover:border-brand-dark text-xs font-mono tracking-wider uppercase text-brand-slate hover:text-brand-dark transition-all rounded-xl cursor-pointer bg-white/20 backdrop-blur-sm self-start"
+            className="group inline-flex items-center gap-2 px-4 py-2 border border-[#d8d1cc]/60 hover:border-brand-dark text-xs font-mono tracking-wider uppercase text-brand-slate hover:text-brand-dark transition-all rounded-xl cursor-pointer bg-white/20 backdrop-blur-sm"
           >
             <ArrowRight className="w-3.5 h-3.5 rotate-180 transition-transform group-hover:-translate-x-0.5" />
             <span>Вернуться на главную</span>
           </button>
-
-          {/* CMS Simulation Badge / Button */}
-          <button
-            onClick={() => {
-              setIsCmsPanelOpen(!isCmsPanelOpen);
-              // Synch temp states on open
-              setTempTitle(cmsData.title);
-              setTempPitch(cmsData.pitch);
-              setTempDate(cmsData.date);
-              setTempDeadline(cmsData.registrationDeadline);
-              setTempAge(cmsData.ageLimit);
-              setTempFormat(cmsData.format);
-              setTempTeams(cmsData.teamsAllowed);
-              setTempStatus(cmsData.registrationStatus);
-            }}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-brand-dark/5 hover:bg-brand-dark/10 border border-brand-dark/10 text-brand-dark text-xs font-mono tracking-wider uppercase rounded-xl transition-all cursor-pointer"
-          >
-            <Settings className="w-4 h-4 animate-spin-slow" />
-            <span>Управление CMS (Прототип)</span>
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          </button>
         </div>
-
-        {/* --- CMS CONTROLLER OVERLAY / PANEL --- */}
-        <AnimatePresence>
-          {isCmsPanelOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-              className="bg-brand-dark text-white rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl relative border border-white/10 z-30"
-            >
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                <div className="flex items-center gap-2">
-                  <Settings className="w-5 h-5 text-brand-terracotta" />
-                  <h3 className="font-serif text-lg font-bold">Панель администратора / CMS-редактор</h3>
-                </div>
-                <button 
-                  onClick={() => setIsCmsPanelOpen(false)}
-                  className="text-white/60 hover:text-white text-xs font-mono border border-white/10 px-2.5 py-1 rounded-lg cursor-pointer"
-                >
-                  Закрыть ✕
-                </button>
-              </div>
-
-              <p className="text-xs text-white/70 leading-relaxed font-light">
-                Этот интерактивный блок симулирует CMS-систему Навыкуса. Любые изменения, внесенные ниже (название кубка, дедлайны, возрастные ограничения, статус регистрации или состав жюри), мгновенно перестроят и перерисуют весь UX-прототип страницы чемпионата ниже, демонстрируя гибкость архитектуры.
-              </p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                {/* Text fields inputs */}
-                <div className="space-y-4">
-                  <div className="space-y-1">
-                    <label className="block text-[10px] font-mono uppercase tracking-wider text-white/50">Название чемпионата (CMS)</label>
-                    <input 
-                      type="text"
-                      value={tempTitle}
-                      onChange={(e) => setTempTitle(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-terracotta"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="block text-[10px] font-mono uppercase tracking-wider text-white/50">Короткий питч (Hero)</label>
-                    <textarea 
-                      value={tempPitch}
-                      onChange={(e) => setTempPitch(e.target.value)}
-                      rows={2}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-terracotta"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label className="block text-[10px] font-mono uppercase tracking-wider text-white/50">Даты проведения</label>
-                      <input 
-                        type="text"
-                        value={tempDate}
-                        onChange={(e) => setTempDate(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="block text-[10px] font-mono uppercase tracking-wider text-white/50">Дедлайн регистрации</label>
-                      <input 
-                        type="text"
-                        value={tempDeadline}
-                        onChange={(e) => setTempDeadline(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label className="block text-[10px] font-mono uppercase tracking-wider text-white/50">Возрастной ценз</label>
-                      <input 
-                        type="text"
-                        value={tempAge}
-                        onChange={(e) => setTempAge(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="block text-[10px] font-mono uppercase tracking-wider text-white/50">Тип участия</label>
-                      <input 
-                        type="text"
-                        value={tempTeams}
-                        onChange={(e) => setTempTeams(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="block text-[10px] font-mono uppercase tracking-wider text-white/50">Статус регистрации (Поведение CTA)</label>
-                    <div className="flex gap-2">
-                      {(['open', 'suspended', 'closed'] as const).map((status) => (
-                        <button
-                          key={status}
-                          type="button"
-                          onClick={() => setTempStatus(status)}
-                          className={`flex-1 py-2 text-center rounded-xl text-xs font-mono uppercase tracking-wider border cursor-pointer ${
-                            tempStatus === status 
-                              ? 'bg-brand-terracotta text-white border-brand-terracotta' 
-                              : 'bg-white/5 text-white/60 border-white/10 hover:bg-white/10'
-                          }`}
-                        >
-                          {status === 'open' && 'Открыта'}
-                          {status === 'suspended' && 'Приостановлена'}
-                          {status === 'closed' && 'Закрыта'}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Theme & Mentors CMS Editing */}
-                <div className="space-y-4 border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0 md:pl-6">
-                  
-                  {/* Dynamic Themes Edit */}
-                  <div className="space-y-2">
-                    <label className="block text-[10px] font-mono uppercase tracking-wider text-white/50">Тематические направления кубка ({cmsData.themes.length})</label>
-                    <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto p-1 bg-white/5 rounded-xl">
-                      {cmsData.themes.map((theme, tIdx) => (
-                        <span key={tIdx} className="inline-flex items-center gap-1 bg-white/10 text-white/90 text-[10px] px-2 py-1 rounded-lg">
-                          <span className="truncate max-w-[120px]">{theme}</span>
-                          <button 
-                            type="button" 
-                            onClick={() => handleDeleteTheme(tIdx)}
-                            className="text-red-400 hover:text-red-300 ml-1 font-bold cursor-pointer"
-                          >
-                            ×
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                    <form onSubmit={handleAddTheme} className="flex gap-2">
-                      <input 
-                        type="text" 
-                        placeholder="Новая тема..."
-                        value={newTheme}
-                        onChange={(e) => setNewTheme(e.target.value)}
-                        className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
-                      />
-                      <button 
-                        type="submit"
-                        className="bg-brand-terracotta hover:bg-brand-terracotta/90 px-3 py-1.5 rounded-xl text-xs font-mono font-bold cursor-pointer"
-                      >
-                        +
-                      </button>
-                    </form>
-                  </div>
-
-                  {/* Dynamic Mentors Edit */}
-                  <div className="space-y-2">
-                    <label className="block text-[10px] font-mono uppercase tracking-wider text-white/50">Управление жюри и менторами ({cmsData.mentors.length})</label>
-                    <div className="space-y-1.5 max-h-32 overflow-y-auto p-1 bg-white/5 rounded-xl">
-                      {cmsData.mentors.map((mentor, mIdx) => (
-                        <div key={mIdx} className="flex items-center justify-between bg-white/10 px-3 py-1.5 rounded-lg text-xs">
-                          <div className="truncate pr-2">
-                            <span className="font-semibold text-white/95">{mentor.name}</span>
-                            <span className="text-[10px] text-white/60 block truncate">{mentor.role}</span>
-                          </div>
-                          <button 
-                            type="button" 
-                            onClick={() => handleDeleteMentor(mIdx)}
-                            className="text-red-400 hover:text-red-300 cursor-pointer p-1"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                    
-                    <form onSubmit={handleAddMentor} className="space-y-1.5 pt-1.5 border-t border-white/10">
-                      <input 
-                        type="text" 
-                        placeholder="Имя эксперта..."
-                        value={newMentorName}
-                        onChange={(e) => setNewMentorName(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
-                      />
-                      <div className="flex gap-2">
-                        <input 
-                          type="text" 
-                          placeholder="Должность/ВУЗ..."
-                          value={newMentorRole}
-                          onChange={(e) => setNewMentorRole(e.target.value)}
-                          className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
-                        />
-                        <button 
-                          type="submit" 
-                          className="bg-brand-terracotta hover:bg-brand-terracotta/90 px-4 py-1.5 rounded-xl text-xs font-mono font-bold cursor-pointer uppercase tracking-wider"
-                        >
-                          Добавить
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-
-                </div>
-
-              </div>
-
-              <div className="flex justify-end gap-3 border-t border-white/10 pt-4">
-                <button 
-                  onClick={() => {
-                    // Reset defaults
-                    setCmsData(prev => ({
-                      ...prev,
-                      title: 'Navykus Global Case Cup: Sustainable Cities',
-                      pitch: 'Реши глобальный урбанистический кейс, собери международную команду мечты и защити свое решение перед менторами из MIT и экспертами Smart Cities.',
-                      date: '18–25 Сентября 2026',
-                      registrationDeadline: '15 Сентября 2026',
-                      ageLimit: '14–19 лет',
-                      format: 'Международный онлайн-чемпионат (Групповая работа в Miro/Figma, презентация решений в Zoom)',
-                      registrationStatus: 'open'
-                    }));
-                    setIsCmsPanelOpen(false);
-                  }}
-                  className="px-4 py-2 border border-white/20 hover:border-white text-xs font-mono rounded-xl cursor-pointer text-white/70"
-                >
-                  Сбросить к дефолту
-                </button>
-                <button 
-                  onClick={handleApplyCmsChanges}
-                  className="px-6 py-2 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white hover:opacity-95 text-xs font-mono uppercase tracking-wider font-bold rounded-xl cursor-pointer"
-                >
-                  Применить изменения
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* 1. HERO BLOCK OF CHAMPIONSHIP */}
         <section className="relative z-10 text-center space-y-6 max-w-4xl mx-auto mb-8">
@@ -716,70 +465,108 @@ export default function ChampionshipPage({
         <section className="relative z-10">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             
-            <div className="bg-white/40 backdrop-blur-md border border-white/80 p-4 rounded-2xl text-left flex flex-col justify-between space-y-2">
-              <span className="text-[9px] font-mono uppercase tracking-wider text-[#bc4638]">Даты проведения</span>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, ease: "easeOut", delay: 0 }}
+              className="bg-white/[0.12] glass-card border border-white/[0.15] p-4 rounded-2xl text-left flex flex-col justify-between space-y-2"
+            >
+              <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bc4638]">Даты проведения</span>
               <div className="space-y-0.5">
                 <p className="text-xs sm:text-sm font-serif font-bold text-brand-dark">{cmsData.date}</p>
-                <p className="text-[10px] text-brand-slate font-light">Онлайн-формат</p>
+                <p className="text-xs text-brand-slate font-normal md:font-light">Онлайн-формат</p>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="bg-white/40 backdrop-blur-md border border-white/80 p-4 rounded-2xl text-left flex flex-col justify-between space-y-2">
-              <span className="text-[9px] font-mono uppercase tracking-wider text-[#bd5b82]">Формат участия</span>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, ease: "easeOut", delay: 0.08 }}
+              className="bg-white/[0.12] glass-card border border-white/[0.15] p-4 rounded-2xl text-left flex flex-col justify-between space-y-2"
+            >
+              <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bd5b82]">Формат участия</span>
               <div className="space-y-0.5">
                 <p className="text-xs sm:text-sm font-serif font-bold text-brand-dark">100% Онлайн</p>
-                <p className="text-[10px] text-brand-slate font-light">Zoom, Figma, Miro</p>
+                <p className="text-xs text-brand-slate font-normal md:font-light">Zoom, Figma, Miro</p>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="bg-white/40 backdrop-blur-md border border-white/80 p-4 rounded-2xl text-left flex flex-col justify-between space-y-2">
-              <span className="text-[9px] font-mono uppercase tracking-wider text-[#bc4638]">Кто участвует</span>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, ease: "easeOut", delay: 0.16 }}
+              className="bg-white/[0.12] glass-card border border-white/[0.15] p-4 rounded-2xl text-left flex flex-col justify-between space-y-2"
+            >
+              <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bc4638]">Кто участвует</span>
               <div className="space-y-0.5">
                 <p className="text-xs sm:text-sm font-serif font-bold text-brand-dark">Возраст {cmsData.ageLimit}</p>
-                <p className="text-[10px] text-brand-slate font-light">Школы и колледжи</p>
+                <p className="text-xs text-brand-slate font-normal md:font-light">Школы и колледжи</p>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="bg-white/40 backdrop-blur-md border border-white/80 p-4 rounded-2xl text-left flex flex-col justify-between space-y-2">
-              <span className="text-[9px] font-mono uppercase tracking-wider text-[#bd5b82]">Язык кубка</span>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, ease: "easeOut", delay: 0.24 }}
+              className="bg-white/[0.12] glass-card border border-white/[0.15] p-4 rounded-2xl text-left flex flex-col justify-between space-y-2"
+            >
+              <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bd5b82]">Язык кубка</span>
               <div className="space-y-0.5">
                 <p className="text-xs sm:text-sm font-serif font-bold text-brand-dark">{cmsData.lang}</p>
-                <p className="text-[10px] text-brand-slate font-light">Синхронный перевод</p>
+                <p className="text-xs text-brand-slate font-normal md:font-light">Синхронный перевод</p>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="bg-white/40 backdrop-blur-md border border-white/80 p-4 rounded-2xl text-left flex flex-col justify-between space-y-2">
-              <span className="text-[9px] font-mono uppercase tracking-wider text-[#bc4638]">Дедлайн заявок</span>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, ease: "easeOut", delay: 0.32 }}
+              className="bg-white/[0.12] glass-card border border-white/[0.15] p-4 rounded-2xl text-left flex flex-col justify-between space-y-2"
+            >
+              <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bc4638]">Дедлайн заявок</span>
               <div className="space-y-0.5">
                 <p className="text-xs sm:text-sm font-serif font-bold text-[#bc4638]">{cmsData.registrationDeadline}</p>
-                <p className="text-[10px] text-brand-slate font-light">До 23:59 по МСК</p>
+                <p className="text-xs text-brand-slate font-normal md:font-light">До 23:59 по МСК</p>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="bg-white/40 backdrop-blur-md border border-white/80 p-4 rounded-2xl text-left flex flex-col justify-between space-y-2">
-              <span className="text-[9px] font-mono uppercase tracking-wider text-[#bd5b82]">Состав команды</span>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, ease: "easeOut", delay: 0.40 }}
+              className="bg-white/[0.12] glass-card border border-white/[0.15] p-4 rounded-2xl text-left flex flex-col justify-between space-y-2"
+            >
+              <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bd5b82]">Состав команды</span>
               <div className="space-y-0.5">
                 <p className="text-xs sm:text-sm font-serif font-bold text-brand-dark">1–5 человек</p>
                 <p className="text-[10px] text-[#bd5b82] font-semibold">Поможем найти</p>
               </div>
-            </div>
+            </motion.div>
 
           </div>
         </section>
 
         {/* 3. ABOUT THE CHAMPIONSHIP (О чём чемпионат) */}
-        <section className="relative z-10 py-12 px-6 sm:px-10 bg-white/20 backdrop-blur-lg border border-[#d8d1cc]/40 rounded-3xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
+        <motion.section
+          {...fadeUpLarge}
+          className="relative z-10 py-16 md:py-24 bg-white/[0.10] glass-xl border border-white/[0.15] rounded-3xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-start card-blush"
+        >
           <div className="lg:col-span-5 space-y-6">
             <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#bc4638] font-bold">О ЧЁМ ЧЕМПИОНАТ</span>
             <h2 className="text-3xl font-serif text-brand-dark leading-tight">
               Разберитесь в реальных вызовах экологии и урбанистики
             </h2>
-            <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">
+            <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">
               {cmsData.description}
             </p>
-            <div className="p-4 bg-white/35 rounded-2xl border border-white/50">
-              <span className="text-[9px] font-mono uppercase tracking-wider text-brand-slate block mb-1">Ожидаемый результат (MVP):</span>
+            <div className="p-4 bg-white/[0.12] glass-panel rounded-2xl border border-white/[0.12]">
+              <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-brand-slate block mb-1">Ожидаемый результат (MVP):</span>
               <p className="text-xs text-brand-dark font-medium leading-relaxed font-serif">
                 {cmsData.expectedResult}
               </p>
@@ -793,7 +580,7 @@ export default function ChampionshipPage({
               <span className="text-[10px] font-mono uppercase tracking-wider text-brand-dark font-semibold">Ключевые направления (Темы кейсов):</span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {cmsData.themes.map((theme, idx) => (
-                  <div key={idx} className="bg-white/40 border border-white/60 p-3.5 rounded-xl text-left flex items-start gap-3">
+                  <div key={idx} className="bg-white/[0.12] glass-card border border-white/[0.15] p-3.5 rounded-xl text-left flex items-start gap-3">
                     <span className="w-5 h-5 rounded-full bg-[#bc4638]/5 border border-[#bc4638]/10 font-mono text-[9px] font-bold text-[#bc4638] flex items-center justify-center shrink-0 mt-0.5">
                       {idx + 1}
                     </span>
@@ -808,7 +595,7 @@ export default function ChampionshipPage({
               <span className="text-[10px] font-mono uppercase tracking-wider text-brand-dark font-semibold">Что будет оценивать жюри:</span>
               <div className="space-y-2">
                 {cmsData.evaluationCriteria.map((crit, idx) => (
-                  <div key={idx} className="flex items-start gap-2 text-xs text-brand-slate font-light">
+                  <div key={idx} className="flex items-start gap-2 text-xs text-brand-slate font-normal md:font-light">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
                     <span>{crit}</span>
                   </div>
@@ -817,20 +604,19 @@ export default function ChampionshipPage({
             </div>
 
           </div>
-        </section>
+        </motion.section>
 
         {/* 4. SUITABILITY SEGMENTATION (Кому подойдет кубок) */}
-        <section className="relative z-10 space-y-6">
+        <section className="relative z-10 py-16 md:py-24">
           <div className="text-center space-y-3 max-w-2xl mx-auto">
-            <span className="text-[10px] font-mono tracking-[0.2em] text-[#bd5b82] uppercase font-bold">КОМУ ПОДОЙДЁТ</span>
             <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark tracking-tight">Подходит каждому активному школьнику</h2>
-            <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">
+            <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">
               Не важно, умеете ли вы писать код или рисовать презентации. Кубок устроен так, чтобы каждый участник раскрыл свои сильные стороны.
             </p>
           </div>
 
           {/* Interactive tabs for different archetypes */}
-          <div className="flex flex-wrap justify-center gap-2 border-b border-[#d8d1cc]/40 pb-4 max-w-2xl mx-auto">
+           <div className="flex flex-wrap justify-center gap-2 pb-4 max-w-2xl mx-auto">
             {[
               { id: 'all', label: 'Всем участникам' },
               { id: 'teamless', label: 'Если нет команды 🤝' },
@@ -860,7 +646,7 @@ export default function ChampionshipPage({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
-                className="bg-white/30 backdrop-blur-md border border-white/50 rounded-2xl p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-6 text-left"
+                className="bg-white/[0.10] glass-xl border border-white/[0.15] rounded-2xl p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-6 text-left"
               >
                 {selectedSuitabilityTab === 'all' && (
                   <>
@@ -882,7 +668,7 @@ export default function ChampionshipPage({
                     </div>
                     <div className="bg-gradient-to-br from-[#bc4638]/5 to-[#bd5b82]/5 rounded-xl p-5 flex flex-col justify-between border border-white/40">
                       <div>
-                        <span className="text-[9px] font-mono uppercase tracking-wider text-[#bc4638] font-bold">СОВЕТ UX-ДИЗАЙНЕРА</span>
+                        <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bc4638] font-bold">СОВЕТ UX-ДИЗАЙНЕРА</span>
                         <p className="text-xs text-brand-slate mt-1.5 font-light leading-relaxed">
                           «Попробуйте распределить роли в команде: один сильный спикер, один генератор идей, один дизайнер слайдов и один аналитик. Такое разделение труда гарантирует лучшие оценки жюри!»
                         </p>
@@ -914,7 +700,7 @@ export default function ChampionshipPage({
                     </div>
                     <div className="bg-brand-dark text-white rounded-xl p-5 flex flex-col justify-between">
                       <div>
-                        <span className="text-[9px] font-mono uppercase tracking-wider text-brand-terracotta font-bold">ГОТОВЫЙ СЦЕНАРИЙ</span>
+                        <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-brand-terracotta font-bold">ГОТОВЫЙ СЦЕНАРИЙ</span>
                         <p className="text-xs text-white/85 mt-1.5 font-light leading-relaxed">
                           Регистрируйтесь в индивидуальном формате, в анкете выберите пункт «Ищу команду». Сразу после этого вы получите ссылку на закрытое комьюнити с более чем 100 соавторами.
                         </p>
@@ -949,7 +735,7 @@ export default function ChampionshipPage({
                     </div>
                     <div className="bg-white p-5 rounded-xl border border-[#d8d1cc]/40 flex flex-col justify-between">
                       <div>
-                        <span className="text-[9px] font-mono uppercase tracking-wider text-[#bd5b82] font-bold font-semibold">ОТ КРЕАТИВНОГО ДИРЕКТОРА</span>
+                        <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bd5b82] font-bold font-semibold">ОТ КРЕАТИВНОГО ДИРЕКТОРА</span>
                         <p className="text-xs text-brand-slate mt-1.5 font-light leading-relaxed">
                           «Кейсы по Sustainable Cities на 50% состоят из понимания психологии горожан и дизайна пространств. Проявите креативность, предложите нестандартное визуальное решение!»
                         </p>
@@ -981,7 +767,7 @@ export default function ChampionshipPage({
                     </div>
                     <div className="bg-gradient-to-br from-brand-dark/5 to-[#bd5b82]/5 rounded-xl p-5 border border-white/60 flex flex-col justify-between">
                       <div>
-                        <span className="text-[9px] font-mono uppercase tracking-wider text-brand-dark font-bold">ПОБЕДИТЕЛЯМ</span>
+                        <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-brand-dark font-bold">ПОБЕДИТЕЛЯМ</span>
                         <p className="text-xs text-brand-slate mt-1.5 font-light leading-relaxed">
                           Главный приз кубка — менторская поддержка стартапа до полноценного релиза и рекомендательные письма от профессоров MIT и трекеров Y Combinator.
                         </p>
@@ -998,9 +784,8 @@ export default function ChampionshipPage({
         </section>
 
         {/* 5. INTERACTIVE TIMELINE BLOCK (Как проходит чемпионат) */}
-        <section className="relative z-10 space-y-6">
+        <section className="relative z-10 py-16 md:py-24 section-accent-warm">
           <div className="text-center space-y-3 max-w-2xl mx-auto">
-            <span className="text-[10px] font-mono tracking-[0.2em] text-[#bc4638] uppercase font-bold">ЭТАПЫ И СЦЕНАРИИ</span>
             <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark tracking-tight">Как устроен процесс участия (Timeline)</h2>
             <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">
               Мы разработали понятный пошаговый онлайн-маршрут. Кликните на этапы, чтобы изучить подробности и важные маркеры.
@@ -1043,10 +828,10 @@ export default function ChampionshipPage({
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -15 }}
                   transition={{ duration: 0.25 }}
-                  className="bg-white/40 backdrop-blur-md border border-white/80 p-6 sm:p-8 rounded-3xl text-left space-y-6 h-full flex flex-col justify-between shadow-lg"
+                  className="bg-white/[0.12] glass-panel border border-white/[0.15] p-6 sm:p-8 rounded-3xl text-left space-y-6 h-full flex flex-col justify-between"
                 >
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between border-b border-[#d8d1cc]/40 pb-3">
+                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-mono uppercase tracking-widest text-[#bc4638] font-bold">ЭТАП 0{TIMELINE_STEPS[activeTimelineStep].step} ИЗ 07</span>
                       <span className="text-[10px] font-mono text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100 font-bold">
                         {TIMELINE_STEPS[activeTimelineStep].highlight}
@@ -1062,7 +847,7 @@ export default function ChampionshipPage({
                     </p>
                   </div>
 
-                  <div className="pt-6 border-t border-[#d8d1cc]/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <span className="text-[10px] text-brand-slate font-mono font-semibold">
                       {activeTimelineStep < 6 ? 'Следующий шаг: ' + TIMELINE_STEPS[activeTimelineStep + 1].title : 'Финиш марафона!'}
                     </span>
@@ -1090,58 +875,9 @@ export default function ChampionshipPage({
           </div>
         </section>
 
-        {/* 6. CONDITIONS OF PARTICIPATION (Условия участия) */}
-        <section className="relative z-10 py-12 px-6 sm:px-12 bg-white/20 backdrop-blur-lg border border-[#d8d1cc]/40 rounded-3xl">
-          <div className="max-w-4xl mx-auto space-y-8">
-            <div className="text-center space-y-2">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-[#bc4638] font-bold">ПРАВИЛА И ТРЕБОВАНИЯ</span>
-              <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark">Простые условия участия</h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left pt-4 border-t border-[#d8d1cc]/30">
-              <div className="space-y-4">
-                <div className="space-y-1">
-                  <h4 className="text-xs font-mono text-[#bc4638] uppercase tracking-wider font-bold">Кто может подать заявку?</h4>
-                  <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">
-                    Школьники с 8 по 11 классы, студенты 1–2 курсов колледжей и лицеев. Опыт участия в проектах или хакатонах не обязателен. Мы предоставим базовую логику проектирования и лекции.
-                  </p>
-                </div>
-                <div className="space-y-1">
-                  <h4 className="text-xs font-mono text-[#bd5b82] uppercase tracking-wider font-bold">Нужен ли состав команды?</h4>
-                  <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">
-                    Вы можете зарегистрироваться как готовой командой (от 2 до 5 человек), так и индивидуально. Платформа поможет укомплектовать команду в первые дни перед стартом кубка.
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="space-y-1">
-                  <h4 className="text-xs font-mono text-[#bc4638] uppercase tracking-wider font-bold">Технические требования</h4>
-                  <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">
-                    Наличие компьютера, ноутбука или планшета со стабильным доступом в интернет. Все инструменты полностью бесплатны и работают прямо в браузере.
-                  </p>
-                </div>
-                <div className="space-y-1">
-                  <h4 className="text-xs font-mono text-[#bd5b82] uppercase tracking-wider font-bold">Что делать, если команды нет?</h4>
-                  <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">
-                    Не беспокойтесь. После заполнения анкеты платформа вышлет вам ссылку в закрытое сообщество в Telegram, где ежедневно проходят онлайн-питчи идей и идет активный набор участников.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-6 border-t border-[#d8d1cc]/30 text-center">
-              <p className="text-xs font-mono tracking-wide text-brand-dark">
-                Остались сомнения? Напишите нашему куратору в Telegram: <a href="https://t.me/navykus_com" target="_blank" rel="noreferrer" className="text-[#bc4638] font-bold underline">@navykus_com</a>
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* 7. EXPERTS / JURY BLOCK (Жюри кубка - CMS РЕДАКТИРУЕМЫЙ) */}
-        <section className="relative z-10 space-y-6">
+        {/* 7. EXPERTS / JURY BLOCK */}
+        <section className="relative z-10 py-16 md:py-24 section-accent-rose">
           <div className="text-center space-y-3 max-w-2xl mx-auto">
-            <span className="text-[10px] font-mono tracking-[0.2em] text-[#bd5b82] uppercase font-bold">МЕНТОРЫ И ЖЮРИ</span>
             <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark tracking-tight">Жюри и эксперты чемпионата</h2>
             <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">
               Ваши проекты будут оценивать профессора ведущих ВУЗов мира и практики из международных корпораций. Состав управляется через CMS-систему в реальном времени.
@@ -1155,7 +891,7 @@ export default function ChampionshipPage({
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: idx * 0.05 }}
-                className="bg-white/40 backdrop-blur-md border border-white/60 p-6 rounded-2xl text-left flex flex-col justify-between space-y-4 shadow-sm"
+                className="bg-white/[0.12] glass-card border border-white/[0.15] p-6 rounded-2xl text-left flex flex-col justify-between space-y-4"
               >
                 <div className="space-y-3">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#bc4638]/5 to-[#bd5b82]/5 border border-white/80 flex items-center justify-center font-serif text-sm font-bold text-[#bc4638]">
@@ -1166,84 +902,20 @@ export default function ChampionshipPage({
                     <p className="text-[11px] font-mono text-brand-slate tracking-wide mt-0.5 leading-tight">{mentor.role}</p>
                   </div>
                 </div>
-                <div className="border-t border-[#d8d1cc]/40 pt-3">
-                  <span className="text-[9px] font-mono uppercase tracking-wider text-[#bc4638] block mb-1">Сфера экспертизы:</span>
+                <div className="pt-3">
+                  <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bc4638] block mb-1">Сфера экспертизы:</span>
                   <p className="text-xs text-brand-slate font-light leading-relaxed">{mentor.expertise}</p>
                 </div>
               </motion.div>
             ))}
-
-            {/* Interactive CMS Empty State slot */}
-            <div className="bg-dashed border-2 border-dashed border-[#d8d1cc]/80 rounded-2xl p-6 text-center flex flex-col items-center justify-center space-y-4">
-              <div className="w-10 h-10 rounded-full bg-brand-dark/5 text-brand-dark/60 flex items-center justify-center">
-                <Plus className="w-5 h-5" />
-              </div>
-              <div className="space-y-1">
-                <h4 className="text-xs font-serif font-semibold text-brand-dark">Добавить еще эксперта?</h4>
-                <p className="text-[10px] text-brand-slate font-light max-w-[180px] leading-relaxed">Вы можете добавить эксперта с помощью кнопки CMS Управление вверху страницы.</p>
-              </div>
-              <button
-                onClick={() => setIsCmsPanelOpen(true)}
-                className="px-3.5 py-1.5 bg-brand-dark text-white rounded-lg text-[10px] font-mono uppercase tracking-wider cursor-pointer font-bold"
-              >
-                Открыть CMS
-              </button>
-            </div>
           </div>
         </section>
 
-        {/* 8. WHY PARTICIPATE BLOCK (Почему стоит участвовать) */}
-        <section className="relative z-10 space-y-6">
-          <div className="text-center space-y-3 max-w-2xl mx-auto">
-            <span className="text-[10px] font-mono tracking-[0.2em] text-[#bc4638] uppercase font-bold">ЦЕННОСТЬ ДЛЯ ТЕБЯ</span>
-            <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark tracking-tight">Зачем участвовать в Navykus Case Cup?</h2>
-            <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">
-              Участие в международном чемпионате — это не просто соревнование, это мощный социальный лифт и образовательный буст.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        {/* 9. EMBEDDED FORM & UX STATES (Блок заявки) */}          <section id="apply-form-section" className="relative z-10 max-w-3xl mx-auto scroll-mt-24">
+          <div className="bg-white/[0.10] glass-xl border border-white/[0.15] rounded-3xl p-6 sm:p-10 space-y-8">
             
-            <div className="bg-white/40 border border-white/60 rounded-2xl p-6 text-left space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-[#bc4638]/5 text-[#bc4638] flex items-center justify-center">
-                <FileText className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-serif font-bold text-brand-dark">Реальный международный проект</h3>
-              <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">
-                Добавьте в свое портфолио не абстрактные школьные рефераты, а проработанный экологический кейс, решенный по методологии MIT.
-              </p>
-            </div>
-
-            <div className="bg-white/40 border border-white/60 rounded-2xl p-6 text-left space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-[#bd5b82]/5 text-[#bd5b82] flex items-center justify-center">
-                <Globe className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-serif font-bold text-brand-dark">Кросс-культурный нетворкинг</h3>
-              <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">
-                Найдите друзей и соавторов из более чем 10 стран. Научитесь координировать задачи в онлайне и работать с разными культурами.
-              </p>
-            </div>
-
-            <div className="bg-white/40 border border-white/60 rounded-2xl p-6 text-left space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-[#bc4638]/5 text-[#bc4638] flex items-center justify-center">
-                <TrendingUp className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-serif font-bold text-brand-dark">Прокачка навыков будущего</h3>
-              <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">
-                Освойте системное проектирование, командную работу, грамотный поиск информации, создание презентаций и навыки защиты идей.
-              </p>
-            </div>
-
-          </div>
-        </section>
-
-        {/* 9. EMBEDDED FORM & UX STATES (Блок заявки) */}
-        <section id="apply-form-section" className="relative z-10 max-w-3xl mx-auto scroll-mt-24">
-          <div className="bg-white/30 backdrop-blur-2xl border border-white/80 rounded-3xl p-6 sm:p-10 shadow-xl space-y-8">
-            
-            <div className="text-center space-y-2 border-b border-[#d8d1cc]/40 pb-5">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-[#bc4638] font-bold">ПОДАТЬ ЗАЯВКУ</span>
-              <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark">Быстрая регистрация участника</h2>
+             <div className="text-center space-y-2 pb-5">
+               <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark">Быстрая регистрация участника</h2>
               <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed max-w-md mx-auto">
                 Заполните простую форму ниже, чтобы забронировать место. Мы обработаем анкету и вышлем дальнейшие инструкции на email.
               </p>
@@ -1277,7 +949,7 @@ export default function ChampionshipPage({
                     {/* Ticket Header */}
                     <div className="bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white p-4 text-left flex justify-between items-center">
                       <div>
-                        <span className="text-[9px] font-mono uppercase tracking-widest text-white/80">ВХОДНОЙ БИЛЕТ</span>
+                        <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-widest text-white/80">ВХОДНОЙ БИЛЕТ</span>
                         <h4 className="text-xs sm:text-sm font-serif font-semibold mt-0.5 truncate max-w-[200px]">Navykus Global Case Cup</h4>
                       </div>
                       <span className="text-[10px] font-mono px-2 py-0.5 bg-white/10 rounded uppercase font-bold text-white border border-white/20">Active</span>
@@ -1312,7 +984,7 @@ export default function ChampionshipPage({
                     </div>
 
                     {/* Ticket footer helpful links */}
-                    <div className="p-3 bg-white border-t border-[#d8d1cc]/40 text-center text-[10px] text-brand-slate font-mono">
+                    <div className="p-3 bg-white text-center text-[10px] text-brand-slate font-mono">
                       <span>Покажите билет куратору в Telegram: </span>
                       <a href="https://t.me/navykus_com" target="_blank" rel="noreferrer" className="text-[#bc4638] font-bold underline">@navykus_com</a>
                     </div>
@@ -1545,10 +1217,12 @@ export default function ChampionshipPage({
           </div>
         </section>
 
-        {/* 10. FAQ ACCORDION BLOCK (Ответы на вопросы) */}
-        <section className="relative z-10 max-w-4xl mx-auto space-y-6">
+        {/* 10. FAQ ACCORDION BLOCK */}
+        <motion.section
+          {...fadeUp}
+          className="relative z-10 py-16 md:py-24 max-w-4xl mx-auto space-y-6 section-accent-warm"
+        >
           <div className="text-center space-y-3">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-[#bd5b82] font-bold">ОСТАЛИСЬ ВОПРОСЫ?</span>
             <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark">FAQ по чемпионату</h2>
           </div>
 
@@ -1556,7 +1230,7 @@ export default function ChampionshipPage({
             {FAQ_ITEMS.map((faq, idx) => (
               <div 
                 key={idx} 
-                className="bg-white/30 backdrop-blur-sm border border-white/60 rounded-2xl overflow-hidden transition-all duration-300"
+                className="bg-white/[0.08] glass-card border border-white/[0.12] rounded-2xl overflow-hidden transition-all duration-300"
               >
                 <button
                   type="button"
@@ -1576,7 +1250,7 @@ export default function ChampionshipPage({
                       transition={{ duration: 0.25 }}
                       className="overflow-hidden"
                     >
-                      <p className="p-5 pt-0 text-xs sm:text-sm text-brand-slate font-light leading-relaxed border-t border-[#d8d1cc]/30 bg-white/10 text-left">
+                       <p className="p-5 pt-0 text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed bg-white/10 text-left">
                         {faq.answer}
                       </p>
                     </motion.div>
@@ -1585,12 +1259,14 @@ export default function ChampionshipPage({
               </div>
             ))}
           </div>
-        </section>
+        </motion.section>
 
         {/* 11. FINAL CALL TO ACTION (Финальный CTA) */}
-        <section className="relative z-10 max-w-5xl mx-auto pb-8">
-          <div className="bg-gradient-to-br from-[#bc4638]/10 via-white/40 to-[#bd5b82]/10 backdrop-blur-2xl border border-white/80 rounded-3xl p-8 sm:p-12 text-center space-y-6 shadow-xl">
-            <span className="text-[10px] font-mono tracking-[0.2em] text-[#bc4638] uppercase font-bold">ГОТОВ ПРИНЯТЬ УЧАСТИЕ?</span>
+        <motion.section
+          {...fadeInScale}
+          className="relative z-10 py-16 md:py-24 max-w-5xl mx-auto section-accent-warm"
+        >
+          <div className="bg-gradient-to-br from-[#bc4638]/8 via-white/[0.12] to-[#bd5b82]/8 glass-xl border border-white/[0.15] rounded-3xl p-8 sm:p-12 text-center space-y-6">
             
             <h2 className="text-3xl sm:text-4xl font-serif text-brand-dark tracking-tight leading-tight max-w-2xl mx-auto">
               Начни проектировать умные города сегодня
@@ -1624,7 +1300,7 @@ export default function ChampionshipPage({
               </button>
             </div>
           </div>
-        </section>
+        </motion.section>
 
       </div>
     </div>

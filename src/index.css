@@ -1,68 +1,151 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
-@import "tailwindcss";
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+  @import "tailwindcss";
 
-@theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Cormorant Garamond", ui-serif, Georgia, serif;
-  --font-mono: "Inter", ui-sans-serif, system-ui, sans-serif;
+  @theme {
+    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-serif: "Cormorant Garamond", ui-serif, Georgia, serif;
+    --font-mono: "Inter", ui-sans-serif, system-ui, sans-serif;
 
-  --color-brand-bg-1: #fffaf7;
-  --color-brand-bg-2: #f7f3ef;
-  --color-brand-bg-3: #f6eee8;
-  --color-brand-rose-deep: #bd5b82;
-  --color-brand-terracotta: #bc4638;
-  --color-brand-pink-dust: #d89aa9;
-  --color-brand-coral: #c96f73;
-  --color-brand-mauve: #9d6072;
-  --color-brand-dark: #111111;
-  --color-brand-slate: #5b6472;
-}
-
-/* Custom scrollbar to keep layout premium */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #fffaf7;
-}
-::-webkit-scrollbar-thumb {
-  background: #e5ded8;
-  border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #d8d1cc;
-}
-
-/* Add custom animations for ambient blur or gradients */
-@keyframes pulse-slow {
-  0%, 100% {
-    transform: translate(0px, 0px) scale(1);
-    opacity: 0.4;
+    --color-brand-bg-1: #fffaf7;
+    --color-brand-bg-2: #f7f3ef;
+    --color-brand-bg-3: #f6eee8;
+    --color-brand-rose-deep: #bd5b82;
+    --color-brand-terracotta: #bc4638;
+    --color-brand-pink-dust: #d89aa9;
+    --color-brand-coral: #c96f73;
+    --color-brand-mauve: #9d6072;
+    --color-brand-dark: #111111;
+    --color-brand-slate: #5b6472;
   }
-  33% {
-    transform: translate(30px, -50px) scale(1.1);
-    opacity: 0.6;
-  }
-  66% {
-    transform: translate(-20px, 20px) scale(0.95);
-    opacity: 0.45;
-  }
-}
 
-.animate-pulse-slow {
-  animation: pulse-slow 15s infinite ease-in-out;
-}
-
-@keyframes float-gentle {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
+  /* ─── Apple‑style glassmorphism utilities ─── */
+  @utility glass-xl {
+    backdrop-filter: blur(24px) saturate(180%);
+    box-shadow:
+      0 2px 4px rgba(0,0,0,0.02),
+      0 8px 32px rgba(0,0,0,0.04),
+      inset 0 1px 0 rgba(255,255,255,0.5);
   }
-  50% {
-    transform: translateY(-8px) rotate(1deg);
-  }
-}
 
-.animate-float-gentle {
-  animation: float-gentle 6s infinite ease-in-out;
-}
+  @utility glass-card {
+    backdrop-filter: blur(16px) saturate(160%);
+    box-shadow:
+      0 1px 3px rgba(0,0,0,0.02),
+      0 4px 16px rgba(0,0,0,0.03),
+      inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+
+  @utility glass-panel {
+    backdrop-filter: blur(20px) saturate(170%);
+    box-shadow:
+      0 1px 3px rgba(0,0,0,0.02),
+      0 6px 24px rgba(0,0,0,0.035),
+      inset 0 1px 0 rgba(255,255,255,0.45);
+  }
+
+  /* Custom scrollbar to keep layout premium */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #fffaf7;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #e5ded8;
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #d8d1cc;
+  }
+
+  /* Soft blush overlay for glass cards */
+  .card-blush {
+    position: relative;
+  }
+  .card-blush::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(243,139,118,0.05), rgba(189,91,130,0.08));
+    pointer-events: none;
+  }
+
+  /* Colored stat value glow */
+  .stat-glow-coral {
+    background: linear-gradient(135deg, #bc4638, #bd5b82);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .stat-glow-amber {
+    background: linear-gradient(135deg, #c9a96e, #b8914a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .stat-glow-green {
+    background: linear-gradient(135deg, #6b8f71, #4a7c5c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* ─── Ambient gradient blob animations ─── */
+  /* Дрейфующие градиентные шары — только transform, без opacity */
+  @keyframes ambient-drift-1 {
+    0%, 100% { transform: translate(0px, 0px) scale(1); }
+    25%      { transform: translate(40px, -30px) scale(1.05); }
+    50%      { transform: translate(-20px, -50px) scale(0.95); }
+    75%      { transform: translate(-40px, -10px) scale(1.02); }
+  }
+
+  @keyframes ambient-drift-2 {
+    0%, 100% { transform: translate(0px, 0px) scale(1); }
+    33%      { transform: translate(-35px, 40px) scale(1.04); }
+    66%      { transform: translate(30px, -25px) scale(0.97); }
+  }
+
+  @keyframes ambient-drift-3 {
+    0%, 100% { transform: translate(0px, 0px) scale(1); }
+    20%      { transform: translate(25px, 35px) scale(1.03); }
+    40%      { transform: translate(-30px, 10px) scale(0.98); }
+    60%      { transform: translate(-10px, -30px) scale(1.02); }
+    80%      { transform: translate(35px, -5px) scale(0.96); }
+  }
+
+  @keyframes ambient-drift-4 {
+    0%, 100% { transform: translate(0px, 0px) scale(1); }
+    50%      { transform: translate(30px, 30px) scale(1.06); }
+  }
+
+  @keyframes ambient-pulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.1); }
+  }
+
+  .animate-ambient-1 {
+    animation: ambient-drift-1 22s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  }
+
+  .animate-ambient-2 {
+    animation: ambient-drift-2 25s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  }
+
+  .animate-ambient-3 {
+    animation: ambient-drift-3 18s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  }
+
+  .animate-ambient-4 {
+    animation: ambient-drift-4 20s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  }
+
+  .animate-ambient-pulse {
+    animation: ambient-pulse 10s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  }
 

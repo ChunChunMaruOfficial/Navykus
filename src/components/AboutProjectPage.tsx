@@ -20,6 +20,13 @@ import {
   ChevronRight,
   ArrowUpRight
 } from 'lucide-react';
+import {
+  fadeUp,
+  fadeInScale,
+  heroFadeUp,
+  cardStaggerContainer,
+  cardItemFadeUp,
+} from '../motion-animations';
 
 interface Segment {
   id: string;
@@ -216,28 +223,25 @@ export default function AboutProjectPage({
         </div>
 
         {/* 1. HERO BLOCK (Clean editorial text layout) */}
-        <section className="relative z-10 text-center space-y-6 max-w-3xl mx-auto mb-16 md:mb-28">
+        <section className="relative z-10 text-center space-y-6 max-w-3xl mx-auto py-16 md:py-24">
           <motion.h1 
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            {...heroFadeUp}
+            transition={{ duration: 0.6, delay: 0 }}
             className="text-4xl sm:text-5xl md:text-6xl font-serif font-light italic tracking-tight text-brand-dark leading-tight"
           >
             О проекте Навыкус
           </motion.h1>
           
           <motion.p 
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
+            {...heroFadeUp}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-brand-slate text-sm sm:text-base md:text-lg leading-relaxed font-light"
+            className="text-brand-slate text-sm sm:text-base md:text-lg leading-relaxed font-normal md:font-light"
           >
             Мы создаем будущее образования, объединяя активных школьников, академических наставников и глобальные компании в единую поддерживающую экосистему развития.
           </motion.p>
 
           <motion.div 
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
+            {...heroFadeUp}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
           >
@@ -259,7 +263,10 @@ export default function AboutProjectPage({
         </section>
 
         {/* 2. MISSION BLOCK */}
-        <section className="relative z-10 py-16 mb-16 md:mb-24 bg-white/20 backdrop-blur-lg border border-[#d8d1cc]/40 rounded-3xl shadow-xl px-6 sm:px-12 text-center overflow-hidden">
+        <motion.section 
+          {...fadeUp}
+          className="relative z-10 py-16 md:py-24 bg-white/[0.10] glass-xl border border-white/[0.15] rounded-3xl px-6 sm:px-12 text-center overflow-hidden"
+        >
           {/* Faint watermark logo */}
           <div className="absolute inset-0 flex items-center justify-center opacity-[0.06] pointer-events-none select-none z-0 -translate-y-12">
             <svg 
@@ -307,33 +314,36 @@ export default function AboutProjectPage({
               « Традиционная школа фокусируется на академической теории, в то время как современный мир требует прикладных навыков, развитого проектного мышления и умения работать в кросс-культурных командах. »
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10 text-left pt-4 border-t border-[#d8d1cc]/30">
-              <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10 text-left pt-4">
+              <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">
                 Навыкус был создан как мост между школьными партами и реальными профессиональными вызовами. Мы верим, что каждый школьник, вне зависимости от его географического положения, заслуживает иметь доступ к менторству мирового уровня, современным инструментам проектирования и глобальному сообществу единомышленников.
               </p>
-              <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">
+              <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">
                 Наше сообщество объединяет ребят из более чем 15 стран, говорящих на разных языках, но объединенных одной страстью — создавать жизнеспособные проекты, которые меняют мир к лучшему.
               </p>
             </div>
 
-            <div className="pt-6 border-t border-[#d8d1cc]/30">
+            <div className="pt-6">
               <p className="text-xs sm:text-sm font-mono tracking-wide text-[#bc4638] font-semibold">
                 Навыкус — это не просто образовательный сайт. Это международная стартовая площадка, стирающая границы и формирующая новое поколение осознанных лидеров.
               </p>
             </div>
           </div>
-        </section>
+        </motion.section>
 
         {/* 3. AUDIENCE SEGMENTS BLOCK */}
-        <section className="relative z-10 mb-16 md:mb-24">
-          <div className="text-center space-y-4 mb-10 max-w-3xl mx-auto">
+        <section className="relative z-10 py-16 md:py-24">
+          <motion.div 
+            {...fadeUp}
+            className="text-center space-y-4 mb-10 max-w-3xl mx-auto"
+          >
             <h2 className="text-3xl sm:text-4xl font-serif text-brand-dark tracking-tight">
               Для кого этот проект
             </h2>
-            <p className="text-xs sm:text-sm text-brand-slate font-light max-w-2xl mx-auto">
+            <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light max-w-2xl mx-auto">
               Навыкус объединяет ключевых участников образовательной экосистемы. Выберите свою роль, чтобы узнать преимущества и сделать первый шаг к сотрудничеству.
             </p>
-          </div>
+          </motion.div>
 
           {/* Audience Interactive Selector */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -374,16 +384,16 @@ export default function AboutProjectPage({
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.3 }}
-                  className="bg-white/40 backdrop-blur-md border border-white/80 rounded-3xl p-6 sm:p-8 text-left shadow-lg space-y-6"
+                  className="bg-white/[0.15] glass-panel border border-white/[0.15] rounded-3xl p-6 sm:p-8 text-left space-y-6"
                 >
-                  <div className="space-y-1.5 pb-4 border-b border-[#d8d1cc]/40">
+                  <div className="space-y-1.5 pb-4">
                     <span className="text-[10px] font-mono uppercase tracking-widest text-[#bc4638] font-bold">
                       Ценность для аудитории
                     </span>
                     <h3 className="text-xl sm:text-2xl font-serif text-brand-dark">
                       {AUDIENCE_SEGMENTS[selectedSegmentIdx].title}
                     </h3>
-                    <p className="text-xs text-brand-slate font-light">
+                    <p className="text-xs text-brand-slate font-normal md:font-light">
                       {AUDIENCE_SEGMENTS[selectedSegmentIdx].subtitle}
                     </p>
                   </div>
@@ -394,7 +404,7 @@ export default function AboutProjectPage({
                     </h5>
                     <ul className="space-y-2.5">
                       {AUDIENCE_SEGMENTS[selectedSegmentIdx].benefits.map((benefit, bIdx) => (
-                        <li key={bIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-brand-slate font-light">
+                        <li key={bIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-brand-slate font-normal md:font-light">
                           <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
                           <span>{benefit}</span>
                         </li>
@@ -430,26 +440,30 @@ export default function AboutProjectPage({
         </section>
 
         {/* 4. WHAT CAN YOU DO BLOCK (Что можно делать в Навыкус) */}
-        <section className="relative z-10 mb-16 md:mb-24">
-          <div className="text-center space-y-4 mb-10 max-w-3xl mx-auto">
+        <section className="relative z-10 py-16 md:py-24">
+          <motion.div 
+            {...fadeUp}
+            className="text-center space-y-4 mb-10 max-w-3xl mx-auto"
+          >
             <h2 className="text-3xl sm:text-4xl font-serif text-brand-dark tracking-tight">
               Что можно делать в Навыкус
             </h2>
-            <p className="text-xs sm:text-sm text-brand-slate font-light">
+            <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light">
               Платформа предоставляет непрерывный цикл развития — от первой идеи до презентации работающего MVP.
             </p>
-          </div>
+          </motion.div>
 
           {/* Bento Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <motion.div {...cardStaggerContainer} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {ACTIVITIES_ITEMS.map((item, idx) => {
               const icons = [Award, Compass, Users, GraduationCap, Calendar, Activity];
               const SelectedIcon = icons[idx % icons.length];
 
               return (
-                <div 
+                <motion.div 
                   key={item.id}
-                  className="bg-white/40 backdrop-blur-md border border-white/60 hover:border-brand-terracotta/30 rounded-2xl p-6 text-left transition-all duration-300 hover:shadow-lg flex flex-col justify-between space-y-4 group"
+                  variants={cardItemFadeUp.variants}
+                  className="bg-white/[0.12] glass-card border border-white/[0.15] hover:border-brand-terracotta/25 rounded-2xl p-6 text-left flex flex-col justify-between space-y-4 group"
                 >
                   <div className="space-y-3">
                     <div className="w-10 h-10 rounded-xl bg-[#bc4638]/5 text-[#bc4638] flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
@@ -460,36 +474,39 @@ export default function AboutProjectPage({
                       <h3 className="text-base font-serif font-semibold text-brand-dark">
                         {item.title}
                       </h3>
-                      <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">
+                      <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">
                         {item.description}
                       </p>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </section>
 
         {/* 6. FAQ-BLOCK (Часто задаваемые вопросы) */}
-        <section className="relative z-10 max-w-4xl mx-auto mb-16 md:mb-24">
-          <div className="text-center space-y-4 mb-10 max-w-3xl mx-auto">
+        <section className="relative z-10 py-16 md:py-24 max-w-4xl mx-auto">
+          <motion.div 
+            {...fadeUp}
+            className="text-center space-y-4 mb-10 max-w-3xl mx-auto"
+          >
             <div className="inline-flex p-2 rounded-2xl bg-[#bd5b82]/8 text-[#bd5b82] mx-auto">
               <HelpCircle className="w-6 h-6" />
             </div>
             <h2 className="text-3xl sm:text-4xl font-serif text-brand-dark tracking-tight">
               Ответы на вопросы
             </h2>
-            <p className="text-xs sm:text-sm text-brand-slate font-light">
+            <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light">
               Мы собрали самые частые вопросы родителей, школьников и наставников.
             </p>
-          </div>
+          </motion.div>
 
           <div className="space-y-4">
             {FAQ_ITEMS.map((faq, idx) => (
               <div 
                 key={faq.id} 
-                className="bg-white/30 backdrop-blur-sm border border-white/60 rounded-2xl overflow-hidden transition-all duration-300"
+                className="bg-white/[0.10] glass-card border border-white/[0.12] rounded-2xl overflow-hidden transition-all duration-300"
               >
                 <button
                   onClick={() => setActiveFaqIdx(activeFaqIdx === idx ? null : idx)}
@@ -508,7 +525,7 @@ export default function AboutProjectPage({
                       transition={{ duration: 0.25 }}
                       className="overflow-hidden"
                     >
-                      <p className="p-5 pt-0 text-xs sm:text-sm text-brand-slate font-light leading-relaxed border-t border-[#d8d1cc]/30 bg-white/10 text-left">
+                      <p className="p-5 pt-0 text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed bg-white/10 text-left">
                         {faq.answer}
                       </p>
                     </motion.div>
@@ -520,13 +537,10 @@ export default function AboutProjectPage({
         </section>
 
         {/* 7. FINAL CALL TO ACTION (Финальный CTA) */}
-        <section className="relative z-10 max-w-5xl mx-auto">
+        <section className="relative z-10 py-16 md:py-24 max-w-5xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="bg-gradient-to-br from-[#bc4638]/10 via-white/40 to-[#bd5b82]/10 backdrop-blur-2xl border border-white/80 rounded-3xl p-8 sm:p-12 text-center space-y-6 shadow-xl"
+            {...fadeInScale}
+            className="bg-gradient-to-br from-[#bc4638]/8 via-white/[0.12] to-[#bd5b82]/8 glass-xl border border-white/[0.15] rounded-3xl p-8 sm:p-12 text-center space-y-6"
           >
             <span className="text-[10px] font-mono tracking-[0.2em] text-[#bc4638] uppercase font-bold">
               ВСТУПАЙ В СООБЩЕСТВО
@@ -535,7 +549,7 @@ export default function AboutProjectPage({
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif text-brand-dark tracking-tight leading-tight max-w-2xl mx-auto">
               Хочешь стать частью международного сообщества?
             </h2>
-            <p className="text-sm sm:text-base text-brand-slate font-light leading-relaxed max-w-md mx-auto">
+            <p className="text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed max-w-md mx-auto">
               Не откладывай свое развитие. Зарегистрируйся на платформе прямо сейчас, найди свою команду мечты и начни создавать проекты будущего.
             </p>
 

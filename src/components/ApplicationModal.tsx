@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Check, ArrowRight, ShieldCheck, Ticket as TicketIcon } from 'lucide-react';
+import { X, Check, ArrowRight, ShieldCheck, Ticket as TicketIcon, Upload } from 'lucide-react';
 import { Tournament, ApplicationForm, Ticket } from '../types';
 import { TOURNAMENTS } from '../data';
 
@@ -17,7 +17,8 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
     grade: '10 класс',
     city: '',
     interest: 'Разработка проектов',
-    tournamentId: selectedTournamentId || ''
+    tournamentId: selectedTournamentId || '',
+    projectFile: null
   });
 
   const [ticket, setTicket] = useState<Ticket | null>(null);
@@ -65,29 +66,6 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
     setTicket(null);
   };
 
-  const calculateProgress = () => {
-    let score = 0;
-    // Name field: gradual up to 33% based on length
-    if (form.name.trim().length > 0) {
-      score += Math.min(form.name.trim().length / 6, 1) * 33;
-    }
-    // Email field: 15% for typing, 33% if valid
-    if (form.email.trim().length > 0) {
-      if (form.email.includes('@') && form.email.includes('.')) {
-        score += 33;
-      } else {
-        score += 15;
-      }
-    }
-    // City field: gradual up to 34% based on length
-    if (form.city.trim().length > 0) {
-      score += Math.min(form.city.trim().length / 3, 1) * 34;
-    }
-    return Math.min(Math.round(score), 100);
-  };
-
-  const progress = calculateProgress();
-
   return (
     <AnimatePresence>
       {isOpen && (
@@ -109,18 +87,8 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
             transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-            className="relative w-[92%] sm:w-full max-w-xl bg-white/35 backdrop-blur-3xl border border-white/60 rounded-3xl shadow-[inset_0_1.5px_3px_rgba(255,255,255,0.45),0_40px_120px_rgba(27,24,22,0.12)] max-h-[calc(100vh-2rem)] overflow-y-auto z-10"
+            className="relative w-[92%] sm:w-full max-w-xl bg-white/35 backdrop-blur-3xl border border-white/60 rounded-3xl shadow-[inset_0_1.5px_3px_rgba(255,255,255,0.45),0_40px_120px_rgba(27,24,22,0.12)] z-10"
           >
-            {/* Top design line accent - Animated progress bar */}
-            <div className="h-1.5 w-full bg-white/20 relative overflow-hidden">
-              <motion.div 
-                className="h-full bg-gradient-to-r from-brand-rose-deep via-brand-coral to-brand-terracotta"
-                initial={{ width: '0%' }}
-                animate={{ width: `${progress}%` }}
-                transition={{ type: 'spring', stiffness: 60, damping: 15 }}
-              />
-            </div>
-
             <button
               onClick={onClose}
               className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full hover:bg-brand-bg-3/50 text-brand-dark transition-colors duration-200 z-20"
@@ -241,6 +209,56 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
                           </option>
                         ))}
                       </select>
+                    </div>
+
+                    {/* File Upload */}
+                    <div>
+                      <label className="block text-[10px] sm:text-xs font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">
+                        Прикрепить файл с проектами
+                      </label>
+                      <label className="group relative flex flex-col items-center justify-center w-full bg-white/25 hover:bg-white/45 focus-within:bg-white/70 backdrop-blur-md border border-white/40 focus-within:border-brand-terracotta rounded-xl px-4 py-5 cursor-pointer transition-all duration-300 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]">
+                        <input
+                          type="file"
+                          accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.zip,.rar,.jpg,.png"
+                          onChange={(e) => setForm({ ...form, projectFile: e.target.files?.[0] || null })}
+                          className="sr-only"
+                        />
+                        {form.projectFile ? (
+                          <div className="flex items-center gap-3 text-xs text-brand-dark w-full">
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#bc4638]/10 to-[#bd5b82]/10 border border-white/60 flex items-center justify-center shrink-0">
+                              <Upload className="w-4 h-4 text-brand-rose-deep" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium truncate">{form.projectFile.name}</div>
+                              <div className="text-[10px] text-brand-slate/70 mt-0.5">
+                                {(form.projectFile.size / 1024 / 1024).toFixed(2)} MB
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setForm({ ...form, projectFile: null });
+                              }}
+                              className="text-brand-slate/50 hover:text-brand-terracotta transition-colors p-1"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center gap-1.5">
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#bc4638]/5 to-[#bd5b82]/5 border border-white/60 flex items-center justify-center">
+                              <Upload className="w-4 h-4 text-brand-slate/60 group-hover:text-brand-rose-deep transition-colors" />
+                            </div>
+                            <span className="text-[11px] text-brand-slate/70 group-hover:text-brand-dark transition-colors">
+                              Нажмите, чтобы загрузить файл
+                            </span>
+                            <span className="text-[9px] text-brand-slate/40">
+                              PDF, DOC, PPT, TXT, ZIP, PNG (до 10 MB)
+                            </span>
+                          </div>
+                        )}
+                      </label>
                     </div>
                   </div>
 
