@@ -61,3 +61,54 @@ export interface TrustPoint {
   description: string;
 }
 
+export interface ActivityItem {
+  id: string;
+  title: string;
+  shortDescription: string;
+  fullDescription: string;
+  format: string;
+  date: string;
+  imageUrl: string;
+  category: ActivityCategory;
+  status: ActivityStatus;
+  who: string;
+  benefits: string[];
+  prerequisites: string;
+  ctaText: string;
+  ctaLink?: string;
+}
+
+export type ActivityCategory =
+  | 'educational'
+  | 'project'
+  | 'social'
+  | 'online-meeting'
+  | 'workshop'
+  | 'team';
+
+export type ActivityStatus = 'coming' | 'ongoing' | 'completed';
+
+export type TeamRole = 'developer' | 'designer' | 'researcher' | 'product_manager' | 'marketer' | 'team_lead' | 'analyst' | 'other';
+
+export type TeamIntent = 'looking_for_team' | 'looking_for_members';
+
+export type ParticipationFormat = 'online' | 'offline' | 'any';
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  age: number;
+  country: string;
+  city?: string;
+  shortBio: string;
+  interests: string[];
+  skills: string[];
+  targetRoles: TeamRole[];
+  targetProject?: string;
+  whyLooking: string;
+  contact: string;
+  contactType: 'telegram' | 'email' | 'discord';
+  createdAt: string;
+  isApproved: boolean;
+}
+

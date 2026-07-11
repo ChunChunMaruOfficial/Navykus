@@ -17,7 +17,9 @@ import GlassCrystal from './components/GlassCrystal';
 import ApplicationModal from './components/ApplicationModal';
 import AboutProjectPage from './components/AboutProjectPage';
 import ChampionshipPage from './components/ChampionshipPage';
-import { TOURNAMENTS, PILLARS, STATS, EXPERTS, SCENARIOS, TRUST_POINTS } from './data';
+import ActivitiesPage from './components/ActivitiesPage';
+import FindTeamPage from './components/FindTeamPage';
+import { TOURNAMENTS, PILLARS, STATS, EXPERTS, SCENARIOS, TRUST_POINTS, ACTIVITIES } from './data';
 import {
   fadeUp,
   fadeUpLarge,
@@ -38,10 +40,12 @@ const LANGUAGES = [
 
 const cardEase: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-const TITLE_MAP = {
+  const TITLE_MAP = {
   home: 'Навыкус — международное сообщество активных школьников',
   about: 'О проекте Навыкус',
   championship: 'Чемпионат — Навыкус',
+  activities: 'Активности — Навыкус',
+  'find-team': 'Найти команду — Навыкус',
 };
 
 const cardStaggerContainer = {
@@ -85,7 +89,7 @@ const cardItemFadeUp = {
 };
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState<'home' | 'about' | 'championship'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'about' | 'championship' | 'activities' | 'find-team'>('home');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTourney, setSelectedTourney] = useState<string | undefined>(undefined);
   const [scrolled, setScrolled] = useState(false);
@@ -369,10 +373,25 @@ export default function App() {
             >
               Чемпионат
             </button>
-            <button onClick={() => scrollToSection('scenarios')} className="hover:text-[#bc4638] transition-colors cursor-pointer">
+            <button
+              onClick={() => {
+                setCurrentPage('find-team');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`hover:text-[#bc4638] transition-colors cursor-pointer ${currentPage === 'find-team' ? 'text-[#bc4638] font-bold underline decoration-2 underline-offset-4' : ''}`}
+            >
               Найти команду
             </button>
             <button onClick={() => scrollToSection('mentors-block')} className="hover:text-[#bc4638] transition-colors cursor-pointer">
+              Активности
+            </button>
+            <button
+              onClick={() => {
+                setCurrentPage('activities');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`hover:text-[#bc4638] transition-colors cursor-pointer ${currentPage === 'activities' ? 'text-[#bc4638] font-bold underline decoration-2 underline-offset-4' : ''}`}
+            >
               Активности
             </button>
           </nav>
@@ -467,7 +486,10 @@ export default function App() {
                 </button>
 
                 <button
-                  onClick={() => scrollToSection('scenarios')}
+                  onClick={() => {
+                    setCurrentPage('find-team');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
                   className="px-8 py-4 bg-white/40 backdrop-blur-md border border-[#d8d1cc] hover:border-[#bc4638]/60 rounded-2xl text-[14px] font-medium text-[#5b6472] hover:text-[#bc4638] transition-all text-center cursor-pointer shadow-[0_4px_20px_rgba(0,0,0,0.01)]"
                 >
                   Найти команду
@@ -602,7 +624,7 @@ export default function App() {
                   <button onClick={() => openApplyModal(nearestTournament.id)} className="px-6 py-3 bg-[#bc4638] text-white hover:bg-[#bc4638]/90 text-xs sm:text-sm font-mono tracking-wider rounded-xl transition-all shadow-md shadow-[#bc4638]/15 cursor-pointer text-center font-medium">
                     ПОДАТЬ ЗАЯВКУ НА КУБОК
                   </button>
-                  <button onClick={() => scrollToSection('scenarios')} className="px-6 py-3 bg-white/40 border border-[#d8d1cc] text-[#5b6472] hover:border-brand-dark/40 text-xs sm:text-sm font-mono tracking-wider rounded-xl transition-all cursor-pointer text-center">
+                  <button onClick={() => { setCurrentPage('find-team'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="px-6 py-3 bg-white/40 border border-[#d8d1cc] text-[#5b6472] hover:border-brand-dark/40 text-xs sm:text-sm font-mono tracking-wider rounded-xl transition-all cursor-pointer text-center">
                     ПОДРОБНЕЕ О ТУРНИРАХ
                   </button>
                 </div>
@@ -901,7 +923,7 @@ export default function App() {
                 <button onClick={() => openApplyModal()} className="px-8 py-3.5 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white hover:opacity-95 text-xs font-mono tracking-widest rounded-xl transition-all shadow-lg shadow-[#bc4638]/15 cursor-pointer font-semibold uppercase">
                   ПОДАТЬ ЗАЯВКУ
                 </button>
-                <button onClick={() => scrollToSection('scenarios')} className="px-8 py-3.5 bg-white/50 border border-[#d8d1cc] text-[#5b6472] hover:border-[#bc4638]/60 text-xs font-mono tracking-widest rounded-xl transition-all cursor-pointer uppercase">
+                <button onClick={() => { setCurrentPage('find-team'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="px-8 py-3.5 bg-white/50 border border-[#d8d1cc] text-[#5b6472] hover:border-[#bc4638]/60 text-xs font-mono tracking-widest rounded-xl transition-all cursor-pointer uppercase">
                   НАЙТИ КОМАНДУ
                 </button>
               </div>
@@ -919,9 +941,31 @@ export default function App() {
             onOpenApplyModal={() => openApplyModal()}
           />
         </div>
-      ) : (
+      ) : currentPage === 'championship' ? (
         <div className="w-full">
           <ChampionshipPage
+            onBackToHome={() => {
+              setCurrentPage('home');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onNavigateToSection={scrollToSection}
+            onOpenApplyModal={() => openApplyModal()}
+          />
+        </div>
+      ) : currentPage === 'find-team' ? (
+        <div className="w-full">
+          <FindTeamPage
+            onBackToHome={() => {
+              setCurrentPage('home');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onNavigateToSection={scrollToSection}
+            onOpenApplyModal={() => openApplyModal()}
+          />
+        </div>
+      ) : (
+        <div className="w-full">
+          <ActivitiesPage
             onBackToHome={() => {
               setCurrentPage('home');
               window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -949,7 +993,8 @@ export default function App() {
               <ul className="space-y-1.5 text-xs text-brand-slate font-normal md:font-light">
                 <li><button onClick={() => { setCurrentPage('about'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#bc4638] transition-colors cursor-pointer">О платформе</button></li>
                 <li><button onClick={() => { setCurrentPage('championship'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#bc4638] transition-colors cursor-pointer">Ближайший кубок</button></li>
-                <li><button onClick={() => scrollToSection('scenarios')} className="hover:text-[#bc4638] transition-colors cursor-pointer">Сценарии и роли</button></li>
+                <li><button onClick={() => { setCurrentPage('activities'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#bc4638] transition-colors cursor-pointer">Активности</button></li>
+                <li><button onClick={() => { setCurrentPage('find-team'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#bc4638] transition-colors cursor-pointer">Найти команду</button></li>
                 <li><button onClick={() => scrollToSection('mentors-block')} className="hover:text-[#bc4638] transition-colors cursor-pointer">Эксперты совета</button></li>
               </ul>
             </div>
