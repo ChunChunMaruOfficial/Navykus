@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Users, 
@@ -9,7 +10,6 @@ import {
   GraduationCap, 
   Globe, 
   Award, 
-  HelpCircle, 
   Briefcase, 
   Shield, 
   Activity, 
@@ -53,67 +53,67 @@ interface FAQItem {
 const AUDIENCE_SEGMENTS: Segment[] = [
   {
     id: "seg-1",
-    title: "Школьникам",
-    subtitle: "Развитие и международный нетворкинг",
+    title: 'ui.aboutprojectpage.c1470c6ed2',
+    subtitle: 'ui.aboutprojectpage.75cee92c36',
     benefits: [
-      "Решение реальных кейсов крупных брендов",
-      "Формирование международного портфолио проектов",
-      "Поиск единомышленников и создание команд",
-      "Ценные призы, гранты и стажировки"
+      'ui.aboutprojectpage.4af3da7a03',
+      'ui.aboutprojectpage.825d7c88f4',
+      'ui.aboutprojectpage.93290f394a',
+      'ui.aboutprojectpage.863ce4f6d3'
     ],
-    ctaText: "Посмотреть чемпионаты",
+    ctaText: 'ui.aboutprojectpage.0d298390c0',
     targetRole: "championships"
   },
   {
     id: "seg-2",
-    title: "Родителям",
-    subtitle: "Инвестиция в успешное будущее ребенка",
+    title: 'ui.aboutprojectpage.7d00c11cfd',
+    subtitle: 'ui.aboutprojectpage.14a8fff621',
     benefits: [
-      "Освоение востребованных Soft & Hard Skills",
-      "Безопасная развивающая онлайн-среда",
-      "Ранняя профориентация и выбор ВУЗа",
-      "Консультации от экспертов топовых университетов"
+      'ui.aboutprojectpage.4a1a794a17',
+      'ui.aboutprojectpage.4bc480da26',
+      'ui.aboutprojectpage.1ff1c5428b',
+      'ui.aboutprojectpage.73b785355b'
     ],
-    ctaText: "Узнать об экспертах",
+    ctaText: 'ui.aboutprojectpage.28c1d0bb50',
     targetRole: "mentors"
   },
   {
     id: "seg-3",
-    title: "Школам и организациям",
-    subtitle: "Повышение престижа и вовлеченности",
+    title: 'ui.aboutprojectpage.6727fa0866',
+    subtitle: 'ui.aboutprojectpage.78fe050899',
     benefits: [
-      "Готовые проектные программы под ключ",
-      "Интеграция с международными стандартами",
-      "Повышение рейтинга школы за счет побед учащихся",
-      "Обучение педагогов современным методикам"
+      'ui.aboutprojectpage.41a41cd402',
+      'ui.aboutprojectpage.b723cb5ddd',
+      'ui.aboutprojectpage.3f8c8b54eb',
+      'ui.aboutprojectpage.78fbe57f44'
     ],
-    ctaText: "Связаться с проектом",
+    ctaText: 'ui.findteampage.3765795ef8',
     targetRole: "contact"
   },
   {
     id: "seg-4",
-    title: "Экспертам и наставникам",
-    subtitle: "Развитие талантов нового поколения",
+    title: 'ui.aboutprojectpage.89b0041826',
+    subtitle: 'ui.aboutprojectpage.78677fd8cd',
     benefits: [
-      "Менторство над перспективными молодежными командами",
-      "Вклад в развитие глобального EdTech",
-      "Скаутинг талантливых ребят для своих лабораторий",
-      "Обмен опытом с коллегами из MIT, Сорбонны и YC"
+      'ui.aboutprojectpage.9e915ff86f',
+      'ui.aboutprojectpage.cba47258ca',
+      'ui.aboutprojectpage.9c2513d649',
+      'ui.aboutprojectpage.d5dce53393'
     ],
-    ctaText: "Стать экспертом",
+    ctaText: 'ui.aboutprojectpage.fff3f12699',
     targetRole: "contact"
   },
   {
     id: "seg-5",
-    title: "Партнёрам и спонсорам",
-    subtitle: "Прямой контакт с лидерами завтрашнего дня",
+    title: 'ui.aboutprojectpage.a3c3810f47',
+    subtitle: 'ui.aboutprojectpage.5767a5f856',
     benefits: [
-      "Решение корпоративных задач руками креативных школьников",
-      "Брендинг среди активной молодежной аудитории",
-      "Реализация инициатив корпоративной социальной ответственности",
-      "Привлечение лояльных молодых специалистов"
+      'ui.aboutprojectpage.fb3a394753',
+      'ui.aboutprojectpage.7f6a7b6bbe',
+      'ui.aboutprojectpage.cc18b5c571',
+      'ui.aboutprojectpage.a270d6798d'
     ],
-    ctaText: "Обсудить партнерство",
+    ctaText: 'ui.aboutprojectpage.d210fb0d5a',
     targetRole: "contact"
   }
 ];
@@ -121,33 +121,33 @@ const AUDIENCE_SEGMENTS: Segment[] = [
 const ACTIVITIES_ITEMS: ActivityItem[] = [
   {
     id: "act-1",
-    title: "Участвовать в чемпионатах",
-    description: "Решайте глобальные кейсы в сфере экологии, урбанистики, ИТ и дипломатии. Соревнуйтесь со школьниками из других стран за гранты и признание."
+    title: 'ui.aboutprojectpage.b95ecb3c05',
+    description: 'ui.aboutprojectpage.9d86488fb6'
   },
   {
     id: "act-2",
-    title: "Создавать проекты",
-    description: "Превращайте свои смелые идеи в работающие прототипы и стартапы по проверенным методикам ведущих инкубаторов мира."
+    title: 'ui.aboutprojectpage.c03dfac430',
+    description: 'ui.aboutprojectpage.9915e585a3'
   },
   {
     id: "act-3",
-    title: "Находить команду",
-    description: "Используйте нашу умную систему мэтчинга, чтобы найти соавторов, дизайнеров, кодеров или присоединиться к перспективной инициативе."
+    title: 'ui.aboutprojectpage.f353fc8fab',
+    description: 'ui.aboutprojectpage.66695efbd6'
   },
   {
     id: "act-4",
-    title: "Получать обратную связь",
-    description: "Представляйте свои идеи экспертам из MIT, Y Combinator и ведущих корпораций. Качественный фидбек ускоряет рост в разы."
+    title: 'ui.aboutprojectpage.8c5ce0253e',
+    description: 'ui.aboutprojectpage.c22bfce55b'
   },
   {
     id: "act-5",
-    title: "Участвовать в активностях",
-    description: "Посещайте вебинары, мастер-классы и воркшопы по программированию, питчингу, аналитике и дизайну абсолютно бесплатно."
+    title: 'ui.aboutprojectpage.3e7c3a9f22',
+    description: 'ui.aboutprojectpage.48d877aa9c'
   },
   {
     id: "act-6",
-    title: "Развивать навыки будущего",
-    description: "Осваивайте критическое мышление, системный подход, цифровую грамотность и эмоциональный интеллект в прикладном формате."
+    title: 'ui.aboutprojectpage.3ba567b6ee',
+    description: 'ui.aboutprojectpage.20a478bc7a'
   }
 ];
 
@@ -155,33 +155,33 @@ const ACTIVITIES_ITEMS: ActivityItem[] = [
 const FAQ_ITEMS: FAQItem[] = [
   {
     id: "faq-1",
-    question: "Кто может стать участником проекта?",
-    answer: "Проект создан для активных школьников и студентов в возрасте от 10 до 22 лет, интересующихся проектной деятельностью, стартапами, технологиями, социальными инновациями и международным общением."
+    question: 'ui.aboutprojectpage.4b5e0f1908',
+    answer: 'ui.aboutprojectpage.09fd377d38'
   },
   {
     id: "faq-2",
-    question: "Нужен ли предварительный опыт участия в хакатонах?",
-    answer: "Абсолютно нет! Наши чемпионаты и программы построены так, что в них комфортно заходить новичкам. Командные трекеры и вебинары помогут освоить базу проектной логики с нуля."
+    question: 'ui.aboutprojectpage.a4f04e2aad',
+    answer: 'ui.aboutprojectpage.3aeea8f6e3'
   },
   {
     id: "faq-3",
-    question: "Можно ли зарегистрироваться, если у меня нет команды?",
-    answer: "Да, конечно. Более половины наших участников регистрируются поодиночке. Сразу после подачи заявки платформа предоставит доступ в закрытое комьюнити и чаты, где вы легко соберете команду или примкнете к существующей."
+    question: 'ui.aboutprojectpage.ace0eadb3d',
+    answer: 'ui.aboutprojectpage.090808a2de'
   },
   {
     id: "faq-4",
-    question: "Как устроен процесс поиска команды?",
-    answer: "Вы можете искать сокомандников через специальный каталог анкет на платформе, отфильтровав ребят по компетенциям (дизайнер, спикер, генератор идей), либо принять участие в живой питч-сессии мэтчинга перед стартом чемпионата."
+    question: 'ui.aboutprojectpage.1d5cd942b3',
+    answer: 'ui.aboutprojectpage.3e6cba422a'
   },
   {
     id: "faq-5",
-    question: "Как проходят мероприятия и защита проектов?",
-    answer: "Все процессы проходят полностью в онлайн-формате на нашей платформе. Воркшопы и лекции транслируются в записи и живом эфире, работа ведется в Miro/Figma, а защита проектов проходит перед жюри в Zoom или Discord."
+    question: 'ui.aboutprojectpage.55cd784afe',
+    answer: 'ui.aboutprojectpage.b38dd282f8'
   },
   {
     id: "faq-6",
-    question: "Как можно связаться с организаторами Навыкус?",
-    answer: "Вы всегда можете написать нашей круглосуточной службе поддержки по почте info@navykus.org или в официальном Telegram-аккаунте @navykus_com. Мы ответим на любые организационные или технические вопросы."
+    question: 'ui.aboutprojectpage.e663d62bb5',
+    answer: 'ui.aboutprojectpage.b966ab17f5'
   }
 ];
 
@@ -196,6 +196,7 @@ export default function AboutProjectPage({
   onNavigateToSection, 
   onOpenApplyModal 
 }: AboutProjectPageProps) {
+  const { t } = useTranslation();
   
   const [selectedSegmentIdx, setSelectedSegmentIdx] = useState(0);
   const [activeFaqIdx, setActiveFaqIdx] = useState<number | null>(null);
@@ -209,7 +210,7 @@ export default function AboutProjectPage({
   
   return (
     <div className="relative w-full text-brand-dark pb-16 pt-24">
-      <div className="max-w-6xl mx-auto px-[6%] md:px-[10%]">
+      <div className="max-w-7xl mx-auto px-[6%] md:px-[10%]">
         
         {/* Back navigation */}
         <div className="flex justify-start mb-8 sm:mb-12">
@@ -218,7 +219,7 @@ export default function AboutProjectPage({
             className="group inline-flex items-center gap-2 px-4 py-2 border border-[#d8d1cc]/60 hover:border-brand-dark text-xs font-mono tracking-wider uppercase text-brand-slate hover:text-brand-dark transition-all rounded-xl cursor-pointer bg-white/20 backdrop-blur-sm"
           >
             <ArrowRight className="w-3.5 h-3.5 rotate-180 transition-transform group-hover:-translate-x-0.5" />
-            <span>Вернуться на Главную</span>
+            <span>{t('ui.aboutprojectpage.a9dc864a2e')}</span>
           </button>
         </div>
 
@@ -228,17 +229,13 @@ export default function AboutProjectPage({
             {...heroFadeUp}
             transition={{ duration: 0.6, delay: 0 }}
             className="text-4xl sm:text-5xl md:text-6xl font-serif font-light italic tracking-tight text-brand-dark leading-tight"
-          >
-            О проекте Навыкус
-          </motion.h1>
+          >{t('ui.aboutprojectpage.e260b399ab')}</motion.h1>
           
           <motion.p 
             {...heroFadeUp}
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-brand-slate text-sm sm:text-base md:text-lg leading-relaxed font-normal md:font-light"
-          >
-            Мы создаем будущее образования, объединяя активных школьников, академических наставников и глобальные компании в единую поддерживающую экосистему развития.
-          </motion.p>
+          >{t('ui.aboutprojectpage.ac15bd8cf7')}</motion.p>
 
           <motion.div 
             {...heroFadeUp}
@@ -249,16 +246,14 @@ export default function AboutProjectPage({
               onClick={onOpenApplyModal}
               className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white rounded-xl text-xs font-mono tracking-widest uppercase font-semibold shadow-lg shadow-[#bc4638]/15 hover:scale-[1.01] transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Принять участие</span>
+              <span>{t('ui.aboutprojectpage.2805697540')}</span>
               <ArrowUpRight className="w-4 h-4" />
             </button>
 
             <button
               onClick={() => handleNavigateFromAbout('nearest-championship')}
               className="w-full sm:w-auto px-8 py-3.5 bg-white border border-[#d8d1cc] text-[#5b6472] hover:border-[#bc4638]/60 rounded-xl text-xs font-mono tracking-widest uppercase transition-all text-center cursor-pointer hover:text-brand-dark"
-            >
-              Посмотреть чемпионат
-            </button>
+            >{t('ui.aboutprojectpage.0a09c52fdd')}</button>
           </motion.div>
         </section>
 
@@ -306,27 +301,17 @@ export default function AboutProjectPage({
           </div>
 
           <div className="relative z-10 max-w-4xl mx-auto space-y-8">
-            <h2 className="text-3xl sm:text-4xl font-serif text-brand-dark tracking-tight">
-              Наша Миссия
-            </h2>
+            <h2 className="text-3xl sm:text-4xl font-serif text-brand-dark tracking-tight">{t('ui.aboutprojectpage.10575c4831')}</h2>
             
-            <p className="text-base sm:text-lg text-brand-dark font-medium leading-relaxed italic">
-              « Традиционная школа фокусируется на академической теории, в то время как современный мир требует прикладных навыков, развитого проектного мышления и умения работать в кросс-культурных командах. »
-            </p>
+            <p className="text-base sm:text-lg text-brand-dark font-medium leading-relaxed italic">{t('ui.aboutprojectpage.3841022721')}</p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10 text-left pt-4">
-              <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">
-                Навыкус был создан как мост между школьными партами и реальными профессиональными вызовами. Мы верим, что каждый школьник, вне зависимости от его географического положения, заслуживает иметь доступ к менторству мирового уровня, современным инструментам проектирования и глобальному сообществу единомышленников.
-              </p>
-              <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">
-                Наше сообщество объединяет ребят из более чем 15 стран, говорящих на разных языках, но объединенных одной страстью — создавать жизнеспособные проекты, которые меняют мир к лучшему.
-              </p>
+              <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.aboutprojectpage.05c82da787')}</p>
+              <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.aboutprojectpage.c2b671bade')}</p>
             </div>
 
             <div className="pt-6">
-              <p className="text-xs sm:text-sm font-mono tracking-wide text-[#bc4638] font-semibold">
-                Навыкус — это не просто образовательный сайт. Это международная стартовая площадка, стирающая границы и формирующая новое поколение осознанных лидеров.
-              </p>
+              <p className="text-xs sm:text-sm font-mono tracking-wide text-[#bc4638] font-semibold">{t('ui.aboutprojectpage.4d60e65bd8')}</p>
             </div>
           </div>
         </motion.section>
@@ -337,12 +322,8 @@ export default function AboutProjectPage({
             {...fadeUp}
             className="text-center space-y-4 mb-10 max-w-3xl mx-auto"
           >
-            <h2 className="text-3xl sm:text-4xl font-serif text-brand-dark tracking-tight">
-              Для кого этот проект
-            </h2>
-            <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light max-w-2xl mx-auto">
-              Навыкус объединяет ключевых участников образовательной экосистемы. Выберите свою роль, чтобы узнать преимущества и сделать первый шаг к сотрудничеству.
-            </p>
+            <h2 className="text-3xl sm:text-4xl font-serif text-brand-dark tracking-tight">{t('ui.aboutprojectpage.91c8669da7')}</h2>
+            <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light max-w-2xl mx-auto">{t('ui.aboutprojectpage.31f9f3d409')}</p>
           </motion.div>
 
           {/* Audience Interactive Selector */}
@@ -363,10 +344,10 @@ export default function AboutProjectPage({
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="text-xs font-mono font-semibold uppercase tracking-wider">
-                        {seg.title}
+                        {t(seg.title)}
                       </h4>
                       <p className={`text-[10px] mt-0.5 truncate max-w-[200px] ${selectedSegmentIdx === idx ? 'text-white/80' : 'text-brand-slate/70'}`}>
-                        {seg.subtitle}
+                        {t(seg.subtitle)}
                       </p>
                     </div>
                     <ChevronRight className={`w-4 h-4 transition-transform ${selectedSegmentIdx === idx ? 'translate-x-1' : 'opacity-40'}`} />
@@ -387,26 +368,22 @@ export default function AboutProjectPage({
                   className="bg-white/[0.15] glass-panel border border-white/[0.15] rounded-3xl p-6 sm:p-8 text-left space-y-6"
                 >
                   <div className="space-y-1.5 pb-4">
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-[#bc4638] font-bold">
-                      Ценность для аудитории
-                    </span>
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-[#bc4638] font-bold">{t('ui.aboutprojectpage.7a0e44e136')}</span>
                     <h3 className="text-xl sm:text-2xl font-serif text-brand-dark">
-                      {AUDIENCE_SEGMENTS[selectedSegmentIdx].title}
+                      {t(AUDIENCE_SEGMENTS[selectedSegmentIdx].title)}
                     </h3>
                     <p className="text-xs text-brand-slate font-normal md:font-light">
-                      {AUDIENCE_SEGMENTS[selectedSegmentIdx].subtitle}
+                      {t(AUDIENCE_SEGMENTS[selectedSegmentIdx].subtitle)}
                     </p>
                   </div>
 
                   <div className="space-y-3 pt-2">
-                    <h5 className="text-[10px] font-mono text-brand-dark uppercase tracking-wider font-semibold">
-                      Что вы получаете:
-                    </h5>
+                    <h5 className="text-[10px] font-mono text-brand-dark uppercase tracking-wider font-semibold">{t('ui.aboutprojectpage.2fed8f727b')}</h5>
                     <ul className="space-y-2.5">
                       {AUDIENCE_SEGMENTS[selectedSegmentIdx].benefits.map((benefit, bIdx) => (
                         <li key={bIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-brand-slate font-normal md:font-light">
                           <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                          <span>{benefit}</span>
+                          <span>{t(benefit)}</span>
                         </li>
                       ))}
                     </ul>
@@ -428,7 +405,7 @@ export default function AboutProjectPage({
                       }}
                       className="px-6 py-3 bg-brand-dark text-white hover:bg-brand-dark/90 rounded-xl text-xs font-mono tracking-widest uppercase transition-all flex items-center gap-2 cursor-pointer shadow-md"
                     >
-                      <span>{AUDIENCE_SEGMENTS[selectedSegmentIdx].ctaText}</span>
+                      <span>{t(AUDIENCE_SEGMENTS[selectedSegmentIdx].ctaText)}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -439,18 +416,14 @@ export default function AboutProjectPage({
           </div>
         </section>
 
-        {/* 4. WHAT CAN YOU DO BLOCK (Что можно делать в Навыкус) */}
+        {/* 4. WHAT CAN YOU DO BLOCK */}
         <section className="relative z-10 py-16 md:py-24">
           <motion.div 
             {...fadeUp}
             className="text-center space-y-4 mb-10 max-w-3xl mx-auto"
           >
-            <h2 className="text-3xl sm:text-4xl font-serif text-brand-dark tracking-tight">
-              Что можно делать в Навыкус
-            </h2>
-            <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light">
-              Платформа предоставляет непрерывный цикл развития — от первой идеи до презентации работающего MVP.
-            </p>
+            <h2 className="text-3xl sm:text-4xl font-serif text-brand-dark tracking-tight">{t('ui.aboutprojectpage.b23f0c7c43')}</h2>
+            <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light">{t('ui.aboutprojectpage.d5362b6b2b')}</p>
           </motion.div>
 
           {/* Bento Grid */}
@@ -466,16 +439,17 @@ export default function AboutProjectPage({
                   className="bg-white/[0.12] glass-card border border-white/[0.15] hover:border-brand-terracotta/25 rounded-2xl p-6 text-left flex flex-col justify-between space-y-4 group"
                 >
                   <div className="space-y-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#bc4638]/5 text-[#bc4638] flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
-                      <SelectedIcon className="w-5 h-5" />
-                    </div>
-                    
-                    <div className="space-y-1">
-                      <h3 className="text-base font-serif font-semibold text-brand-dark">
-                        {item.title}
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-[#bc4638]/5 text-[#bc4638] flex items-center justify-center transition-transform duration-500 group-hover:scale-110 shrink-0">
+                        <SelectedIcon className="w-5 h-5" />
+                      </div>
+                      <h3 className="text-sm font-serif font-semibold leading-tight text-brand-dark">
+                        {t(item.title)}
                       </h3>
+                    </div>
+                    <div className="space-y-1">
                       <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">
-                        {item.description}
+                        {t(item.description)}
                       </p>
                     </div>
                   </div>
@@ -485,21 +459,13 @@ export default function AboutProjectPage({
           </motion.div>
         </section>
 
-        {/* 6. FAQ-BLOCK (Часто задаваемые вопросы) */}
-        <section className="relative z-10 py-16 md:py-24 max-w-4xl mx-auto">
+        {/* 6. FAQ BLOCK */}
+        <section className="relative z-10 py-16 md:py-24 w-[88vw] md:w-[80vw] max-w-4xl mx-auto space-y-6 section-accent-warm">
           <motion.div 
             {...fadeUp}
-            className="text-center space-y-4 mb-10 max-w-3xl mx-auto"
+            className="mb-10 text-center space-y-3"
           >
-            <div className="inline-flex p-2 rounded-2xl bg-[#bd5b82]/8 text-[#bd5b82] mx-auto">
-              <HelpCircle className="w-6 h-6" />
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-serif text-brand-dark tracking-tight">
-              Ответы на вопросы
-            </h2>
-            <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light">
-              Мы собрали самые частые вопросы родителей, школьников и наставников.
-            </p>
+            <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark tracking-tight">{t('ui.findteampage.f119ad282e')}</h2>
           </motion.div>
 
           <div className="space-y-4">
@@ -512,7 +478,7 @@ export default function AboutProjectPage({
                   onClick={() => setActiveFaqIdx(activeFaqIdx === idx ? null : idx)}
                   className="w-full flex items-center justify-between p-5 text-left font-serif font-semibold text-brand-dark text-sm sm:text-base cursor-pointer"
                 >
-                  <span>{faq.question}</span>
+                  <span>{t(faq.question)}</span>
                   <ChevronDown className={`w-4 h-4 text-brand-slate/60 transition-transform duration-300 flex-shrink-0 ${activeFaqIdx === idx ? 'rotate-180' : ''}`} />
                 </button>
                 
@@ -526,7 +492,7 @@ export default function AboutProjectPage({
                       className="overflow-hidden"
                     >
                       <p className="p-5 pt-0 text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed bg-white/10 text-left">
-                        {faq.answer}
+                        {t(faq.answer)}
                       </p>
                     </motion.div>
                   )}
@@ -536,36 +502,27 @@ export default function AboutProjectPage({
           </div>
         </section>
 
-        {/* 7. FINAL CALL TO ACTION (Финальный CTA) */}
+        {/* 7. FINAL CALL TO ACTION */}
         <section className="relative z-10 py-16 md:py-24 max-w-5xl mx-auto">
           <motion.div
             {...fadeInScale}
             className="bg-gradient-to-br from-[#bc4638]/8 via-white/[0.12] to-[#bd5b82]/8 glass-xl border border-white/[0.15] rounded-3xl p-8 sm:p-12 text-center space-y-6"
           >
-            <span className="text-[10px] font-mono tracking-[0.2em] text-[#bc4638] uppercase font-bold">
-              ВСТУПАЙ В СООБЩЕСТВО
-            </span>
+            <span className="text-[10px] font-mono tracking-[0.2em] text-[#bc4638] uppercase font-bold">{t('ui.aboutprojectpage.4d545fb6ff')}</span>
             
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif text-brand-dark tracking-tight leading-tight max-w-2xl mx-auto">
-              Хочешь стать частью международного сообщества?
-            </h2>
-            <p className="text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed max-w-md mx-auto">
-              Не откладывай свое развитие. Зарегистрируйся на платформе прямо сейчас, найди свою команду мечты и начни создавать проекты будущего.
-            </p>
+              {t('ui.aboutprojectpage.d1728b4c')}</h2>
+            <p className="text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed max-w-md mx-auto">{t('ui.aboutprojectpage.7cea9cf73e')}</p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
               <button
                 onClick={onOpenApplyModal}
                 className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white hover:opacity-95 text-xs font-mono tracking-widest rounded-xl transition-all shadow-lg shadow-[#bc4638]/15 cursor-pointer font-bold uppercase"
-              >
-                Подать заявку
-              </button>
+              >{t('ui.app.24cd8dc78d')}</button>
               <button
                 onClick={() => handleNavigateFromAbout('scenarios')}
                 className="w-full sm:w-auto px-8 py-3.5 bg-white/50 border border-[#d8d1cc] text-[#5b6472] hover:border-[#bc4638]/60 text-xs font-mono tracking-widest rounded-xl transition-all cursor-pointer uppercase font-semibold"
-              >
-                НАЙТИ КОМАНДУ
-              </button>
+              >{t('ui.app.d4b60991e4')}</button>
             </div>
           </motion.div>
         </section>

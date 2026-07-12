@@ -14,6 +14,7 @@
     "isolatedModules": true,
     "moduleDetection": "force",
     "allowJs": true,
+    "resolveJsonModule": true,
     "jsx": "react-jsx",
     "paths": {
       "@/*": [
@@ -22,5 +23,17 @@
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  "include": [
+    "src",
+    "server",
+    "scripts",
+    "payload-types.ts",
+    "vite.config.ts"
+  ],
+  "exclude": [
+    "dist",
+    "node_modules",
+    "admin"
+  ]
 }

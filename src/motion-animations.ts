@@ -3,9 +3,9 @@ import type { Transition } from 'motion/react';
 /* ============================================================
  * Animation presets for the Navykus project.
  * 
- * Важно:
- * - Motion анимирует transform/opacity.
- * - CSS transition-all нельзя ставить на тот же motion.div.
+ * Important:
+ * - Motion owns transform/opacity.
+ * - CSS transition-all must not be used on the same motion.div.
  * ============================================================ */
 
 const smoothEase: [number, number, number, number] = [0.22, 1, 0.36, 1];

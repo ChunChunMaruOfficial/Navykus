@@ -1,6 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import {
+  ArrowRight,
   ArrowUpRight,
   Search,
   Users,
@@ -15,6 +17,7 @@ import {
   Send,
   Filter,
   UserCheck,
+  SlidersHorizontal,
 } from 'lucide-react';
 import {
   fadeUp,
@@ -29,35 +32,35 @@ const heroFadeUpLarge = {
   animate: { opacity: 1, y: 0 },
   transition: {
     duration: 0.75,
-    ease: [0.22, 1, 0.36, 1],
+    ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
   },
 };
-import { TEAM_MEMBERS, TOURNAMENTS } from '../data';
+import { useLocalizedData } from '../i18n/useLocalizedData';
 import type { TeamMember, TeamRole, TeamIntent } from '../types';
 
+const FIND_TEAM_SEARCH_CLASS =
+  'w-full rounded-xl border border-[#d8d1cc] bg-white/70 py-3 pl-11 pr-4 text-xs text-brand-dark outline-none transition-colors placeholder:text-brand-slate/40 focus:border-brand-dark/45 focus:bg-white sm:text-sm';
+
+const FIND_TEAM_FIELD_CLASS =
+  'w-full rounded-xl border border-[#d8d1cc] bg-white/70 px-3 py-2.5 text-xs text-brand-dark outline-none transition-colors placeholder:text-brand-slate/40 focus:border-brand-dark/45 focus:bg-white';
+
+const FIND_TEAM_SELECT_CLASS = `${FIND_TEAM_FIELD_CLASS} cursor-pointer`;
+
 const ROLE_LABELS: Record<TeamRole, string> = {
-  developer: 'Разработчик',
-  designer: 'Дизайнер',
-  researcher: 'Исследователь',
-  product_manager: 'Продуктовый менеджер',
-  marketer: 'Маркетолог',
-  team_lead: 'Лидер команды',
-  analyst: 'Аналитик',
-  other: 'Другое',
+  developer: 'ui.findteampage.19b22472b1',
+  designer: 'ui.findteampage.2b4d128aaa',
+  researcher: 'ui.findteampage.e3ca2f8474',
+  product_manager: 'ui.findteampage.112b3c45fd',
+  marketer: 'ui.findteampage.e825746a47',
+  team_lead: 'ui.findteampage.93bb4d70fe',
+  analyst: 'ui.findteampage.ff8ca90dda',
+  other: 'ui.findteampage.5994c1f5c8',
 };
 
 const CONTACT_LABELS: Record<string, string> = {
   telegram: 'Telegram',
   email: 'Email',
   discord: 'Discord',
-};
-
-const UNIQUE_COUNTRIES = Array.from(new Set(TEAM_MEMBERS.map((m) => m.country)));
-
-const getAvailableInterests = () => {
-  const set = new Set<string>();
-  TEAM_MEMBERS.forEach((m) => m.interests.forEach((i) => set.add(i)));
-  return Array.from(set).sort();
 };
 
 interface FindTeamPageProps {
@@ -79,6 +82,7 @@ function DetailedProfileModal({
   onClose: () => void;
   onOpenApplyModal: () => void;
 }) {
+  const { t } = useTranslation();
   const contactLink = member.contactType === 'telegram'
     ? `https://t.me/${member.contact.replace('@', '')}`
     : member.contactType === 'email'
@@ -105,7 +109,7 @@ function DetailedProfileModal({
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-2 rounded-full hover:bg-brand-bg-3/50 text-brand-dark transition-colors z-20"
-            aria-label="Закрыть"
+            aria-label={t('ui.applicationmodal.877618185f')}
           >
             <X className="w-5 h-5" />
           </button>
@@ -118,8 +122,7 @@ function DetailedProfileModal({
               </h2>
               <div className="flex flex-wrap items-center gap-3 text-xs text-brand-slate font-medium">
                 <span className="flex items-center gap-1">
-                  <Users className="w-3.5 h-3.5" /> {member.age} лет
-                </span>
+                  <Users className="w-3.5 h-3.5" /> {member.age}{t('ui.championshippage.b47dce337d')}</span>
                 <span className="flex items-center gap-1">
                   <MapPin className="w-3.5 h-3.5" /> {member.country}
                   {member.city && `, ${member.city}`}
@@ -130,12 +133,12 @@ function DetailedProfileModal({
             {/* Sections */}
             <div className="space-y-6">
               <section>
-                <h3 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-2">Обо мне</h3>
+                <h3 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-2">{t('ui.findteampage.53fa567ce7')}</h3>
                 <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{member.shortBio}</p>
               </section>
 
               <section>
-                <h3 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-2.5">Интересы</h3>
+                <h3 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-2.5">{t('ui.findteampage.747ac9c080')}</h3>
                 <div className="flex flex-wrap gap-1.5">
                   {member.interests.map((interest) => (
                     <span key={interest} className="text-xs px-3 py-1 rounded-full bg-brand-rose-deep/10 text-brand-rose-deep font-medium border border-brand-rose-deep/15">
@@ -146,7 +149,7 @@ function DetailedProfileModal({
               </section>
 
               <section>
-                <h3 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-2.5">Навыки</h3>
+                <h3 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-2.5">{t('ui.findteampage.176bd58504')}</h3>
                 <div className="flex flex-wrap gap-1.5">
                   {member.skills.map((skill) => (
                     <span key={skill} className="text-xs px-3 py-1 rounded-full bg-brand-terracotta/10 text-brand-terracotta font-medium border border-brand-terracotta/15">
@@ -157,11 +160,11 @@ function DetailedProfileModal({
               </section>
 
               <section>
-                <h3 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-2.5">Ищет роль</h3>
+                <h3 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-2.5">{t('ui.findteampage.20be1bd637')}</h3>
                 <div className="flex flex-wrap gap-1.5">
                   {member.targetRoles.map((role) => (
                     <span key={role} className="text-xs px-3 py-1 rounded-full bg-white/40 border border-white/60 text-brand-dark font-medium">
-                      {ROLE_LABELS[role]}
+                      {t(ROLE_LABELS[role])}
                     </span>
                   ))}
                 </div>
@@ -169,18 +172,18 @@ function DetailedProfileModal({
 
               {member.targetProject && (
                 <section>
-                  <h3 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-2.5">Целевой проект</h3>
+                  <h3 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-2.5">{t('ui.findteampage.43584e6c75')}</h3>
                   <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light">{member.targetProject}</p>
                 </section>
               )}
 
               <section>
-                <h3 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-2.5">Почему ищу команду</h3>
+                <h3 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-2.5">{t('ui.findteampage.0d5ce0304e')}</h3>
                 <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{member.whyLooking}</p>
               </section>
 
               <section className="bg-white/20 border border-white/40 rounded-2xl p-5">
-                <h3 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-2.5">Контакты</h3>
+                <h3 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-2.5">{t('ui.activitiespage.1f75230b6e')}</h3>
                 <div className="flex items-center gap-3">
                   <span className="text-xs font-mono text-brand-slate font-semibold">{CONTACT_LABELS[member.contactType]}:</span>
                   <span className="text-sm font-medium text-brand-dark">{member.contact}</span>
@@ -195,15 +198,11 @@ function DetailedProfileModal({
                   rel="noreferrer"
                   className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white px-6 py-3 rounded-xl text-xs font-medium shadow-lg shadow-[#bc4638]/20 transition-all cursor-pointer"
                 >
-                  <Send className="w-4 h-4" />
-                  Связаться
-                </a>
+                  <Send className="w-4 h-4" />{t('ui.findteampage.3765795ef8')}</a>
                 <button
                   onClick={onOpenApplyModal}
                   className="flex-1 bg-white/40 backdrop-blur-md border border-[#d8d1cc] text-[#5b6472] hover:border-brand-terracotta/60 px-6 py-3 rounded-xl text-xs font-medium transition-all cursor-pointer"
-                >
-                  Подать свою анкету
-                </button>
+                >{t('ui.app.8c26059674')}</button>
               </div>
             </div>
           </div>
@@ -226,6 +225,7 @@ function ProfileCard({
   onOpen: (m: TeamMember) => void;
   key?: string;
 }) {
+  const { t } = useTranslation();
   const isDimmed = !member.isApproved;
 
   return (
@@ -239,7 +239,7 @@ function ProfileCard({
           <div className="space-y-0.5">
             <h3 className="text-base font-serif font-medium text-brand-dark leading-tight">{member.name}</h3>
             <div className="flex flex-wrap items-center gap-2 text-[10px] font-mono text-brand-slate">
-              <span>{member.age} лет</span>
+              <span>{member.age}{t('ui.championshippage.b47dce337d')}</span>
               <span className="flex items-center gap-0.5">
                 <MapPin className="w-3 h-3" /> {member.country}
               </span>
@@ -250,7 +250,7 @@ function ProfileCard({
               ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
               : 'bg-brand-rose-deep/10 text-brand-rose-deep border-brand-rose-deep/20'
           }`}>
-            {member.targetRoles.length <= 1 ? 'Ищет команду' : 'Ищет участников'}
+            {member.targetRoles.length <= 1 ? t('ui.findteampage.c02f23906a') : t('ui.findteampage.f432e88ad8')}
           </span>
         </div>
 
@@ -289,9 +289,7 @@ function ProfileCard({
         <button
           onClick={() => onOpen(member)}
           className="w-full bg-white/40 hover:bg-white/70 border border-[#d8d1cc] hover:border-brand-terracotta/40 text-[#5b6472] hover:text-brand-terracotta text-[11px] font-mono tracking-wider py-2.5 rounded-xl transition-all duration-300 cursor-pointer text-center font-medium"
-        >
-          Открыть анкету
-        </button>
+        >{t('ui.findteampage.81dc2b6ebe')}</button>
       </div>
     </motion.div>
   );
@@ -305,13 +303,13 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="bg-white/[0.12] glass-card border border-white/[0.15] rounded-2xl overflow-hidden">
+    <div className="bg-white/[0.08] glass-card border border-white/[0.12] rounded-2xl overflow-hidden transition-all duration-300">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-5 sm:p-6 text-left cursor-pointer hover:bg-white/[0.15] transition-colors"
+        className="w-full flex items-center justify-between p-5 text-left font-serif font-semibold text-brand-dark text-xs sm:text-sm md:text-base cursor-pointer"
       >
-        <span className="text-sm sm:text-base font-medium text-brand-dark pr-4">{question}</span>
-        <ChevronDown className={`w-4 h-4 text-brand-slate shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+        <span>{question}</span>
+        <ChevronDown className={`w-4 h-4 text-brand-slate/60 transition-transform duration-300 flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
       <AnimatePresence initial={false}>
         {isOpen && (
@@ -319,9 +317,10 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.25 }}
+            className="overflow-hidden"
           >
-            <p className="px-5 sm:px-6 pb-5 sm:pb-6 text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">
+            <p className="p-5 pt-0 text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed bg-white/10 text-left">
               {answer}
             </p>
           </motion.div>
@@ -336,13 +335,38 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
 /* ------------------------------------------------------------------ */
 
 export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTeamPageProps) {
+  const { t, i18n } = useTranslation();
+  const { teamMembers, tournaments } = useLocalizedData();
   // Filter state
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCountry, setSelectedCountry] = useState('Все страны');
-  const [selectedAgeRange, setSelectedAgeRange] = useState('Любой');
-  const [selectedTournament, setSelectedTournament] = useState('Любое');
+  const [selectedCountry, setSelectedCountry] = useState('all');
+  const [selectedAgeRange, setSelectedAgeRange] = useState('all');
+  const [selectedTournament, setSelectedTournament] = useState('all');
   const [selectedIntent, setSelectedIntent] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
+  // Advanced search state
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [selectedCity, setSelectedCity] = useState('all');
+  const [selectedRole, setSelectedRole] = useState('all');
+  const [skillInput, setSkillInput] = useState('');
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [interestInput, setInterestInput] = useState('');
+  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  const [selectedContactType, setSelectedContactType] = useState('all');
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'name'>('newest');
+
+  useEffect(() => {
+    setSelectedCountry('all');
+    setSelectedAgeRange('all');
+    setSelectedTournament('all');
+    setSelectedIntent('all');
+    setSelectedCity('all');
+    setSelectedRole('all');
+    setSelectedSkills([]);
+    setSelectedInterests([]);
+    setSelectedContactType('all');
+    setSortBy('newest');
+  }, [i18n.resolvedLanguage, i18n.language]);
 
   // Modal state
   const [selectedProfile, setSelectedProfile] = useState<TeamMember | null>(null);
@@ -350,7 +374,7 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
   /* ---------- Derived data ---------- */
 
   const ageRangeFilter = (age: number) => {
-    if (selectedAgeRange === 'Любой') return true;
+    if (selectedAgeRange === 'all') return true;
     if (selectedAgeRange === '12–14') return age >= 12 && age <= 14;
     if (selectedAgeRange === '15–16') return age >= 15 && age <= 16;
     if (selectedAgeRange === '17–18') return age >= 17 && age <= 18;
@@ -366,19 +390,37 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
   const filteredMembers = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
 
-    return TEAM_MEMBERS.filter((member) => {
+    const filtered = teamMembers.filter((member) => {
       if (!member.isApproved) return false;
 
-      if (selectedCountry !== 'Все страны' && member.country !== selectedCountry) return false;
+      if (selectedCountry !== 'all' && member.country !== selectedCountry) return false;
       if (!ageRangeFilter(member.age)) return false;
 
-      if (selectedTournament !== 'Любое') {
+      if (selectedTournament !== 'all') {
         if (member.targetProject && !member.targetProject.toLowerCase().includes(selectedTournament.toLowerCase())) {
           return false;
         }
       }
 
       if (!intentFilter(member)) return false;
+
+      if (selectedCity !== 'all' && member.city !== selectedCity) return false;
+
+      if (selectedRole !== 'all' && !member.targetRoles.includes(selectedRole as TeamRole)) return false;
+
+      if (selectedSkills.length > 0) {
+        const memberSkillsLower = member.skills.map((s) => s.toLowerCase());
+        const allSkillsMatch = selectedSkills.every((s) => memberSkillsLower.includes(s.toLowerCase()));
+        if (!allSkillsMatch) return false;
+      }
+
+      if (selectedInterests.length > 0) {
+        const memberInterestsLower = member.interests.map((i) => i.toLowerCase());
+        const allInterestsMatch = selectedInterests.every((i) => memberInterestsLower.includes(i.toLowerCase()));
+        if (!allInterestsMatch) return false;
+      }
+
+      if (selectedContactType !== 'all' && member.contactType !== selectedContactType) return false;
 
       if (query) {
         const searchable = [
@@ -393,23 +435,75 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
 
       return true;
     });
-  }, [searchQuery, selectedCountry, selectedAgeRange, selectedTournament, selectedIntent]);
+
+    const sorted = [...filtered];
+    if (sortBy === 'newest') {
+      sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    } else if (sortBy === 'oldest') {
+      sorted.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    } else if (sortBy === 'name') {
+      sorted.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+    }
+    return sorted;
+  }, [teamMembers, searchQuery, selectedCountry, selectedAgeRange, selectedTournament, selectedIntent, selectedCity, selectedRole, selectedSkills, selectedInterests, selectedContactType, sortBy]);
+
+  const uniqueCountries = useMemo(
+    () => Array.from(new Set(teamMembers.map((member) => member.country))),
+    [teamMembers],
+  );
+
+  const uniqueCities = useMemo(
+    () => Array.from(new Set(teamMembers.map((member) => member.city).filter(Boolean) as string[])).sort((a, b) => a.localeCompare(b)),
+    [teamMembers],
+  );
+
+  const allSkills = useMemo(
+    () => Array.from(new Set(teamMembers.flatMap((member) => member.skills))).sort((a, b) => a.localeCompare(b)),
+    [teamMembers],
+  );
+
+  const allInterests = useMemo(
+    () => Array.from(new Set(teamMembers.flatMap((member) => member.interests))).sort((a, b) => a.localeCompare(b)),
+    [teamMembers],
+  );
+
+  const filteredSkillOptions = useMemo(() => {
+    const q = skillInput.toLowerCase().trim();
+    if (!q) return allSkills;
+    return allSkills.filter((s) => s.toLowerCase().includes(q));
+  }, [allSkills, skillInput]);
+
+  const filteredInterestOptions = useMemo(() => {
+    const q = interestInput.toLowerCase().trim();
+    if (!q) return allInterests;
+    return allInterests.filter((i) => i.toLowerCase().includes(q));
+  }, [allInterests, interestInput]);
 
   /* ---------- Active filter pills ---------- */
 
   const activeFilters = [
-    selectedCountry !== 'Все страны' && { label: selectedCountry, clear: () => setSelectedCountry('Все страны') },
-    selectedAgeRange !== 'Любой' && { label: selectedAgeRange, clear: () => setSelectedAgeRange('Любой') },
-    selectedTournament !== 'Любое' && { label: selectedTournament, clear: () => setSelectedTournament('Любое') },
-    selectedIntent !== 'all' && { label: selectedIntent === 'looking_for_team' ? 'Ищет команду' : 'Ищет участников', clear: () => setSelectedIntent('all') },
+    selectedCountry !== 'all' && { label: selectedCountry, clear: () => setSelectedCountry('all') },
+    selectedAgeRange !== 'all' && { label: selectedAgeRange, clear: () => setSelectedAgeRange('all') },
+    selectedTournament !== 'all' && { label: selectedTournament, clear: () => setSelectedTournament('all') },
+    selectedIntent !== 'all' && { label: selectedIntent === 'looking_for_team' ? t('ui.findteampage.c02f23906a') : t('ui.findteampage.f432e88ad8'), clear: () => setSelectedIntent('all') },
+    selectedCity !== 'all' && { label: selectedCity, clear: () => setSelectedCity('all') },
+    selectedRole !== 'all' && { label: t(ROLE_LABELS[selectedRole as TeamRole]), clear: () => setSelectedRole('all') },
+    ...selectedSkills.map((s) => ({ label: s, clear: () => setSelectedSkills((prev) => prev.filter((x) => x !== s)) })),
+    ...selectedInterests.map((i) => ({ label: i, clear: () => setSelectedInterests((prev) => prev.filter((x) => x !== i)) })),
+    selectedContactType !== 'all' && { label: CONTACT_LABELS[selectedContactType], clear: () => setSelectedContactType('all') },
   ].filter(Boolean) as { label: string; clear: () => void }[];
 
   const clearAllFilters = () => {
     setSearchQuery('');
-    setSelectedCountry('Все страны');
-    setSelectedAgeRange('Любой');
-    setSelectedTournament('Любое');
+    setSelectedCountry('all');
+    setSelectedAgeRange('all');
+    setSelectedTournament('all');
     setSelectedIntent('all');
+    setSelectedCity('all');
+    setSelectedRole('all');
+    setSelectedSkills([]);
+    setSelectedInterests([]);
+    setSelectedContactType('all');
   };
 
   return (
@@ -427,35 +521,29 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
       </div>
 
       {/* ======================== HERO BLOCK ======================== */}
-      <section className="relative z-10 pt-32 pb-12 md:pt-40 md:pb-16 max-w-7xl mx-auto px-[6%] md:px-[10%]">
-        <motion.div {...heroFadeUpLarge} className="space-y-8">
-          {/* Breadcrumb / back */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={onBackToHome}
-              className="flex items-center gap-1.5 text-xs font-mono text-brand-slate hover:text-brand-terracotta transition-colors cursor-pointer"
-            >
-              ← На главную
-            </button>
-            <span className="text-[10px] font-mono text-brand-pink-dust uppercase tracking-widest">— Найти команду</span>
-          </div>
+      <section className="relative z-10 pt-24 pb-12 md:pt-24 md:pb-16 max-w-6xl mx-auto px-[6%] md:px-[10%]">
+        <div className="flex justify-start mb-8 sm:mb-12">
+          <button
+            onClick={onBackToHome}
+            className="group inline-flex items-center gap-2 px-4 py-2 border border-[#d8d1cc]/60 hover:border-brand-dark text-xs font-mono tracking-wider uppercase text-brand-slate hover:text-brand-dark transition-all rounded-xl cursor-pointer bg-white/20 backdrop-blur-sm"
+          >
+            <ArrowRight className="w-3.5 h-3.5 rotate-180 transition-transform group-hover:-translate-x-0.5" />
+            <span>{t('ui.aboutprojectpage.a9dc864a2e')}</span>
+          </button>
+        </div>
+
+        <motion.div {...heroFadeUpLarge} className="mx-auto max-w-3xl space-y-8 text-center">
 
           <div className="space-y-4">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-brand-dark tracking-tight leading-tight">
-              Найти команду
-            </h1>
-            <p className="text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed max-w-2xl">
-              Здесь можно найти участников для чемпионата или проекта. Выбери подходящего человека и свяжись с ним.
-            </p>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-brand-dark tracking-tight leading-tight">{t('ui.app.d13f387e64')}</h1>
+            <p className="mx-auto max-w-2xl text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.findteampage.801f72c2a4')}</p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4">
             <button
               onClick={onOpenApplyModal}
               className="px-8 py-4 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white rounded-2xl text-sm font-medium shadow-xl shadow-[#bc4638]/25 hover:shadow-[#bc4638]/35 hover:scale-[1.01] transition-all flex items-center justify-center gap-2.5 cursor-pointer group"
-            >
-              Подать свою анкету
-              <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            >{t('ui.app.8c26059674')}<ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </button>
             <button
               onClick={() => {
@@ -463,34 +551,32 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
                 el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
               }}
               className="px-8 py-4 bg-white/40 backdrop-blur-md border border-[#d8d1cc] hover:border-[#bc4638]/60 rounded-2xl text-sm font-medium text-[#5b6472] hover:text-[#bc4638] transition-all text-center cursor-pointer"
-            >
-              Смотреть анкеты
-            </button>
+            >{t('ui.findteampage.83874460f8')}</button>
           </div>
         </motion.div>
       </section>
 
       {/* ======================== SCENARIO EXPLANATION ======================== */}
-      <section className="relative z-10 py-12 md:py-16 max-w-7xl mx-auto px-[6%] md:px-[10%]">
+      <section className="relative z-10 py-12 md:py-16 max-w-6xl mx-auto px-[6%] md:px-[10%]">
         <motion.div {...cardStaggerContainer} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {[
             {
               icon: <Users className="w-5 h-5 text-brand-rose-deep" />,
               num: '01',
-              title: 'Посмотри анкеты',
-              desc: 'Просмотри анкеты участников из 15+ стран и найди подходящих людей.',
+              title: t('ui.findteampage.6db9425693'),
+              desc: t('ui.findteampage.748802e8af'),
             },
             {
               icon: <Search className="w-5 h-5 text-brand-terracotta" />,
               num: '02',
-              title: 'Выбери участника',
-              desc: 'Найди человека с похожими интересами и навыками.',
+              title: t('ui.findteampage.d37a6b7314'),
+              desc: t('ui.findteampage.c481549d83'),
             },
             {
               icon: <ArrowUpRight className="w-5 h-5 text-brand-rose-deep" />,
               num: '03',
-              title: 'Свяжись с ним',
-              desc: 'Напиши участнику или подай свою анкету, чтобы тебя нашли.',
+              title: t('ui.findteampage.9507d02c5c'),
+              desc: t('ui.findteampage.c90707df4b'),
             },
           ].map((step, idx) => (
             <motion.div
@@ -502,9 +588,11 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#bc4638]/5 to-[#bd5b82]/5 border border-white/80 flex items-center justify-center shrink-0 shadow-[inset_0_1px_1px_rgba(255,255,255,0.4)]">
                   {step.icon}
                 </div>
-                <div className="space-y-1.5">
-                  <div className="text-[10px] font-mono text-brand-rose-deep font-semibold tracking-wider">{step.num}</div>
-                  <h3 className="text-base font-serif font-medium text-brand-dark">{step.title}</h3>
+                <div className="min-w-0 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono text-brand-rose-deep font-semibold tracking-wider">{step.num}</span>
+                    <h3 className="text-sm font-serif font-medium leading-tight text-brand-dark">{step.title}</h3>
+                  </div>
                   <p className="text-xs text-brand-slate font-normal md:font-light leading-relaxed">{step.desc}</p>
                 </div>
               </div>
@@ -514,7 +602,7 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
       </section>
 
       {/* ======================== FILTERS & SEARCH ======================== */}
-      <section id="filters-section" className="relative z-10 py-8 md:py-12 max-w-7xl mx-auto px-[6%] md:px-[10%]">
+      <section id="filters-section" className="relative z-10 py-8 md:py-12 max-w-6xl mx-auto px-[6%] md:px-[10%]">
         <motion.div {...fadeUp} className="space-y-6">
           {/* Search bar */}
           <div className="relative">
@@ -523,8 +611,8 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Поиск по имени, интересам или навыкам..."
-              className="w-full bg-white/40 backdrop-blur-md border border-white/50 focus:border-brand-terracotta/60 rounded-xl pl-11 pr-4 py-3 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-300 shadow-[inset_0_1px_1px_rgba(255,255,255,0.4)] placeholder:text-brand-slate/40"
+              placeholder={t('ui.findteampage.0247c0a466')}
+              className={FIND_TEAM_SEARCH_CLASS}
             />
           </div>
 
@@ -533,9 +621,17 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
             onClick={() => setShowFilters(!showFilters)}
             className="sm:hidden flex items-center gap-2 bg-white/40 backdrop-blur-md border border-white/50 rounded-xl px-4 py-2.5 text-xs font-mono text-brand-dark tracking-wider cursor-pointer"
           >
-            <Filter className="w-4 h-4" />
-            Фильтры
-            <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${showFilters ? 'rotate-180' : ''}`} />
+            <Filter className="w-4 h-4" />{t('ui.findteampage.5412a9a9b7')}<ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${showFilters ? 'rotate-180' : ''}`} />
+          </button>
+
+          {/* Advanced search toggle */}
+          <button
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="flex items-center gap-2 bg-white/40 backdrop-blur-md border border-white/50 hover:border-brand-terracotta/40 rounded-xl px-4 py-2.5 text-xs font-mono text-brand-dark tracking-wider cursor-pointer transition-all self-start"
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            <span>{t('ui.findteampage.c1d2e3f4a5b')}</span>
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${showAdvanced ? 'rotate-180' : ''}`} />
           </button>
 
           {/* Filter controls */}
@@ -551,14 +647,14 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   {/* Country */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">Страна</label>
+                    <label className="text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.findteampage.d45e4de05b')}</label>
                     <select
                       value={selectedCountry}
                       onChange={(e) => setSelectedCountry(e.target.value)}
-                      className="w-full bg-white/40 backdrop-blur-md border border-white/50 focus:border-brand-terracotta/60 rounded-xl px-3 py-2.5 text-xs text-brand-dark outline-none cursor-pointer"
+                      className={FIND_TEAM_SELECT_CLASS}
                     >
-                      <option>Все страны</option>
-                      {UNIQUE_COUNTRIES.map((c) => (
+                      <option value="all">{t('ui.findteampage.b4a5be85c1')}</option>
+                      {uniqueCountries.map((c) => (
                         <option key={c}>{c}</option>
                       ))}
                     </select>
@@ -566,13 +662,13 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
 
                   {/* Age */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">Возраст</label>
+                    <label className="text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.championshippage.ff03252b22')}</label>
                     <select
                       value={selectedAgeRange}
                       onChange={(e) => setSelectedAgeRange(e.target.value)}
-                      className="w-full bg-white/40 backdrop-blur-md border border-white/50 focus:border-brand-terracotta/60 rounded-xl px-3 py-2.5 text-xs text-brand-dark outline-none cursor-pointer"
+                      className={FIND_TEAM_SELECT_CLASS}
                     >
-                      <option>Любой</option>
+                      <option value="all">{t('ui.findteampage.16e18813d5')}</option>
                       <option>12–14</option>
                       <option>15–16</option>
                       <option>17–18</option>
@@ -581,14 +677,14 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
 
                   {/* Tournament */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">Направление</label>
+                    <label className="text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.findteampage.6da0530772')}</label>
                     <select
                       value={selectedTournament}
                       onChange={(e) => setSelectedTournament(e.target.value)}
-                      className="w-full bg-white/40 backdrop-blur-md border border-white/50 focus:border-brand-terracotta/60 rounded-xl px-3 py-2.5 text-xs text-brand-dark outline-none cursor-pointer"
+                      className={FIND_TEAM_SELECT_CLASS}
                     >
-                      <option>Любое</option>
-                      {TOURNAMENTS.map((t) => (
+                      <option value="all">{t('ui.findteampage.803266d644')}</option>
+                      {tournaments.map((t) => (
                         <option key={t.id}>{t.type}</option>
                       ))}
                     </select>
@@ -596,7 +692,7 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
 
                   {/* Intent */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">Ищет</label>
+                    <label className="text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.findteampage.44e0803cef')}</label>
                     <div className="flex gap-2">
                       {(['all', 'looking_for_team', 'looking_for_members'] as const).map((intent) => (
                         <button
@@ -608,7 +704,7 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
                               : 'bg-white/30 border-white/40 text-brand-slate hover:bg-white/50'
                           }`}
                         >
-                          {intent === 'all' ? 'Всех' : intent === 'looking_for_team' ? 'Команду' : 'Участников'}
+                          {intent === 'all' ? t('ui.findteampage.9a5bee689e') : intent === 'looking_for_team' ? t('ui.findteampage.ce8d9ae9f6') : t('ui.findteampage.5bcf8be47e')}
                         </button>
                       ))}
                     </div>
@@ -632,10 +728,180 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
                     <button
                       onClick={clearAllFilters}
                       className="text-[10px] font-mono tracking-wider text-brand-slate hover:text-brand-terracotta transition-colors cursor-pointer underline underline-offset-2"
-                    >
-                      Сбросить всё
-                    </button>
+                    >{t('ui.findteampage.449ee8d719')}</button>
                   )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Advanced filter controls */}
+          <AnimatePresence>
+            {showAdvanced && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="overflow-hidden"
+              >
+                <div className="space-y-4">
+                  {/* Row 1: City / Role / Contact type / Sort */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {/* City */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.findteampage.b9c1f7e3a0')}</label>
+                      <select
+                        value={selectedCity}
+                        onChange={(e) => setSelectedCity(e.target.value)}
+                        className={FIND_TEAM_SELECT_CLASS}
+                      >
+                        <option value="all">{t('ui.findteampage.a2e4f8c1d3')}</option>
+                        {uniqueCities.map((c) => (
+                          <option key={c}>{c}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Role */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.findteampage.c0a1b9f7e4')}</label>
+                      <select
+                        value={selectedRole}
+                        onChange={(e) => setSelectedRole(e.target.value)}
+                        className={FIND_TEAM_SELECT_CLASS}
+                      >
+                        <option value="all">{t('ui.findteampage.d3e5a9c1b2')}</option>
+                        {(Object.keys(ROLE_LABELS) as TeamRole[]).map((r) => (
+                          <option key={r} value={r}>{t(ROLE_LABELS[r])}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Contact type */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.findteampage.c8d0e2f4a7')}</label>
+                      <select
+                        value={selectedContactType}
+                        onChange={(e) => setSelectedContactType(e.target.value)}
+                        className={FIND_TEAM_SELECT_CLASS}
+                      >
+                        <option value="all">{t('ui.findteampage.d9e1f3a5b8')}</option>
+                        {(Object.keys(CONTACT_LABELS) as Array<keyof typeof CONTACT_LABELS>).map((ct) => (
+                          <option key={ct} value={ct}>{CONTACT_LABELS[ct]}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Sort */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.findteampage.e0f2a4b6c9')}</label>
+                      <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                        className={FIND_TEAM_SELECT_CLASS}
+                      >
+                        <option value="newest">{t('ui.findteampage.f1a3b5c7d0')}</option>
+                        <option value="oldest">{t('ui.findteampage.a4b6c8d0e2')}</option>
+                        <option value="name">{t('ui.findteampage.b5c7d9e1f3')}</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Row 2: Skills multi-select + Interests multi-select */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {/* Skills */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.findteampage.e4f6b0a2c1')}</label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={skillInput}
+                          onChange={(e) => setSkillInput(e.target.value)}
+                          placeholder={t('ui.findteampage.f5a7c1d3e4')}
+                          className={FIND_TEAM_FIELD_CLASS}
+                        />
+                        {skillInput.trim() && filteredSkillOptions.length > 0 && (
+                          <div className="absolute z-20 mt-1 w-full bg-white/95 backdrop-blur-md border border-white/60 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                            {filteredSkillOptions
+                              .filter((s) => !selectedSkills.includes(s))
+                              .slice(0, 30)
+                              .map((s) => (
+                                <button
+                                  key={s}
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedSkills((prev) => [...prev, s]);
+                                    setSkillInput('');
+                                  }}
+                                  className="w-full text-left px-3 py-2 text-xs text-brand-dark hover:bg-brand-terracotta/10 transition-colors cursor-pointer"
+                                >
+                                  {s}
+                                </button>
+                              ))}
+                          </div>
+                        )}
+                      </div>
+                      {selectedSkills.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 pt-1">
+                          {selectedSkills.map((s) => (
+                            <span key={s} className="inline-flex items-center gap-1 text-[10px] font-mono tracking-wider bg-brand-terracotta/10 text-brand-terracotta border border-brand-terracotta/20 rounded-full px-3 py-1">
+                              {s}
+                              <button onClick={() => setSelectedSkills((prev) => prev.filter((x) => x !== s))} className="hover:text-brand-terracotta transition-colors cursor-pointer">
+                                <X className="w-3 h-3" />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Interests */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.findteampage.a6b8c0d2e5')}</label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={interestInput}
+                          onChange={(e) => setInterestInput(e.target.value)}
+                          placeholder={t('ui.findteampage.b7c9d1e3f6')}
+                          className={FIND_TEAM_FIELD_CLASS}
+                        />
+                        {interestInput.trim() && filteredInterestOptions.length > 0 && (
+                          <div className="absolute z-20 mt-1 w-full bg-white/95 backdrop-blur-md border border-white/60 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                            {filteredInterestOptions
+                              .filter((i) => !selectedInterests.includes(i))
+                              .slice(0, 30)
+                              .map((i) => (
+                                <button
+                                  key={i}
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedInterests((prev) => [...prev, i]);
+                                    setInterestInput('');
+                                  }}
+                                  className="w-full text-left px-3 py-2 text-xs text-brand-dark hover:bg-brand-rose-deep/10 transition-colors cursor-pointer"
+                                >
+                                  {i}
+                                </button>
+                              ))}
+                          </div>
+                        )}
+                      </div>
+                      {selectedInterests.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 pt-1">
+                          {selectedInterests.map((i) => (
+                            <span key={i} className="inline-flex items-center gap-1 text-[10px] font-mono tracking-wider bg-brand-rose-deep/10 text-brand-rose-deep border border-brand-rose-deep/15 rounded-full px-3 py-1">
+                              {i}
+                              <button onClick={() => setSelectedInterests((prev) => prev.filter((x) => x !== i))} className="hover:text-brand-rose-deep transition-colors cursor-pointer">
+                                <X className="w-3 h-3" />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             )}
@@ -644,14 +910,13 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
       </section>
 
       {/* ======================== PROFILES LIST ======================== */}
-      <section id="profiles-section" className="relative z-10 py-8 md:py-12 max-w-7xl mx-auto px-[6%] md:px-[10%]">
+      <section id="profiles-section" className="relative z-10 py-8 md:py-12 max-w-6xl mx-auto px-[6%] md:px-[10%]">
         {/* Results count */}
         <div className="mb-6 flex items-center justify-between">
-          <span className="text-xs font-mono text-brand-slate">
-            Найдено: <strong className="text-brand-dark">{filteredMembers.length}</strong>
-            {filteredMembers.length === 1 && ' участник'}
-            {filteredMembers.length >= 2 && filteredMembers.length <= 4 && ' участника'}
-            {filteredMembers.length >= 5 && ' участников'}
+          <span className="text-xs font-mono text-brand-slate">{t('ui.findteampage.b62712adf3')}<strong className="text-brand-dark">{filteredMembers.length}</strong>
+            {filteredMembers.length === 1 && t('ui.findteampage.762a11aca5')}
+            {filteredMembers.length >= 2 && filteredMembers.length <= 4 && t('ui.findteampage.1e5680932c')}
+            {filteredMembers.length >= 5 && t('ui.findteampage.eef8a6796e')}
           </span>
         </div>
 
@@ -659,30 +924,32 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
           /* EMPTY STATE: no results or no members */
           <motion.div
             {...fadeInScale}
-            className="text-center py-20 space-y-4"
+            className="py-20"
           >
-            <div className="w-14 h-14 bg-brand-bg-2 rounded-full flex items-center justify-center mx-auto border border-white/60">
-              {TEAM_MEMBERS.length === 0 ? (
-                <Users className="w-6 h-6 text-brand-slate/40" />
-              ) : (
-                <Search className="w-6 h-6 text-brand-slate/40" />
-              )}
+            <div className="mx-auto flex max-w-xl items-start gap-4">
+              <div className="w-12 h-12 bg-brand-bg-2 rounded-full flex items-center justify-center border border-white/60 shrink-0">
+                {teamMembers.length === 0 ? (
+                  <Users className="w-5 h-5 text-brand-slate/40" />
+                ) : (
+                  <Search className="w-5 h-5 text-brand-slate/40" />
+                )}
+              </div>
+              <div className="space-y-3 text-left">
+                <h3 className="text-base font-serif text-brand-dark">
+                  {teamMembers.length === 0 ? t('ui.findteampage.fa13f19799') : t('ui.findteampage.13cae99e23')}
+                </h3>
+                <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light">
+                  {teamMembers.length === 0
+                    ? t('ui.findteampage.4be1a48ecd')
+                    : t('ui.findteampage.53c15af005')}
+                </p>
+                <button
+                  onClick={onOpenApplyModal}
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white px-6 py-3 rounded-xl text-xs font-medium shadow-lg shadow-[#bc4638]/20 transition-all cursor-pointer"
+                >{t('ui.app.8c26059674')}<ArrowUpRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
-            <h3 className="text-lg font-serif text-brand-dark">
-              {TEAM_MEMBERS.length === 0 ? 'Пока никто не подал анкету' : 'По выбранным фильтрам никого не найдено'}
-            </h3>
-            <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light max-w-md mx-auto">
-              {TEAM_MEMBERS.length === 0
-                ? 'Будь первым — подай свою анкету и присоединись к сообществу.'
-                : 'Попробуй изменить фильтры или подай свою анкету.'}
-            </p>
-            <button
-              onClick={onOpenApplyModal}
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white px-6 py-3 rounded-xl text-xs font-medium shadow-lg shadow-[#bc4638]/20 transition-all cursor-pointer mt-2"
-            >
-              Подать свою анкету
-              <ArrowUpRight className="w-4 h-4" />
-            </button>
           </motion.div>
         ) : (
           <motion.div
@@ -701,36 +968,32 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
       </section>
 
       {/* ======================== SAFETY & TRUST ======================== */}
-      <section className="relative z-10 py-12 md:py-16 max-w-7xl mx-auto px-[6%] md:px-[10%]">
+      <section className="relative z-10 py-12 md:py-16 max-w-6xl mx-auto px-[6%] md:px-[10%]">
         <motion.div {...fadeUp} className="text-center max-w-2xl mx-auto space-y-3 mb-10">
-          <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark tracking-tight">
-            Безопасность и доверие
-          </h2>
-          <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">
-            Мы заботимся о безопасности каждого участника сообщества.
-          </p>
+          <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark tracking-tight">{t('ui.findteampage.e1cd2e34c2')}</h2>
+          <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.findteampage.fc35e86bc0')}</p>
         </motion.div>
         <motion.div {...cardStaggerContainer} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {[
             {
               icon: <ShieldCheck className="w-5 h-5 text-emerald-600" />,
-              title: 'Проверенные анкеты',
-              desc: 'Анкеты проходят проверку перед публикацией. Мы гарантируем, что данные верифицированы.',
+              title: t('ui.findteampage.068a88033b'),
+              desc: t('ui.findteampage.3db06b0fab'),
             },
             {
               icon: <EyeOff className="w-5 h-5 text-brand-terracotta" />,
-              title: 'Безопасность данных',
-              desc: 'Мы не публикуем лишние личные данные. Контакты доступны только в подробной анкете.',
+              title: t('ui.findteampage.fb356b50e3'),
+              desc: t('ui.findteampage.fdb87a056d'),
             },
             {
               icon: <MessageSquare className="w-5 h-5 text-brand-rose-deep" />,
-              title: 'Безопасные каналы',
-              desc: 'Связывайтесь через Telegram или email — наши проверенные каналы коммуникации.',
+              title: t('ui.findteampage.a85a36cdb3'),
+              desc: t('ui.findteampage.4ee576bd39'),
             },
             {
               icon: <LifeBuoy className="w-5 h-5 text-brand-coral" />,
-              title: 'Помощь',
-              desc: 'При возникновении проблем или подозрительных ситуаций свяжитесь с организаторами.',
+              title: t('ui.findteampage.b574813bb4'),
+              desc: t('ui.findteampage.9a780980af'),
             },
           ].map((item, idx) => (
             <motion.div
@@ -739,10 +1002,12 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
               className="bg-white/[0.12] glass-card border border-white/[0.15] p-6 rounded-2xl hover:bg-white/[0.2] transition-[background-color,border-color,box-shadow] duration-300"
             >
               <div className="space-y-3">
+                <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-white/40 border border-white/80 flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.4)]">
                   {item.icon}
                 </div>
-                <h3 className="text-sm font-serif font-medium text-brand-dark">{item.title}</h3>
+                  <h3 className="text-sm font-serif font-medium leading-tight text-brand-dark">{item.title}</h3>
+                </div>
                 <p className="text-xs text-brand-slate font-normal md:font-light leading-relaxed">{item.desc}</p>
               </div>
             </motion.div>
@@ -750,55 +1015,48 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
         </motion.div>
       </section>
 
-      {/* ======================== CTA: НЕ НАШЁЛ КОМАНДУ? ======================== */}
+      {/* ======================== CTA ======================== */}
       <section className="relative z-10 py-12 md:py-16 max-w-5xl mx-auto px-[6%] md:px-[10%]">
         <motion.div
           {...fadeInScale}
           className="bg-gradient-to-br from-[#bc4638]/5 via-white/[0.12] to-[#bd5b82]/8 glass-xl border border-white/[0.15] rounded-3xl p-8 sm:p-12 text-center space-y-6"
         >
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif text-brand-dark tracking-tight">
-            Не нашёл подходящего участника?
-          </h2>
-          <p className="text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed max-w-md mx-auto">
-            Оставь свою анкету — и другие школьники найдут именно тебя. Заполни анкету за 2 минуты и присоединись к международному сообществу.
-          </p>
+            {t('ui.findteampage.53a61877')}</h2>
+          <p className="text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed max-w-md mx-auto">{t('ui.findteampage.44b960a4ba')}</p>
           <button
             onClick={onOpenApplyModal}
             className="inline-flex items-center gap-2 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white px-8 py-3.5 rounded-xl text-xs font-medium shadow-lg shadow-[#bc4638]/20 transition-all cursor-pointer"
-          >
-            Подать свою анкету
-            <ArrowUpRight className="w-4 h-4" />
+          >{t('ui.app.8c26059674')}<ArrowUpRight className="w-4 h-4" />
           </button>
         </motion.div>
       </section>
 
       {/* ======================== FAQ ======================== */}
-      <section className="relative z-10 py-12 md:py-20 max-w-3xl mx-auto px-[6%] md:px-[10%]">
-        <motion.div {...fadeUp} className="text-center max-w-2xl mx-auto space-y-3 mb-10">
-          <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark tracking-tight">
-            Часто задаваемые вопросы
-          </h2>
+      <section className="relative z-10 py-16 md:py-24 w-[88vw] md:w-[80vw] max-w-4xl mx-auto space-y-6 section-accent-warm">
+        <motion.div {...fadeUp} className="text-center space-y-3">
+          <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark">{t('ui.findteampage.f119ad282e')}</h2>
         </motion.div>
         <motion.div {...fadeUp} className="space-y-4">
           <FAQItem
-            question="Как подать анкету?"
-            answer="Нажми кнопку «Подать свою анкету» в шапке сайта или в любом месте этой страницы. Заполни форму: имя, возраст, страна, интересы, навыки и контакты. Анкета появится после проверки модератором."
+            question={t('ui.findteampage.6954042f')}
+            answer={t('ui.findteampage.a264de7b48')}
           />
           <FAQItem
-            question="Когда анкета появится на сайте?"
-            answer="Обычно проверка занимает 1–2 рабочих дня. После публикации твоя анкета будет доступна в разделе «Найти команду» для всех участников сообщества."
+            question={t('ui.findteampage.291b48f0')}
+            answer={t('ui.findteampage.c4adff98dd')}
           />
           <FAQItem
-            question="Можно ли редактировать анкету?"
-            answer="Да — свяжись с координатором в Telegram, и мы поможем обновить данные или заменить контактную информацию."
+            question={t('ui.findteampage.32c49e31')}
+            answer={t('ui.findteampage.bb017e0e8a')}
           />
           <FAQItem
-            question="Что делать, если я уже нашёл команду?"
-            answer="Сообщи координатору — мы скроем анкету из общего списка, чтобы не получать лишние сообщения. Ты всегда можешь вернуть её позже."
+            question={t('ui.findteampage.5167e97a')}
+            answer={t('ui.findteampage.b734b04eb7')}
           />
           <FAQItem
-            question="Как безопасно связаться с участником?"
-            answer="Используй контакты, указанные в анкете (Telegram или email). Не передавай личные данные (адрес, школу, паспорт) и не переходите по подозрительным ссылкам. При сомнениях — свяжись с организаторами."
+            question={t('ui.findteampage.27f20eac')}
+            answer={t('ui.findteampage.a80b8b09d5')}
           />
         </motion.div>
       </section>

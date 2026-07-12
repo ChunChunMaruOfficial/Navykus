@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   fadeUp,
@@ -11,7 +12,6 @@ import {
   Users, 
   CheckCircle2, 
   ArrowRight, 
-  HelpCircle, 
   Info, 
   Settings, 
   Edit, 
@@ -71,55 +71,65 @@ interface ChampionshipPageProps {
   onOpenApplyModal: () => void;
 }
 
+const SUITABILITY_TABS = [
+  { id: 'all', label: 'ui.championshippage.228a84235a' },
+  { id: 'teamless', label: 'ui.championshippage.a950b9ee19' },
+  { id: 'creative', label: 'ui.championshippage.ca26c61c13' },
+  { id: 'ambitious', label: 'ui.championshippage.97e139a69f' },
+] as const;
+
+type SuitabilityTab = typeof SUITABILITY_TABS[number]['id'];
+
 export default function ChampionshipPage({ 
   onBackToHome, 
   onNavigateToSection, 
   onOpenApplyModal 
 }: ChampionshipPageProps) {
+  const { t } = useTranslation();
 
   // CMS/Editable state with prefilled default championship data
   const [cmsData, setCmsData] = useState<ChampionshipData>({
     id: 'cup-1',
     title: 'Navykus Global Case Cup: Sustainable Cities',
-    type: 'Кейс-чемпионат',
-    date: '18–25 Сентября 2026',
-    registrationDeadline: '15 Сентября 2026',
-    description: 'Разработка инновационных решений для урбанистических проблем будущего. Международное жюри, реальные кейсы от урбанистов, архитекторов и экологов со всего мира.',
-    pitch: 'Реши глобальный урбанистический кейс, собери международную команду мечты и защити свое решение перед менторами из MIT и экспертами Smart Cities.',
-    targetAudience: 'Школьники и студенты 8–11 классов, увлеченные экологией, ИТ, урбанистикой и дизайном.',
-    ageLimit: '14–19 лет',
-    format: 'Международный онлайн-чемпионат (Групповая работа в Miro/Figma, презентация решений в Zoom)',
-    teamsAllowed: 'Индивидуально или в команде (от 2 до 5 человек)',
-    lang: 'Русский / Английский',
+    type: t('ui.championshippage.4d64641fc0'),
+    date: t('ui.championshippage.bbc292ccc9'),
+    registrationDeadline: t('ui.championshippage.96d45bb877'),
+    description: t('ui.championshippage.567335aef2'),
+    pitch: t('ui.championshippage.dd865f6e85'),
+    targetAudience: t('ui.championshippage.8de641ff48'),
+    ageLimit: t('ui.championshippage.9c2bddb76a'),
+    format: t('ui.championshippage.14fe253652'),
+    teamsAllowed: t('ui.championshippage.ed233d55cc'),
+    lang: t('ui.championshippage.e91c59966c'),
     maxParticipants: 120,
-    expectedResult: 'Интерактивный проект/презентация по реновации городского пространства, план снижения углеродного следа или ИТ-решение для умного города.',
+    expectedResult: t('ui.championshippage.034bb56718'),
     evaluationCriteria: [
-      'Инновационность и креативность подхода (25%)',
-      'Техническая и экономическая реализуемость идеи (25%)',
-      'Глубина анализа проблемы и проработка деталей (25%)',
-      'Качество защиты, дизайн презентации и командный дух (25%)'
+      t('ui.championshippage.47b3f641ee'),
+      t('ui.championshippage.49a254c0ad'),
+      t('ui.championshippage.c3ab1eab18'),
+      t('ui.championshippage.bdbee4fdad')
     ],
     themes: [
-      'Реновация «зеленых зон» и микроурбанистика',
-      'Инновационная переработка и сортировка бытовых отходов',
-      'Альтернативные источники энергии в жилых кварталах',
-      'Интеллектуальные ИТ-решения для общественного транспорта'
+      t('ui.championshippage.6e972b4b72'),
+      t('ui.championshippage.61fb774e62'),
+      t('ui.championshippage.058159276f'),
+      t('ui.championshippage.f1d7d23827')
     ],
     mentors: [
       {
-        name: 'д-р Марк Шпильман',
-        role: 'Профессор урбанистики в MIT',
-        expertise: 'Устойчивое городское планирование, Smart Cities'
+        name: t('ui.championshippage.052fb01664'),
+        role: t('ui.championshippage.001a2ebaa3'),
+        expertise: t('ui.championshippage.e3a8a73e2b')
       },
       {
-        name: 'Елена Самарина',
-        role: 'Руководитель проектов УрбанХаб',
-        expertise: 'Проектирование общественных пространств, соучаствующее проектирование'
+        name: t('ui.championshippage.a580e0aa8d'),
+        role: t('ui.championshippage.80252ebf4d'),
+        expertise: t('ui.championshippage.bdea62169b')
       },
       {
-        name: 'Артур де Гроот',
-        role: 'Главный аналитик Роттердамского университета',
-        expertise: 'Экологический аудит и циркулярная экономика городов'
+        name: t('ui.championshippage.777f772d6f'),
+        role: t('ui.championshippage.bc7f7951f3'),
+        expertise: t('ui.championshippage.1c03d08986')
       }
     ],
     registrationStatus: 'open'
@@ -147,7 +157,7 @@ export default function ChampionshipPage({
   // Interactive UI states (scenarios, tabs, accordions)
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [activeTimelineStep, setActiveTimelineStep] = useState<number>(0);
-  const [selectedSuitabilityTab, setSelectedSuitabilityTab] = useState<'all' | 'teamless' | 'ambitious' | 'creative'>('all');
+  const [selectedSuitabilityTab, setSelectedSuitabilityTab] = useState<SuitabilityTab>('all');
 
   // Application Form submission state
   const [formData, setFormData] = useState({
@@ -158,7 +168,7 @@ export default function ChampionshipPage({
     contact: '',
     hasTeam: 'no', // 'no' (no team, wants matching), 'yes' (has team), 'solo' (wants to participate alone)
     teamSize: '1',
-    interests: 'Урбанистика & Экология',
+    interests: 'urbanism',
     portfolioLink: '',
     coverLetter: ''
   });
@@ -199,7 +209,7 @@ export default function ChampionshipPage({
         {
           name: newMentorName,
           role: newMentorRole,
-          expertise: newMentorExpertise || 'Общая экспертиза'
+          expertise: newMentorExpertise || t('ui.championshippage.545447d8fb')
         }
       ]
     }));
@@ -239,23 +249,23 @@ export default function ChampionshipPage({
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim()) {
-      setFormErrorMsg('Пожалуйста, введите ваше имя');
+      setFormErrorMsg(t('ui.app.02ce21d910'));
       setFormStatus('error');
       return;
     }
     if (!formData.email.trim() || !formData.email.includes('@')) {
-      setFormErrorMsg('Введите корректный email адрес');
+      setFormErrorMsg(t('ui.championshippage.7dab316a67'));
       setFormStatus('error');
       return;
     }
     const ageNum = Number(formData.age);
     if (!formData.age.trim() || isNaN(ageNum) || ageNum < 10 || ageNum > 24) {
-      setFormErrorMsg('Укажите корректный возраст (от 10 до 24 лет)');
+      setFormErrorMsg(t('ui.championshippage.7b04173c40'));
       setFormStatus('error');
       return;
     }
     if (!formData.contact.trim()) {
-      setFormErrorMsg('Укажите контакт для быстрой связи (Telegram или WhatsApp)');
+      setFormErrorMsg(t('ui.championshippage.a79744eacf'));
       setFormStatus('error');
       return;
     }
@@ -289,7 +299,7 @@ export default function ChampionshipPage({
       contact: '',
       hasTeam: 'no',
       teamSize: '1',
-      interests: 'Урбанистика & Экология',
+      interests: 'urbanism',
       portfolioLink: '',
       coverLetter: ''
     });
@@ -308,111 +318,108 @@ export default function ChampionshipPage({
   const TIMELINE_STEPS = [
     {
       step: 1,
-      title: 'Быстрая онлайн-регистрация',
-      desc: 'Заполните анкету на этой странице, укажите ваши интересы и выберите формат участия (индивидуальный или командный).',
-      highlight: 'Дедлайн: ' + cmsData.registrationDeadline
+      title: t('ui.championshippage.e49a12f0b8'),
+      desc: t('ui.championshippage.4ee6afa1a6'),
+      highlight: t('ui.championshippage.6bc16a4703') + cmsData.registrationDeadline
     },
     {
       step: 2,
-      title: 'Мэтчинг и сбор команд',
-      desc: 'Если у вас нет команды, наша умная платформа автоматически предложит вам близких по духу сокомандников или откроет доступ в закрытый чат.',
-      highlight: 'Помощь без команды: да'
+      title: t('ui.championshippage.2070234c2a'),
+      desc: t('ui.championshippage.c2761e4600'),
+      highlight: t('ui.championshippage.c6cf36a92f')
     },
     {
       step: 3,
-      title: 'Публикация кейсов и старт',
-      desc: 'В день старта команды получают доступ в личный кабинет с подробным техническим заданием от компаний-партнеров.',
-      highlight: 'Старт: ' + cmsData.date.split('–')[0]
+      title: t('ui.championshippage.60c8f8d9bc'),
+      desc: t('ui.championshippage.bf30acbb04'),
+      highlight: t('ui.championshippage.342ef5b12d') + cmsData.date.split('–')[0]
     },
     {
       step: 4,
-      title: 'Работа над проектом и воркшопы',
-      desc: 'Вы проектируете решение в Miro/Figma, посещаете ежедневные вебинары от спикеров и улучшаете прототип на основе инструкций.',
-      highlight: '1-2 онлайн-воркшопа ежедневно'
+      title: t('ui.championshippage.9602b9d37a'),
+      desc: t('ui.championshippage.a1f7854119'),
+      highlight: t('ui.championshippage.ac0b271366')
     },
     {
       step: 5,
-      title: 'Обратная связь от менторов',
-      desc: 'Каждой команде выделяется персональный эксперт (трекер), который проводит сессию разбора и помогает устранить ошибки.',
-      highlight: 'Индивидуальный разбор 30 минут'
+      title: t('ui.championshippage.55ad9d790f'),
+      desc: t('ui.championshippage.d81bad3646'),
+      highlight: t('ui.championshippage.79f0f1a30d')
     },
     {
       step: 6,
-      title: 'Финальный питч проектов',
-      desc: 'Команды представляют свои презентации и прототипы перед международным жюри в прямом онлайн-эфире.',
-      highlight: 'Защита: до 5 минут на команду'
+      title: t('ui.championshippage.98be2d9f24'),
+      desc: t('ui.championshippage.20dc81369a'),
+      highlight: t('ui.championshippage.1c3fdab6c1')
     },
     {
       step: 7,
-      title: 'Итоги, призы и фидбек-сессия',
-      desc: 'Жюри выставляет баллы, оглашает победителей и призеров, а каждый участник получает персональный сертификат и развернутый отзыв.',
-      highlight: 'Сертификат в портфолио всем участникам'
+      title: t('ui.championshippage.d824bb6cc4'),
+      desc: t('ui.championshippage.f34151eece'),
+      highlight: t('ui.championshippage.49424077d7')
     }
   ];
 
   const FAQ_ITEMS: FAQItem[] = [
     {
-      question: 'Можно ли участвовать, если у меня нет команды?',
-      answer: 'Да! Более половины участников регистрируются по одному. Мы предусмотрели интерактивный процесс мэтчинга, живые зум-встречи для знакомства и специальный каталог анкет, в котором вы сможете легко собрать команду за 2 дня до старта.'
+      question: t('ui.championshippage.75eb0d84'),
+      answer: t('ui.championshippage.4b587e32b1')
     },
     {
-      question: 'Участие платное? И какие требования к технике?',
-      answer: 'Участие абсолютно бесплатное. Вам понадобятся только стабильный интернет, доступ к Zoom/Discord, а также базовые навыки работы в Google Презентациях или Miro/Figma. Никакого сложного софта устанавливать не нужно.'
+      question: t('ui.championshippage.ccc076b0'),
+      answer: t('ui.championshippage.abf0a3c0da')
     },
     {
-      question: 'Сколько времени в день будет занимать кубок?',
-      answer: 'Обычно это занимает 2-3 часа свободного времени в день. Воркшопы проходят во внеучебное время (вечером по МСК) и сохраняются в записи, поэтому вы сможете легко совмещать кубок с уроками в школе или парами в колледже.'
+      question: t('ui.championshippage.0a5a7de0'),
+      answer: t('ui.championshippage.842ede64f5')
     },
     {
-      question: 'Можно ли участвовать школьникам из других стран?',
-      answer: 'Да, чемпионат является международным и проводится полностью в онлайн-формате. Мы ждем ребят из СНГ, Европы, Азии и Америки. Основной рабочий язык чемпионата — русский, но защита проектов и материалы также доступны на английском.'
+      question: t('ui.championshippage.fdb6874f'),
+      answer: t('ui.championshippage.c00db4e511')
     },
     {
-      question: 'Какой документ я получу по итогам участия?',
-      answer: 'Каждый участник, дошедший до этапа защиты и приславший решение, получает официальный международный сертификат участника с подписью организаторов и логотипами наших партнеров, который верифицирует полученные hard и soft skills для вашего портфолио.'
+      question: t('ui.championshippage.c264c842'),
+      answer: t('ui.championshippage.75488dd388')
     },
     {
-      question: 'Где и когда будут опубликованы результаты?',
-      answer: 'Результаты и баллы будут опубликованы на церемонии закрытия в прямом эфире, а также продублированы на платформе и отправлены всем участникам в личные кабинеты и на почту в течение 24 часов после окончания защит.'
+      question: t('ui.championshippage.47dfb4af'),
+      answer: t('ui.championshippage.59016ab8e3')
     }
   ];
 
   return (
     <div className="relative w-full text-brand-dark pb-16 pt-24">
-      <div className="max-w-6xl mx-auto px-[6%] md:px-[10%] space-y-16">
+      <div className="space-y-16">
         
         {/* Back navigation */}
-        <div className="flex justify-start mb-8 sm:mb-12">
-          <button 
-            onClick={onBackToHome}
-            className="group inline-flex items-center gap-2 px-4 py-2 border border-[#d8d1cc]/60 hover:border-brand-dark text-xs font-mono tracking-wider uppercase text-brand-slate hover:text-brand-dark transition-all rounded-xl cursor-pointer bg-white/20 backdrop-blur-sm"
-          >
-            <ArrowRight className="w-3.5 h-3.5 rotate-180 transition-transform group-hover:-translate-x-0.5" />
-            <span>Вернуться на главную</span>
-          </button>
+        <div className="max-w-7xl mx-auto px-[6%] md:px-[10%]">
+          <div className="flex justify-start mb-8 sm:mb-12">
+            <button
+              onClick={onBackToHome}
+              className="group inline-flex items-center gap-2 px-4 py-2 border border-[#d8d1cc]/60 hover:border-brand-dark text-xs font-mono tracking-wider uppercase text-brand-slate hover:text-brand-dark transition-all rounded-xl cursor-pointer bg-white/20 backdrop-blur-sm"
+            >
+              <ArrowRight className="w-3.5 h-3.5 rotate-180 transition-transform group-hover:-translate-x-0.5" />
+              <span>{t('ui.aboutprojectpage.a9dc864a2e')}</span>
+            </button>
+          </div>
         </div>
 
         {/* 1. HERO BLOCK OF CHAMPIONSHIP */}
-        <section className="relative z-10 text-center space-y-6 max-w-4xl mx-auto mb-8">
+        <section className="relative z-10 text-center space-y-6 mx-auto mb-8 max-w-7xl px-[6%] md:px-[10%]">
           {/* Status badge based on CMS registration state */}
           <div className="flex justify-center">
             {cmsData.registrationStatus === 'open' && (
               <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 rounded-full text-[10px] font-mono uppercase tracking-widest font-semibold animate-pulse">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                Регистрация открыта • До {cmsData.registrationDeadline}
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>{t('ui.championshippage.6bdc7661d3')}{cmsData.registrationDeadline}
               </span>
             )}
             {cmsData.registrationStatus === 'suspended' && (
               <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-amber-500/10 text-amber-600 border border-amber-500/20 rounded-full text-[10px] font-mono uppercase tracking-widest font-semibold">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
-                Приостановлено • Лимит мест почти исчерпан
-              </span>
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>{t('ui.championshippage.04d60f7ace')}</span>
             )}
             {cmsData.registrationStatus === 'closed' && (
               <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-rose-500/10 text-rose-600 border border-rose-500/20 rounded-full text-[10px] font-mono uppercase tracking-widest font-semibold">
-                <Lock className="w-3 h-3" />
-                Регистрация закрыта
-              </span>
+                <Lock className="w-3 h-3" />{t('ui.championshippage.a9e0cfbc2d')}</span>
             )}
           </div>
 
@@ -440,29 +447,25 @@ export default function ChampionshipPage({
                 href="#apply-form-section"
                 className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white rounded-xl text-xs font-mono tracking-widest uppercase font-semibold shadow-lg shadow-[#bc4638]/15 hover:scale-[1.01] transition-all flex items-center justify-center gap-2"
               >
-                <span>Подать заявку</span>
+                <span>{t('ui.app.24cd8dc78d')}</span>
                 <ArrowRight className="w-4 h-4" />
               </a>
             ) : (
               <button
                 disabled
                 className="w-full sm:w-auto px-8 py-3.5 bg-gray-300 text-gray-500 rounded-xl text-xs font-mono tracking-widest uppercase cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                Регистрация окончена
-              </button>
+              >{t('ui.championshippage.26e1a772ee')}</button>
             )}
 
             <button
               onClick={() => handleNavigateFromChampionship('scenarios')}
               className="w-full sm:w-auto px-8 py-3.5 bg-white border border-[#d8d1cc] text-[#5b6472] hover:border-[#bc4638]/60 hover:text-brand-dark rounded-xl text-xs font-mono tracking-widest uppercase transition-all text-center cursor-pointer"
-            >
-              Найти команду
-            </button>
+            >{t('ui.app.d13f387e64')}</button>
           </div>
         </section>
 
         {/* 2. COMPACT KEY INFO CARDS BLOCK */}
-        <section className="relative z-10">
+        <section className="relative z-10 max-w-7xl mx-auto px-[6%] md:px-[10%]">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             
             <motion.div
@@ -472,10 +475,10 @@ export default function ChampionshipPage({
               transition={{ duration: 0.5, ease: "easeOut", delay: 0 }}
               className="bg-white/[0.12] glass-card border border-white/[0.15] p-4 rounded-2xl text-left flex flex-col justify-between space-y-2"
             >
-              <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bc4638]">Даты проведения</span>
+              <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bc4638]">{t('ui.championshippage.8d4a5a0ee6')}</span>
               <div className="space-y-0.5">
                 <p className="text-xs sm:text-sm font-serif font-bold text-brand-dark">{cmsData.date}</p>
-                <p className="text-xs text-brand-slate font-normal md:font-light">Онлайн-формат</p>
+                <p className="text-xs text-brand-slate font-normal md:font-light">{t('ui.app.aa324b069f')}</p>
               </div>
             </motion.div>
 
@@ -486,9 +489,9 @@ export default function ChampionshipPage({
               transition={{ duration: 0.5, ease: "easeOut", delay: 0.08 }}
               className="bg-white/[0.12] glass-card border border-white/[0.15] p-4 rounded-2xl text-left flex flex-col justify-between space-y-2"
             >
-              <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bd5b82]">Формат участия</span>
+              <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bd5b82]">{t('ui.championshippage.f94a9af829')}</span>
               <div className="space-y-0.5">
-                <p className="text-xs sm:text-sm font-serif font-bold text-brand-dark">100% Онлайн</p>
+                <p className="text-xs sm:text-sm font-serif font-bold text-brand-dark">{t('ui.championshippage.8bd2b856e1')}</p>
                 <p className="text-xs text-brand-slate font-normal md:font-light">Zoom, Figma, Miro</p>
               </div>
             </motion.div>
@@ -500,10 +503,10 @@ export default function ChampionshipPage({
               transition={{ duration: 0.5, ease: "easeOut", delay: 0.16 }}
               className="bg-white/[0.12] glass-card border border-white/[0.15] p-4 rounded-2xl text-left flex flex-col justify-between space-y-2"
             >
-              <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bc4638]">Кто участвует</span>
+              <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bc4638]">{t('ui.championshippage.e70496e65c')}</span>
               <div className="space-y-0.5">
-                <p className="text-xs sm:text-sm font-serif font-bold text-brand-dark">Возраст {cmsData.ageLimit}</p>
-                <p className="text-xs text-brand-slate font-normal md:font-light">Школы и колледжи</p>
+                <p className="text-xs sm:text-sm font-serif font-bold text-brand-dark">{t('ui.championshippage.ff03252b22')}{cmsData.ageLimit}</p>
+                <p className="text-xs text-brand-slate font-normal md:font-light">{t('ui.championshippage.05679f1a9a')}</p>
               </div>
             </motion.div>
 
@@ -514,10 +517,10 @@ export default function ChampionshipPage({
               transition={{ duration: 0.5, ease: "easeOut", delay: 0.24 }}
               className="bg-white/[0.12] glass-card border border-white/[0.15] p-4 rounded-2xl text-left flex flex-col justify-between space-y-2"
             >
-              <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bd5b82]">Язык кубка</span>
+              <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bd5b82]">{t('ui.championshippage.d48444dfb4')}</span>
               <div className="space-y-0.5">
                 <p className="text-xs sm:text-sm font-serif font-bold text-brand-dark">{cmsData.lang}</p>
-                <p className="text-xs text-brand-slate font-normal md:font-light">Синхронный перевод</p>
+                <p className="text-xs text-brand-slate font-normal md:font-light">{t('ui.championshippage.1185c79f59')}</p>
               </div>
             </motion.div>
 
@@ -528,10 +531,10 @@ export default function ChampionshipPage({
               transition={{ duration: 0.5, ease: "easeOut", delay: 0.32 }}
               className="bg-white/[0.12] glass-card border border-white/[0.15] p-4 rounded-2xl text-left flex flex-col justify-between space-y-2"
             >
-              <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bc4638]">Дедлайн заявок</span>
+              <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bc4638]">{t('ui.championshippage.4ec991f17a')}</span>
               <div className="space-y-0.5">
                 <p className="text-xs sm:text-sm font-serif font-bold text-[#bc4638]">{cmsData.registrationDeadline}</p>
-                <p className="text-xs text-brand-slate font-normal md:font-light">До 23:59 по МСК</p>
+                <p className="text-xs text-brand-slate font-normal md:font-light">{t('ui.championshippage.593bb47761')}</p>
               </div>
             </motion.div>
 
@@ -542,42 +545,40 @@ export default function ChampionshipPage({
               transition={{ duration: 0.5, ease: "easeOut", delay: 0.40 }}
               className="bg-white/[0.12] glass-card border border-white/[0.15] p-4 rounded-2xl text-left flex flex-col justify-between space-y-2"
             >
-              <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bd5b82]">Состав команды</span>
+              <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bd5b82]">{t('ui.championshippage.a7fbd7c9e4')}</span>
               <div className="space-y-0.5">
-                <p className="text-xs sm:text-sm font-serif font-bold text-brand-dark">1–5 человек</p>
-                <p className="text-[10px] text-[#bd5b82] font-semibold">Поможем найти</p>
+                <p className="text-xs sm:text-sm font-serif font-bold text-brand-dark">{t('ui.championshippage.0df738a56f')}</p>
+                <p className="text-[10px] text-[#bd5b82] font-semibold">{t('ui.championshippage.04aa324d68')}</p>
               </div>
             </motion.div>
 
           </div>
         </section>
 
-        {/* 3. ABOUT THE CHAMPIONSHIP (О чём чемпионат) */}
+        {/* 3. ABOUT THE CHAMPIONSHIP */}
         <motion.section
           {...fadeUpLarge}
-          className="relative z-10 py-16 md:py-24 bg-white/[0.10] glass-xl border border-white/[0.15] rounded-3xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-start card-blush"
+          className="relative z-10 py-10 md:py-14 bg-white/[0.10] glass-xl border border-white/[0.15] rounded-3xl card-blush"
         >
-          <div className="lg:col-span-5 space-y-6">
-            <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#bc4638] font-bold">О ЧЁМ ЧЕМПИОНАТ</span>
-            <h2 className="text-3xl font-serif text-brand-dark leading-tight">
-              Разберитесь в реальных вызовах экологии и урбанистики
-            </h2>
-            <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">
-              {cmsData.description}
-            </p>
-            <div className="p-4 bg-white/[0.12] glass-panel rounded-2xl border border-white/[0.12]">
-              <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-brand-slate block mb-1">Ожидаемый результат (MVP):</span>
-              <p className="text-xs text-brand-dark font-medium leading-relaxed font-serif">
-                {cmsData.expectedResult}
+          <div className="max-w-7xl mx-auto px-[6%] md:px-[10%] grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <div className="lg:col-span-5 space-y-6">
+              <h2 className="text-3xl font-serif text-brand-dark leading-tight">{t('ui.championshippage.f30417ddf0')}</h2>
+              <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">
+                {cmsData.description}
               </p>
+              <div className="p-4 bg-white/[0.12] glass-panel rounded-2xl border border-white/[0.12]">
+                <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-brand-slate block mb-1">{t('ui.championshippage.d50e039adb')}</span>
+                <p className="text-xs text-brand-dark font-medium leading-relaxed font-serif">
+                  {cmsData.expectedResult}
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div className="lg:col-span-7 space-y-6">
+            <div className="lg:col-span-7 space-y-6">
             
             {/* Themes list from CMS */}
             <div className="space-y-3">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-brand-dark font-semibold">Ключевые направления (Темы кейсов):</span>
+              <span className="text-[10px] font-mono uppercase tracking-wider text-brand-dark font-semibold">{t('ui.championshippage.5c807e4149')}</span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {cmsData.themes.map((theme, idx) => (
                   <div key={idx} className="bg-white/[0.12] glass-card border border-white/[0.15] p-3.5 rounded-xl text-left flex items-start gap-3">
@@ -592,7 +593,7 @@ export default function ChampionshipPage({
 
             {/* Evaluation Criteria */}
             <div className="space-y-3 pt-2">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-brand-dark font-semibold">Что будет оценивать жюри:</span>
+              <span className="text-[10px] font-mono uppercase tracking-wider text-brand-dark font-semibold">{t('ui.championshippage.9ab00a25e1')}</span>
               <div className="space-y-2">
                 {cmsData.evaluationCriteria.map((crit, idx) => (
                   <div key={idx} className="flex items-start gap-2 text-xs text-brand-slate font-normal md:font-light">
@@ -604,41 +605,34 @@ export default function ChampionshipPage({
             </div>
 
           </div>
+          </div>
         </motion.section>
 
-        {/* 4. SUITABILITY SEGMENTATION (Кому подойдет кубок) */}
-        <section className="relative z-10 py-16 md:py-24">
-          <div className="text-center space-y-3 max-w-2xl mx-auto">
-            <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark tracking-tight">Подходит каждому активному школьнику</h2>
-            <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">
-              Не важно, умеете ли вы писать код или рисовать презентации. Кубок устроен так, чтобы каждый участник раскрыл свои сильные стороны.
-            </p>
+        {/* 4. SUITABILITY SEGMENTATION */}
+        <section className="relative z-10 py-16 md:py-24 max-w-7xl mx-auto px-[6%] md:px-[10%]">
+          <div className="text-center space-y-3 mx-auto mb-8 md:mb-10">
+            <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark tracking-tight">{t('ui.championshippage.930fc92538')}</h2>
           </div>
 
           {/* Interactive tabs for different archetypes */}
-           <div className="flex flex-wrap justify-center gap-2 pb-4 max-w-2xl mx-auto">
-            {[
-              { id: 'all', label: 'Всем участникам' },
-              { id: 'teamless', label: 'Если нет команды 🤝' },
-              { id: 'creative', label: 'Гуманитариям & Креаторам 🎨' },
-              { id: 'ambitious', label: 'Будущим лидерам 🚀' }
-            ].map((tab) => (
+           <div className="flex flex-wrap justify-center gap-2 pb-4 mx-auto">
+            {SUITABILITY_TABS.map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setSelectedSuitabilityTab(tab.id as any)}
+                onClick={() => setSelectedSuitabilityTab(tab.id)}
                 className={`px-4 py-2 text-xs font-mono rounded-xl transition-all border cursor-pointer ${
                   selectedSuitabilityTab === tab.id 
                     ? 'bg-brand-dark text-white border-brand-dark font-bold shadow-sm' 
                     : 'bg-white/40 text-brand-slate hover:text-brand-dark border-white/60 hover:bg-white/60'
                 }`}
               >
-                {tab.label}
+                {t(tab.label)}
               </button>
             ))}
           </div>
 
           {/* Tab content renders based on selected suitability archetype */}
-          <div className="max-w-4xl mx-auto">
+          <div className="mx-auto">
             <AnimatePresence mode="wait">
               <motion.div
                 key={selectedSuitabilityTab}
@@ -651,30 +645,25 @@ export default function ChampionshipPage({
                 {selectedSuitabilityTab === 'all' && (
                   <>
                     <div className="space-y-4">
-                      <h4 className="font-serif font-semibold text-lg text-brand-dark">Максимальный рост для каждого</h4>
-                      <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">
-                        Кубок предоставляет равные шансы для ребят с любым уровнем подготовки. Мы даем учебные воркшопы, шаблоны и менторскую поддержку, чтобы ваш первый проект получился профессиональным.
-                      </p>
+                      <h4 className="font-serif font-semibold text-lg text-brand-dark">{t('ui.championshippage.18b2b68608')}</h4>
+                      <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">{t('ui.championshippage.9913df95c5')}</p>
                       <ul className="space-y-2">
                         <li className="flex items-center gap-2.5 text-xs text-brand-slate font-light">
                           <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <span>Освоение востребованных Soft Skills</span>
+                          <span>{t('ui.championshippage.de56ba7e8b')}</span>
                         </li>
                         <li className="flex items-center gap-2.5 text-xs text-brand-slate font-light">
                           <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <span>Международное портфолио</span>
+                          <span>{t('ui.championshippage.5e809fc67f')}</span>
                         </li>
                       </ul>
                     </div>
                     <div className="bg-gradient-to-br from-[#bc4638]/5 to-[#bd5b82]/5 rounded-xl p-5 flex flex-col justify-between border border-white/40">
                       <div>
-                        <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bc4638] font-bold">СОВЕТ UX-ДИЗАЙНЕРА</span>
-                        <p className="text-xs text-brand-slate mt-1.5 font-light leading-relaxed">
-                          «Попробуйте распределить роли в команде: один сильный спикер, один генератор идей, один дизайнер слайдов и один аналитик. Такое разделение труда гарантирует лучшие оценки жюри!»
-                        </p>
+                        <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bc4638] font-bold">{t('ui.championshippage.8f11566b38')}</span>
+                        <p className="text-xs text-brand-slate mt-1.5 font-light leading-relaxed">{t('ui.championshippage.7f6fbf84a6')}</p>
                       </div>
-                      <a href="#apply-form-section" className="text-xs font-mono font-bold text-[#bc4638] hover:underline inline-flex items-center gap-1 mt-4">
-                        Подать заявку прямо сейчас <ArrowRight className="w-3 h-3" />
+                      <a href="#apply-form-section" className="text-xs font-mono font-bold text-[#bc4638] hover:underline inline-flex items-center gap-1 mt-4">{t('ui.app.24cd8dc78d')}<ArrowRight className="w-3 h-3" />
                       </a>
                     </div>
                   </>
@@ -683,33 +672,28 @@ export default function ChampionshipPage({
                 {selectedSuitabilityTab === 'teamless' && (
                   <>
                     <div className="space-y-4">
-                      <h4 className="font-serif font-semibold text-lg text-brand-dark">Без команды? Мы решим эту проблему!</h4>
-                      <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">
-                        Не бойтесь регистрироваться по одному. Навыкус — это прежде всего нетворкинг-платформа. Мы организуем систему автоматического подбора команд по вашим интересам и компетенциям.
-                      </p>
+                      <h4 className="font-serif font-semibold text-lg text-brand-dark">{t('ui.championshippage.3015b9f8')}</h4>
+                      <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">{t('ui.championshippage.3cb46975e1')}</p>
                       <ul className="space-y-2">
                         <li className="flex items-center gap-2.5 text-xs text-brand-slate font-light">
                           <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <span>Авто-мэтчинг в личном кабинете</span>
+                          <span>{t('ui.championshippage.d3da2f0b9c')}</span>
                         </li>
                         <li className="flex items-center gap-2.5 text-xs text-brand-slate font-light">
                           <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <span>Живая Zoom-сессия знакомств перед стартом</span>
+                          <span>{t('ui.championshippage.9dee187e5f')}</span>
                         </li>
                       </ul>
                     </div>
                     <div className="bg-brand-dark text-white rounded-xl p-5 flex flex-col justify-between">
                       <div>
-                        <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-brand-terracotta font-bold">ГОТОВЫЙ СЦЕНАРИЙ</span>
-                        <p className="text-xs text-white/85 mt-1.5 font-light leading-relaxed">
-                          Регистрируйтесь в индивидуальном формате, в анкете выберите пункт «Ищу команду». Сразу после этого вы получите ссылку на закрытое комьюнити с более чем 100 соавторами.
-                        </p>
+                        <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-brand-terracotta font-bold">{t('ui.championshippage.9f228ac331')}</span>
+                        <p className="text-xs text-white/85 mt-1.5 font-light leading-relaxed">{t('ui.championshippage.a3e6b0b4fd')}</p>
                       </div>
                       <button
                         onClick={() => handleNavigateFromChampionship('scenarios')}
                         className="text-xs font-mono font-bold text-brand-terracotta hover:underline inline-flex items-center gap-1 mt-4 cursor-pointer text-left"
-                      >
-                        Перейти к траекториям мэтчинга <ArrowRight className="w-3 h-3" />
+                      >{t('ui.championshippage.6e3ec9704e')}<ArrowRight className="w-3 h-3" />
                       </button>
                     </div>
                   </>
@@ -718,30 +702,25 @@ export default function ChampionshipPage({
                 {selectedSuitabilityTab === 'creative' && (
                   <>
                     <div className="space-y-4">
-                      <h4 className="font-serif font-semibold text-lg text-brand-dark">Креатив, дизайн и смыслы рулят!</h4>
-                      <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">
-                        Решение кейсов — это не программирование. Это прежде всего исследование людей, генерация ярких метафор, создание красивых визуальных схем и рассказ увлекательных историй.
-                      </p>
+                      <h4 className="font-serif font-semibold text-lg text-brand-dark">{t('ui.championshippage.cec289e2df')}</h4>
+                      <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">{t('ui.championshippage.fe12153d63')}</p>
                       <ul className="space-y-2">
                         <li className="flex items-center gap-2.5 text-xs text-brand-slate font-light">
                           <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <span>Шаблоны презентаций для Miro / Figma</span>
+                          <span>{t('ui.championshippage.5c275f89de')}</span>
                         </li>
                         <li className="flex items-center gap-2.5 text-xs text-brand-slate font-light">
                           <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <span>Воркшопы по питчингу и сторителлингу</span>
+                          <span>{t('ui.championshippage.188450882a')}</span>
                         </li>
                       </ul>
                     </div>
                     <div className="bg-white p-5 rounded-xl border border-[#d8d1cc]/40 flex flex-col justify-between">
                       <div>
-                        <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bd5b82] font-bold font-semibold">ОТ КРЕАТИВНОГО ДИРЕКТОРА</span>
-                        <p className="text-xs text-brand-slate mt-1.5 font-light leading-relaxed">
-                          «Кейсы по Sustainable Cities на 50% состоят из понимания психологии горожан и дизайна пространств. Проявите креативность, предложите нестандартное визуальное решение!»
-                        </p>
+                        <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bd5b82] font-bold font-semibold">{t('ui.championshippage.63db68249b')}</span>
+                        <p className="text-xs text-brand-slate mt-1.5 font-light leading-relaxed">{t('ui.championshippage.c174c67149')}</p>
                       </div>
-                      <a href="#apply-form-section" className="text-xs font-mono font-bold text-[#bd5b82] hover:underline inline-flex items-center gap-1 mt-4">
-                        Зарегистрироваться на кубок <ArrowRight className="w-3 h-3" />
+                      <a href="#apply-form-section" className="text-xs font-mono font-bold text-[#bd5b82] hover:underline inline-flex items-center gap-1 mt-4">{t('ui.activitiespage.84d92abc92')}<ArrowRight className="w-3 h-3" />
                       </a>
                     </div>
                   </>
@@ -750,30 +729,25 @@ export default function ChampionshipPage({
                 {selectedSuitabilityTab === 'ambitious' && (
                   <>
                     <div className="space-y-4">
-                      <h4 className="font-serif font-semibold text-lg text-brand-dark">Заявите о себе лидерам глобального EdTech</h4>
-                      <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">
-                        Наш кубок посещают скауты международных университетов и HR-специалисты крупных компаний. Это ваш шанс получить приглашение на оплачиваемую стажировку или рекомендательное письмо.
-                      </p>
+                      <h4 className="font-serif font-semibold text-lg text-brand-dark">{t('ui.championshippage.1d5616ef28')}</h4>
+                      <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">{t('ui.championshippage.fae9e0f0cb')}</p>
                       <ul className="space-y-2">
                         <li className="flex items-center gap-2.5 text-xs text-brand-slate font-light">
                           <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <span>Рекомендации в ВУЗы</span>
+                          <span>{t('ui.championshippage.30c0440342')}</span>
                         </li>
                         <li className="flex items-center gap-2.5 text-xs text-brand-slate font-light">
                           <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <span>Стажировки в зеленых стартапах</span>
+                          <span>{t('ui.championshippage.e399db7c21')}</span>
                         </li>
                       </ul>
                     </div>
                     <div className="bg-gradient-to-br from-brand-dark/5 to-[#bd5b82]/5 rounded-xl p-5 border border-white/60 flex flex-col justify-between">
                       <div>
-                        <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-brand-dark font-bold">ПОБЕДИТЕЛЯМ</span>
-                        <p className="text-xs text-brand-slate mt-1.5 font-light leading-relaxed">
-                          Главный приз кубка — менторская поддержка стартапа до полноценного релиза и рекомендательные письма от профессоров MIT и трекеров Y Combinator.
-                        </p>
+                        <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-brand-dark font-bold">{t('ui.championshippage.64c107dcac')}</span>
+                        <p className="text-xs text-brand-slate mt-1.5 font-light leading-relaxed">{t('ui.championshippage.26ed71e452')}</p>
                       </div>
-                      <a href="#apply-form-section" className="text-xs font-mono font-bold text-brand-dark hover:underline inline-flex items-center gap-1 mt-4">
-                        Занять свое место в сетке <ArrowRight className="w-3 h-3" />
+                      <a href="#apply-form-section" className="text-xs font-mono font-bold text-brand-dark hover:underline inline-flex items-center gap-1 mt-4">{t('ui.championshippage.b4c596db9d')}<ArrowRight className="w-3 h-3" />
                       </a>
                     </div>
                   </>
@@ -783,16 +757,13 @@ export default function ChampionshipPage({
           </div>
         </section>
 
-        {/* 5. INTERACTIVE TIMELINE BLOCK (Как проходит чемпионат) */}
-        <section className="relative z-10 py-16 md:py-24 section-accent-warm">
-          <div className="text-center space-y-3 max-w-2xl mx-auto">
-            <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark tracking-tight">Как устроен процесс участия (Timeline)</h2>
-            <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">
-              Мы разработали понятный пошаговый онлайн-маршрут. Кликните на этапы, чтобы изучить подробности и важные маркеры.
-            </p>
+        {/* 5. INTERACTIVE TIMELINE BLOCK */}
+        <section className="relative z-10 py-16 md:py-24 mb-12 md:mb-16 section-accent-warm max-w-7xl mx-auto px-[6%] md:px-[10%]">
+          <div className="text-center space-y-3 mx-auto mb-8 md:mb-10">
+            <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark tracking-tight">{t('ui.championshippage.b41ff491ad')}</h2>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mx-auto">
             
             {/* Steps Left List (Clickable menu) */}
             <div className="lg:col-span-5 space-y-2">
@@ -832,7 +803,7 @@ export default function ChampionshipPage({
                 >
                   <div className="space-y-4">
                      <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono uppercase tracking-widest text-[#bc4638] font-bold">ЭТАП 0{TIMELINE_STEPS[activeTimelineStep].step} ИЗ 07</span>
+                      <span className="text-[10px] font-mono uppercase tracking-widest text-[#bc4638] font-bold">{t('ui.championshippage.6eaf12bfb5')}{TIMELINE_STEPS[activeTimelineStep].step}{t('ui.championshippage.bc6f640c2c')}</span>
                       <span className="text-[10px] font-mono text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100 font-bold">
                         {TIMELINE_STEPS[activeTimelineStep].highlight}
                       </span>
@@ -849,23 +820,19 @@ export default function ChampionshipPage({
 
                   <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <span className="text-[10px] text-brand-slate font-mono font-semibold">
-                      {activeTimelineStep < 6 ? 'Следующий шаг: ' + TIMELINE_STEPS[activeTimelineStep + 1].title : 'Финиш марафона!'}
+                      {activeTimelineStep < 6 ? t('ui.championshippage.285e2e51f4') + TIMELINE_STEPS[activeTimelineStep + 1].title : t('ui.championshippage.87719eaf02')}
                     </span>
                     
                     {activeTimelineStep < 6 ? (
                       <button 
                         onClick={() => setActiveTimelineStep(prev => prev + 1)}
                         className="w-full sm:w-auto px-4 py-2 bg-brand-dark text-white hover:bg-brand-dark/90 rounded-lg text-xs font-mono tracking-wider uppercase transition-all cursor-pointer"
-                      >
-                        Далее
-                      </button>
+                      >{t('ui.championshippage.a77e33e8d3')}</button>
                     ) : (
                       <a 
                         href="#apply-form-section"
                         className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white rounded-lg text-xs font-mono tracking-wider uppercase text-center cursor-pointer font-bold"
-                      >
-                        Перейти к анкете
-                      </a>
+                      >{t('ui.championshippage.645661f0ee')}</a>
                     )}
                   </div>
                 </motion.div>
@@ -876,15 +843,13 @@ export default function ChampionshipPage({
         </section>
 
         {/* 7. EXPERTS / JURY BLOCK */}
-        <section className="relative z-10 py-16 md:py-24 section-accent-rose">
-          <div className="text-center space-y-3 max-w-2xl mx-auto">
-            <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark tracking-tight">Жюри и эксперты чемпионата</h2>
-            <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">
-              Ваши проекты будут оценивать профессора ведущих ВУЗов мира и практики из международных корпораций. Состав управляется через CMS-систему в реальном времени.
-            </p>
+        <section className="relative z-10 py-16 md:py-24 section-accent-rose max-w-7xl mx-auto px-[6%] md:px-[10%]">
+          <div className="text-center space-y-3 mx-auto">
+            <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark tracking-tight">{t('ui.championshippage.4591330e49')}</h2>
+            <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">{t('ui.championshippage.642a217314')}</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mx-auto">
             {cmsData.mentors.map((mentor, idx) => (
               <motion.div
                 key={idx}
@@ -894,16 +859,18 @@ export default function ChampionshipPage({
                 className="bg-white/[0.12] glass-card border border-white/[0.15] p-6 rounded-2xl text-left flex flex-col justify-between space-y-4"
               >
                 <div className="space-y-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#bc4638]/5 to-[#bd5b82]/5 border border-white/80 flex items-center justify-center font-serif text-sm font-bold text-[#bc4638]">
-                    {mentor.name.split(' ').map(n => n[0]).join('')}
-                  </div>
-                  <div>
-                    <h3 className="text-base font-serif font-bold text-brand-dark">{mentor.name}</h3>
-                    <p className="text-[11px] font-mono text-brand-slate tracking-wide mt-0.5 leading-tight">{mentor.role}</p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-tr from-[#bc4638]/5 to-[#bd5b82]/5 border border-white/80 flex items-center justify-center font-serif text-sm font-bold text-[#bc4638]">
+                      {mentor.name.split(' ').map(n => n[0]).join('')}
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="text-sm font-serif font-bold leading-tight text-brand-dark">{mentor.name}</h3>
+                      <p className="text-[11px] font-mono text-brand-slate tracking-wide mt-0.5 leading-tight">{mentor.role}</p>
+                    </div>
                   </div>
                 </div>
                 <div className="pt-3">
-                  <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bc4638] block mb-1">Сфера экспертизы:</span>
+                  <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bc4638] block mb-1">{t('ui.championshippage.40baedef9b')}</span>
                   <p className="text-xs text-brand-slate font-light leading-relaxed">{mentor.expertise}</p>
                 </div>
               </motion.div>
@@ -911,14 +878,12 @@ export default function ChampionshipPage({
           </div>
         </section>
 
-        {/* 9. EMBEDDED FORM & UX STATES (Блок заявки) */}          <section id="apply-form-section" className="relative z-10 max-w-3xl mx-auto scroll-mt-24">
-          <div className="bg-white/[0.10] glass-xl border border-white/[0.15] rounded-3xl p-6 sm:p-10 space-y-8">
+        {/* 9. EMBEDDED FORM & UX STATES */}          <section id="apply-form-section" className="relative z-10 max-w-7xl mx-auto scroll-mt-24 px-[6%] md:px-[10%]">
+          <div className="bg-white/[0.10] glass-xl border border-white/[0.15] rounded-3xl p-6 sm:p-10 space-y-8 max-w-3xl mx-auto">
             
              <div className="text-center space-y-2 pb-5">
-               <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark">Быстрая регистрация участника</h2>
-              <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed max-w-md mx-auto">
-                Заполните простую форму ниже, чтобы забронировать место. Мы обработаем анкету и вышлем дальнейшие инструкции на email.
-              </p>
+               <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark">{t('ui.championshippage.795d6a19a2')}</h2>
+              <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed max-w-md mx-auto">{t('ui.championshippage.5788077ace')}</p>
             </div>
 
             {/* SUCCESS OR INPUT STATE */}
@@ -937,10 +902,8 @@ export default function ChampionshipPage({
                   </div>
 
                   <div className="text-center space-y-1.5">
-                    <h3 className="text-xl sm:text-2xl font-serif text-brand-dark">Вы успешно зарегистрированы!</h3>
-                    <p className="text-xs sm:text-sm text-brand-slate font-light max-w-md mx-auto leading-relaxed">
-                      Мы забронировали место в сетке участников кубка. Письмо со ссылкой в личный кабинет и инструкциями отправлено на указанную вами почту.
-                    </p>
+                    <h3 className="text-xl sm:text-2xl font-serif text-brand-dark">{t('ui.championshippage.a93a7a5c05')}</h3>
+                    <p className="text-xs sm:text-sm text-brand-slate font-light max-w-md mx-auto leading-relaxed">{t('ui.championshippage.06c9f79607')}</p>
                   </div>
 
                   {/* Virtual Ticket UX Prototype display */}
@@ -949,43 +912,43 @@ export default function ChampionshipPage({
                     {/* Ticket Header */}
                     <div className="bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white p-4 text-left flex justify-between items-center">
                       <div>
-                        <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-widest text-white/80">ВХОДНОЙ БИЛЕТ</span>
+                        <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-widest text-white/80">{t('ui.championshippage.41799b91ae')}</span>
                         <h4 className="text-xs sm:text-sm font-serif font-semibold mt-0.5 truncate max-w-[200px]">Navykus Global Case Cup</h4>
                       </div>
-                      <span className="text-[10px] font-mono px-2 py-0.5 bg-white/10 rounded uppercase font-bold text-white border border-white/20">Active</span>
+                      <span className="text-[10px] font-mono px-2 py-0.5 bg-white/10 rounded uppercase font-bold text-white border border-white/20">{t('ui.championshippage.7c2aa283')}</span>
                     </div>
 
                     {/* Ticket Content */}
                     <div className="p-5 text-left grid grid-cols-2 gap-4 text-xs bg-brand-pink-dust/10">
                       <div>
-                        <span className="text-[8px] font-mono uppercase text-brand-slate block">УЧАСТНИК</span>
+                        <span className="text-[8px] font-mono uppercase text-brand-slate block">{t('ui.championshippage.e5c77ea763')}</span>
                         <span className="font-serif font-bold text-brand-dark">{formData.name}</span>
                       </div>
                       <div>
-                        <span className="text-[8px] font-mono uppercase text-brand-slate block">БИЛЕТ ID</span>
+                        <span className="text-[8px] font-mono uppercase text-brand-slate block">{t('ui.championshippage.279e46ae7c')}</span>
                         <span className="font-mono text-[11px] font-bold text-[#bc4638]">{generatedTicket.ticketId}</span>
                       </div>
                       <div>
-                        <span className="text-[8px] font-mono uppercase text-brand-slate block">ФОРМАТ С КЛАССАМИ</span>
-                        <span className="font-serif font-medium text-brand-dark">Индивидуальный ({formData.hasTeam === 'no' ? 'Ищу команду' : 'В команде'})</span>
+                        <span className="text-[8px] font-mono uppercase text-brand-slate block">{t('ui.championshippage.9b7d543115')}</span>
+                        <span className="font-serif font-medium text-brand-dark">{t('ui.championshippage.a5ddb876dd')}{formData.hasTeam === 'no' ? t('ui.championshippage.709d488ed6') : t('ui.championshippage.b6ebd71540')})</span>
                       </div>
                       <div>
-                        <span className="text-[8px] font-mono uppercase text-brand-slate block">КЛАСС / ВОЗРАСТ</span>
-                        <span className="font-serif font-medium text-brand-dark">{formData.age} лет</span>
+                        <span className="text-[8px] font-mono uppercase text-brand-slate block">{t('ui.championshippage.496a7539fc')}</span>
+                        <span className="font-serif font-medium text-brand-dark">{formData.age}{t('ui.championshippage.b47dce337d')}</span>
                       </div>
                       <div>
-                        <span className="text-[8px] font-mono uppercase text-brand-slate block">ДАТА РЕГИСТРАЦИИ</span>
+                        <span className="text-[8px] font-mono uppercase text-brand-slate block">{t('ui.applicationmodal.61bd187017')}</span>
                         <span className="font-mono text-[10px] text-brand-slate">{generatedTicket.regTime}</span>
                       </div>
                       <div>
-                        <span className="text-[8px] font-mono uppercase text-brand-slate block">МЕСТО В ОТБОРЕ</span>
+                        <span className="text-[8px] font-mono uppercase text-brand-slate block">{t('ui.championshippage.46803131c4')}</span>
                         <span className="font-serif font-bold text-brand-dark">№ {generatedTicket.seatNum}</span>
                       </div>
                     </div>
 
                     {/* Ticket footer helpful links */}
                     <div className="p-3 bg-white text-center text-[10px] text-brand-slate font-mono">
-                      <span>Покажите билет куратору в Telegram: </span>
+                      <span>{t('ui.championshippage.0e95df1685')}</span>
                       <a href="https://t.me/navykus_com" target="_blank" rel="noreferrer" className="text-[#bc4638] font-bold underline">@navykus_com</a>
                     </div>
                   </div>
@@ -995,16 +958,13 @@ export default function ChampionshipPage({
                     <div className="bg-amber-500/5 border border-amber-500/20 p-4 rounded-xl text-left max-w-md mx-auto space-y-2.5">
                       <div className="flex gap-2 items-center text-amber-800">
                         <Users className="w-4 h-4 shrink-0" />
-                        <span className="text-xs font-mono uppercase tracking-wider font-bold">РЕКОМЕНДУЕМЫЙ СЦЕНАРИЙ</span>
+                        <span className="text-xs font-mono uppercase tracking-wider font-bold">{t('ui.championshippage.c3ab55c9b3')}</span>
                       </div>
-                      <p className="text-xs text-brand-slate font-light leading-relaxed">
-                        Поскольку вы зарегистрировались без команды, мы советуем вам перейти в наш раздел сценарного мэтчинга, где вы сможете заполнить карточку компетенций и присоединиться к другим активным ребятам.
-                      </p>
+                      <p className="text-xs text-brand-slate font-light leading-relaxed">{t('ui.championshippage.949a42b4b3')}</p>
                       <button
                         onClick={() => handleNavigateFromChampionship('scenarios')}
                         className="text-xs font-mono font-bold text-[#bc4638] hover:underline inline-flex items-center gap-1 cursor-pointer"
-                      >
-                        Перейти к поиску соавторов <ArrowRight className="w-3 h-3" />
+                      >{t('ui.championshippage.5ab1637802')}<ArrowRight className="w-3 h-3" />
                       </button>
                     </div>
                   )}
@@ -1015,7 +975,7 @@ export default function ChampionshipPage({
                       className="inline-flex items-center gap-1.5 px-5 py-2 border border-[#d8d1cc] hover:border-brand-dark rounded-xl text-xs font-mono uppercase tracking-wider cursor-pointer transition-all bg-white"
                     >
                       <RefreshCw className="w-3 h-3" />
-                      <span>Подать другую анкету</span>
+                      <span>{t('ui.championshippage.b7429d2f06')}</span>
                     </button>
                   </div>
                 </motion.div>
@@ -1024,8 +984,8 @@ export default function ChampionshipPage({
                   {cmsData.registrationStatus === 'closed' && (
                     <div className="bg-rose-50 border border-rose-100 rounded-2xl p-5 text-center text-rose-800 space-y-2">
                       <Lock className="w-8 h-8 text-rose-500 mx-auto" />
-                      <h4 className="font-serif font-semibold text-base">Регистрация в данный момент закрыта</h4>
-                      <p className="text-xs text-rose-700/80 max-w-sm mx-auto leading-relaxed">К сожалению, прием новых заявок на текущий чемпионат Sustainable Cities временно приостановлен или завершен по достижению лимита участников.</p>
+                      <h4 className="font-serif font-semibold text-base">{t('ui.championshippage.d2be300a17')}</h4>
+                      <p className="text-xs text-rose-700/80 max-w-sm mx-auto leading-relaxed">{t('ui.championshippage.098019329a')}</p>
                     </div>
                   )}
 
@@ -1034,48 +994,48 @@ export default function ChampionshipPage({
                       {/* Form inputs fields */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-1 text-left">
-                          <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">Ваше Имя и Фамилия <span className="text-[#bc4638]">*</span></label>
+                          <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">{t('ui.championshippage.78a613a53e')}<span className="text-[#bc4638]">*</span></label>
                           <input 
                             type="text" 
                             required
-                            placeholder="Например: Иван Иванов"
+                            placeholder={t('ui.championshippage.c77e86cc10')}
                             value={formData.name}
-                            onChange={(e) => setFormData(e.target.value)}
+                            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                             className="w-full bg-white border border-[#d8d1cc] focus:border-[#bc4638]/60 focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
                           />
                         </div>
 
                         <div className="space-y-1 text-left">
-                          <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">Ваш Email <span className="text-[#bc4638]">*</span></label>
+                          <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">{t('ui.championshippage.e3a43c135f')}<span className="text-[#bc4638]">*</span></label>
                           <input 
                             type="email" 
                             required
                             placeholder="mail@example.com"
                             value={formData.email}
-                            onChange={(e) => setFormData(e.target.value)}
+                            onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                             className="w-full bg-white border border-[#d8d1cc] focus:border-[#bc4638]/60 focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
                           />
                         </div>
 
                         <div className="space-y-1 text-left">
-                          <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">Ваш возраст / Класс <span className="text-[#bc4638]">*</span></label>
+                          <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">{t('ui.championshippage.b520139c06')}<span className="text-[#bc4638]">*</span></label>
                           <input 
                             type="text" 
                             required
-                            placeholder="Например: 16 лет, 10 класс"
+                            placeholder={t('ui.championshippage.7a94346b9f')}
                             value={formData.age}
-                            onChange={(e) => setFormData(e.target.value)}
+                            onChange={(e) => setFormData(prev => ({ ...prev, age: e.target.value }))}
                             className="w-full bg-white border border-[#d8d1cc] focus:border-[#bc4638]/60 focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
                           />
                         </div>
 
                         <div className="space-y-1 text-left">
-                          <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">Город и Страна проживания</label>
+                          <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">{t('ui.championshippage.450778ada1')}</label>
                           <input 
                             type="text" 
-                            placeholder="Например: Алматы, Казахстан"
+                            placeholder={t('ui.championshippage.6dfb2adc1d')}
                             value={formData.city}
-                            onChange={(e) => setFormData(e.target.value)}
+                            onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
                             className="w-full bg-white border border-[#d8d1cc] focus:border-[#bc4638]/60 focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
                           />
                         </div>
@@ -1084,25 +1044,25 @@ export default function ChampionshipPage({
                       {/* Contact and team radio logic */}
                       <div className="space-y-4 pt-2">
                         <div className="space-y-1 text-left">
-                          <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">Telegram @юзернейм или WhatsApp <span className="text-[#bc4638]">*</span></label>
+                          <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">{t('ui.championshippage.e3a7a765c6')}<span className="text-[#bc4638]">*</span></label>
                           <input 
                             type="text" 
                             required
-                            placeholder="Например: @ivan_navykus"
+                            placeholder={t('ui.championshippage.d178b30c2a')}
                             value={formData.contact}
-                            onChange={(e) => setFormData(e.target.value)}
+                            onChange={(e) => setFormData(prev => ({ ...prev, contact: e.target.value }))}
                             className="w-full bg-white border border-[#d8d1cc] focus:border-[#bc4638]/60 focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
                           />
                         </div>
 
                         {/* Interactive Scenario Selection in the form */}
                         <div className="space-y-2 text-left">
-                          <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">У вас есть команда для участия?</label>
+                          <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">{t('ui.championshippage.d0dd2427')}</label>
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             {[
-                              { id: 'no', label: 'Нет, ищу команду 🤝', sub: 'Запишем на мэтчинг' },
-                              { id: 'yes', label: 'Да, есть команда 👥', sub: 'Укажем тиммейтов' },
-                              { id: 'solo', label: 'Участвую один 👤', sub: 'Индивидуальный проект' }
+                              { id: 'no', label: t('ui.championshippage.9c2f9e9c80'), sub: t('ui.championshippage.273e4c328e') },
+                              { id: 'yes', label: t('ui.championshippage.4e57303db7'), sub: t('ui.championshippage.51fb6ef174') },
+                              { id: 'solo', label: t('ui.championshippage.76ad5775dc'), sub: t('ui.championshippage.d53bbd733d') }
                             ].map((opt) => (
                               <button
                                 key={opt.id}
@@ -1127,37 +1087,37 @@ export default function ChampionshipPage({
                             animate={{ opacity: 1, height: 'auto' }}
                             className="space-y-1.5 text-left border-l-2 border-[#bc4638]/40 pl-3.5"
                           >
-                            <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">Сколько человек в вашей команде (включая вас)?</label>
+                            <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">{t('ui.championshippage.06f875a6')}</label>
                             <select 
                               value={formData.teamSize}
                               onChange={(e) => setFormData(prev => ({ ...prev, teamSize: e.target.value }))}
                               className="bg-white border border-[#d8d1cc] rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#bc4638]"
                             >
-                              <option value="2">2 человека</option>
-                              <option value="3">3 человека</option>
-                              <option value="4">4 человека</option>
-                              <option value="5">5+ человек</option>
+                              <option value="2">{t('ui.championshippage.6d9e8346c4')}</option>
+                              <option value="3">{t('ui.championshippage.a6cf1eb47b')}</option>
+                              <option value="4">{t('ui.championshippage.09ace79e1e')}</option>
+                              <option value="5">{t('ui.championshippage.42bc95b75f')}</option>
                             </select>
                           </motion.div>
                         )}
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="space-y-1 text-left">
-                            <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">Направление интересов</label>
+                            <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">{t('ui.championshippage.d8157e79ff')}</label>
                             <select 
                               value={formData.interests}
                               onChange={(e) => setFormData(prev => ({ ...prev, interests: e.target.value }))}
                               className="w-full bg-white border border-[#d8d1cc] rounded-xl px-3 py-2.5 text-xs text-brand-dark focus:outline-none"
                             >
-                              <option value="Урбанистика & Экология">Урбанистика & Экология 🌿</option>
-                              <option value="ИТ-разработка & Умный город">ИТ-разработка & Умный город 💻</option>
-                              <option value="Дизайн, 3D & Креатив">Дизайн, 3D & Креатив 🎨</option>
-                              <option value="Бизнес-анализ & Менеджмент">Бизнес-анализ & Менеджмент 📈</option>
+                              <option value="urbanism">{t('ui.championshippage.30c7cb1a24')}</option>
+                              <option value="smart-city-it">{t('ui.championshippage.a5822ac213')}</option>
+                              <option value="design-creative">{t('ui.championshippage.d31fab3305')}</option>
+                              <option value="business-management">{t('ui.championshippage.8ec0f58d42')}</option>
                             </select>
                           </div>
 
                           <div className="space-y-1 text-left">
-                            <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">Ссылка на портфолио / резюме (если есть)</label>
+                            <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">{t('ui.championshippage.40aa3bf48b')}</label>
                             <input 
                               type="text" 
                               placeholder="Behance, GitHub, Google Drive..."
@@ -1169,10 +1129,10 @@ export default function ChampionshipPage({
                         </div>
 
                         <div className="space-y-1 text-left">
-                          <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">Расскажите немного о себе и своих целях на кубок</label>
+                          <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">{t('ui.championshippage.0149330653')}</label>
                           <textarea 
                             rows={3}
-                            placeholder="Почему вы хотите участвовать? Какую пользу хотите получить?"
+                            placeholder={t('ui.championshippage.bacaeee8')}
                             value={formData.coverLetter}
                             onChange={(e) => setFormData(prev => ({ ...prev, coverLetter: e.target.value }))}
                             className="w-full bg-white border border-[#d8d1cc] focus:border-[#bc4638]/60 focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
@@ -1197,16 +1157,16 @@ export default function ChampionshipPage({
                           {formStatus === 'submitting' ? (
                             <>
                               <RefreshCw className="w-4 h-4 animate-spin" />
-                              <span>Бронируем билет в CMS...</span>
+                              <span>{t('ui.championshippage.c14d9af631')}</span>
                             </>
                           ) : (
                             <>
-                              <span>Отправить анкету участника</span>
+                              <span>{t('ui.championshippage.c1e5fa9018')}</span>
                               <ArrowRight className="w-4 h-4" />
                             </>
                           )}
                         </button>
-                        <p className="text-[10px] text-brand-slate font-light">Нажимая кнопку, вы соглашаетесь с условиями хранения персональных данных и регламентом Навыкуса.</p>
+                        <p className="text-[10px] text-brand-slate font-light">{t('ui.championshippage.b21fd1fe62')}</p>
                       </div>
                     </>
                   )}
@@ -1220,10 +1180,10 @@ export default function ChampionshipPage({
         {/* 10. FAQ ACCORDION BLOCK */}
         <motion.section
           {...fadeUp}
-          className="relative z-10 py-16 md:py-24 max-w-4xl mx-auto space-y-6 section-accent-warm"
+          className="relative z-10 py-16 md:py-24 w-[88vw] md:w-[80vw] max-w-4xl mx-auto space-y-6 section-accent-warm"
         >
           <div className="text-center space-y-3">
-            <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark">FAQ по чемпионату</h2>
+            <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark">{t('ui.findteampage.f119ad282e')}</h2>
           </div>
 
           <div className="space-y-4">
@@ -1261,43 +1221,33 @@ export default function ChampionshipPage({
           </div>
         </motion.section>
 
-        {/* 11. FINAL CALL TO ACTION (Финальный CTA) */}
+        {/* 11. FINAL CALL TO ACTION */}
         <motion.section
           {...fadeInScale}
-          className="relative z-10 py-16 md:py-24 max-w-5xl mx-auto section-accent-warm"
+          className="relative z-10 py-16 md:py-24 max-w-7xl mx-auto px-[6%] md:px-[10%] section-accent-warm"
         >
           <div className="bg-gradient-to-br from-[#bc4638]/8 via-white/[0.12] to-[#bd5b82]/8 glass-xl border border-white/[0.15] rounded-3xl p-8 sm:p-12 text-center space-y-6">
             
-            <h2 className="text-3xl sm:text-4xl font-serif text-brand-dark tracking-tight leading-tight max-w-2xl mx-auto">
-              Начни проектировать умные города сегодня
-            </h2>
-            <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed max-w-md mx-auto">
-              Осталось {cmsData.maxParticipants} мест на отборочный этап. Успей подать заявку до закрытия регистрационной формы.
-            </p>
+            <h2 className="text-3xl sm:text-4xl font-serif text-brand-dark tracking-tight leading-tight max-w-2xl mx-auto">{t('ui.championshippage.c0e506f98a')}</h2>
+            <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed max-w-md mx-auto">{t('ui.championshippage.424ad3a346')}{cmsData.maxParticipants}{t('ui.championshippage.79e49fa24f')}</p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
               {cmsData.registrationStatus !== 'closed' ? (
                 <a
                   href="#apply-form-section"
                   className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white hover:opacity-95 text-xs font-mono tracking-widest rounded-xl transition-all shadow-lg shadow-[#bc4638]/15 font-bold uppercase"
-                >
-                  Подать заявку
-                </a>
+                >{t('ui.app.24cd8dc78d')}</a>
               ) : (
                 <button
                   disabled
                   className="w-full sm:w-auto px-8 py-3.5 bg-gray-300 text-gray-500 rounded-xl text-xs font-mono tracking-widest uppercase cursor-not-allowed font-bold"
-                >
-                  Регистрация закрыта
-                </button>
+                >{t('ui.championshippage.a9e0cfbc2d')}</button>
               )}
 
               <button
                 onClick={() => handleNavigateFromChampionship('scenarios')}
                 className="w-full sm:w-auto px-8 py-3.5 bg-white/50 border border-[#d8d1cc] text-[#5b6472] hover:border-[#bc4638]/60 text-xs font-mono tracking-widest rounded-xl transition-all cursor-pointer uppercase font-semibold"
-              >
-                Найти команду
-              </button>
+              >{t('ui.app.d13f387e64')}</button>
             </div>
           </div>
         </motion.section>

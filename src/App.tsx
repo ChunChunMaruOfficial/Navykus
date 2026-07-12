@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { lazy, Suspense, useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   ArrowUpRight,
@@ -12,14 +13,15 @@ import {
   CheckCircle2,
   AlertCircle,
   UserCheck,
+  Menu,
+  X,
 } from 'lucide-react';
 import GlassCrystal from './components/GlassCrystal';
 import ApplicationModal from './components/ApplicationModal';
-import AboutProjectPage from './components/AboutProjectPage';
-import ChampionshipPage from './components/ChampionshipPage';
-import ActivitiesPage from './components/ActivitiesPage';
-import FindTeamPage from './components/FindTeamPage';
-import { TOURNAMENTS, PILLARS, STATS, EXPERTS, SCENARIOS, TRUST_POINTS, ACTIVITIES } from './data';
+import PageSkeleton from './components/PageSkeletons';
+import { submitCommunityLead } from './api';
+import { LANGUAGE_FLAGS, SUPPORTED_LANGUAGES, type SupportedLanguage } from './i18n/languages';
+import { useLocalizedData } from './i18n/useLocalizedData';
 import {
   fadeUp,
   fadeUpLarge,
@@ -27,25 +29,22 @@ import {
   heroFadeUpLarge,
 } from './motion-animations';
 
-const LANGUAGES = [
-  { code: 'RU', name: 'Русский', flag: '🇷🇺' },
-  { code: 'EN', name: 'English', flag: '🇬🇧' },
-  { code: 'KK', name: 'Қазақша', flag: '🇰🇿' },
-  { code: 'UZ', name: "Oʻzbekcha", flag: '🇺🇿' },
-  { code: 'AR', name: 'العربية', flag: '🇸🇦' },
-  { code: 'DE', name: 'Deutsch', flag: '🇩🇪' },
-  { code: 'ES', name: 'Español', flag: '🇪🇸' },
-  { code: 'TR', name: 'Türkçe', flag: '🇹🇷' },
-];
+const AboutProjectPage = lazy(() => import('./components/AboutProjectPage'));
+const ChampionshipPage = lazy(() => import('./components/ChampionshipPage'));
+const ActivitiesPage = lazy(() => import('./components/ActivitiesPage'));
+const FindTeamPage = lazy(() => import('./components/FindTeamPage'));
+
+const PAGE_PATHS = ['about', 'championship', 'activities', 'find-team'] as const;
+type Page = 'home' | typeof PAGE_PATHS[number];
 
 const cardEase: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-  const TITLE_MAP = {
-  home: 'Навыкус — международное сообщество активных школьников',
-  about: 'О проекте Навыкус',
-  championship: 'Чемпионат — Навыкус',
-  activities: 'Активности — Навыкус',
-  'find-team': 'Найти команду — Навыкус',
+const TITLE_KEYS: Record<Page, string> = {
+  home: 'meta.home.title',
+  about: 'meta.about.title',
+  championship: 'meta.championship.title',
+  activities: 'meta.activities.title',
+  'find-team': 'meta.findTeam.title',
 };
 
 const cardStaggerContainer = {
@@ -88,18 +87,62 @@ const cardItemFadeUp = {
   },
 };
 
+const isPagePath = (value: string): value is typeof PAGE_PATHS[number] => {
+  return (PAGE_PATHS as readonly string[]).includes(value);
+};
+
+const getPageFromPath = (): Page => {
+  if (typeof window === 'undefined') return 'home';
+  const page = window.location.pathname.replace(/\/$/, '').slice(1);
+  return isPagePath(page) ? page : 'home';
+};
+
+function PageFallback({ page }: { page: Page }) {
+  return <PageSkeleton page={page} />;
+}
+
 export default function App() {
-  const [currentPage, setCurrentPage] = useState<'home' | 'about' | 'championship' | 'activities' | 'find-team'>('home');
+  const { t } = useTranslation();
+  const { i18n } = useTranslation();
+  const {
+    tournaments,
+    pillars,
+    stats,
+    experts,
+    scenarios,
+    trustPoints,
+  } = useLocalizedData();
+  const [currentPage, setCurrentPage] = useState<Page>(getPageFromPath);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTourney, setSelectedTourney] = useState<string | undefined>(undefined);
-  const [scrolled, setScrolled] = useState(false);
   const [showHeader, setShowHeader] = useState(true);
-  const [lang, setLang] = useState<string>('RU');
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    document.title = TITLE_MAP[currentPage];
-  }, [currentPage]);
+    const handlePopState = () => {
+      const page = getPageFromPath();
+      setCurrentPage(page);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  useEffect(() => {
+    document.title = t(TITLE_KEYS[currentPage]);
+    const metaDescription = document.querySelector<HTMLMetaElement>('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.content = t('meta.home.description');
+    }
+  }, [currentPage, t, i18n.resolvedLanguage, i18n.language]);
+
+  const updatePath = (page: Page) => {
+    const nextPath = page === 'home' ? '/' : `/${page}`;
+    const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+    if (currentPath !== nextPath) {
+      window.history.pushState({}, '', nextPath);
+    }
+  };
 
   const tickingRef = useRef(false);
 
@@ -107,7 +150,7 @@ export default function App() {
   const [formAge, setFormAge] = useState('');
   const [formLocation, setFormLocation] = useState('');
   const [formContact, setFormContact] = useState('');
-  const [formInterest, setFormInterest] = useState('Разработка проектов');
+  const [formInterest, setFormInterest] = useState('projects');
   const [formSubmitStatus, setFormSubmitStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [formErrors, setFormErrors] = useState<string[]>([]);
 
@@ -126,8 +169,6 @@ export default function App() {
   }, [isLangDropdownOpen]);
 
   const prevScrollYRef = useRef(0);
-  const [isScrollingUp, setIsScrollingUp] = useState(false);
-  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -138,16 +179,11 @@ export default function App() {
       window.requestAnimationFrame(() => {
         const currentScrollY = window.scrollY;
 
-        setScrolled(currentScrollY > 40);
-
         if (currentScrollY <= 40) {
-          setIsScrollingUp(false);
           setShowHeader(true);
         } else if (currentScrollY < prevScrollYRef.current) {
-          setIsScrollingUp(true);
           setShowHeader(true);
         } else {
-          setIsScrollingUp(false);
           setShowHeader(false);
         }
 
@@ -167,9 +203,18 @@ export default function App() {
     setIsModalOpen(true);
   };
 
+  const navigateToPage = (page: Page) => {
+    setCurrentPage(page);
+    updatePath(page);
+    setIsMobileMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const scrollToSection = (id: string) => {
     if (currentPage !== 'home') {
       setCurrentPage('home');
+      updatePath('home');
+      setIsMobileMenuOpen(false);
       setTimeout(() => {
         const element = document.getElementById(id);
         if (element) {
@@ -179,6 +224,7 @@ export default function App() {
         }
       }, 100);
     } else {
+      setIsMobileMenuOpen(false);
       const element = document.getElementById(id);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -186,25 +232,25 @@ export default function App() {
     }
   };
 
-  const handleInlineSubmit = (e: React.FormEvent) => {
+  const handleInlineSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const errors: string[] = [];
 
     if (!formName.trim()) {
-      errors.push('Пожалуйста, введите ваше имя');
+      errors.push(t('ui.app.02ce21d910'));
     }
 
     if (!formAge.trim() || isNaN(Number(formAge)) || Number(formAge) < 10 || Number(formAge) > 22) {
-      errors.push('Укажите корректный возраст (от 10 до 22 лет)');
+      errors.push(t('ui.app.1c3299a85e'));
     }
 
     if (!formLocation.trim()) {
-      errors.push('Пожалуйста, укажите вашу страну или город');
+      errors.push(t('ui.app.92ca287f55'));
     }
 
     if (!formContact.trim()) {
-      errors.push('Укажите ваш email, Telegram или другой мессенджер');
+      errors.push(t('ui.app.a4bae5e597'));
     }
 
     if (errors.length > 0) {
@@ -216,16 +262,38 @@ export default function App() {
     setFormErrors([]);
     setFormSubmitStatus('submitting');
 
-    setTimeout(() => {
+    try {
+      await submitCommunityLead({
+        name: formName,
+        age: formAge,
+        location: formLocation,
+        contact: formContact,
+        interest: inlineInterestLabels[formInterest] || formInterest,
+      });
       setFormSubmitStatus('success');
       setFormName('');
       setFormAge('');
       setFormLocation('');
       setFormContact('');
-    }, 1500);
+    } catch (error) {
+      setFormErrors([t('ui.app.9a16b2582b')]);
+      setFormSubmitStatus('error');
+    }
   };
 
-  const nearestTournament = TOURNAMENTS[0];
+  const nearestTournament = tournaments[0];
+  const inlineInterestLabels: Record<string, string> = {
+    projects: t('ui.app.d52e1ae8a0'),
+    cases: t('ui.app.852dca4487'),
+    debates: t('ui.app.b0f4d8ce6d'),
+    research: t('ui.app.ac41209943'),
+  };
+  const currentLanguage = (i18n.resolvedLanguage || i18n.language || 'ru') as SupportedLanguage;
+  const languages = SUPPORTED_LANGUAGES.map((code) => ({
+    code,
+    label: t(`languages.${code}`),
+    flag: LANGUAGE_FLAGS[code],
+  }));
 
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-[#fff8f5] via-[#fffaf7] to-[#fdf6f4] text-[#111111] font-sans overflow-x-hidden selection:bg-brand-pink-dust/30 selection:text-brand-dark">
@@ -310,8 +378,7 @@ export default function App() {
 
           <button
             onClick={() => {
-              setCurrentPage('home');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              navigateToPage('home');
             }}
             className="flex items-center gap-2 group cursor-pointer"
           >
@@ -349,51 +416,26 @@ export default function App() {
                 strokeWidth="1.5"
               />
             </svg>
-            <span className="font-semibold tracking-tight text-sm sm:text-base text-[#111111]">
-              Навыкус
-            </span>
+            <span className="font-semibold tracking-tight text-sm sm:text-base text-[#111111]">{t('ui.app.b1a2ec16fe')}</span>
           </button>
 
           <nav className="hidden md:flex items-center gap-4 lg:gap-8 text-[11px] lg:text-[12px] font-medium text-[#5b6472] uppercase tracking-wider">
             <button
-              onClick={() => {
-                setCurrentPage('about');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
+              onClick={() => navigateToPage('about')}
               className={`hover:text-[#bc4638] transition-colors cursor-pointer ${currentPage === 'about' ? 'text-[#bc4638] font-bold underline decoration-2 underline-offset-4' : ''}`}
-            >
-              О проекте
-            </button>
+            >{t('ui.app.d1a90b77df')}</button>
             <button
-              onClick={() => {
-                setCurrentPage('championship');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
+              onClick={() => navigateToPage('championship')}
               className={`hover:text-[#bc4638] transition-colors cursor-pointer ${currentPage === 'championship' ? 'text-[#bc4638] font-bold underline decoration-2 underline-offset-4' : ''}`}
-            >
-              Чемпионат
-            </button>
+            >{t('ui.app.2f57076dbe')}</button>
             <button
-              onClick={() => {
-                setCurrentPage('find-team');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
+              onClick={() => navigateToPage('find-team')}
               className={`hover:text-[#bc4638] transition-colors cursor-pointer ${currentPage === 'find-team' ? 'text-[#bc4638] font-bold underline decoration-2 underline-offset-4' : ''}`}
-            >
-              Найти команду
-            </button>
-            <button onClick={() => scrollToSection('mentors-block')} className="hover:text-[#bc4638] transition-colors cursor-pointer">
-              Активности
-            </button>
+            >{t('ui.app.d13f387e64')}</button>
             <button
-              onClick={() => {
-                setCurrentPage('activities');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
+              onClick={() => navigateToPage('activities')}
               className={`hover:text-[#bc4638] transition-colors cursor-pointer ${currentPage === 'activities' ? 'text-[#bc4638] font-bold underline decoration-2 underline-offset-4' : ''}`}
-            >
-              Активности
-            </button>
+            >{t('ui.app.814b71a2da')}</button>
           </nav>
 
           <div className="flex items-center gap-1.5 sm:gap-3">
@@ -405,8 +447,8 @@ export default function App() {
                 }}
                 className="flex items-center gap-1 bg-white/20 hover:bg-white/35 border border-white/40 px-2 sm:px-3 py-1.5 rounded-full text-[12px] font-mono shadow-[inset_0_1px_2px_rgba(255,255,255,0.2)] transition-all cursor-pointer text-brand-dark"
               >
-                <span>{LANGUAGES.find(l => l.code === lang)?.flag}</span>
-                <span className="font-semibold tracking-wider text-[11px] sm:text-[12px]">{lang}</span>
+                <span>{LANGUAGE_FLAGS[currentLanguage]}</span>
+                <span className="font-semibold tracking-wider text-[11px] sm:text-[12px]">{currentLanguage.toUpperCase()}</span>
                 <ChevronDown className={`w-3 h-3 sm:w-3.5 sm:h-3.5 text-brand-slate/60 transition-transform duration-300 ${isLangDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
 
@@ -420,23 +462,23 @@ export default function App() {
                     className="absolute right-0 mt-2 w-40 rounded-2xl bg-white/80 backdrop-blur-2xl border border-white/60 shadow-[0_15px_40px_rgba(189,91,130,0.1)] p-1.5 z-50 overflow-hidden"
                   >
                     <div className="space-y-0.5">
-                      {LANGUAGES.map((l) => (
+                      {languages.map((l) => (
                         <button
                           key={l.code}
                           onClick={() => {
-                            setLang(l.code);
+                            void i18n.changeLanguage(l.code);
                             setIsLangDropdownOpen(false);
                           }}
-                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all text-left cursor-pointer ${lang === l.code
+                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all text-left cursor-pointer ${currentLanguage === l.code
                               ? 'bg-brand-dark text-white font-medium'
                               : 'text-brand-slate hover:bg-white/40 hover:text-brand-dark'
                             }`}
                         >
                           <div className="flex items-center gap-2">
                             <span className="text-sm">{l.flag}</span>
-                            <span>{l.code}</span>
+                            <span>{l.label}</span>
                           </div>
-                          {lang === l.code && (
+                          {currentLanguage === l.code && (
                             <span className="w-1.5 h-1.5 bg-brand-terracotta rounded-full"></span>
                           )}
                         </button>
@@ -448,16 +490,47 @@ export default function App() {
             </div>
 
             <button
-              onClick={() => openApplyModal()}
-              className="bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white px-3 sm:px-4 lg:px-5 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-[12px] font-medium shadow-lg shadow-[#bc4638]/20 hover:scale-[1.02] transition-transform cursor-pointer whitespace-nowrap"
+              type="button"
+              onClick={() => setIsMobileMenuOpen((value) => !value)}
+              className="md:hidden flex h-9 w-9 items-center justify-center rounded-full border border-white/40 bg-white/20 text-brand-dark shadow-[inset_0_1px_2px_rgba(255,255,255,0.2)] transition-all hover:bg-white/35"
+              aria-label={isMobileMenuOpen ? t('ui.app.24547dfea3') : t('ui.app.625200f23b')}
+              aria-expanded={isMobileMenuOpen}
             >
-              <span className="inline lg:hidden">Подать анкету</span>
-              <span className="hidden lg:inline">Подать свою анкету</span>
+              {isMobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            </button>
+
+            <button
+              onClick={() => openApplyModal()}
+              className="hidden sm:block bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white px-3 sm:px-4 lg:px-5 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-[12px] font-medium shadow-lg shadow-[#bc4638]/20 hover:scale-[1.02] transition-transform cursor-pointer whitespace-nowrap"
+            >
+              <span className="inline lg:hidden">{t('ui.app.8c26059674')}</span>
+              <span className="hidden lg:inline">{t('ui.app.8c26059674')}</span>
             </button>
           </div>
         </div>
+
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: 10, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.98 }}
+              transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+              className="md:hidden mt-3 rounded-3xl border border-white/60 bg-white/75 p-3 backdrop-blur-2xl shadow-[0_18px_50px_rgba(189,91,130,0.12)]"
+            >
+              <div className="grid gap-1 text-left text-xs font-mono uppercase tracking-wider text-brand-slate">
+                <button onClick={() => navigateToPage('about')} className={`rounded-2xl px-4 py-3 text-left transition-colors ${currentPage === 'about' ? 'bg-brand-dark text-white' : 'hover:bg-white/60 hover:text-brand-dark'}`}>{t('ui.app.d1a90b77df')}</button>
+                <button onClick={() => navigateToPage('championship')} className={`rounded-2xl px-4 py-3 text-left transition-colors ${currentPage === 'championship' ? 'bg-brand-dark text-white' : 'hover:bg-white/60 hover:text-brand-dark'}`}>{t('ui.app.2f57076dbe')}</button>
+                <button onClick={() => navigateToPage('find-team')} className={`rounded-2xl px-4 py-3 text-left transition-colors ${currentPage === 'find-team' ? 'bg-brand-dark text-white' : 'hover:bg-white/60 hover:text-brand-dark'}`}>{t('ui.app.d13f387e64')}</button>
+                <button onClick={() => navigateToPage('activities')} className={`rounded-2xl px-4 py-3 text-left transition-colors ${currentPage === 'activities' ? 'bg-brand-dark text-white' : 'hover:bg-white/60 hover:text-brand-dark'}`}>{t('ui.app.814b71a2da')}</button>
+                <button onClick={() => { setIsMobileMenuOpen(false); openApplyModal(); }} className="mt-1 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-4 py-3 text-left font-semibold text-white shadow-lg shadow-[#bc4638]/15">{t('ui.app.24cd8dc78d')}</button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.header>
 
+      <Suspense fallback={<PageFallback page={currentPage} />}>
       {currentPage === 'home' ? (
         <>
           <section
@@ -466,14 +539,9 @@ export default function App() {
           >
             <motion.div {...heroFadeUpLarge} className="lg:col-span-7 space-y-8 text-left z-10">
               <div className="flex flex-col gap-4">
-                <h1 className="text-3xl sm:text-4xl md:text-[44px] lg:text-[52px] xl:text-[58px] leading-[1.1] text-[#111111] font-serif font-light italic tracking-tight text-balance">
-                  Навыкус — твой старт в<br />
-                  <span className="not-italic font-normal text-transparent bg-clip-text bg-gradient-to-r from-[#bc4638] to-[#bd5b82]">международное сообщество</span><br />
-                  активных школьников
-                </h1>
-                <p className="text-[#5b6472] text-sm sm:text-base md:text-lg leading-relaxed font-normal md:font-light text-balance">
-                  Развивай ключевые навыки будущего через онлайн-чемпионаты, создавай жизнеспособные проекты и находи единомышленников по всему миру под руководством опытных экспертов.
-                </p>
+                <h1 className="text-3xl sm:text-4xl md:text-[44px] lg:text-[52px] xl:text-[58px] leading-[1.1] text-[#111111] font-serif font-light italic tracking-tight text-balance">{t('ui.app.b847f4a47a')}<br />
+                  <span className="not-italic font-normal text-transparent bg-clip-text bg-gradient-to-r from-[#bc4638] to-[#bd5b82]">{t('ui.app.4e6bae67fb')}</span><br />{t('ui.app.36b5f70ec0')}</h1>
+                <p className="text-[#5b6472] text-sm sm:text-base md:text-lg leading-relaxed font-normal md:font-light text-balance">{t('ui.app.ca9bce21fd')}</p>
               </div>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
@@ -481,33 +549,31 @@ export default function App() {
                   onClick={() => openApplyModal()}
                   className="px-8 py-4 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white rounded-2xl text-[14px] font-medium shadow-xl shadow-[#bc4638]/25 hover:shadow-[#bc4638]/35 hover:scale-[1.01] transition-all flex items-center justify-center gap-2.5 cursor-pointer group"
                 >
-                  <span>Подать заявку</span>
+                  <span>{t('ui.app.24cd8dc78d')}</span>
                   <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </button>
 
                 <button
                   onClick={() => {
-                    setCurrentPage('find-team');
+                    setCurrentPage('find-team'); updatePath('find-team');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                   className="px-8 py-4 bg-white/40 backdrop-blur-md border border-[#d8d1cc] hover:border-[#bc4638]/60 rounded-2xl text-[14px] font-medium text-[#5b6472] hover:text-[#bc4638] transition-all text-center cursor-pointer shadow-[0_4px_20px_rgba(0,0,0,0.01)]"
-                >
-                  Найти команду
-                </button>
+                >{t('ui.app.d13f387e64')}</button>
               </div>
 
               <div className="pt-6 flex flex-wrap items-center gap-x-8 gap-y-4 text-xs text-brand-slate/90">
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-[#bd5b82]" />
-                  <span><strong>2,500+</strong> Студентов-участников</span>
+                  <span><strong>2,500+</strong>{t('ui.app.f673591b33')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Globe className="w-4 h-4 text-[#bc4638]" />
-                  <span><strong>15+</strong> Стран присутствия</span>
+                  <span><strong>15+</strong>{t('ui.app.ffecc101e5')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <GraduationCap className="w-4 h-4 text-amber-700" />
-                  <span><strong>40+</strong> Экспертов из MIT & YC</span>
+                  <span><strong>40+</strong>{t('ui.app.a00ee755e0')}</span>
                 </div>
               </div>
             </motion.div>
@@ -526,13 +592,13 @@ export default function App() {
 
           <motion.section {...fadeUpLarge} className="relative z-10 max-w-7xl mx-auto px-[6%] md:px-[10%] py-6">
             <div className="bg-white/[0.12] glass-xl border border-white/[0.15] rounded-3xl p-6 md:p-8">
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-4 divide-y sm:divide-y-0 lg:divide-x divide-[#d8d1cc]/40">
-                {STATS.map((stat, i) => (
-                  <div key={`${stat.label}-${i}`} className="text-center lg:px-4 first:pt-0 pt-4 sm:pt-0">
-                    <div className={`text-2xl md:text-3xl font-serif font-light tracking-tight ${i === 0 ? 'stat-glow-coral' : i === 1 ? 'stat-glow-green' : i === 2 ? 'stat-glow-amber' : 'stat-glow-coral'}`}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 divide-y sm:divide-y-0 lg:divide-x divide-[#d8d1cc]/40">
+                {stats.map((stat, i) => (
+                  <div key={`${stat.label}-${i}`} className="flex items-center gap-3 lg:px-4 first:pt-0 pt-4 sm:pt-0">
+                    <div className={`shrink-0 text-2xl md:text-3xl font-serif font-light tracking-tight ${i === 0 ? 'stat-glow-coral' : i === 1 ? 'stat-glow-green' : i === 2 ? 'stat-glow-amber' : 'stat-glow-coral'}`}>
                       {stat.value}
                     </div>
-                    <div className="text-[11px] sm:text-[10px] font-mono text-brand-slate tracking-wider uppercase mt-1">
+                    <div className="text-[10px] font-mono text-brand-slate tracking-wider uppercase leading-snug">
                       {stat.label}
                     </div>
                   </div>
@@ -544,15 +610,12 @@ export default function App() {
           <section id="what-is-navykus" className="relative z-10 py-16 md:py-24 max-w-7xl mx-auto px-[6%] md:px-[10%] space-y-12 section-accent-warm">
             <motion.div {...fadeUp} className="text-center max-w-3xl mx-auto space-y-4">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif text-brand-dark tracking-tight">
-                Что такое Навыкус?
-              </h2>
-              <p className="text-sm sm:text-base md:text-lg text-brand-slate font-normal md:font-light leading-relaxed max-w-2xl mx-auto text-balance">
-                Навыкус — это инновационная экосистема, которая стирает границы между странами и школьными партами. Мы помогаем талантливой молодежи находить друг друга, запускать жизнеспособные проекты и заявлять о себе на международной арене.
-              </p>
+                {t('ui.app.aacca2db')}</h2>
+              <p className="text-sm sm:text-base md:text-lg text-brand-slate font-normal md:font-light leading-relaxed max-w-2xl mx-auto text-balance">{t('ui.app.2542ef5a41')}</p>
             </motion.div>
 
             <motion.div {...cardStaggerContainer} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {PILLARS.map((pillar) => (
+              {pillars.map((pillar) => (
                 <motion.div
                   key={pillar.title}
                   variants={cardItemFadeUp.variants}
@@ -581,13 +644,9 @@ export default function App() {
             >
               <div className="lg:col-span-7 space-y-6 text-left">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-[11px] sm:text-[10px] font-mono tracking-wider text-[#bc4638] bg-[#bc4638]/10 px-2.5 py-1 rounded-md uppercase font-semibold">
-                    БЛИЖАЙШЕЕ МЕРОПРИЯТИЕ
-                  </span>
+                  <span className="text-[11px] sm:text-[10px] font-mono tracking-wider text-[#bc4638] bg-[#bc4638]/10 px-2.5 py-1 rounded-md uppercase font-semibold">{t('ui.app.8ca84fc116')}</span>
                   <span className="text-[10px] font-mono text-brand-slate flex items-center gap-1.5 bg-white/40 px-2.5 py-1 rounded-md border border-white/60">
-                    <Clock className="w-3.5 h-3.5 text-[#bd5b82]" />
-                    Онлайн-формат
-                  </span>
+                    <Clock className="w-3.5 h-3.5 text-[#bd5b82]" />{t('ui.app.aa324b069f')}</span>
                 </div>
 
                 <h3 className="text-2xl sm:text-3xl lg:text-4xl font-serif text-brand-dark tracking-tight leading-tight">
@@ -600,14 +659,14 @@ export default function App() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <div className="text-[11px] sm:text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">КОМУ ПОДХОДИТ</div>
+                    <div className="text-[11px] sm:text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.app.411ef17e3a')}</div>
                     <div className="text-xs text-brand-slate font-normal md:font-light">{nearestTournament.suitableFor}</div>
                   </div>
                   <div className="space-y-1.5">
-                    <div className="text-[11px] sm:text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">РЕГЛАМЕНТ И СРОКИ</div>
+                    <div className="text-[11px] sm:text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.app.7f93cb9828')}</div>
                     <div className="text-xs text-brand-slate font-normal md:font-light">
-                      <strong>Сроки:</strong> {nearestTournament.date}<br />
-                      <strong>Регистрация до:</strong> {nearestTournament.registrationDeadline}
+                      <strong>{t('ui.app.b7ba3e2581')}</strong> {nearestTournament.date}<br />
+                      <strong>{t('ui.app.2c0ba7b4a0')}</strong> {nearestTournament.registrationDeadline}
                     </div>
                   </div>
                 </div>
@@ -621,19 +680,13 @@ export default function App() {
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
-                  <button onClick={() => openApplyModal(nearestTournament.id)} className="px-6 py-3 bg-[#bc4638] text-white hover:bg-[#bc4638]/90 text-xs sm:text-sm font-mono tracking-wider rounded-xl transition-all shadow-md shadow-[#bc4638]/15 cursor-pointer text-center font-medium">
-                    ПОДАТЬ ЗАЯВКУ НА КУБОК
-                  </button>
-                  <button onClick={() => { setCurrentPage('find-team'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="px-6 py-3 bg-white/40 border border-[#d8d1cc] text-[#5b6472] hover:border-brand-dark/40 text-xs sm:text-sm font-mono tracking-wider rounded-xl transition-all cursor-pointer text-center">
-                    ПОДРОБНЕЕ О ТУРНИРАХ
-                  </button>
+                  <button onClick={() => openApplyModal(nearestTournament.id)} className="px-6 py-3 bg-[#bc4638] text-white hover:bg-[#bc4638]/90 text-xs sm:text-sm font-mono tracking-wider rounded-xl transition-all shadow-md shadow-[#bc4638]/15 cursor-pointer text-center font-medium">{t('ui.app.762a52a7bb')}</button>
+                  <button onClick={() => { setCurrentPage('find-team'); updatePath('find-team'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="px-6 py-3 bg-white/40 border border-[#d8d1cc] text-[#5b6472] hover:border-brand-dark/40 text-xs sm:text-sm font-mono tracking-wider rounded-xl transition-all cursor-pointer text-center">{t('ui.app.e975e8b6a4')}</button>
                 </div>
               </div>
 
               <div className="lg:col-span-5 bg-white/[0.15] glass-panel border border-white/[0.15] rounded-2xl p-6 space-y-6">
-                <h4 className="text-xs font-mono text-brand-dark uppercase tracking-widest font-semibold">
-                  Жюри и наставники кубка
-                </h4>
+                <h4 className="text-xs font-mono text-brand-dark uppercase tracking-widest font-semibold">{t('ui.app.2060fe9f62')}</h4>
 
                 <div className="space-y-4">
                   {nearestTournament.mentors.map((mentor, mIdx) => (
@@ -644,7 +697,7 @@ export default function App() {
                       <div>
                         <div className="text-xs sm:text-sm font-serif font-medium text-brand-dark">{mentor.split(' (')[0]}</div>
                         <div className="text-[11px] sm:text-[10px] text-brand-slate font-normal md:font-light">
-                          {mentor.split(' (')[1] ? mentor.split(' (')[1].replace(')', '') : 'Приглашенный эксперт'}
+                          {mentor.split(' (')[1] ? mentor.split(' (')[1].replace(')', '') : t('ui.app.4d8b1fa187')}
                         </div>
                       </div>
                     </div>
@@ -652,10 +705,9 @@ export default function App() {
                 </div>
 
                 <div className="pt-4 text-center">
-                  <span className="text-[11px] sm:text-[10px] font-mono text-brand-slate uppercase block mb-1">ОСТАЛОСЬ МЕСТ</span>
+                  <span className="text-[11px] sm:text-[10px] font-mono text-brand-slate uppercase block mb-1">{t('ui.app.40c83f7ed9')}</span>
                   <span className="text-xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#bc4638] to-[#bd5b82]">
-                    {nearestTournament.maxParticipants} мест в отборе
-                  </span>
+                    {nearestTournament.maxParticipants}{t('ui.app.1995337599')}</span>
                 </div>
               </div>
             </motion.div>
@@ -663,34 +715,31 @@ export default function App() {
 
           <section id="scenarios" className="relative z-10 py-16 md:py-24 max-w-7xl mx-auto px-[6%] md:px-[10%] space-y-12 section-accent-warm">
             <motion.div {...fadeUp} className="text-center max-w-2xl mx-auto space-y-3">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif text-brand-dark tracking-tight">
-                Возможности участия в платформе
-              </h2>
-              <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">
-                Мы спроектировали разные траектории для каждого участника. Найдите свой сценарий и сделайте первый шаг.
-              </p>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif text-brand-dark tracking-tight">{t('ui.app.30d2f12f93')}</h2>
+              <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.app.1634fa6530')}</p>
             </motion.div>
 
             <motion.div {...cardStaggerContainer} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {SCENARIOS.map((scenario, idx) => (
+              {scenarios.map((scenario, idx) => (
                 <motion.div
                   key={scenario.id}
                   variants={cardItemFadeUp.variants}
                   className="bg-white/[0.12] glass-card border border-white/[0.15] p-6 rounded-2xl flex flex-col justify-between hover:bg-white/[0.2] hover:border-[#bc4638]/30 transition-[background-color,border-color,box-shadow] duration-300"
                 >
                   <div className="space-y-4">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#bc4638]/5 to-[#bd5b82]/5 border border-white/80 flex items-center justify-center text-brand-rose-deep shrink-0 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]">
-                      {idx === 0 && <Award className="w-5 h-5 text-[#bc4638]" />}
-                      {idx === 1 && <Users className="w-5 h-5 text-[#bd5b82]" />}
-                      {idx === 2 && <UserCheck className="w-5 h-5 text-[#bc4638]" />}
-                      {idx === 3 && <Calendar className="w-5 h-5 text-[#bd5b82]" />}
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#bc4638]/5 to-[#bd5b82]/5 border border-white/80 flex items-center justify-center text-brand-rose-deep shrink-0 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]">
+                        {idx === 0 && <Award className="w-5 h-5 text-[#bc4638]" />}
+                        {idx === 1 && <Users className="w-5 h-5 text-[#bd5b82]" />}
+                        {idx === 2 && <UserCheck className="w-5 h-5 text-[#bc4638]" />}
+                        {idx === 3 && <Calendar className="w-5 h-5 text-[#bd5b82]" />}
+                      </div>
+                      <h3 className="text-sm font-serif font-medium leading-tight text-brand-dark">{scenario.title}</h3>
                     </div>
-
-                    <h3 className="text-base sm:text-lg font-serif font-medium text-brand-dark">{scenario.title}</h3>
 
                     <div className="space-y-2 text-xs sm:text-sm">
                       <p className="text-brand-slate font-normal md:font-light leading-relaxed">
-                        <strong className="font-mono text-[11px] sm:text-[10px] uppercase tracking-wider text-[#bd5b82] block mb-0.5">Зачем:</strong>
+                        <strong className="font-mono text-[11px] sm:text-[10px] uppercase tracking-wider text-[#bd5b82] block mb-0.5">{t('ui.app.fa424fe227')}</strong>
                         {scenario.why}
                       </p>
                     </div>
@@ -716,16 +765,12 @@ export default function App() {
 
           <section id="mentors-block" className="relative z-10 py-16 md:py-24 max-w-7xl mx-auto px-[6%] md:px-[10%] space-y-12 section-accent-rose">
             <motion.div {...fadeUp} className="text-center max-w-2xl mx-auto space-y-3">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif text-brand-dark tracking-tight">
-                Экспертный совет ближайшего чемпионата
-              </h2>
-              <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">
-                Ваши идеи будут оценивать авторы глобальных исследований и практики из международных компаний.
-              </p>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif text-brand-dark tracking-tight">{t('ui.app.3c8e417ab7')}</h2>
+              <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.app.5c6f09e45e')}</p>
             </motion.div>
 
             <motion.div {...cardStaggerContainer} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {EXPERTS.map((expert) => (
+              {experts.map((expert) => (
                 <motion.div
                   key={expert.id}
                   variants={cardItemFadeUp.variants}
@@ -738,7 +783,7 @@ export default function App() {
                       </div>
                       <div>
                         <h3 className="text-sm font-serif font-semibold text-brand-dark leading-tight">{expert.name}</h3>
-                        <p className="text-[10px] font-mono text-brand-slate uppercase tracking-wider">ЭКСПЕРТ</p>
+                        <p className="text-[10px] font-mono text-brand-slate uppercase tracking-wider">{t('ui.app.6d26f92c1f')}</p>
                       </div>
                     </div>
 
@@ -760,26 +805,20 @@ export default function App() {
               className="bg-white/[0.12] glass-xl border border-white/[0.15] rounded-3xl p-6 sm:p-10 lg:p-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
             >
               <div className="lg:col-span-5 space-y-4 text-left">
-                <span className="text-[11px] sm:text-[10px] font-mono tracking-[0.2em] text-[#bc4638] bg-[#bc4638]/5 px-3 py-1 rounded-full uppercase font-semibold">
-                  БЫСТРАЯ РЕГИСТРАЦИЯ
-                </span>
+                <span className="text-[11px] sm:text-[10px] font-mono tracking-[0.2em] text-[#bc4638] bg-[#bc4638]/5 px-3 py-1 rounded-full uppercase font-semibold">{t('ui.app.3abf2464ad')}</span>
 
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-serif text-brand-dark tracking-tight leading-tight">
-                  Сделай первый шаг навстречу проектам
-                </h2>
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-serif text-brand-dark tracking-tight leading-tight">{t('ui.app.031b5a9779')}</h2>
 
-                <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">
-                  Заполни короткую анкету. Выбери интересующее направление или конкретный чемпионат. Наш координатор свяжется с тобой в Telegram или по почте, чтобы подтвердить участие и помочь сориентироваться в сообществе.
-                </p>
+                <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.app.8062a560c4')}</p>
 
                 <div className="space-y-2 pt-4">
                   <div className="flex items-center gap-2 text-xs text-brand-slate">
                     <span className="w-1.5 h-1.5 bg-emerald-600 rounded-full"></span>
-                    <span>Валидация данных в режиме реального времени</span>
+                    <span>{t('ui.app.a63c2f5651')}</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-brand-slate">
                     <span className="w-1.5 h-1.5 bg-emerald-600 rounded-full"></span>
-                    <span>Безопасная передача персональных данных</span>
+                    <span>{t('ui.app.fb613f5591')}</span>
                   </div>
                 </div>
               </div>
@@ -791,22 +830,17 @@ export default function App() {
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0 }}
-                      className="text-center py-8 space-y-4"
+                      className="py-8"
                     >
-                      <div className="w-12 h-12 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-full flex items-center justify-center mx-auto shadow-md">
-                        <CheckCircle2 className="w-6 h-6 animate-bounce" />
-                      </div>
-
-                      <h3 className="text-xl font-serif text-brand-dark">Заявка успешно принята!</h3>
-
-                      <p className="text-xs sm:text-sm text-brand-slate max-w-md mx-auto font-light leading-relaxed">
-                        Твоя анкета добавлена в международную базу платформы «Навыкус». Мы сгенерировали временный координатный хэш участника и отправили подтверждение. Ожидай сообщения в течение 24 часов!
-                      </p>
-
-                      <div className="pt-4">
-                        <button onClick={() => setFormSubmitStatus('idle')} className="px-6 py-2 bg-brand-dark text-white text-xs font-mono tracking-wider rounded-xl hover:bg-brand-dark/95 transition-all">
-                          ЗАПОЛНИТЬ ЕЩЕ РАЗ
-                        </button>
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-full flex items-center justify-center shrink-0 shadow-md">
+                          <CheckCircle2 className="w-6 h-6 animate-bounce" />
+                        </div>
+                        <div className="space-y-3 text-left">
+                          <h3 className="text-base font-serif text-brand-dark">{t('ui.app.0d65b9d27c')}</h3>
+                          <p className="text-xs sm:text-sm text-brand-slate max-w-md font-light leading-relaxed">{t('ui.app.eca55dace1')}</p>
+                          <button onClick={() => setFormSubmitStatus('idle')} className="px-6 py-2 bg-brand-dark text-white text-xs font-mono tracking-wider rounded-xl hover:bg-brand-dark/95 transition-all">{t('ui.app.b35da1ef1c')}</button>
+                        </div>
                       </div>
                     </motion.div>
                   ) : (
@@ -819,7 +853,7 @@ export default function App() {
                         >
                           <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
                           <div className="space-y-0.5">
-                            <strong className="font-semibold">Проверьте правильность заполнения:</strong>
+                            <strong className="font-semibold">{t('ui.app.b61d6cbb37')}</strong>
                             <ul className="list-disc list-inside space-y-0.5 opacity-90 font-light">
                               {formErrors.map((err, errIdx) => <li key={`${err}-${errIdx}`}>{err}</li>)}
                             </ul>
@@ -829,33 +863,33 @@ export default function App() {
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="text-left">
-                          <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase font-semibold">Ваше имя *</label>
-                          <input type="text" value={formName} onChange={(e) => setFormName(e.target.value)} placeholder="Екатерина" className="w-full bg-white hover:bg-white/90 focus:bg-white border border-[#c1b8b0] focus:border-brand-terracotta rounded-xl px-4 py-2.5 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)] placeholder:text-brand-slate/40" />
+                          <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase font-semibold">{t('ui.app.8b4a2775bb')}</label>
+                          <input type="text" value={formName} onChange={(e) => setFormName(e.target.value)} placeholder={t('ui.app.c1830703d0')} className="w-full bg-white hover:bg-white/90 focus:bg-white border border-[#c1b8b0] focus:border-brand-terracotta rounded-xl px-4 py-2.5 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)] placeholder:text-brand-slate/40" />
                         </div>
                         <div className="text-left">
-                          <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase font-semibold">Возраст *</label>
+                          <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase font-semibold">{t('ui.app.b7cc349dbb')}</label>
                           <input type="text" value={formAge} onChange={(e) => setFormAge(e.target.value)} placeholder="16" className="w-full bg-white hover:bg-white/90 focus:bg-white border border-[#c1b8b0] focus:border-brand-terracotta rounded-xl px-4 py-2.5 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)] placeholder:text-brand-slate/40" />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="text-left">
-                          <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase font-semibold">Страна / Город *</label>
-                          <input type="text" value={formLocation} onChange={(e) => setFormLocation(e.target.value)} placeholder="Казахстан, Алматы" className="w-full bg-white hover:bg-white/90 focus:bg-white border border-[#c1b8b0] focus:border-brand-terracotta rounded-xl px-4 py-2.5 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)] placeholder:text-brand-slate/40" />
+                          <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase font-semibold">{t('ui.app.7acec174f3')}</label>
+                          <input type="text" value={formLocation} onChange={(e) => setFormLocation(e.target.value)} placeholder={t('ui.app.1734a8f063')} className="w-full bg-white hover:bg-white/90 focus:bg-white border border-[#c1b8b0] focus:border-brand-terracotta rounded-xl px-4 py-2.5 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)] placeholder:text-brand-slate/40" />
                         </div>
                         <div className="text-left">
-                          <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase font-semibold">Почта или Telegram *</label>
-                          <input type="text" value={formContact} onChange={(e) => setFormContact(e.target.value)} placeholder="@username или e-mail" className="w-full bg-white hover:bg-white/90 focus:bg-white border border-[#c1b8b0] focus:border-brand-terracotta rounded-xl px-4 py-2.5 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)] placeholder:text-brand-slate/40" />
+                          <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase font-semibold">{t('ui.app.0751cc5d9c')}</label>
+                          <input type="text" value={formContact} onChange={(e) => setFormContact(e.target.value)} placeholder={t('ui.app.7d521595ce')} className="w-full bg-white hover:bg-white/90 focus:bg-white border border-[#c1b8b0] focus:border-brand-terracotta rounded-xl px-4 py-2.5 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)] placeholder:text-brand-slate/40" />
                         </div>
                       </div>
 
                       <div className="text-left">
-                        <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase font-semibold">Интересующее направление</label>
+                        <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase font-semibold">{t('ui.app.d3e56289ef')}</label>
                         <select value={formInterest} onChange={(e) => setFormInterest(e.target.value)} className="w-full bg-white hover:bg-white/90 focus:bg-white border border-[#c1b8b0] focus:border-brand-terracotta rounded-xl px-4 py-2.5 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
-                          <option className="bg-brand-bg-2 text-brand-dark">Разработка проектов</option>
-                          <option className="bg-brand-bg-2 text-brand-dark">Решение кейсов</option>
-                          <option className="bg-brand-bg-2 text-brand-dark">Дебаты и дипломатия</option>
-                          <option className="bg-brand-bg-2 text-brand-dark">Научные исследования</option>
+                          <option value="projects" className="bg-brand-bg-2 text-brand-dark">{t('ui.app.d52e1ae8a0')}</option>
+                          <option value="cases" className="bg-brand-bg-2 text-brand-dark">{t('ui.app.852dca4487')}</option>
+                          <option value="debates" className="bg-brand-bg-2 text-brand-dark">{t('ui.app.b0f4d8ce6d')}</option>
+                          <option value="research" className="bg-brand-bg-2 text-brand-dark">{t('ui.app.ac41209943')}</option>
                         </select>
                       </div>
 
@@ -864,10 +898,10 @@ export default function App() {
                           {formSubmitStatus === 'submitting' ? (
                             <>
                               <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                              <span>ОТПРАВКА ДАННЫХ...</span>
+                              <span>{t('ui.app.185f27b7f2')}</span>
                             </>
                           ) : (
-                            <span>ОТПРАВИТЬ ЗАЯВКУ НА УЧАСТИЕ</span>
+                            <span>{t('ui.app.41c1690460')}</span>
                           )}
                         </button>
                       </div>
@@ -881,25 +915,22 @@ export default function App() {
           <section id="trust-block" className="relative z-10 py-16 md:py-24 max-w-7xl mx-auto px-[6%] md:px-[10%] space-y-12 section-accent-warm">
             <motion.div {...fadeUp} className="text-center max-w-2xl mx-auto space-y-3">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif text-brand-dark tracking-tight">
-                Почему родители и эксперты выбирают Навыкус?
-              </h2>
-              <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">
-                Мы строим безопасную, прикладную и академически насыщенную среду для всестороннего развития талантов.
-              </p>
+                {t('ui.app.19816f01')}</h2>
+              <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.app.c8e427d5b3')}</p>
             </motion.div>
 
             <motion.div {...cardStaggerContainer} className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {TRUST_POINTS.map((item, index) => (
+              {trustPoints.map((item, index) => (
                 <motion.div
                   key={item.id}
                   variants={cardItemFadeUp.variants}
-                  className={`bg-white/[0.12] glass-card border border-white/[0.15] p-6 rounded-2xl flex flex-col justify-between ${index === 0 || index === 3 ? 'md:col-span-2' : 'md:col-span-1'
+                  className={`relative overflow-hidden bg-white/[0.12] glass-card border border-white/[0.15] p-6 rounded-2xl flex flex-col justify-between ${index === 0 || index === 3 ? 'md:col-span-2' : 'md:col-span-1'
                     }`}
                 >
+                  <div className="pointer-events-none absolute right-5 top-3 select-none font-serif text-5xl leading-none text-[#bc4638]/[0.11]">
+                    {index + 1}
+                  </div>
                   <div className="space-y-3 text-left">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#bc4638]/5 to-[#bd5b82]/5 flex items-center justify-center border border-white/80 font-mono text-[10px] font-bold text-[#bc4638] shadow-[inset_0_1px_1px_rgba(255,255,255,0.4)]">
-                      {index + 1}
-                    </div>
                     <h3 className="text-base sm:text-lg font-serif font-semibold text-brand-dark">{item.title}</h3>
                     <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{item.description}</p>
                   </div>
@@ -914,18 +945,11 @@ export default function App() {
               className="bg-gradient-to-br from-[#bc4638]/8 via-white/[0.12] to-[#bd5b82]/8 glass-xl border border-white/[0.15] rounded-3xl p-8 sm:p-12 text-center space-y-6"
             >
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif text-brand-dark tracking-tight leading-tight max-w-2xl mx-auto">
-                Готов начать свой путь?
-              </h2>
-              <p className="text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed max-w-md mx-auto">
-                Подай заявку на ближайший международный чемпионат или присоединяйся к нашему нетворкинг-сообществу.
-              </p>
+                {t('ui.app.e07687c4')}</h2>
+              <p className="text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed max-w-md mx-auto">{t('ui.app.ec08c69dd3')}</p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-                <button onClick={() => openApplyModal()} className="px-8 py-3.5 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white hover:opacity-95 text-xs font-mono tracking-widest rounded-xl transition-all shadow-lg shadow-[#bc4638]/15 cursor-pointer font-semibold uppercase">
-                  ПОДАТЬ ЗАЯВКУ
-                </button>
-                <button onClick={() => { setCurrentPage('find-team'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="px-8 py-3.5 bg-white/50 border border-[#d8d1cc] text-[#5b6472] hover:border-[#bc4638]/60 text-xs font-mono tracking-widest rounded-xl transition-all cursor-pointer uppercase">
-                  НАЙТИ КОМАНДУ
-                </button>
+                <button onClick={() => openApplyModal()} className="px-8 py-3.5 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white hover:opacity-95 text-xs font-mono tracking-widest rounded-xl transition-all shadow-lg shadow-[#bc4638]/15 cursor-pointer font-semibold uppercase">{t('ui.app.762a52a7bb')}</button>
+                <button onClick={() => { setCurrentPage('find-team'); updatePath('find-team'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="px-8 py-3.5 bg-white/50 border border-[#d8d1cc] text-[#5b6472] hover:border-[#bc4638]/60 text-xs font-mono tracking-widest rounded-xl transition-all cursor-pointer uppercase">{t('ui.app.d4b60991e4')}</button>
               </div>
             </motion.div>
           </section>
@@ -934,7 +958,7 @@ export default function App() {
         <div className="w-full">
           <AboutProjectPage
             onBackToHome={() => {
-              setCurrentPage('home');
+              setCurrentPage('home'); updatePath('home');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             onNavigateToSection={scrollToSection}
@@ -945,7 +969,7 @@ export default function App() {
         <div className="w-full">
           <ChampionshipPage
             onBackToHome={() => {
-              setCurrentPage('home');
+              setCurrentPage('home'); updatePath('home');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             onNavigateToSection={scrollToSection}
@@ -956,7 +980,7 @@ export default function App() {
         <div className="w-full">
           <FindTeamPage
             onBackToHome={() => {
-              setCurrentPage('home');
+              setCurrentPage('home'); updatePath('home');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             onNavigateToSection={scrollToSection}
@@ -967,7 +991,7 @@ export default function App() {
         <div className="w-full">
           <ActivitiesPage
             onBackToHome={() => {
-              setCurrentPage('home');
+              setCurrentPage('home'); updatePath('home');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             onNavigateToSection={scrollToSection}
@@ -975,36 +999,35 @@ export default function App() {
           />
         </div>
       )}
+      </Suspense>
 
       <footer id="footer-system" className="relative z-10 bg-white/20 backdrop-blur-sm py-16">
         <div className="max-w-6xl mx-auto px-[6%] md:px-[10%] space-y-12">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 text-left">
             <div className="md:col-span-5 space-y-4">
               <div className="flex items-center gap-2">
-                <span className="font-serif font-bold text-lg text-brand-dark tracking-tight">Навыкус</span>
+                <span className="font-serif font-bold text-lg text-brand-dark tracking-tight">{t('ui.app.b1a2ec16fe')}</span>
               </div>
-              <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed max-w-xs">
-                Международная образовательная платформа и сообщество активных школьников. Развиваем софт-скиллы и запускаем глобальные проекты.
-              </p>
+              <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed max-w-xs">{t('ui.app.db07934f76')}</p>
             </div>
 
             <div className="md:col-span-3 space-y-3">
-              <h4 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold">Навигация</h4>
+              <h4 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold">{t('ui.app.fc95125398')}</h4>
               <ul className="space-y-1.5 text-xs text-brand-slate font-normal md:font-light">
-                <li><button onClick={() => { setCurrentPage('about'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#bc4638] transition-colors cursor-pointer">О платформе</button></li>
-                <li><button onClick={() => { setCurrentPage('championship'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#bc4638] transition-colors cursor-pointer">Ближайший кубок</button></li>
-                <li><button onClick={() => { setCurrentPage('activities'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#bc4638] transition-colors cursor-pointer">Активности</button></li>
-                <li><button onClick={() => { setCurrentPage('find-team'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#bc4638] transition-colors cursor-pointer">Найти команду</button></li>
-                <li><button onClick={() => scrollToSection('mentors-block')} className="hover:text-[#bc4638] transition-colors cursor-pointer">Эксперты совета</button></li>
+                <li><button onClick={() => { setCurrentPage('about'); updatePath('about'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#bc4638] transition-colors cursor-pointer">{t('ui.app.ffe3d3127f')}</button></li>
+                <li><button onClick={() => { setCurrentPage('championship'); updatePath('championship'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#bc4638] transition-colors cursor-pointer">{t('ui.app.2757f706cf')}</button></li>
+                <li><button onClick={() => { setCurrentPage('activities'); updatePath('activities'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#bc4638] transition-colors cursor-pointer">{t('ui.app.814b71a2da')}</button></li>
+                <li><button onClick={() => { setCurrentPage('find-team'); updatePath('find-team'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#bc4638] transition-colors cursor-pointer">{t('ui.app.d13f387e64')}</button></li>
+                <li><button onClick={() => scrollToSection('mentors-block')} className="hover:text-[#bc4638] transition-colors cursor-pointer">{t('ui.app.ec3eba7deb')}</button></li>
               </ul>
             </div>
 
             <div className="md:col-span-4 space-y-3">
-              <h4 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold">Контакты и Поддержка</h4>
+              <h4 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold">{t('ui.app.ce65e2cf6b')}</h4>
               <ul className="space-y-1.5 text-xs text-brand-slate font-normal md:font-light">
                 <li>Email: <a href="mailto:info@navykus.org" className="hover:text-[#bc4638] transition-colors">info@navykus.org</a></li>
                 <li>Telegram: <a href="https://t.me/navykus_com" target="_blank" rel="noreferrer" className="hover:text-[#bc4638] transition-colors">@navykus_com</a></li>
-                <li>Координатор: <span className="text-brand-dark/80">+7 (999) 000-00-00</span></li>
+                <li>{t('ui.app.ed16b5adfc')}<span className="text-brand-dark/80">+7 (999) 000-00-00</span></li>
               </ul>
             </div>
           </div>
@@ -1012,8 +1035,8 @@ export default function App() {
           <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex flex-wrap gap-4 text-[11px] text-brand-slate/80 font-normal md:font-light">
               <span>© 2026 Navikus Global Education</span>
-              <a href="#" className="hover:text-[#bc4638] transition-colors">Политика конфиденциальности</a>
-              <a href="#" className="hover:text-[#bc4638] transition-colors">Пользовательское соглашение</a>
+              <a href={t('ui.app.a5307558')} className="hover:text-[#bc4638] transition-colors">{t('ui.app.9e059272f1')}</a>
+              <a href={t('ui.app.4d9e7853')} className="hover:text-[#bc4638] transition-colors">{t('ui.app.3a86197ba3')}</a>
             </div>
             <div className="text-[11px] font-mono tracking-[0.15em] text-[#5b6472] opacity-40 lowercase">
               made by dioxoid digital

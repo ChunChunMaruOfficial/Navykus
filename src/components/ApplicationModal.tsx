@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Check, ArrowRight, ShieldCheck, Ticket as TicketIcon, Upload } from 'lucide-react';
 import { Tournament, ApplicationForm, Ticket } from '../types';
-import { TOURNAMENTS } from '../data';
+import { useLocalizedData } from '../i18n/useLocalizedData';
 
 interface ApplicationModalProps {
   isOpen: boolean;
@@ -10,13 +11,21 @@ interface ApplicationModalProps {
   selectedTournamentId?: string;
 }
 
+const APPLICATION_FIELD_CLASS =
+  'w-full rounded-xl border border-[#d8d1cc] bg-white/70 px-3 py-2 text-xs text-brand-dark outline-none transition-colors placeholder:text-brand-slate/40 focus:border-brand-dark/45 focus:bg-white sm:px-4 sm:py-3 sm:text-sm';
+
+const APPLICATION_UPLOAD_CLASS =
+  'group relative flex w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-[#d8d1cc] bg-white/70 px-4 py-5 transition-colors hover:bg-white focus-within:border-brand-dark/45 focus-within:bg-white';
+
 export default function ApplicationModal({ isOpen, onClose, selectedTournamentId }: ApplicationModalProps) {
+  const { t } = useTranslation();
+  const { tournaments } = useLocalizedData();
   const [form, setForm] = useState<ApplicationForm>({
     name: '',
     email: '',
-    grade: '10 класс',
+    grade: 'grade10',
     city: '',
-    interest: 'Разработка проектов',
+    interest: 'projects',
     tournamentId: selectedTournamentId || '',
     projectFile: null
   });
@@ -58,9 +67,9 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
     setForm({
       name: '',
       email: '',
-      grade: '10 класс',
+      grade: 'grade10',
       city: '',
-      interest: 'Разработка проектов',
+      interest: 'projects',
       tournamentId: ''
     });
     setTicket(null);
@@ -92,7 +101,7 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
             <button
               onClick={onClose}
               className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full hover:bg-brand-bg-3/50 text-brand-dark transition-colors duration-200 z-20"
-              aria-label="Закрыть"
+              aria-label={t('ui.applicationmodal.877618185f')}
             >
               <X className="w-5 h-5" />
             </button>
@@ -103,107 +112,90 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
                 <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                   <div>
                     <span className="text-[9px] sm:text-[10px] font-mono tracking-widest text-brand-rose-deep/80 block mb-1">
-                      REGISTRATION FORM
-                    </span>
-                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-serif text-brand-dark tracking-tight">
-                      Подать заявку на участие
-                    </h2>
-                    <p className="text-xs sm:text-sm text-brand-slate mt-1 font-light">
-                      Заполните форму, чтобы присоединиться к международной платформе «Навыкус». Мы свяжемся с вами в течение 24 часов.
-                    </p>
+                      {t('ui.applicationmodal.4666b457')}</span>
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-serif text-brand-dark tracking-tight">{t('ui.applicationmodal.6b0f724b4e')}</h2>
+                    <p className="text-xs sm:text-sm text-brand-slate mt-1 font-light">{t('ui.applicationmodal.21117adc83')}</p>
                   </div>
 
                   {/* Input fields */}
                   <div className="space-y-3 sm:space-y-4">
                     <div>
-                      <label className="block text-[10px] sm:text-xs font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">
-                        ФИО школьника
-                      </label>
+                      <label className="block text-[10px] sm:text-xs font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">{t('ui.applicationmodal.34fda9e41a')}</label>
                       <input
                         type="text"
                         required
                         value={form.name}
                         onChange={(e) => setForm({ ...form, name: e.target.value })}
-                        placeholder="Константин Константинопольский"
-                        className="w-full bg-white/25 hover:bg-white/45 focus:bg-white/70 backdrop-blur-md border border-white/40 focus:border-brand-terracotta rounded-xl px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-300 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]"
+                        placeholder={t('ui.applicationmodal.bd41d2e3e9')}
+                        className={APPLICATION_FIELD_CLASS}
                       />
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div>
-                        <label className="block text-[10px] sm:text-xs font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">
-                          Электронная почта
-                        </label>
+                        <label className="block text-[10px] sm:text-xs font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">{t('ui.applicationmodal.eda3ec0b43')}</label>
                         <input
                           type="email"
                           required
                           value={form.email}
                           onChange={(e) => setForm({ ...form, email: e.target.value })}
                           placeholder="name@example.com"
-                          className="w-full bg-white/25 hover:bg-white/45 focus:bg-white/70 backdrop-blur-md border border-white/40 focus:border-brand-terracotta rounded-xl px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-300 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]"
+                          className={APPLICATION_FIELD_CLASS}
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] sm:text-xs font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">
-                          Город проживания
-                        </label>
+                        <label className="block text-[10px] sm:text-xs font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">{t('ui.applicationmodal.10b4770d7e')}</label>
                         <input
                           type="text"
                           required
                           value={form.city}
                           onChange={(e) => setForm({ ...form, city: e.target.value })}
-                          placeholder="Москва"
-                          className="w-full bg-white/25 hover:bg-white/45 focus:bg-white/70 backdrop-blur-md border border-white/40 focus:border-brand-terracotta rounded-xl px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-300 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]"
+                          placeholder={t('ui.applicationmodal.ba8d621178')}
+                          className={APPLICATION_FIELD_CLASS}
                         />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div>
-                        <label className="block text-[10px] sm:text-xs font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">
-                          Класс обучения
-                        </label>
+                        <label className="block text-[10px] sm:text-xs font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">{t('ui.applicationmodal.478fefafd8')}</label>
                         <select
                           value={form.grade}
                           onChange={(e) => setForm({ ...form, grade: e.target.value })}
-                          className="w-full bg-white/25 hover:bg-white/45 focus:bg-white/70 backdrop-blur-md border border-white/40 focus:border-brand-terracotta rounded-xl px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-300 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]"
+                          className={APPLICATION_FIELD_CLASS}
                         >
-                          <option className="bg-brand-bg-2 text-brand-dark">8 класс</option>
-                          <option className="bg-brand-bg-2 text-brand-dark">9 класс</option>
-                          <option className="bg-brand-bg-2 text-brand-dark">10 класс</option>
-                          <option className="bg-brand-bg-2 text-brand-dark">11 класс</option>
-                          <option className="bg-brand-bg-2 text-brand-dark">Студент колледжа</option>
+                          <option value="grade8" className="bg-brand-bg-2 text-brand-dark">{t('ui.applicationmodal.1157b5288a')}</option>
+                          <option value="grade9" className="bg-brand-bg-2 text-brand-dark">{t('ui.applicationmodal.336b6070de')}</option>
+                          <option value="grade10" className="bg-brand-bg-2 text-brand-dark">{t('ui.applicationmodal.17a8553b30')}</option>
+                          <option value="grade11" className="bg-brand-bg-2 text-brand-dark">{t('ui.applicationmodal.55ecebcc56')}</option>
+                          <option value="college" className="bg-brand-bg-2 text-brand-dark">{t('ui.applicationmodal.4bd776f65c')}</option>
                         </select>
                       </div>
 
                       <div>
-                        <label className="block text-[10px] sm:text-xs font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">
-                          Главное направление
-                        </label>
+                        <label className="block text-[10px] sm:text-xs font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">{t('ui.applicationmodal.887bcf29b0')}</label>
                         <select
                           value={form.interest}
                           onChange={(e) => setForm({ ...form, interest: e.target.value })}
-                          className="w-full bg-white/25 hover:bg-white/45 focus:bg-white/70 backdrop-blur-md border border-white/40 focus:border-brand-terracotta rounded-xl px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-300 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]"
+                          className={APPLICATION_FIELD_CLASS}
                         >
-                          <option className="bg-brand-bg-2 text-brand-dark">Разработка проектов</option>
-                          <option className="bg-brand-bg-2 text-brand-dark">Решение кейсов</option>
-                          <option className="bg-brand-bg-2 text-brand-dark">Дипломатия и дебаты</option>
-                          <option className="bg-brand-bg-2 text-brand-dark">Научные исследования</option>
+                          <option value="projects" className="bg-brand-bg-2 text-brand-dark">{t('ui.app.d52e1ae8a0')}</option>
+                          <option value="cases" className="bg-brand-bg-2 text-brand-dark">{t('ui.app.852dca4487')}</option>
+                          <option value="diplomacy" className="bg-brand-bg-2 text-brand-dark">{t('ui.applicationmodal.8ea51ef768')}</option>
+                          <option value="research" className="bg-brand-bg-2 text-brand-dark">{t('ui.app.ac41209943')}</option>
                         </select>
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-[10px] sm:text-xs font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">
-                        Выбрать программу / мероприятие
-                      </label>
+                      <label className="block text-[10px] sm:text-xs font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">{t('ui.applicationmodal.792b92b447')}</label>
                       <select
                         value={form.tournamentId}
                         onChange={(e) => setForm({ ...form, tournamentId: e.target.value })}
-                        className="w-full bg-white/25 hover:bg-white/45 focus:bg-white/70 backdrop-blur-md border border-white/40 focus:border-brand-terracotta rounded-xl px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-300 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]"
+                        className={APPLICATION_FIELD_CLASS}
                       >
-                        <option value="" className="bg-brand-bg-2 text-brand-dark">Общая заявка в сообщество</option>
-                        {TOURNAMENTS.map((t) => (
+                        <option value="" className="bg-brand-bg-2 text-brand-dark">{t('ui.applicationmodal.0570fbe337')}</option>
+                        {tournaments.map((t) => (
                           <option key={t.id} value={t.id} className="bg-brand-bg-2 text-brand-dark">
                             {t.title} ({t.type})
                           </option>
@@ -213,10 +205,8 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
 
                     {/* File Upload */}
                     <div>
-                      <label className="block text-[10px] sm:text-xs font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">
-                        Прикрепить файл с проектами
-                      </label>
-                      <label className="group relative flex flex-col items-center justify-center w-full bg-white/25 hover:bg-white/45 focus-within:bg-white/70 backdrop-blur-md border border-white/40 focus-within:border-brand-terracotta rounded-xl px-4 py-5 cursor-pointer transition-all duration-300 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]">
+                      <label className="block text-[10px] sm:text-xs font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">{t('ui.applicationmodal.a1534409f2')}</label>
+                      <label className={APPLICATION_UPLOAD_CLASS}>
                         <input
                           type="file"
                           accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.zip,.rar,.jpg,.png"
@@ -231,8 +221,7 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
                             <div className="flex-1 min-w-0">
                               <div className="font-medium truncate">{form.projectFile.name}</div>
                               <div className="text-[10px] text-brand-slate/70 mt-0.5">
-                                {(form.projectFile.size / 1024 / 1024).toFixed(2)} MB
-                              </div>
+                                {(form.projectFile.size / 1024 / 1024).toFixed(2)} {t('ui.applicationmodal.bc84a155')}</div>
                             </div>
                             <button
                               type="button"
@@ -250,12 +239,8 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
                             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#bc4638]/5 to-[#bd5b82]/5 border border-white/60 flex items-center justify-center">
                               <Upload className="w-4 h-4 text-brand-slate/60 group-hover:text-brand-rose-deep transition-colors" />
                             </div>
-                            <span className="text-[11px] text-brand-slate/70 group-hover:text-brand-dark transition-colors">
-                              Нажмите, чтобы загрузить файл
-                            </span>
-                            <span className="text-[9px] text-brand-slate/40">
-                              PDF, DOC, PPT, TXT, ZIP, PNG (до 10 MB)
-                            </span>
+                            <span className="text-[11px] text-brand-slate/70 group-hover:text-brand-dark transition-colors">{t('ui.applicationmodal.f5717f85ba')}</span>
+                            <span className="text-[9px] text-brand-slate/40">{t('ui.applicationmodal.6272f20d22')}</span>
                           </div>
                         )}
                       </label>
@@ -266,7 +251,7 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
                   <div className="pt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex items-center gap-2 text-xs text-brand-slate">
                       <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span>Данные передаются по шифрованному каналу</span>
+                      <span>{t('ui.applicationmodal.684fea0145')}</span>
                     </div>
 
                     <button
@@ -277,11 +262,11 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
                       {isSubmitting ? (
                         <>
                           <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          <span>Проверка...</span>
+                          <span>{t('ui.applicationmodal.b55a7aad35')}</span>
                         </>
                       ) : (
                         <>
-                          <span>Отправить заявку</span>
+                          <span>{t('ui.applicationmodal.cf4f1950f8')}</span>
                           <ArrowRight className="w-4 h-4" />
                         </>
                       )}
@@ -295,16 +280,14 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
                   animate={{ opacity: 1, scale: 1 }}
                   className="space-y-6"
                 >
-                  <div className="text-center">
-                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 mb-4 border border-emerald-100">
+                  <div className="flex items-start gap-4">
+                    <div className="inline-flex items-center justify-center w-12 h-12 shrink-0 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">
                       <Check className="w-6 h-6" />
                     </div>
-                    <h2 className="text-2xl font-serif text-brand-dark tracking-tight">
-                      Заявка успешно принята!
-                    </h2>
-                    <p className="text-sm text-brand-slate mt-1.5 max-w-sm mx-auto">
-                      Вы были зарегистрированы. Ваша цифровая смарт-карта Navykus Pass сгенерирована ниже.
-                    </p>
+                    <div>
+                      <h2 className="text-lg font-serif text-brand-dark tracking-tight">{t('ui.app.0d65b9d27c')}</h2>
+                      <p className="text-sm text-brand-slate mt-1.5 max-w-sm">{t('ui.applicationmodal.15cd01515e')}</p>
+                    </div>
                   </div>
 
                   {/* High-End Membership Ticket (Glass Ticket Design) */}
@@ -319,11 +302,9 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
                       <div>
                         <div className="text-[13px] font-semibold text-brand-dark tracking-wide font-sans flex items-center gap-1">
                           <span className="w-1.5 h-1.5 rounded-full bg-brand-rose-deep animate-pulse" />
-                          NAVYKUS MEMBER PASS
-                        </div>
+                          {t('ui.applicationmodal.4c971178')}</div>
                         <div className="text-[10px] font-mono text-brand-slate mt-0.5">
-                          SECURE SYSTEM REGISTRY
-                        </div>
+                          {t('ui.applicationmodal.475f6e55')}</div>
                       </div>
                       <div className="text-right">
                         <div className="text-xs font-mono font-medium text-brand-dark bg-white/80 border border-brand-pink-dust/30 px-2 py-0.5 rounded">
@@ -335,35 +316,35 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
                     {/* Ticket Content Grid */}
                     <div className="grid grid-cols-2 gap-y-4 gap-x-2 text-xs mb-5">
                       <div>
-                        <div className="text-[10px] font-mono text-brand-slate uppercase">Владелец</div>
+                        <div className="text-[10px] font-mono text-brand-slate uppercase">{t('ui.applicationmodal.87365d384d')}</div>
                         <div className="font-medium text-brand-dark mt-0.5 font-sans truncate pr-2">
                           {ticket.userName}
                         </div>
                       </div>
                       <div>
-                        <div className="text-[10px] font-mono text-brand-slate uppercase">EMAIL</div>
+                        <div className="text-[10px] font-mono text-brand-slate uppercase">{t('ui.applicationmodal.0d8a17ea')}</div>
                         <div className="font-medium text-brand-dark mt-0.5 font-sans truncate">
                           {ticket.email}
                         </div>
                       </div>
                       <div>
-                        <div className="text-[10px] font-mono text-brand-slate uppercase">ДАТА РЕГИСТРАЦИИ</div>
+                        <div className="text-[10px] font-mono text-brand-slate uppercase">{t('ui.applicationmodal.61bd187017')}</div>
                         <div className="font-medium text-brand-dark mt-0.5 font-sans">
                           {ticket.date}
                         </div>
                       </div>
                       <div>
-                        <div className="text-[10px] font-mono text-brand-slate uppercase">КООРДИНАТЫ СВЯЗИ</div>
+                        <div className="text-[10px] font-mono text-brand-slate uppercase">{t('ui.applicationmodal.6921c80f30')}</div>
                         <div className="font-mono text-brand-rose-deep font-semibold mt-0.5">
                           {ticket.coordinate}
                         </div>
                       </div>
                       <div className="col-span-2">
-                        <div className="text-[10px] font-mono text-brand-slate uppercase">ВЫБРАННАЯ ПРОГРАММА</div>
+                        <div className="text-[10px] font-mono text-brand-slate uppercase">{t('ui.applicationmodal.1388cd1688')}</div>
                         <div className="font-medium text-brand-terracotta mt-0.5 font-sans">
                           {form.tournamentId 
-                            ? TOURNAMENTS.find(t => t.id === form.tournamentId)?.title 
-                            : 'Общая программа развития & Нетворкинг'}
+                            ? tournaments.find(t => t.id === form.tournamentId)?.title
+                            : t('ui.applicationmodal.c666439edb')}
                         </div>
                       </div>
                     </div>
@@ -389,8 +370,8 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
                         <div className="w-[3px] h-full bg-brand-dark" />
                       </div>
                       <div className="text-right">
-                        <span className="text-[9px] font-mono text-brand-slate block">VERIFICATION PASS</span>
-                        <span className="text-[10px] font-semibold text-emerald-600 block">STATUS: CONFIRMED</span>
+                        <span className="text-[9px] font-mono text-brand-slate block">{t('ui.applicationmodal.897d686d')}</span>
+                        <span className="text-[10px] font-semibold text-emerald-600 block">{t('ui.applicationmodal.3b11c9a3')}</span>
                       </div>
                     </div>
                   </div>
@@ -399,15 +380,11 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
                     <button
                       onClick={handleReset}
                       className="flex-1 bg-brand-bg-2 hover:bg-brand-bg-3 border border-brand-pink-dust/30 text-brand-dark text-xs font-medium py-3 rounded-xl transition-all duration-200 cursor-pointer text-center"
-                    >
-                      Оформить еще одну
-                    </button>
+                    >{t('ui.applicationmodal.467dd34c6e')}</button>
                     <button
                       onClick={onClose}
                       className="flex-1 bg-brand-dark hover:bg-brand-dark/95 text-white text-xs font-medium py-3 rounded-xl transition-all duration-200 cursor-pointer text-center"
-                    >
-                      Закрыть окно
-                    </button>
+                    >{t('ui.applicationmodal.4b5dbcf3e2')}</button>
                   </div>
                 </motion.div>
               )}
