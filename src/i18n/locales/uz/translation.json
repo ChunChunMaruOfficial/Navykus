@@ -46,6 +46,7 @@
   "ui": {
     "app": {
       "1995337599": "tanlovdagi o'rinlar",
+      "ffecc101e5": "Mavjud mamlakatlar",
       "aacca2db": "Navykus nima?",
       "19816f01": "Nima uchun ota-onalar va mutaxassislar Navykusni tanlashadi?",
       "e07687c4": "Sayohatingizni boshlashga tayyormisiz?",
@@ -70,9 +71,6 @@
       "4e6bae67fb": "xalqaro hamjamiyat",
       "36b5f70ec0": "faol maktab o'quvchilari",
       "ca9bce21fd": "Onlayn chempionatlar orqali kelajak uchun asosiy ko'nikmalarni rivojlantiring, hayotiy loyihalarni yarating va tajribali ekspertlar rahbarligida butun dunyo bo'ylab hamfikrlar bilan bog'laning.",
-      "f673591b33": "Talabalar ishtirokchilari",
-      "ffecc101e5": "Mavjud mamlakatlar",
-      "a00ee755e0": "MIT va YC mutaxassislari",
       "2542ef5a41": "Navykus innovatsion ekotizim boʻlib, mamlakatlar va maktab stollari oʻrtasidagi chegaralarni xiralashtiradi. Biz iqtidorli yoshlarga bir-birini topishda, hayotiy loyihalarni amalga oshirishda va xalqaro maydonda o‘zini namoyon qilishda yordam beramiz.",
       "8ca84fc116": "KELAYAKTA TADBIR",
       "aa324b069f": "Onlayn format",
@@ -82,13 +80,10 @@
       "2c0ba7b4a0": "Oldin ro'yxatdan o'tish:",
       "762a52a7bb": "MUROJAATINGIZNI TAQDIM QILING",
       "e975e8b6a4": "TURNIRLAR HAQIDA",
-      "2060fe9f62": "Hakamlar hay'ati va kubok murabbiylari",
       "4d8b1fa187": "Mehmon mutaxassis",
       "40c83f7ed9": "BO'LMALAR QOLDI",
-      "30d2f12f93": "Platformada ishtirok etish imkoniyatlari",
       "1634fa6530": "Biz har bir ishtirokchi uchun turli traektoriyalarni ishlab chiqdik. Skriptingizni toping va birinchi qadamni qo'ying.",
       "fa424fe227": "Nima uchun:",
-      "3c8e417ab7": "Bo'lajak chempionat uchun mutaxassislar maslahati",
       "5c6f09e45e": "Sizning g'oyalaringiz xalqaro kompaniyalarning global tadqiqotlari va amaliyoti mualliflari tomonidan baholanadi.",
       "6d26f92c1f": "EXPERT",
       "3abf2464ad": "TEZKOR RO'YXATDAT",
@@ -125,14 +120,15 @@
       "ce65e2cf6b": "Kontaktlar va qo'llab-quvvatlash",
       "ed16b5adfc": "Koordinator:",
       "9e059272f1": "Maxfiylik",
-      "3a86197ba3": "Shartnoma"
+      "3a86197ba3": "Shartnoma",
+      "2060fe9f62": "Kubok hakamlar hay'ati va mentorlar"
     },
     "aboutprojectpage": {
       "2805697540": "Ishtirok eting",
       "3841022721": "\"An'anaviy maktab akademik nazariyaga e'tibor qaratadi, zamonaviy dunyo esa amaliy ko'nikmalar, rivojlangan dizayn fikrlash va madaniyatlararo jamoalarda ishlash qobiliyatini talab qiladi.\"",
       "d1728b4c": "Xalqaro hamjamiyatning bir qismi bo'lishni xohlaysizmi?",
       "a9dc864a2e": "Uy",
-      "e260b399ab": "Navykus loyihasi haqida",
+      "e260b399ab": "Loyiha haqida",
       "ac15bd8cf7": "Biz faol talabalar, akademik murabbiylar va global kompaniyalarni yagona, qo‘llab-quvvatlovchi rivojlanish ekotizimiga birlashtirib, ta’lim kelajagini yaratmoqdamiz.",
       "0a09c52fdd": "Chempionatni tomosha qiling",
       "10575c4831": "Bizning missiyamiz",
@@ -156,13 +152,6 @@
       "93290f394a": "O'xshash odamlarni topish va jamoalar yaratish",
       "863ce4f6d3": "Qimmatbaho sovg'alar, grantlar va stajirovkalar",
       "0d298390c0": "Chempionatlarni ko'rish",
-      "7d00c11cfd": "Ota-onalar",
-      "14a8fff621": "Bolaning muvaffaqiyatli kelajagiga sarmoya kiritish",
-      "4a1a794a17": "Talab qilinadigan yumshoq va qattiq ko'nikmalarni o'zlashtirish",
-      "4bc480da26": "Xavfsiz onlayn rivojlanish muhiti",
-      "1ff1c5428b": "Erta martaba yo'nalishi va universitetni tanlash",
-      "73b785355b": "Top universitetlar mutaxassislaridan maslahatlar",
-      "28c1d0bb50": "Mutaxassislar haqida",
       "6727fa0866": "Maktablar va tashkilotlar",
       "78fe050899": "Obro'-e'tibor va ishtirok etish",
       "41a41cd402": "Tayyor kalit taslim loyiha dasturlari",
@@ -209,6 +198,10 @@
       "b966ab17f5": "Siz har doim bizning 24 soatlik qo‘llab-quvvatlash xizmatimizga info@navykus.org elektron pochta manzili yoki @navykus_com rasmiy Telegram akkaunti orqali yozishingiz mumkin. Biz har qanday tashkiliy yoki texnik savollarga javob beramiz."
     },
     "activitiespage": {
+      "0b2e4667a1": "Oquvchilar uchun tadbirlar",
+      "9bc3c6004a": "Konikmalarni rivojlantirish va haqiqiy loyihalar yaratishga yordam beradigan maruzalar, vorkshoplar, loyiha sprintlari, jamoaviy formatlar va onlayn uchrashuvlarni toping.",
+      "807368f2dd": "Nomi, formati, mavzusi yoki konikmalar boyicha qidirish...",
+      "0ad86f239d": "Menga mosini topish",
       "62d6062e": "Faoliyatni qanday tanlash mumkin?",
       "5f082a56": "Qayerdan boshlashni bilmayapsizmi? Tayyorlik darajangizni aniqlang va mos formatni tanlang.",
       "97446fff": "Qayerdan boshlashni bilmayapsizmi?",
@@ -239,11 +232,12 @@
       "26021f2cb2": "Jamoalar uchun",
       "ddc44f9ff3": "Tez orada",
       "2f96e6c2aa": "Hozir yugurish",
-      "2a785b54e5": "Bajarildi",
-      "6afaf7bd0a": "Barcha tadbirlar"
+      "2a785b54e5": "Kutilmoqda",
+      "6afaf7bd0a": "Barcha tadbirlar",
+      "9bd00b51c2": "Tadbirlar",
+      "d4bd169801": "Imkoniyatlar katalogi"
     },
     "applicationmodal": {
-      "4666b457": "REGISTRATION FORM",
       "bc84a155": "MB",
       "4c971178": "NAVYKUS MEMBER PASS",
       "475f6e55": "SECURE SYSTEM REGISTRY",
@@ -271,7 +265,6 @@
       "a1534409f2": "Loyihalar bilan faylni biriktiring",
       "f5717f85ba": "Faylni yuklab olish uchun bosing",
       "6272f20d22": "PDF, DOC, PPT, TXT, ZIP, PNG (10 MB gacha)",
-      "684fea0145": "Ma'lumotlar shifrlangan kanal orqali uzatiladi",
       "b55a7aad35": "Imtihon...",
       "cf4f1950f8": "So'rov yuboring",
       "15cd01515e": "Siz roʻyxatdan oʻtgansiz. Navykus Pass raqamli smart-kartangiz quyida yaratilgan.",
@@ -404,7 +397,6 @@
       "64c107dcac": "GʻOLIBLARGA",
       "26ed71e452": "Kubokning asosiy sovrini startapni toʻliq chiqarilgunga qadar qoʻllab-quvvatlash va MIT professorlari va Y Combinator trekerlarining tavsiyanomalari.",
       "b4c596db9d": "O'tiring",
-      "b41ff491ad": "Ishtirok etish jarayoni qanday ishlaydi (Xronologiya)",
       "73c7822daa": "Biz aniq bosqichma-bosqich onlayn yo'nalishni ishlab chiqdik. Tafsilotlar va muhim belgilarni o'rganish uchun qadamlarni bosing.",
       "6eaf12bfb5": "0-bosqich",
       "bc6f640c2c": "07 dan",
@@ -412,7 +404,6 @@
       "87719eaf02": "Marafon yakunlandi!",
       "a77e33e8d3": "Keyingisi",
       "645661f0ee": "Anketaga",
-      "4591330e49": "Hakamlar hay'ati va chempionat mutaxassislari",
       "642a217314": "Loyihalaringiz dunyoning yetakchi universitetlari professorlari va xalqaro korporatsiyalar amaliyotchilari tomonidan baholanadi. Tarkibi real vaqtda CMS tizimi orqali boshqariladi.",
       "40baedef9b": "Mutaxassislik sohasi:",
       "795d6a19a2": "Tez ishtirokchini ro'yxatdan o'tkazish",
@@ -498,11 +489,8 @@
       "5208d7841a": "- Jamoa toping",
       "801f72c2a4": "Bu yerda siz chempionat yoki loyiha ishtirokchilarini topishingiz mumkin. To'g'ri odamni tanlang va u bilan bog'laning.",
       "83874460f8": "Profillarni ko'rish",
-      "6db9425693": "Profillarga qarang",
       "748802e8af": "15+ mamlakatdagi ishtirokchilarning profillarini ko'rib chiqing va mos odamlarni toping.",
-      "d37a6b7314": "Ishtirokchini tanlang",
       "c481549d83": "Xuddi shunday qiziqish va ko'nikmalarga ega bo'lgan odamni toping.",
-      "9507d02c5c": "U bilan bog'laning",
       "c90707df4b": "Ishtirokchiga yozing yoki profilingizni yuboring, shunda ular sizni topishi mumkin.",
       "0247c0a466": "Ism, qiziqishlar yoki ko'nikmalar bo'yicha qidiring...",
       "5412a9a9b7": "Filtrlar",
@@ -688,14 +676,6 @@
         "why": "MVPni amalga oshirish uchun muallifga dizaynerlar va ishlab chiquvchilar kerak; yolg'iz qo'shilish uchun kuchli jamoa kerak.",
         "ctaText": "Qidiruvga o'ting",
         "actionType": "team"
-      },
-      {
-        "id": "sc-3",
-        "title": "Faoliyatga qo'shiling",
-        "who": "Ota-ona, o'qituvchi yoki boshlang'ich",
-        "why": "Loyiha bilan tanishishni, bepul ma'ruzalarda, vebinarlarda qatnashishni yoki final bosqichining jonli efirlarini tomosha qilishni xohlaysiz.",
-        "ctaText": "Faoliyatlarni ko'rish",
-        "actionType": "activity"
       }
     ],
     "trustPoints": [
@@ -725,24 +705,7 @@
         "description": "Sizni olg'a siljishga undaydigan ambitsiyali tengdoshlarning ishonchli va qo'llab-quvvatlovchi hamjamiyati."
       }
     ],
-    "stats": [
-      {
-        "value": "15+",
-        "label": "ishtirokchi davlatlar"
-      },
-      {
-        "value": "2.5k+",
-        "label": "faol maktab o'quvchilari"
-      },
-      {
-        "value": "40+",
-        "label": "xalqaro ekspertlar"
-      },
-      {
-        "value": "150k$",
-        "label": "eng yaxshi loyihalar uchun grantlar"
-      }
-    ],
+    "stats": [],
     "activities": [
       {
         "id": "act-1",
@@ -803,46 +766,6 @@
         ],
         "prerequisites": "Jamoada ishlash istagi. Har qanday mahorat mamnuniyat bilan qabul qilinadi.",
         "ctaText": "Hozir ishtirok eting"
-      },
-      {
-        "id": "act-4",
-        "title": "Tarmoq oqshomi: jamoalar bilan tanishish",
-        "shortDescription": "Navykus a'zolari bilan uchrashish va o'xshash odamlarni topish uchun haftalik uchrashuv.",
-        "fullDescription": "Tezkor tanishuv formatidagi qulay onlayn uchrashuv, unda siz turli mamlakatlardan kelgan ishtirokchilar bilan uchrashasiz va Navykus hamjamiyatida amalga oshirilayotgan loyihalar haqida tasavvurga ega bo'lasiz. Har bir uchrashuv muayyan mavzuga bag‘ishlangan: bir hafta – ekologiya va barqaror rivojlanish, keyingisi – IT va startaplar. Format tanishlar orttirishga, kelajakdagi jamoani topishga va oddiygina muloqotdan zavqlanishga yordam beradi.",
-        "format": "Onlayn uchrashuv",
-        "date": "Har shanba, Moskva vaqti bilan 18:00",
-        "imageUrl": "https://images.unsplash.com/photo-1529920549178-802203853118?w=600&h=400&fit=crop",
-        "category": "online-meeting",
-        "status": "ongoing",
-        "who": "12 yoshdan boshlab Navykusning barcha ishtirokchilari",
-        "benefits": [
-          "15+ mamlakatdan kelgan ishtirokchilar bilan tanishing",
-          "Loyihalar uchun o'xshash odamlarni toping",
-          "Loyihaning imkoniyatlari haqida birinchi qo'ldan bilib oling",
-          "Bepul ishtirok"
-        ],
-        "prerequisites": "Platformada ro'yxatdan o'tish (bepul)",
-        "ctaText": "Qo'shilish"
-      },
-      {
-        "id": "act-5",
-        "title": "Loyiha: Maktab ekoauditi",
-        "shortDescription": "Ijtimoiy tashabbus - maktabingizning ekologik auditini o'tkazing va takomillashtirish rejasini taklif qiling.",
-        "fullDescription": "Butun dunyo bo'ylab maktab o'quvchilari o'z maktablarining ekologik auditini o'tkazadigan keng ko'lamli ijtimoiy loyiha tashabbusi: energiya iste'moli, chiqindilarni qayta ishlash darajasi, jamiyatning ekologik savodxonligini tahlil qilish va takomillashtirishning amaliy rejasini taklif qilish. Eng yaxshi loyihalar xalqaro Yoshlar ekologik sammitida taqdim etiladi va amalga oshirish uchun ekspert yordami oladi.",
-        "format": "Loyiha tashabbusi",
-        "date": "2026 yil 1 iyul - 31 avgust",
-        "imageUrl": "https://images.unsplash.com/photo-1443136178219-272d7a6cb2b5?w=600&h=400&fit=crop",
-        "category": "social",
-        "status": "ongoing",
-        "who": "13-18 yoshdagi maktab o'quvchilari, faollar, maktab hukumati vakillari",
-        "benefits": [
-          "Maktabingiz barqarorligiga haqiqiy ta'sir",
-          "Loyihani boshqarish va ma'lumotlarni tahlil qilish ko'nikmalari",
-          "Yoshlar ekologik sammitida ishtirok etish",
-          "Atrof-muhit bo'yicha murabbiylarni qo'llab-quvvatlash"
-        ],
-        "prerequisites": "Majburiy emas, lekin ma'lumotlar fanining ko'nikmalari foydalidir",
-        "ctaText": "Loyihani boshlang"
       },
       {
         "id": "act-6",

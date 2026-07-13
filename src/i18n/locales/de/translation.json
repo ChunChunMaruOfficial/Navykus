@@ -46,6 +46,7 @@
   "ui": {
     "app": {
       "1995337599": "Plätze in der Auswahl",
+      "ffecc101e5": "Präsenzländer",
       "aacca2db": "Was ist Navykus?",
       "19816f01": "Warum entscheiden sich Eltern und Experten für Navykus?",
       "e07687c4": "Sind Sie bereit, Ihre Reise zu beginnen?",
@@ -70,9 +71,6 @@
       "4e6bae67fb": "internationale Gemeinschaft",
       "36b5f70ec0": "aktive Schulkinder",
       "ca9bce21fd": "Entwickeln Sie Schlüsselkompetenzen für die Zukunft durch Online-Meisterschaften, erstellen Sie tragfähige Projekte und vernetzen Sie sich unter der Anleitung erfahrener Experten mit Gleichgesinnten auf der ganzen Welt.",
-      "f673591b33": "Studentische Teilnehmer",
-      "ffecc101e5": "Präsenzländer",
-      "a00ee755e0": "Experten von MIT & YC",
       "2542ef5a41": "Navykus ist ein innovatives Ökosystem, das die Grenzen zwischen Ländern und Schulbänken verwischt. Wir helfen talentierten jungen Menschen, einander zu finden, tragfähige Projekte zu starten und sich auf der internationalen Bühne auszudrücken.",
       "8ca84fc116": "KOMMENDE VERANSTALTUNG",
       "aa324b069f": "Online-Format",
@@ -82,13 +80,10 @@
       "2c0ba7b4a0": "Anmeldung vor:",
       "762a52a7bb": "Reichen Sie Ihre Bewerbung ein",
       "e975e8b6a4": "ÜBER TURNIERE",
-      "2060fe9f62": "Jury- und Pokal-Mentoren",
       "4d8b1fa187": "Gastexperte",
       "40c83f7ed9": "PLÄTZE VERFÜGBAR",
-      "30d2f12f93": "Möglichkeiten zur Teilnahme an der Plattform",
       "1634fa6530": "Wir haben für jeden Teilnehmer unterschiedliche Flugbahnen entworfen. Finden Sie Ihr Skript und machen Sie den ersten Schritt.",
       "fa424fe227": "Warum:",
-      "3c8e417ab7": "Kompetente Beratung für die bevorstehende Meisterschaft",
       "5c6f09e45e": "Ihre Ideen werden von Autoren globaler Forschung und Praxis internationaler Unternehmen bewertet.",
       "6d26f92c1f": "EXPERTE",
       "3abf2464ad": "SCHNELLE REGISTRIERUNG",
@@ -125,14 +120,15 @@
       "ce65e2cf6b": "Kontakte und Support",
       "ed16b5adfc": "Koordinator:",
       "9e059272f1": "Privatsphäre",
-      "3a86197ba3": "Vereinbarung"
+      "3a86197ba3": "Vereinbarung",
+      "2060fe9f62": "Jury und Mentoren des Cups"
     },
     "aboutprojectpage": {
       "2805697540": "Machen Sie mit",
       "3841022721": "„Die traditionelle Schule konzentriert sich auf akademische Theorie, während die moderne Welt angewandte Fähigkeiten, ausgeprägtes Design-Denken und die Fähigkeit zur Arbeit in interkulturellen Teams erfordert.“",
       "d1728b4c": "Möchten Sie Teil der internationalen Gemeinschaft werden?",
       "a9dc864a2e": "Zuhause",
-      "e260b399ab": "Über das Navykus-Projekt",
+      "e260b399ab": "Über das Projekt",
       "ac15bd8cf7": "Wir gestalten die Zukunft der Bildung, indem wir aktive Studierende, akademische Mentoren und globale Unternehmen in einem einzigen, unterstützenden Entwicklungsökosystem verbinden.",
       "0a09c52fdd": "Sehen Sie sich die Meisterschaft an",
       "10575c4831": "Unsere Mission",
@@ -156,13 +152,6 @@
       "93290f394a": "Gleichgesinnte finden und Teams bilden",
       "863ce4f6d3": "Wertvolle Preise, Stipendien und Praktika",
       "0d298390c0": "Meisterschaften ansehen",
-      "7d00c11cfd": "Eltern",
-      "14a8fff621": "Investition in die erfolgreiche Zukunft eines Kindes",
-      "4a1a794a17": "Beherrschung gefragter Soft- und Hard-Skills",
-      "4bc480da26": "Sichere Online-Entwicklungsumgebung",
-      "1ff1c5428b": "Berufseinstiegsberatung und Hochschulwahl",
-      "73b785355b": "Beratung durch Experten von Spitzenuniversitäten",
-      "28c1d0bb50": "Über die Experten",
       "6727fa0866": "Schulen und Organisationen",
       "78fe050899": "Erhöhtes Ansehen und Engagement",
       "41a41cd402": "Vorgefertigte schlüsselfertige Projektprogramme",
@@ -209,6 +198,10 @@
       "b966ab17f5": "Sie können unserem 24-Stunden-Support-Service jederzeit per E-Mail info@navykus.org oder im offiziellen Telegram-Konto @navykus_com schreiben. Wir beantworten gerne alle organisatorischen und technischen Fragen."
     },
     "activitiespage": {
+      "0b2e4667a1": "Events für Schüler",
+      "9bc3c6004a": "Finde Vorträge, Workshops, Projektsprints, Teamformate und Online-Treffen, die Skills und echte Projekte fördern.",
+      "807368f2dd": "Suche nach Titel, Format, Thema oder Skills...",
+      "0ad86f239d": "Für mich finden",
       "62d6062e": "Wie wähle ich eine Aktivität aus?",
       "5f082a56": "Sie wissen nicht, wo Sie anfangen sollen? Bestimmen Sie Ihren Bereitschaftsgrad und wählen Sie das passende Format.",
       "97446fff": "Sie wissen nicht, wo Sie anfangen sollen?",
@@ -239,11 +232,12 @@
       "26021f2cb2": "Für Teams",
       "ddc44f9ff3": "Kommt bald",
       "2f96e6c2aa": "Läuft jetzt",
-      "2a785b54e5": "Abgeschlossen",
-      "6afaf7bd0a": "Alle Aktivitäten"
+      "2a785b54e5": "Bevorstehend",
+      "6afaf7bd0a": "Alle Aktivitäten",
+      "9bd00b51c2": "Events",
+      "d4bd169801": "Chancen-Katalog"
     },
     "applicationmodal": {
-      "4666b457": "REGISTRATION FORM",
       "bc84a155": "MB",
       "4c971178": "NAVYKUS MEMBER PASS",
       "475f6e55": "SECURE SYSTEM REGISTRY",
@@ -271,7 +265,6 @@
       "a1534409f2": "Hängen Sie eine Datei mit Projekten an",
       "f5717f85ba": "Klicken Sie hier, um die Datei herunterzuladen",
       "6272f20d22": "PDF, DOC, PPT, TXT, ZIP, PNG (bis zu 10 MB)",
-      "684fea0145": "Die Datenübertragung erfolgt über einen verschlüsselten Kanal",
       "b55a7aad35": "Überprüfen...",
       "cf4f1950f8": "Senden Sie eine Anfrage",
       "15cd01515e": "Sie wurden registriert. Ihre digitale Navykus Pass-Smartcard wird unten generiert.",
@@ -404,7 +397,6 @@
       "64c107dcac": "AN DIE GEWINNER",
       "26ed71e452": "Der Hauptpreis des Pokals ist die Mentoring-Unterstützung des Startups bis zu seiner vollständigen Veröffentlichung sowie Empfehlungsschreiben von MIT-Professoren und Y-Combinator-Trackern.",
       "b4c596db9d": "Nehmen Sie Platz",
-      "b41ff491ad": "So funktioniert der Beteiligungsprozess (Zeitleiste)",
       "73c7822daa": "Wir haben eine klare Schritt-für-Schritt-Anleitung online entwickelt. Klicken Sie auf die Schritte, um Details und wichtige Markierungen zu erkunden.",
       "6eaf12bfb5": "STUFE 0",
       "bc6f640c2c": "AB 07",
@@ -412,7 +404,6 @@
       "87719eaf02": "Ziel des Marathons!",
       "a77e33e8d3": "Als nächstes",
       "645661f0ee": "Zum Fragebogen",
-      "4591330e49": "Die Jury und Experten der Meisterschaft",
       "642a217314": "Ihre Projekte werden von Professoren führender Universitäten auf der ganzen Welt und Praktikern internationaler Unternehmen bewertet. Die Komposition wird über ein CMS-System in Echtzeit verwaltet.",
       "40baedef9b": "Fachgebiet:",
       "795d6a19a2": "Schnelle Teilnehmerregistrierung",
@@ -498,11 +489,8 @@
       "5208d7841a": "– Finden Sie ein Team",
       "801f72c2a4": "Hier finden Sie Teilnehmer für eine Meisterschaft oder ein Projekt. Wählen Sie die richtige Person und kontaktieren Sie sie.",
       "83874460f8": "Profile ansehen",
-      "6db9425693": "Schauen Sie sich die Profile an",
       "748802e8af": "Durchsuchen Sie Profile von Teilnehmern aus über 15 Ländern und finden Sie passende Personen.",
-      "d37a6b7314": "Wählen Sie einen Teilnehmer aus",
       "c481549d83": "Finden Sie jemanden mit ähnlichen Interessen und Fähigkeiten.",
-      "9507d02c5c": "Kontaktieren Sie ihn",
       "c90707df4b": "Schreiben Sie einem Teilnehmer oder senden Sie Ihr Profil, damit er Sie finden kann.",
       "0247c0a466": "Suchen Sie nach Namen, Interessen oder Fähigkeiten ...",
       "5412a9a9b7": "Filter",
@@ -688,14 +676,6 @@
         "why": "Der Autor benötigt Designer und Entwickler, um das MVP umzusetzen; Ein Einzelgänger braucht ein starkes Team, dem er beitreten kann.",
         "ctaText": "Gehen Sie zur Suche",
         "actionType": "team"
-      },
-      {
-        "id": "sc-3",
-        "title": "Nehmen Sie an der Aktivität teil",
-        "who": "Eltern, Lehrer oder Anfänger",
-        "why": "Möchten Sie das Projekt kennenlernen, kostenlose Vorträge und Webinare besuchen oder Live-Übertragungen des Finales ansehen?",
-        "ctaText": "Aktivitäten anzeigen",
-        "actionType": "activity"
       }
     ],
     "trustPoints": [
@@ -725,24 +705,7 @@
         "description": "Eine zuverlässige und unterstützende Gemeinschaft ehrgeiziger Kollegen, die Sie motivieren, voranzukommen."
       }
     ],
-    "stats": [
-      {
-        "value": "15+",
-        "label": "teilnehmenden Ländern"
-      },
-      {
-        "value": "2.5k+",
-        "label": "aktive Schulkinder"
-      },
-      {
-        "value": "40+",
-        "label": "internationale Experten"
-      },
-      {
-        "value": "150k$",
-        "label": "Zuschüsse für die besten Projekte"
-      }
-    ],
+    "stats": [],
     "activities": [
       {
         "id": "act-1",
@@ -803,46 +766,6 @@
         ],
         "prerequisites": "Lust, im Team zu arbeiten. Jede Fähigkeit ist willkommen.",
         "ctaText": "Jetzt teilnehmen"
-      },
-      {
-        "id": "act-4",
-        "title": "Networking-Abend: Communities kennenlernen",
-        "shortDescription": "Ein wöchentliches Treffen, um Navykus-Mitglieder zu treffen und Gleichgesinnte zu finden.",
-        "fullDescription": "Ein entspanntes Online-Treffen im Speed-Dating-Format, bei dem Sie Teilnehmer aus verschiedenen Ländern treffen und sich ein Bild von den Projekten machen, die in der Navykus-Community umgesetzt werden. Jedes Treffen ist einem bestimmten Thema gewidmet: eine Woche – Ökologie und nachhaltige Entwicklung, die nächste – IT und Startups. Das Format hilft dabei, Bekanntschaften zu schließen, ein zukünftiges Team zu finden und einfach Spaß an der Kommunikation zu haben.",
-        "format": "Online-Treffen",
-        "date": "Jeden Samstag, 18:00 Uhr Moskauer Zeit",
-        "imageUrl": "https://images.unsplash.com/photo-1529920549178-802203853118?w=600&h=400&fit=crop",
-        "category": "online-meeting",
-        "status": "ongoing",
-        "who": "Alle Navykus-Teilnehmer ab 12 Jahren",
-        "benefits": [
-          "Treffen Sie Teilnehmer aus über 15 Ländern",
-          "Finden Sie Gleichgesinnte für Projekte",
-          "Informieren Sie sich aus erster Hand über die Möglichkeiten des Projekts",
-          "Kostenlose Teilnahme"
-        ],
-        "prerequisites": "Registrierung auf der Plattform (kostenlos)",
-        "ctaText": "Machen Sie mit"
-      },
-      {
-        "id": "act-5",
-        "title": "Projekt: Öko-Audit Schule",
-        "shortDescription": "Soziale Initiative – Führen Sie eine Umweltprüfung Ihrer Schule durch und schlagen Sie einen Verbesserungsplan vor.",
-        "fullDescription": "Eine groß angelegte soziale Projektinitiative, bei der Schulkinder auf der ganzen Welt ein Umweltaudit ihrer Schule durchführen: Energieverbrauch, Abfallrecyclingquoten und Umweltkompetenz der Gemeinde analysieren und einen praktischen Verbesserungsplan vorschlagen. Die besten Projekte werden beim internationalen Youth Eco Summit vorgestellt und erhalten fachkundige Unterstützung bei der Umsetzung.",
-        "format": "Projektinitiative",
-        "date": "1. Juli - 31. August 2026",
-        "imageUrl": "https://images.unsplash.com/photo-1443136178219-272d7a6cb2b5?w=600&h=400&fit=crop",
-        "category": "social",
-        "status": "ongoing",
-        "who": "Schüler im Alter von 13–18 Jahren, Aktivisten, Vertreter der Schulverwaltung",
-        "benefits": [
-          "Echte Auswirkungen auf die Nachhaltigkeit Ihrer Schule",
-          "Kenntnisse im Projektmanagement und in der Datenanalyse",
-          "Teilnahme am Youth Eco Summit",
-          "Unterstützung für Umweltmentoren"
-        ],
-        "prerequisites": "Nicht erforderlich, aber datenwissenschaftliche Kenntnisse sind hilfreich",
-        "ctaText": "Starten Sie ein Projekt"
       },
       {
         "id": "act-6",

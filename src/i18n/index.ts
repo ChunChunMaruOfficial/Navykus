@@ -12,8 +12,9 @@ import tr from './locales/tr/translation.json';
 import uz from './locales/uz/translation.json';
 import {
   DEFAULT_LANGUAGE,
+  detectSupportedLanguageFromBrowser,
   getDirection,
-  LANGUAGE_STORAGE_KEY,
+  getSavedPreferredLanguage,
   SUPPORTED_LANGUAGES,
 } from './languages';
 
@@ -28,8 +29,20 @@ const resources = {
   tr: { translation: tr },
 };
 
+const languageDetector = new LanguageDetector();
+
+languageDetector.addDetector({
+  name: 'manualPreference',
+  lookup: getSavedPreferredLanguage,
+});
+
+languageDetector.addDetector({
+  name: 'browserRegion',
+  lookup: () => detectSupportedLanguageFromBrowser(),
+});
+
 i18n
-  .use(LanguageDetector)
+  .use(languageDetector)
   .use(initReactI18next)
   .init({
     resources,
@@ -40,9 +53,8 @@ i18n
       escapeValue: false,
     },
     detection: {
-      order: ['localStorage', 'navigator', 'htmlTag'],
-      lookupLocalStorage: LANGUAGE_STORAGE_KEY,
-      caches: ['localStorage'],
+      order: ['manualPreference', 'browserRegion'],
+      caches: [],
     },
     react: {
       useSuspense: false,

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Check, ArrowRight, ShieldCheck, Ticket as TicketIcon, Upload } from 'lucide-react';
+import { X, Check, ArrowRight, Ticket as TicketIcon, Upload } from 'lucide-react';
 import { Tournament, ApplicationForm, Ticket } from '../types';
 import { useLocalizedData } from '../i18n/useLocalizedData';
 
@@ -111,8 +111,6 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
                 /* Application Form */
                 <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                   <div>
-                    <span className="text-[9px] sm:text-[10px] font-mono tracking-widest text-brand-rose-deep/80 block mb-1">
-                      {t('ui.applicationmodal.4666b457')}</span>
                     <h2 className="text-xl sm:text-2xl lg:text-3xl font-serif text-brand-dark tracking-tight">{t('ui.applicationmodal.6b0f724b4e')}</h2>
                     <p className="text-xs sm:text-sm text-brand-slate mt-1 font-light">{t('ui.applicationmodal.21117adc83')}</p>
                   </div>
@@ -248,12 +246,7 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
                   </div>
 
                   {/* Submission actions */}
-                  <div className="pt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="flex items-center gap-2 text-xs text-brand-slate">
-                      <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span>{t('ui.applicationmodal.684fea0145')}</span>
-                    </div>
-
+                  <div className="flex justify-end pt-2">
                     <button
                       type="submit"
                       disabled={isSubmitting}

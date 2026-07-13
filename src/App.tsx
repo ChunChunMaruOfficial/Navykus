@@ -3,16 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   ArrowUpRight,
-  Users,
-  Calendar,
   Clock,
-  GraduationCap,
   ChevronDown,
-  Globe,
-  Award,
   CheckCircle2,
   AlertCircle,
-  UserCheck,
+  Globe,
   Menu,
   X,
 } from 'lucide-react';
@@ -20,7 +15,7 @@ import GlassCrystal from './components/GlassCrystal';
 import ApplicationModal from './components/ApplicationModal';
 import PageSkeleton from './components/PageSkeletons';
 import { submitCommunityLead } from './api';
-import { LANGUAGE_FLAGS, SUPPORTED_LANGUAGES, type SupportedLanguage } from './i18n/languages';
+import { LANGUAGE_FLAGS, SUPPORTED_LANGUAGES, savePreferredLanguage, type SupportedLanguage } from './i18n/languages';
 import { useLocalizedData } from './i18n/useLocalizedData';
 import {
   fadeUp,
@@ -94,6 +89,7 @@ const isPagePath = (value: string): value is typeof PAGE_PATHS[number] => {
 const getPageFromPath = (): Page => {
   if (typeof window === 'undefined') return 'home';
   const page = window.location.pathname.replace(/\/$/, '').slice(1);
+  if (page === 'opportunities' || page === 'profile/opportunities' || page.startsWith('opportunities/')) return 'activities';
   return isPagePath(page) ? page : 'home';
 };
 
@@ -107,9 +103,7 @@ export default function App() {
   const {
     tournaments,
     pillars,
-    stats,
     experts,
-    scenarios,
     trustPoints,
   } = useLocalizedData();
   const [currentPage, setCurrentPage] = useState<Page>(getPageFromPath);
@@ -141,6 +135,7 @@ export default function App() {
     const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
     if (currentPath !== nextPath) {
       window.history.pushState({}, '', nextPath);
+      window.dispatchEvent(new PopStateEvent('popstate'));
     }
   };
 
@@ -294,6 +289,9 @@ export default function App() {
     label: t(`languages.${code}`),
     flag: LANGUAGE_FLAGS[code],
   }));
+  const heroBrand = t('ui.app.b1a2ec16fe');
+  const heroLead = t('ui.app.b847f4a47a');
+  const heroLeadRest = heroLead.startsWith(heroBrand) ? heroLead.slice(heroBrand.length).trimStart() : heroLead;
 
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-[#fff8f5] via-[#fffaf7] to-[#fdf6f4] text-[#111111] font-sans overflow-x-hidden selection:bg-brand-pink-dust/30 selection:text-brand-dark">
@@ -466,6 +464,7 @@ export default function App() {
                         <button
                           key={l.code}
                           onClick={() => {
+                            savePreferredLanguage(l.code);
                             void i18n.changeLanguage(l.code);
                             setIsLangDropdownOpen(false);
                           }}
@@ -539,7 +538,10 @@ export default function App() {
           >
             <motion.div {...heroFadeUpLarge} className="lg:col-span-7 space-y-8 text-left z-10">
               <div className="flex flex-col gap-4">
-                <h1 className="text-3xl sm:text-4xl md:text-[44px] lg:text-[52px] xl:text-[58px] leading-[1.1] text-[#111111] font-serif font-light italic tracking-tight text-balance">{t('ui.app.b847f4a47a')}<br />
+                <h1 className="text-3xl sm:text-4xl md:text-[44px] lg:text-[52px] xl:text-[58px] leading-[1.1] text-[#111111] font-serif font-light italic tracking-tight text-balance">
+                  <span className="hero-brand-word not-italic font-semibold">{heroBrand}</span>
+                  {heroLeadRest ? ` ${heroLeadRest}` : ''}
+                  <br />
                   <span className="not-italic font-normal text-transparent bg-clip-text bg-gradient-to-r from-[#bc4638] to-[#bd5b82]">{t('ui.app.4e6bae67fb')}</span><br />{t('ui.app.36b5f70ec0')}</h1>
                 <p className="text-[#5b6472] text-sm sm:text-base md:text-lg leading-relaxed font-normal md:font-light text-balance">{t('ui.app.ca9bce21fd')}</p>
               </div>
@@ -562,20 +564,13 @@ export default function App() {
                 >{t('ui.app.d13f387e64')}</button>
               </div>
 
-              <div className="pt-6 flex flex-wrap items-center gap-x-8 gap-y-4 text-xs text-brand-slate/90">
-                <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-[#bd5b82]" />
-                  <span><strong>2,500+</strong>{t('ui.app.f673591b33')}</span>
-                </div>
+              <div className="pt-2 flex flex-wrap items-center gap-x-8 gap-y-4 text-xs text-brand-slate/90">
                 <div className="flex items-center gap-2">
                   <Globe className="w-4 h-4 text-[#bc4638]" />
                   <span><strong>15+</strong>{t('ui.app.ffecc101e5')}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <GraduationCap className="w-4 h-4 text-amber-700" />
-                  <span><strong>40+</strong>{t('ui.app.a00ee755e0')}</span>
-                </div>
               </div>
+
             </motion.div>
 
             <motion.div
@@ -589,23 +584,6 @@ export default function App() {
               </div>
             </motion.div>
           </section>
-
-          <motion.section {...fadeUpLarge} className="relative z-10 max-w-7xl mx-auto px-[6%] md:px-[10%] py-6">
-            <div className="bg-white/[0.12] glass-xl border border-white/[0.15] rounded-3xl p-6 md:p-8">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 divide-y sm:divide-y-0 lg:divide-x divide-[#d8d1cc]/40">
-                {stats.map((stat, i) => (
-                  <div key={`${stat.label}-${i}`} className="flex items-center gap-3 lg:px-4 first:pt-0 pt-4 sm:pt-0">
-                    <div className={`shrink-0 text-2xl md:text-3xl font-serif font-light tracking-tight ${i === 0 ? 'stat-glow-coral' : i === 1 ? 'stat-glow-green' : i === 2 ? 'stat-glow-amber' : 'stat-glow-coral'}`}>
-                      {stat.value}
-                    </div>
-                    <div className="text-[10px] font-mono text-brand-slate tracking-wider uppercase leading-snug">
-                      {stat.label}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.section>
 
           <section id="what-is-navykus" className="relative z-10 py-16 md:py-24 max-w-7xl mx-auto px-[6%] md:px-[10%] space-y-12 section-accent-warm">
             <motion.div {...fadeUp} className="text-center max-w-3xl mx-auto space-y-4">
@@ -640,9 +618,9 @@ export default function App() {
           <section id="nearest-championship" className="relative z-10 py-16 md:py-20 max-w-7xl mx-auto px-[6%] md:px-[10%] section-accent-rose">
             <motion.div
               {...fadeUpLarge}
-              className="bg-white/[0.12] glass-xl border border-white/[0.15] rounded-3xl p-6 sm:p-10 lg:p-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
+              className="bg-white/[0.12] glass-xl border border-white/[0.15] rounded-3xl p-6 sm:p-10 lg:p-12 grid grid-cols-1 gap-8 items-center"
             >
-              <div className="lg:col-span-7 space-y-6 text-left">
+              <div className="space-y-6 text-left">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-[11px] sm:text-[10px] font-mono tracking-wider text-[#bc4638] bg-[#bc4638]/10 px-2.5 py-1 rounded-md uppercase font-semibold">{t('ui.app.8ca84fc116')}</span>
                   <span className="text-[10px] font-mono text-brand-slate flex items-center gap-1.5 bg-white/40 px-2.5 py-1 rounded-md border border-white/60">
@@ -657,7 +635,7 @@ export default function App() {
                   {nearestTournament.description}
                 </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="space-y-1.5">
                     <div className="text-[11px] sm:text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.app.411ef17e3a')}</div>
                     <div className="text-xs text-brand-slate font-normal md:font-light">{nearestTournament.suitableFor}</div>
@@ -668,6 +646,31 @@ export default function App() {
                       <strong>{t('ui.app.b7ba3e2581')}</strong> {nearestTournament.date}<br />
                       <strong>{t('ui.app.2c0ba7b4a0')}</strong> {nearestTournament.registrationDeadline}
                     </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="text-[11px] sm:text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.app.40c83f7ed9')}</div>
+                    <div className="text-xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#bc4638] to-[#bd5b82]">
+                      {nearestTournament.maxParticipants}{t('ui.app.1995337599')}</div>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-white/60 bg-white/35 p-4 shadow-[0_12px_35px_rgba(91,100,114,0.06)] backdrop-blur-md">
+                  <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                    <h4 className="text-xl font-serif font-semibold leading-tight text-brand-dark sm:text-2xl">
+                      {t('ui.app.2060fe9f62')}
+                    </h4>
+                    <p className="max-w-md text-xs leading-relaxed text-brand-slate">{t('ui.app.5c6f09e45e')}</p>
+                  </div>
+                  <div className="grid gap-3 md:grid-cols-3">
+                    {experts.slice(0, 3).map((expert, expertIdx) => (
+                      <div key={expert.id} className="rounded-xl border border-white/55 bg-white/45 p-3">
+                        <div className="mb-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#bc4638]/10 text-xs font-mono font-semibold text-[#8d3026]">
+                          {expertIdx + 1}
+                        </div>
+                        <div className="font-serif text-base font-semibold leading-tight text-brand-dark">{expert.name}</div>
+                        <div className="mt-1 text-[11px] leading-relaxed text-brand-slate">{expert.role}</div>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
@@ -685,117 +688,6 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="lg:col-span-5 bg-white/[0.15] glass-panel border border-white/[0.15] rounded-2xl p-6 space-y-6">
-                <h4 className="text-xs font-mono text-brand-dark uppercase tracking-widest font-semibold">{t('ui.app.2060fe9f62')}</h4>
-
-                <div className="space-y-4">
-                  {nearestTournament.mentors.map((mentor, mIdx) => (
-                    <div key={`${mentor}-${mIdx}`} className="flex gap-3 text-left">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#bc4638]/20 to-[#bd5b82]/20 flex items-center justify-center font-mono text-[11px] font-bold text-[#bc4638] shrink-0 border border-white/80">
-                        {mIdx + 1}
-                      </div>
-                      <div>
-                        <div className="text-xs sm:text-sm font-serif font-medium text-brand-dark">{mentor.split(' (')[0]}</div>
-                        <div className="text-[11px] sm:text-[10px] text-brand-slate font-normal md:font-light">
-                          {mentor.split(' (')[1] ? mentor.split(' (')[1].replace(')', '') : t('ui.app.4d8b1fa187')}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="pt-4 text-center">
-                  <span className="text-[11px] sm:text-[10px] font-mono text-brand-slate uppercase block mb-1">{t('ui.app.40c83f7ed9')}</span>
-                  <span className="text-xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#bc4638] to-[#bd5b82]">
-                    {nearestTournament.maxParticipants}{t('ui.app.1995337599')}</span>
-                </div>
-              </div>
-            </motion.div>
-          </section>
-
-          <section id="scenarios" className="relative z-10 py-16 md:py-24 max-w-7xl mx-auto px-[6%] md:px-[10%] space-y-12 section-accent-warm">
-            <motion.div {...fadeUp} className="text-center max-w-2xl mx-auto space-y-3">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif text-brand-dark tracking-tight">{t('ui.app.30d2f12f93')}</h2>
-              <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.app.1634fa6530')}</p>
-            </motion.div>
-
-            <motion.div {...cardStaggerContainer} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {scenarios.map((scenario, idx) => (
-                <motion.div
-                  key={scenario.id}
-                  variants={cardItemFadeUp.variants}
-                  className="bg-white/[0.12] glass-card border border-white/[0.15] p-6 rounded-2xl flex flex-col justify-between hover:bg-white/[0.2] hover:border-[#bc4638]/30 transition-[background-color,border-color,box-shadow] duration-300"
-                >
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#bc4638]/5 to-[#bd5b82]/5 border border-white/80 flex items-center justify-center text-brand-rose-deep shrink-0 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4)]">
-                        {idx === 0 && <Award className="w-5 h-5 text-[#bc4638]" />}
-                        {idx === 1 && <Users className="w-5 h-5 text-[#bd5b82]" />}
-                        {idx === 2 && <UserCheck className="w-5 h-5 text-[#bc4638]" />}
-                        {idx === 3 && <Calendar className="w-5 h-5 text-[#bd5b82]" />}
-                      </div>
-                      <h3 className="text-sm font-serif font-medium leading-tight text-brand-dark">{scenario.title}</h3>
-                    </div>
-
-                    <div className="space-y-2 text-xs sm:text-sm">
-                      <p className="text-brand-slate font-normal md:font-light leading-relaxed">
-                        <strong className="font-mono text-[11px] sm:text-[10px] uppercase tracking-wider text-[#bd5b82] block mb-0.5">{t('ui.app.fa424fe227')}</strong>
-                        {scenario.why}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="pt-6 mt-6">
-                    <button
-                      onClick={() => {
-                        if (scenario.actionType === 'apply') scrollToSection('nearest-championship');
-                        else if (scenario.actionType === 'team') openApplyModal();
-                        else if (scenario.actionType === 'general') scrollToSection('embedded-application-form');
-                        else scrollToSection('what-is-navykus');
-                      }}
-                      className="w-full bg-white/40 hover:bg-[#bc4638] hover:text-white border border-[#d8d1cc] text-[#5b6472] text-[11px] font-mono tracking-wider py-2.5 rounded-xl transition-all duration-300 cursor-pointer text-center font-medium"
-                    >
-                      {scenario.ctaText.toUpperCase()}
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          </section>
-
-          <section id="mentors-block" className="relative z-10 py-16 md:py-24 max-w-7xl mx-auto px-[6%] md:px-[10%] space-y-12 section-accent-rose">
-            <motion.div {...fadeUp} className="text-center max-w-2xl mx-auto space-y-3">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif text-brand-dark tracking-tight">{t('ui.app.3c8e417ab7')}</h2>
-              <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.app.5c6f09e45e')}</p>
-            </motion.div>
-
-            <motion.div {...cardStaggerContainer} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {experts.map((expert) => (
-                <motion.div
-                  key={expert.id}
-                  variants={cardItemFadeUp.variants}
-                  className="bg-white/[0.12] glass-card p-6 rounded-2xl flex flex-col justify-between transition-[background-color,border-color,box-shadow] duration-300 border border-white/[0.15] hover:bg-white/[0.2]"
-                >
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#bc4638]/10 to-[#bd5b82]/10 text-brand-dark border border-white/80 flex items-center justify-center font-serif text-sm font-semibold">
-                        {expert.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-serif font-semibold text-brand-dark leading-tight">{expert.name}</h3>
-                        <p className="text-[10px] font-mono text-brand-slate uppercase tracking-wider">{t('ui.app.6d26f92c1f')}</p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1">
-                      <div className="text-[11px] font-serif font-medium text-brand-dark">{expert.role}</div>
-                      <div className="text-[10px] font-mono text-[#bc4638] font-semibold uppercase tracking-wider">{expert.expertise}</div>
-                    </div>
-
-                    <p className="text-xs text-brand-slate font-normal md:font-light leading-relaxed">{expert.description}</p>
-                  </div>
-                </motion.div>
-              ))}
             </motion.div>
           </section>
 
@@ -864,28 +756,28 @@ export default function App() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="text-left">
                           <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase font-semibold">{t('ui.app.8b4a2775bb')}</label>
-                          <input type="text" value={formName} onChange={(e) => setFormName(e.target.value)} placeholder={t('ui.app.c1830703d0')} className="w-full bg-white hover:bg-white/90 focus:bg-white border border-[#c1b8b0] focus:border-brand-terracotta rounded-xl px-4 py-2.5 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)] placeholder:text-brand-slate/40" />
+                          <input type="text" value={formName} onChange={(e) => setFormName(e.target.value)} placeholder={t('ui.app.c1830703d0')} className="w-full bg-white hover:bg-white/90 focus:bg-white border border-[#c1b8b0] focus:border-[#8f99a8] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)] placeholder:text-brand-slate/40" />
                         </div>
                         <div className="text-left">
                           <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase font-semibold">{t('ui.app.b7cc349dbb')}</label>
-                          <input type="text" value={formAge} onChange={(e) => setFormAge(e.target.value)} placeholder="16" className="w-full bg-white hover:bg-white/90 focus:bg-white border border-[#c1b8b0] focus:border-brand-terracotta rounded-xl px-4 py-2.5 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)] placeholder:text-brand-slate/40" />
+                          <input type="text" value={formAge} onChange={(e) => setFormAge(e.target.value)} placeholder="16" className="w-full bg-white hover:bg-white/90 focus:bg-white border border-[#c1b8b0] focus:border-[#8f99a8] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)] placeholder:text-brand-slate/40" />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="text-left">
                           <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase font-semibold">{t('ui.app.7acec174f3')}</label>
-                          <input type="text" value={formLocation} onChange={(e) => setFormLocation(e.target.value)} placeholder={t('ui.app.1734a8f063')} className="w-full bg-white hover:bg-white/90 focus:bg-white border border-[#c1b8b0] focus:border-brand-terracotta rounded-xl px-4 py-2.5 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)] placeholder:text-brand-slate/40" />
+                          <input type="text" value={formLocation} onChange={(e) => setFormLocation(e.target.value)} placeholder={t('ui.app.1734a8f063')} className="w-full bg-white hover:bg-white/90 focus:bg-white border border-[#c1b8b0] focus:border-[#8f99a8] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)] placeholder:text-brand-slate/40" />
                         </div>
                         <div className="text-left">
                           <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase font-semibold">{t('ui.app.0751cc5d9c')}</label>
-                          <input type="text" value={formContact} onChange={(e) => setFormContact(e.target.value)} placeholder={t('ui.app.7d521595ce')} className="w-full bg-white hover:bg-white/90 focus:bg-white border border-[#c1b8b0] focus:border-brand-terracotta rounded-xl px-4 py-2.5 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)] placeholder:text-brand-slate/40" />
+                          <input type="text" value={formContact} onChange={(e) => setFormContact(e.target.value)} placeholder={t('ui.app.7d521595ce')} className="w-full bg-white hover:bg-white/90 focus:bg-white border border-[#c1b8b0] focus:border-[#8f99a8] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)] placeholder:text-brand-slate/40" />
                         </div>
                       </div>
 
                       <div className="text-left">
                         <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase font-semibold">{t('ui.app.d3e56289ef')}</label>
-                        <select value={formInterest} onChange={(e) => setFormInterest(e.target.value)} className="w-full bg-white hover:bg-white/90 focus:bg-white border border-[#c1b8b0] focus:border-brand-terracotta rounded-xl px-4 py-2.5 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+                        <select value={formInterest} onChange={(e) => setFormInterest(e.target.value)} className="w-full bg-white hover:bg-white/90 focus:bg-white border border-[#c1b8b0] focus:border-[#8f99a8] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
                           <option value="projects" className="bg-brand-bg-2 text-brand-dark">{t('ui.app.d52e1ae8a0')}</option>
                           <option value="cases" className="bg-brand-bg-2 text-brand-dark">{t('ui.app.852dca4487')}</option>
                           <option value="debates" className="bg-brand-bg-2 text-brand-dark">{t('ui.app.b0f4d8ce6d')}</option>
@@ -1018,7 +910,6 @@ export default function App() {
                 <li><button onClick={() => { setCurrentPage('championship'); updatePath('championship'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#bc4638] transition-colors cursor-pointer">{t('ui.app.2757f706cf')}</button></li>
                 <li><button onClick={() => { setCurrentPage('activities'); updatePath('activities'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#bc4638] transition-colors cursor-pointer">{t('ui.app.814b71a2da')}</button></li>
                 <li><button onClick={() => { setCurrentPage('find-team'); updatePath('find-team'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#bc4638] transition-colors cursor-pointer">{t('ui.app.d13f387e64')}</button></li>
-                <li><button onClick={() => scrollToSection('mentors-block')} className="hover:text-[#bc4638] transition-colors cursor-pointer">{t('ui.app.ec3eba7deb')}</button></li>
               </ul>
             </div>
 

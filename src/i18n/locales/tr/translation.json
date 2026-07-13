@@ -46,6 +46,7 @@
   "ui": {
     "app": {
       "1995337599": "seçimdeki yerler",
+      "ffecc101e5": "Bulunduğu ülkeler",
       "aacca2db": "Navykus nedir?",
       "19816f01": "Ebeveynler ve uzmanlar neden Navykus'u seçiyor?",
       "e07687c4": "Yolculuğunuza başlamaya hazır mısınız?",
@@ -70,9 +71,6 @@
       "4e6bae67fb": "uluslararası topluluk",
       "36b5f70ec0": "aktif okul çocukları",
       "ca9bce21fd": "Çevrimiçi şampiyonalar aracılığıyla geleceğe yönelik temel becerileri geliştirin, uygulanabilir projeler oluşturun ve deneyimli uzmanların rehberliğinde dünya çapında benzer düşüncelere sahip insanlarla bağlantı kurun.",
-      "f673591b33": "Öğrenci katılımcılar",
-      "ffecc101e5": "Bulunduğu ülkeler",
-      "a00ee755e0": "MIT ve YC'den uzmanlar",
       "2542ef5a41": "Navykus, ülkeler ve okul sıraları arasındaki sınırları bulanıklaştıran yenilikçi bir ekosistemdir. Yetenekli gençlerin birbirlerini bulmalarına, uygulanabilir projeler başlatmalarına ve kendilerini uluslararası sahnede ifade etmelerine yardımcı oluyoruz.",
       "8ca84fc116": "YAKLAŞAN ETKİNLİK",
       "aa324b069f": "Çevrimiçi format",
@@ -82,13 +80,10 @@
       "2c0ba7b4a0": "Daha önce kayıt:",
       "762a52a7bb": "BAŞVURUNUZU GÖNDERİN",
       "e975e8b6a4": "TURNUVALAR HAKKINDA",
-      "2060fe9f62": "Jüri ve kupa mentorları",
       "4d8b1fa187": "Konuk uzman",
       "40c83f7ed9": "KALDI",
-      "30d2f12f93": "Platforma katılma fırsatları",
       "1634fa6530": "Her katılımcı için farklı yörüngeler tasarladık. Senaryonuzu bulun ve ilk adımı atın.",
       "fa424fe227": "Neden:",
-      "3c8e417ab7": "Yaklaşan şampiyona için uzman tavsiyesi",
       "5c6f09e45e": "Fikirleriniz, uluslararası şirketlerin küresel araştırma ve uygulamalarının yazarları tarafından değerlendirilecektir.",
       "6d26f92c1f": "UZMAN",
       "3abf2464ad": "HIZLI KAYIT",
@@ -125,14 +120,15 @@
       "ce65e2cf6b": "İletişim ve Destek",
       "ed16b5adfc": "Koordinatör:",
       "9e059272f1": "Gizlilik",
-      "3a86197ba3": "Anlaşma"
+      "3a86197ba3": "Anlaşma",
+      "2060fe9f62": "Kupa jürisi ve mentorlar"
     },
     "aboutprojectpage": {
       "2805697540": "Katıl",
       "3841022721": "“Geleneksel okul akademik teoriye odaklanırken, modern dünya uygulamalı beceriler, gelişmiş tasarım düşüncesi ve kültürler arası ekiplerde çalışma yeteneği gerektirir. »",
       "d1728b4c": "Uluslararası toplumun bir parçası olmak ister misiniz?",
       "a9dc864a2e": "Ana sayfa",
-      "e260b399ab": "Navykus projesi hakkında",
+      "e260b399ab": "Proje hakkında",
       "ac15bd8cf7": "Aktif öğrencileri, akademik mentorları ve küresel şirketleri tek, destekleyici bir gelişim ekosisteminde birleştirerek eğitimin geleceğini yaratıyoruz.",
       "0a09c52fdd": "Şampiyonayı görüntüle",
       "10575c4831": "Misyonumuz",
@@ -156,13 +152,6 @@
       "93290f394a": "Benzer düşünen insanları bulmak ve ekipler oluşturmak",
       "863ce4f6d3": "Değerli ödüller, hibeler ve stajlar",
       "0d298390c0": "Şampiyonaları görüntüle",
-      "7d00c11cfd": "Ebeveynler",
-      "14a8fff621": "Çocuğun başarılı geleceğine yatırım",
-      "4a1a794a17": "Talep edilen Yumuşak ve Sert Becerilerde uzmanlaşmak",
-      "4bc480da26": "Güvenli çevrimiçi geliştirme ortamı",
-      "1ff1c5428b": "Erken kariyer rehberliği ve üniversite seçimi",
-      "73b785355b": "En iyi üniversitelerden uzmanlardan istişareler",
-      "28c1d0bb50": "Uzmanlar hakkında",
       "6727fa0866": "Okullar ve kuruluşlar",
       "78fe050899": "Artan prestij ve katılım",
       "41a41cd402": "Hazır anahtar teslim proje programları",
@@ -209,6 +198,10 @@
       "b966ab17f5": "24 saat destek hizmetimize info@navykus.org e-postası veya resmi Telegram hesabı @navykus_com üzerinden her zaman yazabilirsiniz. Her türlü organizasyonel veya teknik soruyu yanıtlayacağz."
     },
     "activitiespage": {
+      "0b2e4667a1": "Öğrenciler için etkinlikler",
+      "9bc3c6004a": "Becerileri geliştiren ve gerçek projeler üretmeye yardımcı olan dersleri, atölyeleri, proje sprintlerini, takım formatlarını ve çevrimiçi buluşmaları keşfet.",
+      "807368f2dd": "Başlık, format, konu veya beceriyle ara...",
+      "0ad86f239d": "Bana uygun bul",
       "62d6062e": "Bir aktivite nasıl seçilir?",
       "5f082a56": "Nereden başlayacağınızı bilmiyor musunuz? Hazırlık seviyenizi belirleyin ve uygun formatı seçin.",
       "97446fff": "Nereden başlayacağınızı bilmiyor musunuz?",
@@ -239,11 +232,12 @@
       "26021f2cb2": "Takımlar için",
       "ddc44f9ff3": "Yakında",
       "2f96e6c2aa": "Şimdi koşuyorum",
-      "2a785b54e5": "Tamamlandı",
-      "6afaf7bd0a": "Tüm aktiviteler"
+      "2a785b54e5": "Yaklaşan",
+      "6afaf7bd0a": "Tüm aktiviteler",
+      "9bd00b51c2": "Etkinlikler",
+      "d4bd169801": "Fırsat kataloğu"
     },
     "applicationmodal": {
-      "4666b457": "REGISTRATION FORM",
       "bc84a155": "MB",
       "4c971178": "NAVYKUS MEMBER PASS",
       "475f6e55": "SECURE SYSTEM REGISTRY",
@@ -271,7 +265,6 @@
       "a1534409f2": "Projeleri içeren bir dosya ekleyin",
       "f5717f85ba": "Dosyayı indirmek için tıklayın",
       "6272f20d22": "PDF, DOC, PPT, TXT, ZIP, PNG (10 MB'a kadar)",
-      "684fea0145": "Veriler şifreli bir kanal üzerinden iletilir",
       "b55a7aad35": "Kontrol ediliyor...",
       "cf4f1950f8": "Bir istek gönder",
       "15cd01515e": "Kayıt oldunuz. Navykus Pass dijital akıllı kartınız aşağıda oluşturulmuştur.",
@@ -404,7 +397,6 @@
       "64c107dcac": "KAZANANLARA",
       "26ed71e452": "Kupanın ana ödülü, girişimin tamamen piyasaya sürülmesine kadar mentorluk desteği ve MIT profesörleri ve Y Combinator takipçilerinin tavsiye mektuplarıdır.",
       "b4c596db9d": "Oturun",
-      "b41ff491ad": "Katılım süreci nasıl işler (Zaman Çizelgesi)",
       "73c7822daa": "Adım adım net bir çevrimiçi rota geliştirdik. Ayrıntıları ve önemli işaretleri keşfetmek için adımları tıklayın.",
       "6eaf12bfb5": "AŞAMA 0",
       "bc6f640c2c": "07'DEN İTİBAREN",
@@ -412,7 +404,6 @@
       "87719eaf02": "Maratonun bitişi!",
       "a77e33e8d3": "Sonraki",
       "645661f0ee": "Ankete",
-      "4591330e49": "Jüri ve şampiyonanın uzmanları",
       "642a217314": "Projeleriniz dünyanın önde gelen üniversitelerinden profesörler ve uluslararası kuruluşların uygulayıcıları tarafından değerlendirilecektir. Kompozisyon gerçek zamanlı olarak bir CMS sistemi aracılığıyla yönetilir.",
       "40baedef9b": "Uzmanlık alanı:",
       "795d6a19a2": "Hızlı katılımcı kaydı",
@@ -498,11 +489,8 @@
       "5208d7841a": "— Bir takım bulun",
       "801f72c2a4": "Burada bir şampiyona veya proje için katılımcıları bulabilirsiniz. Doğru kişiyi seçin ve onunla iletişime geçin.",
       "83874460f8": "Profilleri görüntüle",
-      "6db9425693": "Profillere bak",
       "748802e8af": "15'ten fazla ülkeden katılımcıların profillerine göz atın ve uygun kişileri bulun.",
-      "d37a6b7314": "Bir katılımcı seçin",
       "c481549d83": "Benzer ilgi alanlarına ve becerilere sahip birini bulun.",
-      "9507d02c5c": "Onunla iletişime geç",
       "c90707df4b": "Bir katılımcıya yazın veya sizi bulabilmesi için profilinizi gönderin.",
       "0247c0a466": "Ada, ilgi alanlarına veya becerilere göre arayın...",
       "5412a9a9b7": "Filtreler",
@@ -688,14 +676,6 @@
         "why": "Yazarın MVP'yi uygulamak için tasarımcılara ve geliştiricilere ihtiyacı var; yalnız birinin katılabilmesi için güçlü bir ekibe ihtiyacı vardır.",
         "ctaText": "Aramaya git",
         "actionType": "team"
-      },
-      {
-        "id": "sc-3",
-        "title": "Etkinliğe katılın",
-        "who": "Ebeveyn, öğretmen veya yeni başlayan",
-        "why": "Projeyle tanışmak, ücretsiz derslere, web seminerlerine katılmak veya finallerin canlı yayınlarını izlemek istiyorsunuz.",
-        "ctaText": "Etkinlikleri görüntüle",
-        "actionType": "activity"
       }
     ],
     "trustPoints": [
@@ -725,24 +705,7 @@
         "description": "Sizi ilerlemeye motive eden hırslı meslektaşlardan oluşan güvenilir ve destekleyici bir topluluk."
       }
     ],
-    "stats": [
-      {
-        "value": "15+",
-        "label": "katılımcı ülkeler"
-      },
-      {
-        "value": "2.5k+",
-        "label": "aktif okul çocukları"
-      },
-      {
-        "value": "40+",
-        "label": "uluslararası uzmanlar"
-      },
-      {
-        "value": "150k$",
-        "label": "en iyi projelere hibe"
-      }
-    ],
+    "stats": [],
     "activities": [
       {
         "id": "act-1",
@@ -803,46 +766,6 @@
         ],
         "prerequisites": "Bir takımda çalışma arzusu. Herhangi bir beceri memnuniyetle karşılanır.",
         "ctaText": "Şimdi katıl"
-      },
-      {
-        "id": "act-4",
-        "title": "Ağ kurma gecesi: Toplulukları tanıma",
-        "shortDescription": "Navykus üyeleriyle tanışmak ve benzer düşünen insanları bulmak için haftalık bir toplantı.",
-        "fullDescription": "Farklı ülkelerden katılımcılarla tanışacağınız ve Navykus topluluğunda uygulanmakta olan projeler hakkında fikir edineceğiniz, hızlı buluşma formatında rahat bir çevrimiçi toplantı. Her toplantı belirli bir konuya ayrılmıştır: bir hafta - ekoloji ve sürdürülebilir kalkınma, sonraki hafta - BT ve girişimler. Format, tanışmanıza, gelecekteki bir ekip bulmanıza ve iletişimin tadını çıkarmanıza yardımcı olur.",
-        "format": "Çevrimiçi toplantı",
-        "date": "Her Cumartesi, Moskova saatiyle 18:00",
-        "imageUrl": "https://images.unsplash.com/photo-1529920549178-802203853118?w=600&h=400&fit=crop",
-        "category": "online-meeting",
-        "status": "ongoing",
-        "who": "12 yaşından itibaren tüm Navykus katılımcıları",
-        "benefits": [
-          "15'ten fazla ülkeden katılımcılarla tanışın",
-          "Projeler için benzer düşünen insanları bulun",
-          "Projenin olanaklarını ilk elden öğrenin",
-          "Ücretsiz katılım"
-        ],
-        "prerequisites": "Platforma kayıt (ücretsiz)",
-        "ctaText": "Katıl"
-      },
-      {
-        "id": "act-5",
-        "title": "Proje: Okul eko denetimi",
-        "shortDescription": "Sosyal Girişim - Okulunuzun çevre denetimini yapın ve bir iyileştirme planı önerin.",
-        "fullDescription": "Dünyanın dört bir yanındaki okul çocuklarının okullarında çevre denetimi yaptıkları büyük ölçekli bir sosyal proje girişimi: enerji tüketimini, atık geri dönüşüm oranlarını, toplumun çevre okuryazarlığını analiz edin ve iyileştirme için pratik bir plan önerin. En iyi projeler uluslararası Gençlik Çevre Zirvesi'nde sunulacak ve uygulama konusunda uzman desteği alacak.",
-        "format": "Proje girişimi",
-        "date": "1 Temmuz - 31 Ağustos 2026",
-        "imageUrl": "https://images.unsplash.com/photo-1443136178219-272d7a6cb2b5?w=600&h=400&fit=crop",
-        "category": "social",
-        "status": "ongoing",
-        "who": "13-18 yaş arası okul çocukları, aktivistler, okul yönetimi temsilcileri",
-        "benefits": [
-          "Okulunuzun sürdürülebilirliği üzerinde gerçek etki",
-          "Proje yönetimi ve veri analizi becerileri",
-          "Gençlik Eko Zirvesine Katılım",
-          "Çevre mentorlarına destek"
-        ],
-        "prerequisites": "Zorunlu değil ancak veri bilimi becerileri faydalıdır",
-        "ctaText": "Bir proje başlatın"
       },
       {
         "id": "act-6",

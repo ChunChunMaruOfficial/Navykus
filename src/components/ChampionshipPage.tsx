@@ -7,15 +7,12 @@ import {
   fadeInScale,
 } from '../motion-animations';
 import { 
-  Award, 
-  Calendar, 
   Users, 
   CheckCircle2, 
   ArrowRight, 
   Info, 
   Settings, 
   Edit, 
-  UserCheck, 
   RefreshCw, 
   FileText, 
   Check, 
@@ -25,19 +22,9 @@ import {
   TrendingUp, 
   Compass,
   ArrowUpRight,
-  Globe,
   Lock,
   ChevronDown,
-  Clock,
-  UserPlus,
-  BookOpen
 } from 'lucide-react';
-
-interface Mentor {
-  name: string;
-  role: string;
-  expertise: string;
-}
 
 interface ChampionshipData {
   id: string;
@@ -56,7 +43,6 @@ interface ChampionshipData {
   expectedResult: string;
   evaluationCriteria: string[];
   themes: string[];
-  mentors: Mentor[];
   registrationStatus: 'open' | 'suspended' | 'closed';
 }
 
@@ -79,6 +65,12 @@ const SUITABILITY_TABS = [
 ] as const;
 
 type SuitabilityTab = typeof SUITABILITY_TABS[number]['id'];
+
+const keyInfoCardClass =
+  "bg-[#fff4ed]/82 glass-card border border-[#bc4638]/14 p-4 sm:p-5 rounded-2xl text-left flex flex-col justify-between space-y-3 shadow-[0_14px_36px_rgba(188,70,56,0.08)]";
+const keyInfoLabelClass = "text-xs sm:text-[13px] lg:text-sm font-mono uppercase tracking-wider";
+const keyInfoValueClass = "text-base sm:text-lg lg:text-xl font-serif font-bold leading-tight";
+const keyInfoSubtextClass = "text-sm sm:text-base text-brand-slate font-normal md:font-light leading-snug";
 
 export default function ChampionshipPage({ 
   onBackToHome, 
@@ -115,23 +107,6 @@ export default function ChampionshipPage({
       t('ui.championshippage.058159276f'),
       t('ui.championshippage.f1d7d23827')
     ],
-    mentors: [
-      {
-        name: t('ui.championshippage.052fb01664'),
-        role: t('ui.championshippage.001a2ebaa3'),
-        expertise: t('ui.championshippage.e3a8a73e2b')
-      },
-      {
-        name: t('ui.championshippage.a580e0aa8d'),
-        role: t('ui.championshippage.80252ebf4d'),
-        expertise: t('ui.championshippage.bdea62169b')
-      },
-      {
-        name: t('ui.championshippage.777f772d6f'),
-        role: t('ui.championshippage.bc7f7951f3'),
-        expertise: t('ui.championshippage.1c03d08986')
-      }
-    ],
     registrationStatus: 'open'
   });
 
@@ -146,17 +121,11 @@ export default function ChampionshipPage({
   const [tempTeams, setTempTeams] = useState(cmsData.teamsAllowed);
   const [tempStatus, setTempStatus] = useState<ChampionshipData['registrationStatus']>(cmsData.registrationStatus);
 
-  // New mentor input state
-  const [newMentorName, setNewMentorName] = useState('');
-  const [newMentorRole, setNewMentorRole] = useState('');
-  const [newMentorExpertise, setNewMentorExpertise] = useState('');
-
   // New theme input state
   const [newTheme, setNewTheme] = useState('');
 
   // Interactive UI states (scenarios, tabs, accordions)
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
-  const [activeTimelineStep, setActiveTimelineStep] = useState<number>(0);
   const [selectedSuitabilityTab, setSelectedSuitabilityTab] = useState<SuitabilityTab>('all');
 
   // Application Form submission state
@@ -195,35 +164,6 @@ export default function ChampionshipPage({
     }));
     // Show user a quick toast/confirmation or just close
     setIsCmsPanelOpen(false);
-  };
-
-  // Add new mentor via CMS
-  const handleAddMentor = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newMentorName.trim() || !newMentorRole.trim()) return;
-    
-    setCmsData(prev => ({
-      ...prev,
-      mentors: [
-        ...prev.mentors,
-        {
-          name: newMentorName,
-          role: newMentorRole,
-          expertise: newMentorExpertise || t('ui.championshippage.545447d8fb')
-        }
-      ]
-    }));
-    setNewMentorName('');
-    setNewMentorRole('');
-    setNewMentorExpertise('');
-  };
-
-  // Delete mentor via CMS
-  const handleDeleteMentor = (index: number) => {
-    setCmsData(prev => ({
-      ...prev,
-      mentors: prev.mentors.filter((_, idx) => idx !== index)
-    }));
   };
 
   // Add new theme via CMS
@@ -313,52 +253,6 @@ export default function ChampionshipPage({
       onNavigateToSection(sectionId);
     }, 150);
   };
-
-  // Static items for visual timeline & faq
-  const TIMELINE_STEPS = [
-    {
-      step: 1,
-      title: t('ui.championshippage.e49a12f0b8'),
-      desc: t('ui.championshippage.4ee6afa1a6'),
-      highlight: t('ui.championshippage.6bc16a4703') + cmsData.registrationDeadline
-    },
-    {
-      step: 2,
-      title: t('ui.championshippage.2070234c2a'),
-      desc: t('ui.championshippage.c2761e4600'),
-      highlight: t('ui.championshippage.c6cf36a92f')
-    },
-    {
-      step: 3,
-      title: t('ui.championshippage.60c8f8d9bc'),
-      desc: t('ui.championshippage.bf30acbb04'),
-      highlight: t('ui.championshippage.342ef5b12d') + cmsData.date.split('–')[0]
-    },
-    {
-      step: 4,
-      title: t('ui.championshippage.9602b9d37a'),
-      desc: t('ui.championshippage.a1f7854119'),
-      highlight: t('ui.championshippage.ac0b271366')
-    },
-    {
-      step: 5,
-      title: t('ui.championshippage.55ad9d790f'),
-      desc: t('ui.championshippage.d81bad3646'),
-      highlight: t('ui.championshippage.79f0f1a30d')
-    },
-    {
-      step: 6,
-      title: t('ui.championshippage.98be2d9f24'),
-      desc: t('ui.championshippage.20dc81369a'),
-      highlight: t('ui.championshippage.1c3fdab6c1')
-    },
-    {
-      step: 7,
-      title: t('ui.championshippage.d824bb6cc4'),
-      desc: t('ui.championshippage.f34151eece'),
-      highlight: t('ui.championshippage.49424077d7')
-    }
-  ];
 
   const FAQ_ITEMS: FAQItem[] = [
     {
@@ -473,12 +367,12 @@ export default function ChampionshipPage({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.5, ease: "easeOut", delay: 0 }}
-              className="bg-white/[0.12] glass-card border border-white/[0.15] p-4 rounded-2xl text-left flex flex-col justify-between space-y-2"
+              className={keyInfoCardClass}
             >
-              <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bc4638]">{t('ui.championshippage.8d4a5a0ee6')}</span>
-              <div className="space-y-0.5">
-                <p className="text-xs sm:text-sm font-serif font-bold text-brand-dark">{cmsData.date}</p>
-                <p className="text-xs text-brand-slate font-normal md:font-light">{t('ui.app.aa324b069f')}</p>
+              <span className={`${keyInfoLabelClass} text-[#bc4638]`}>{t('ui.championshippage.8d4a5a0ee6')}</span>
+              <div className="space-y-1">
+                <p className={`${keyInfoValueClass} text-brand-dark`}>{cmsData.date}</p>
+                <p className={keyInfoSubtextClass}>{t('ui.app.aa324b069f')}</p>
               </div>
             </motion.div>
 
@@ -487,12 +381,12 @@ export default function ChampionshipPage({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.5, ease: "easeOut", delay: 0.08 }}
-              className="bg-white/[0.12] glass-card border border-white/[0.15] p-4 rounded-2xl text-left flex flex-col justify-between space-y-2"
+              className={keyInfoCardClass}
             >
-              <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bd5b82]">{t('ui.championshippage.f94a9af829')}</span>
-              <div className="space-y-0.5">
-                <p className="text-xs sm:text-sm font-serif font-bold text-brand-dark">{t('ui.championshippage.8bd2b856e1')}</p>
-                <p className="text-xs text-brand-slate font-normal md:font-light">Zoom, Figma, Miro</p>
+              <span className={`${keyInfoLabelClass} text-[#bd5b82]`}>{t('ui.championshippage.f94a9af829')}</span>
+              <div className="space-y-1">
+                <p className={`${keyInfoValueClass} text-brand-dark`}>{t('ui.championshippage.8bd2b856e1')}</p>
+                <p className={keyInfoSubtextClass}>Zoom, Figma, Miro</p>
               </div>
             </motion.div>
 
@@ -501,12 +395,12 @@ export default function ChampionshipPage({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.5, ease: "easeOut", delay: 0.16 }}
-              className="bg-white/[0.12] glass-card border border-white/[0.15] p-4 rounded-2xl text-left flex flex-col justify-between space-y-2"
+              className={keyInfoCardClass}
             >
-              <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bc4638]">{t('ui.championshippage.e70496e65c')}</span>
-              <div className="space-y-0.5">
-                <p className="text-xs sm:text-sm font-serif font-bold text-brand-dark">{t('ui.championshippage.ff03252b22')}{cmsData.ageLimit}</p>
-                <p className="text-xs text-brand-slate font-normal md:font-light">{t('ui.championshippage.05679f1a9a')}</p>
+              <span className={`${keyInfoLabelClass} text-[#bc4638]`}>{t('ui.championshippage.e70496e65c')}</span>
+              <div className="space-y-1">
+                <p className={`${keyInfoValueClass} text-brand-dark`}>{t('ui.championshippage.ff03252b22')}{cmsData.ageLimit}</p>
+                <p className={keyInfoSubtextClass}>{t('ui.championshippage.05679f1a9a')}</p>
               </div>
             </motion.div>
 
@@ -515,12 +409,12 @@ export default function ChampionshipPage({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.5, ease: "easeOut", delay: 0.24 }}
-              className="bg-white/[0.12] glass-card border border-white/[0.15] p-4 rounded-2xl text-left flex flex-col justify-between space-y-2"
+              className={keyInfoCardClass}
             >
-              <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bd5b82]">{t('ui.championshippage.d48444dfb4')}</span>
-              <div className="space-y-0.5">
-                <p className="text-xs sm:text-sm font-serif font-bold text-brand-dark">{cmsData.lang}</p>
-                <p className="text-xs text-brand-slate font-normal md:font-light">{t('ui.championshippage.1185c79f59')}</p>
+              <span className={`${keyInfoLabelClass} text-[#bd5b82]`}>{t('ui.championshippage.d48444dfb4')}</span>
+              <div className="space-y-1">
+                <p className={`${keyInfoValueClass} text-brand-dark`}>{cmsData.lang}</p>
+                <p className={keyInfoSubtextClass}>{t('ui.championshippage.1185c79f59')}</p>
               </div>
             </motion.div>
 
@@ -529,12 +423,12 @@ export default function ChampionshipPage({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.5, ease: "easeOut", delay: 0.32 }}
-              className="bg-white/[0.12] glass-card border border-white/[0.15] p-4 rounded-2xl text-left flex flex-col justify-between space-y-2"
+              className={keyInfoCardClass}
             >
-              <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bc4638]">{t('ui.championshippage.4ec991f17a')}</span>
-              <div className="space-y-0.5">
-                <p className="text-xs sm:text-sm font-serif font-bold text-[#bc4638]">{cmsData.registrationDeadline}</p>
-                <p className="text-xs text-brand-slate font-normal md:font-light">{t('ui.championshippage.593bb47761')}</p>
+              <span className={`${keyInfoLabelClass} text-[#bc4638]`}>{t('ui.championshippage.4ec991f17a')}</span>
+              <div className="space-y-1">
+                <p className={`${keyInfoValueClass} text-[#bc4638]`}>{cmsData.registrationDeadline}</p>
+                <p className={keyInfoSubtextClass}>{t('ui.championshippage.593bb47761')}</p>
               </div>
             </motion.div>
 
@@ -543,12 +437,12 @@ export default function ChampionshipPage({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.5, ease: "easeOut", delay: 0.40 }}
-              className="bg-white/[0.12] glass-card border border-white/[0.15] p-4 rounded-2xl text-left flex flex-col justify-between space-y-2"
+              className={keyInfoCardClass}
             >
-              <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bd5b82]">{t('ui.championshippage.a7fbd7c9e4')}</span>
-              <div className="space-y-0.5">
-                <p className="text-xs sm:text-sm font-serif font-bold text-brand-dark">{t('ui.championshippage.0df738a56f')}</p>
-                <p className="text-[10px] text-[#bd5b82] font-semibold">{t('ui.championshippage.04aa324d68')}</p>
+              <span className={`${keyInfoLabelClass} text-[#bd5b82]`}>{t('ui.championshippage.a7fbd7c9e4')}</span>
+              <div className="space-y-1">
+                <p className={`${keyInfoValueClass} text-brand-dark`}>{t('ui.championshippage.0df738a56f')}</p>
+                <p className="text-sm sm:text-base text-[#bd5b82] font-semibold leading-snug">{t('ui.championshippage.04aa324d68')}</p>
               </div>
             </motion.div>
 
@@ -757,127 +651,6 @@ export default function ChampionshipPage({
           </div>
         </section>
 
-        {/* 5. INTERACTIVE TIMELINE BLOCK */}
-        <section className="relative z-10 py-16 md:py-24 mb-12 md:mb-16 section-accent-warm max-w-7xl mx-auto px-[6%] md:px-[10%]">
-          <div className="text-center space-y-3 mx-auto mb-8 md:mb-10">
-            <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark tracking-tight">{t('ui.championshippage.b41ff491ad')}</h2>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mx-auto">
-            
-            {/* Steps Left List (Clickable menu) */}
-            <div className="lg:col-span-5 space-y-2">
-              {TIMELINE_STEPS.map((step, idx) => (
-                <button
-                  key={step.step}
-                  onClick={() => setActiveTimelineStep(idx)}
-                  className={`w-full text-left px-4 py-3 rounded-xl transition-all border flex items-center justify-between cursor-pointer ${
-                    activeTimelineStep === idx 
-                      ? 'bg-brand-dark text-white border-brand-dark shadow-md' 
-                      : 'bg-white/40 text-brand-slate hover:text-brand-dark border-white/50 hover:bg-white/60'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className={`w-6 h-6 rounded-full font-mono text-[10px] font-bold flex items-center justify-center shrink-0 border ${
-                      activeTimelineStep === idx ? 'bg-white text-brand-dark border-white' : 'bg-brand-dark/5 text-brand-dark border-brand-dark/10'
-                    }`}>
-                      {step.step}
-                    </span>
-                    <span className="text-xs font-serif font-medium truncate max-w-[200px] sm:max-w-none">{step.title}</span>
-                  </div>
-                  <ArrowRight className={`w-3.5 h-3.5 transition-transform ${activeTimelineStep === idx ? 'translate-x-1' : 'opacity-30'}`} />
-                </button>
-              ))}
-            </div>
-
-            {/* Step Detail Right Viewer */}
-            <div className="lg:col-span-7 h-full">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeTimelineStep}
-                  initial={{ opacity: 0, x: 15 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -15 }}
-                  transition={{ duration: 0.25 }}
-                  className="bg-white/[0.12] glass-panel border border-white/[0.15] p-6 sm:p-8 rounded-3xl text-left space-y-6 h-full flex flex-col justify-between"
-                >
-                  <div className="space-y-4">
-                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono uppercase tracking-widest text-[#bc4638] font-bold">{t('ui.championshippage.6eaf12bfb5')}{TIMELINE_STEPS[activeTimelineStep].step}{t('ui.championshippage.bc6f640c2c')}</span>
-                      <span className="text-[10px] font-mono text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100 font-bold">
-                        {TIMELINE_STEPS[activeTimelineStep].highlight}
-                      </span>
-                    </div>
-
-                    <h3 className="text-xl font-serif text-brand-dark">
-                      {TIMELINE_STEPS[activeTimelineStep].title}
-                    </h3>
-                    
-                    <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">
-                      {TIMELINE_STEPS[activeTimelineStep].desc}
-                    </p>
-                  </div>
-
-                  <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <span className="text-[10px] text-brand-slate font-mono font-semibold">
-                      {activeTimelineStep < 6 ? t('ui.championshippage.285e2e51f4') + TIMELINE_STEPS[activeTimelineStep + 1].title : t('ui.championshippage.87719eaf02')}
-                    </span>
-                    
-                    {activeTimelineStep < 6 ? (
-                      <button 
-                        onClick={() => setActiveTimelineStep(prev => prev + 1)}
-                        className="w-full sm:w-auto px-4 py-2 bg-brand-dark text-white hover:bg-brand-dark/90 rounded-lg text-xs font-mono tracking-wider uppercase transition-all cursor-pointer"
-                      >{t('ui.championshippage.a77e33e8d3')}</button>
-                    ) : (
-                      <a 
-                        href="#apply-form-section"
-                        className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white rounded-lg text-xs font-mono tracking-wider uppercase text-center cursor-pointer font-bold"
-                      >{t('ui.championshippage.645661f0ee')}</a>
-                    )}
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-            </div>
-
-          </div>
-        </section>
-
-        {/* 7. EXPERTS / JURY BLOCK */}
-        <section className="relative z-10 py-16 md:py-24 section-accent-rose max-w-7xl mx-auto px-[6%] md:px-[10%]">
-          <div className="text-center space-y-3 mx-auto">
-            <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark tracking-tight">{t('ui.championshippage.4591330e49')}</h2>
-            <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">{t('ui.championshippage.642a217314')}</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mx-auto">
-            {cmsData.mentors.map((mentor, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: idx * 0.05 }}
-                className="bg-white/[0.12] glass-card border border-white/[0.15] p-6 rounded-2xl text-left flex flex-col justify-between space-y-4"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-tr from-[#bc4638]/5 to-[#bd5b82]/5 border border-white/80 flex items-center justify-center font-serif text-sm font-bold text-[#bc4638]">
-                      {mentor.name.split(' ').map(n => n[0]).join('')}
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="text-sm font-serif font-bold leading-tight text-brand-dark">{mentor.name}</h3>
-                      <p className="text-[11px] font-mono text-brand-slate tracking-wide mt-0.5 leading-tight">{mentor.role}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="pt-3">
-                  <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bc4638] block mb-1">{t('ui.championshippage.40baedef9b')}</span>
-                  <p className="text-xs text-brand-slate font-light leading-relaxed">{mentor.expertise}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-
         {/* 9. EMBEDDED FORM & UX STATES */}          <section id="apply-form-section" className="relative z-10 max-w-7xl mx-auto scroll-mt-24 px-[6%] md:px-[10%]">
           <div className="bg-white/[0.10] glass-xl border border-white/[0.15] rounded-3xl p-6 sm:p-10 space-y-8 max-w-3xl mx-auto">
             
@@ -1001,7 +774,7 @@ export default function ChampionshipPage({
                             placeholder={t('ui.championshippage.c77e86cc10')}
                             value={formData.name}
                             onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                            className="w-full bg-white border border-[#d8d1cc] focus:border-[#bc4638]/60 focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
+                            className="w-full bg-white border border-[#d8d1cc] focus:border-[#8f99a8] focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
                           />
                         </div>
 
@@ -1013,7 +786,7 @@ export default function ChampionshipPage({
                             placeholder="mail@example.com"
                             value={formData.email}
                             onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                            className="w-full bg-white border border-[#d8d1cc] focus:border-[#bc4638]/60 focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
+                            className="w-full bg-white border border-[#d8d1cc] focus:border-[#8f99a8] focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
                           />
                         </div>
 
@@ -1025,7 +798,7 @@ export default function ChampionshipPage({
                             placeholder={t('ui.championshippage.7a94346b9f')}
                             value={formData.age}
                             onChange={(e) => setFormData(prev => ({ ...prev, age: e.target.value }))}
-                            className="w-full bg-white border border-[#d8d1cc] focus:border-[#bc4638]/60 focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
+                            className="w-full bg-white border border-[#d8d1cc] focus:border-[#8f99a8] focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
                           />
                         </div>
 
@@ -1036,7 +809,7 @@ export default function ChampionshipPage({
                             placeholder={t('ui.championshippage.6dfb2adc1d')}
                             value={formData.city}
                             onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
-                            className="w-full bg-white border border-[#d8d1cc] focus:border-[#bc4638]/60 focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
+                            className="w-full bg-white border border-[#d8d1cc] focus:border-[#8f99a8] focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
                           />
                         </div>
                       </div>
@@ -1051,13 +824,13 @@ export default function ChampionshipPage({
                             placeholder={t('ui.championshippage.d178b30c2a')}
                             value={formData.contact}
                             onChange={(e) => setFormData(prev => ({ ...prev, contact: e.target.value }))}
-                            className="w-full bg-white border border-[#d8d1cc] focus:border-[#bc4638]/60 focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
+                            className="w-full bg-white border border-[#d8d1cc] focus:border-[#8f99a8] focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
                           />
                         </div>
 
                         {/* Interactive Scenario Selection in the form */}
                         <div className="space-y-2 text-left">
-                          <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">{t('ui.championshippage.d0dd2427')}</label>
+                          <label className="block text-xs font-mono uppercase tracking-wider text-brand-slate">{t('ui.championshippage.d0dd2427')}</label>
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             {[
                               { id: 'no', label: t('ui.championshippage.9c2f9e9c80'), sub: t('ui.championshippage.273e4c328e') },
@@ -1068,14 +841,14 @@ export default function ChampionshipPage({
                                 key={opt.id}
                                 type="button"
                                 onClick={() => setFormData(prev => ({ ...prev, hasTeam: opt.id }))}
-                                className={`p-3 text-left rounded-xl border transition-all cursor-pointer ${
+                                className={`p-4 text-left rounded-xl border transition-all cursor-pointer ${
                                   formData.hasTeam === opt.id 
                                     ? 'bg-[#bc4638]/5 border-[#bc4638]/50 ring-1 ring-[#bc4638]/30' 
                                     : 'bg-white/50 border-[#d8d1cc]/60 hover:bg-white'
                                 }`}
                               >
-                                <span className="block text-xs font-serif font-bold text-brand-dark">{opt.label}</span>
-                                <span className="block text-[10px] text-brand-slate font-light mt-0.5">{opt.sub}</span>
+                                <span className="block text-sm sm:text-base font-serif font-bold text-brand-dark leading-tight">{opt.label}</span>
+                                <span className="block text-xs sm:text-sm text-brand-slate font-normal md:font-light mt-1 leading-snug">{opt.sub}</span>
                               </button>
                             ))}
                           </div>
@@ -1091,7 +864,7 @@ export default function ChampionshipPage({
                             <select 
                               value={formData.teamSize}
                               onChange={(e) => setFormData(prev => ({ ...prev, teamSize: e.target.value }))}
-                              className="bg-white border border-[#d8d1cc] rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#bc4638]"
+                              className="bg-white border border-[#d8d1cc] rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#8f99a8]"
                             >
                               <option value="2">{t('ui.championshippage.6d9e8346c4')}</option>
                               <option value="3">{t('ui.championshippage.a6cf1eb47b')}</option>
@@ -1123,7 +896,7 @@ export default function ChampionshipPage({
                               placeholder="Behance, GitHub, Google Drive..."
                               value={formData.portfolioLink}
                               onChange={(e) => setFormData(prev => ({ ...prev, portfolioLink: e.target.value }))}
-                              className="w-full bg-white border border-[#d8d1cc] focus:border-[#bc4638]/60 focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
+                              className="w-full bg-white border border-[#d8d1cc] focus:border-[#8f99a8] focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
                             />
                           </div>
                         </div>
@@ -1135,7 +908,7 @@ export default function ChampionshipPage({
                             placeholder={t('ui.championshippage.bacaeee8')}
                             value={formData.coverLetter}
                             onChange={(e) => setFormData(prev => ({ ...prev, coverLetter: e.target.value }))}
-                            className="w-full bg-white border border-[#d8d1cc] focus:border-[#bc4638]/60 focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
+                            className="w-full bg-white border border-[#d8d1cc] focus:border-[#8f99a8] focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
                           />
                         </div>
 
@@ -1195,7 +968,7 @@ export default function ChampionshipPage({
                 <button
                   type="button"
                   onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
-                  className="w-full flex items-center justify-between p-5 text-left font-serif font-semibold text-brand-dark text-xs sm:text-sm md:text-base cursor-pointer"
+                  className="w-full flex items-center justify-between p-5 text-left font-serif font-semibold text-brand-dark text-sm sm:text-base md:text-lg cursor-pointer"
                 >
                   <span>{faq.question}</span>
                   <ChevronDown className={`w-4 h-4 text-brand-slate/60 transition-transform duration-300 flex-shrink-0 ${activeFaq === idx ? 'rotate-180' : ''}`} />
@@ -1210,7 +983,7 @@ export default function ChampionshipPage({
                       transition={{ duration: 0.25 }}
                       className="overflow-hidden"
                     >
-                       <p className="p-5 pt-0 text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed bg-white/10 text-left">
+                       <p className="p-5 pt-0 text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed bg-white/10 text-left">
                         {faq.answer}
                       </p>
                     </motion.div>

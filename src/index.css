@@ -59,8 +59,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid rgba(188, 70, 56, 0.75);
-    outline-offset: 3px;
+    outline: none;
   }
 
   @utility scrollbar-none {
@@ -123,6 +122,44 @@
 
   /* ─── Ambient gradient blob animations ─── */
   /* Ambient gradient spheres use transform only; opacity stays stable. */
+  .hero-brand-word {
+    position: relative;
+    display: inline-block;
+    isolation: isolate;
+    background: linear-gradient(105deg, #111111 0%, #bc4638 38%, #bd5b82 58%, #111111 100%);
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: hero-brand-sheen 7s ease-in-out infinite;
+    text-shadow: 0 14px 42px rgba(188, 70, 56, 0.12);
+  }
+
+  .hero-brand-word::after {
+    content: '';
+    position: absolute;
+    left: 0.04em;
+    right: 0.02em;
+    bottom: 0.05em;
+    height: 0.13em;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(188, 70, 56, 0.18), rgba(189, 91, 130, 0.28), rgba(201, 169, 110, 0.2));
+    transform: scaleX(0.96);
+    transform-origin: left center;
+    z-index: -1;
+    animation: hero-brand-underline 5.5s ease-in-out infinite;
+  }
+
+  @keyframes hero-brand-sheen {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  @keyframes hero-brand-underline {
+    0%, 100% { opacity: 0.62; transform: scaleX(0.92); }
+    50% { opacity: 0.95; transform: scaleX(1); }
+  }
+
   @keyframes ambient-drift-1 {
     0%, 100% { transform: translate(0px, 0px) scale(1); }
     25%      { transform: translate(40px, -30px) scale(1.05); }

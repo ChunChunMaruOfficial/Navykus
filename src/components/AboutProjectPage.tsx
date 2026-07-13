@@ -65,19 +65,6 @@ const AUDIENCE_SEGMENTS: Segment[] = [
     targetRole: "championships"
   },
   {
-    id: "seg-2",
-    title: 'ui.aboutprojectpage.7d00c11cfd',
-    subtitle: 'ui.aboutprojectpage.14a8fff621',
-    benefits: [
-      'ui.aboutprojectpage.4a1a794a17',
-      'ui.aboutprojectpage.4bc480da26',
-      'ui.aboutprojectpage.1ff1c5428b',
-      'ui.aboutprojectpage.73b785355b'
-    ],
-    ctaText: 'ui.aboutprojectpage.28c1d0bb50',
-    targetRole: "mentors"
-  },
-  {
     id: "seg-3",
     title: 'ui.aboutprojectpage.6727fa0866',
     subtitle: 'ui.aboutprojectpage.78fe050899',
@@ -395,8 +382,6 @@ export default function AboutProjectPage({
                         const role = AUDIENCE_SEGMENTS[selectedSegmentIdx].targetRole;
                         if (role === 'championships') {
                           handleNavigateFromAbout('nearest-championship');
-                        } else if (role === 'mentors') {
-                          handleNavigateFromAbout('mentors-block');
                         } else if (role === 'contact') {
                           handleNavigateFromAbout('footer-system');
                         } else {
@@ -476,7 +461,7 @@ export default function AboutProjectPage({
               >
                 <button
                   onClick={() => setActiveFaqIdx(activeFaqIdx === idx ? null : idx)}
-                  className="w-full flex items-center justify-between p-5 text-left font-serif font-semibold text-brand-dark text-sm sm:text-base cursor-pointer"
+                  className="w-full flex items-center justify-between p-5 text-left font-serif font-semibold text-brand-dark text-base md:text-lg cursor-pointer"
                 >
                   <span>{t(faq.question)}</span>
                   <ChevronDown className={`w-4 h-4 text-brand-slate/60 transition-transform duration-300 flex-shrink-0 ${activeFaqIdx === idx ? 'rotate-180' : ''}`} />
@@ -491,7 +476,7 @@ export default function AboutProjectPage({
                       transition={{ duration: 0.25 }}
                       className="overflow-hidden"
                     >
-                      <p className="p-5 pt-0 text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed bg-white/10 text-left">
+                      <p className="p-5 pt-0 text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed bg-white/10 text-left">
                         {t(faq.answer)}
                       </p>
                     </motion.div>

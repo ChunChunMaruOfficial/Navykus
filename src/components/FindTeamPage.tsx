@@ -104,7 +104,7 @@ function DetailedProfileModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-          className="relative w-[92%] sm:w-full max-w-2xl max-h-[85vh] overflow-y-auto bg-white/35 backdrop-blur-3xl border border-white/60 rounded-3xl shadow-[inset_0_1.5px_3px_rgba(255,255,255,0.45),0_40px_120px_rgba(27,24,22,0.12)] z-10"
+          className="relative w-[92%] sm:w-full max-w-5xl max-h-[85vh] overflow-y-auto bg-white/35 backdrop-blur-3xl border border-white/60 rounded-3xl shadow-[inset_0_1.5px_3px_rgba(255,255,255,0.45),0_40px_120px_rgba(27,24,22,0.12)] z-10"
         >
           <button
             onClick={onClose}
@@ -114,24 +114,24 @@ function DetailedProfileModal({
             <X className="w-5 h-5" />
           </button>
 
-          <div className="p-6 sm:p-10">
+          <div className="grid gap-8 p-6 sm:p-10 lg:grid-cols-[minmax(0,1fr)_320px]">
             {/* Header */}
-            <div className="space-y-1 mb-6">
-              <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark tracking-tight">
-                {member.name}
-              </h2>
-              <div className="flex flex-wrap items-center gap-3 text-xs text-brand-slate font-medium">
-                <span className="flex items-center gap-1">
-                  <Users className="w-3.5 h-3.5" /> {member.age}{t('ui.championshippage.b47dce337d')}</span>
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5" /> {member.country}
-                  {member.city && `, ${member.city}`}
-                </span>
-              </div>
-            </div>
-
-            {/* Sections */}
             <div className="space-y-6">
+              <div className="space-y-1">
+                <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark tracking-tight">
+                  {member.name}
+                </h2>
+                <div className="flex flex-wrap items-center gap-3 text-xs text-brand-slate font-medium">
+                  <span className="flex items-center gap-1">
+                    <Users className="w-3.5 h-3.5" /> {member.age}{t('ui.championshippage.b47dce337d')}</span>
+                  <span className="flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5" /> {member.country}
+                    {member.city && `, ${member.city}`}
+                  </span>
+                </div>
+              </div>
+
+              {/* Sections */}
               <section>
                 <h3 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-2">{t('ui.findteampage.53fa567ce7')}</h3>
                 <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{member.shortBio}</p>
@@ -182,6 +182,9 @@ function DetailedProfileModal({
                 <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{member.whyLooking}</p>
               </section>
 
+            </div>
+
+            <aside className="space-y-6">
               <section className="bg-white/20 border border-white/40 rounded-2xl p-5">
                 <h3 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-2.5">{t('ui.activitiespage.1f75230b6e')}</h3>
                 <div className="flex items-center gap-3">
@@ -204,7 +207,7 @@ function DetailedProfileModal({
                   className="flex-1 bg-white/40 backdrop-blur-md border border-[#d8d1cc] text-[#5b6472] hover:border-brand-terracotta/60 px-6 py-3 rounded-xl text-xs font-medium transition-all cursor-pointer"
                 >{t('ui.app.8c26059674')}</button>
               </div>
-            </div>
+            </aside>
           </div>
         </motion.div>
       </div>
@@ -306,7 +309,7 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
     <div className="bg-white/[0.08] glass-card border border-white/[0.12] rounded-2xl overflow-hidden transition-all duration-300">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-5 text-left font-serif font-semibold text-brand-dark text-xs sm:text-sm md:text-base cursor-pointer"
+        className="w-full flex items-center justify-between p-5 text-left font-serif font-semibold text-brand-dark text-sm sm:text-base md:text-lg cursor-pointer"
       >
         <span>{question}</span>
         <ChevronDown className={`w-4 h-4 text-brand-slate/60 transition-transform duration-300 flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
@@ -320,7 +323,7 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
             transition={{ duration: 0.25 }}
             className="overflow-hidden"
           >
-            <p className="p-5 pt-0 text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed bg-white/10 text-left">
+            <p className="p-5 pt-0 text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed bg-white/10 text-left">
               {answer}
             </p>
           </motion.div>
@@ -521,7 +524,7 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
       </div>
 
       {/* ======================== HERO BLOCK ======================== */}
-      <section className="relative z-10 pt-24 pb-12 md:pt-24 md:pb-16 max-w-6xl mx-auto px-[6%] md:px-[10%]">
+      <section className="relative z-10 pt-24 pb-12 md:pt-24 md:pb-16 max-w-7xl mx-auto px-[6%] md:px-[10%]">
         <div className="flex justify-start mb-8 sm:mb-12">
           <button
             onClick={onBackToHome}
@@ -532,11 +535,11 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
           </button>
         </div>
 
-        <motion.div {...heroFadeUpLarge} className="mx-auto max-w-3xl space-y-8 text-center">
+        <motion.div {...heroFadeUpLarge} className="mx-auto max-w-4xl space-y-8 text-center">
 
           <div className="space-y-4">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-brand-dark tracking-tight leading-tight">{t('ui.app.d13f387e64')}</h1>
-            <p className="mx-auto max-w-2xl text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.findteampage.801f72c2a4')}</p>
+            <p className="mx-auto max-w-3xl text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.findteampage.801f72c2a4')}</p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4">
@@ -556,53 +559,8 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
         </motion.div>
       </section>
 
-      {/* ======================== SCENARIO EXPLANATION ======================== */}
-      <section className="relative z-10 py-12 md:py-16 max-w-6xl mx-auto px-[6%] md:px-[10%]">
-        <motion.div {...cardStaggerContainer} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[
-            {
-              icon: <Users className="w-5 h-5 text-brand-rose-deep" />,
-              num: '01',
-              title: t('ui.findteampage.6db9425693'),
-              desc: t('ui.findteampage.748802e8af'),
-            },
-            {
-              icon: <Search className="w-5 h-5 text-brand-terracotta" />,
-              num: '02',
-              title: t('ui.findteampage.d37a6b7314'),
-              desc: t('ui.findteampage.c481549d83'),
-            },
-            {
-              icon: <ArrowUpRight className="w-5 h-5 text-brand-rose-deep" />,
-              num: '03',
-              title: t('ui.findteampage.9507d02c5c'),
-              desc: t('ui.findteampage.c90707df4b'),
-            },
-          ].map((step, idx) => (
-            <motion.div
-              key={step.num}
-              variants={cardItemFadeUp.variants}
-              className="bg-white/[0.12] glass-card border border-white/[0.15] p-6 rounded-2xl hover:bg-white/[0.2] transition-[background-color,border-color,box-shadow] duration-300"
-            >
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#bc4638]/5 to-[#bd5b82]/5 border border-white/80 flex items-center justify-center shrink-0 shadow-[inset_0_1px_1px_rgba(255,255,255,0.4)]">
-                  {step.icon}
-                </div>
-                <div className="min-w-0 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono text-brand-rose-deep font-semibold tracking-wider">{step.num}</span>
-                    <h3 className="text-sm font-serif font-medium leading-tight text-brand-dark">{step.title}</h3>
-                  </div>
-                  <p className="text-xs text-brand-slate font-normal md:font-light leading-relaxed">{step.desc}</p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-      </section>
-
       {/* ======================== FILTERS & SEARCH ======================== */}
-      <section id="filters-section" className="relative z-10 py-8 md:py-12 max-w-6xl mx-auto px-[6%] md:px-[10%]">
+      <section id="filters-section" className="relative z-10 py-8 md:py-12 max-w-7xl mx-auto px-[6%] md:px-[10%]">
         <motion.div {...fadeUp} className="space-y-6">
           {/* Search bar */}
           <div className="relative">
@@ -910,7 +868,7 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
       </section>
 
       {/* ======================== PROFILES LIST ======================== */}
-      <section id="profiles-section" className="relative z-10 py-8 md:py-12 max-w-6xl mx-auto px-[6%] md:px-[10%]">
+      <section id="profiles-section" className="relative z-10 py-8 md:py-12 max-w-7xl mx-auto px-[6%] md:px-[10%]">
         {/* Results count */}
         <div className="mb-6 flex items-center justify-between">
           <span className="text-xs font-mono text-brand-slate">{t('ui.findteampage.b62712adf3')}<strong className="text-brand-dark">{filteredMembers.length}</strong>
@@ -968,8 +926,8 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
       </section>
 
       {/* ======================== SAFETY & TRUST ======================== */}
-      <section className="relative z-10 py-12 md:py-16 max-w-6xl mx-auto px-[6%] md:px-[10%]">
-        <motion.div {...fadeUp} className="text-center max-w-2xl mx-auto space-y-3 mb-10">
+      <section className="relative z-10 py-12 md:py-16 max-w-7xl mx-auto px-[6%] md:px-[10%]">
+        <motion.div {...fadeUp} className="text-center max-w-3xl mx-auto space-y-3 mb-10">
           <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark tracking-tight">{t('ui.findteampage.e1cd2e34c2')}</h2>
           <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.findteampage.fc35e86bc0')}</p>
         </motion.div>
@@ -1016,7 +974,7 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
       </section>
 
       {/* ======================== CTA ======================== */}
-      <section className="relative z-10 py-12 md:py-16 max-w-5xl mx-auto px-[6%] md:px-[10%]">
+      <section className="relative z-10 py-12 md:py-16 max-w-7xl mx-auto px-[6%] md:px-[10%]">
         <motion.div
           {...fadeInScale}
           className="bg-gradient-to-br from-[#bc4638]/5 via-white/[0.12] to-[#bd5b82]/8 glass-xl border border-white/[0.15] rounded-3xl p-8 sm:p-12 text-center space-y-6"
@@ -1033,7 +991,7 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
       </section>
 
       {/* ======================== FAQ ======================== */}
-      <section className="relative z-10 py-16 md:py-24 w-[88vw] md:w-[80vw] max-w-4xl mx-auto space-y-6 section-accent-warm">
+      <section className="relative z-10 py-16 md:py-24 max-w-7xl mx-auto px-[6%] md:px-[10%] space-y-6 section-accent-warm">
         <motion.div {...fadeUp} className="text-center space-y-3">
           <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark">{t('ui.findteampage.f119ad282e')}</h2>
         </motion.div>

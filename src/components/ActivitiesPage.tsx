@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'motion/react';
 import {
@@ -10,6 +10,7 @@ import {
   Clock,
   Heart,
   Search,
+  Sparkles,
   Target,
   Trophy,
   Users,
@@ -24,12 +25,14 @@ import {
   cardStaggerContainer,
   fadeInScale,
   fadeUp,
-  fadeUpLarge,
 } from '../motion-animations';
 import { ActivityCategory, ActivityItem, ActivityStatus } from '../types';
 import { useLocalizedData } from '../i18n/useLocalizedData';
 
 type CategoryFilter = ActivityCategory | 'all';
+type ActivityView = 'events' | 'opportunities';
+
+const OpportunitiesPage = lazy(() => import('./OpportunitiesPage'));
 
 interface ActivitiesPageProps {
   onBackToHome: () => void;
@@ -112,6 +115,26 @@ const feedStaggerContainer = {
   variants: cardStaggerContainer.variants,
 };
 
+const getInitialActivityView = (): ActivityView => {
+  if (typeof window === 'undefined') return 'events';
+  const path = window.location.pathname.replace(/\/$/, '') || '/';
+  return path === '/opportunities' || path === '/profile/opportunities' || path.startsWith('/opportunities/')
+    ? 'opportunities'
+    : 'events';
+};
+
+const getCurrentPath = () => {
+  if (typeof window === 'undefined') return '/activities';
+  return window.location.pathname.replace(/\/$/, '') || '/';
+};
+
+const OPPORTUNITIES_UTILITY_PATHS = new Set([
+  '/opportunities/recommendations',
+  '/opportunities/favorites',
+  '/opportunities/compare',
+  '/opportunities/submit',
+]);
+
 export default function ActivitiesPage({
   onBackToHome,
   onNavigateToSection,
@@ -119,13 +142,69 @@ export default function ActivitiesPage({
 }: ActivitiesPageProps) {
   const { t } = useTranslation();
   const { activities } = useLocalizedData();
+  const [activeView, setActiveView] = useState<ActivityView>(getInitialActivityView);
+  const [routePath, setRoutePath] = useState(getCurrentPath);
   const [selectedCategory, setSelectedCategory] = useState<CategoryFilter>('all');
+  const [activitySearch, setActivitySearch] = useState('');
   const [selectedActivity, setSelectedActivity] = useState<ActivityItem | null>(null);
 
+  useEffect(() => {
+    const syncViewWithPath = () => {
+      setActiveView(getInitialActivityView());
+      setRoutePath(getCurrentPath());
+    };
+    window.addEventListener('popstate', syncViewWithPath);
+    return () => window.removeEventListener('popstate', syncViewWithPath);
+  }, []);
+
+  useEffect(() => {
+    if (activeView === 'events') {
+      document.title = t('meta.activities.title');
+    }
+  }, [activeView, t]);
+
+  const navigateToView = (view: ActivityView) => {
+    setActiveView(view);
+    const nextPath = view === 'events' ? '/activities' : '/opportunities';
+    const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+    if (currentPath !== nextPath) {
+      window.history.pushState({}, '', nextPath);
+      setRoutePath(nextPath);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const navigateToOpportunityRecommendations = () => {
+    setActiveView('opportunities');
+    const nextPath = '/opportunities/recommendations';
+    window.history.pushState({}, '', nextPath);
+    setRoutePath(nextPath);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const isOpportunityDetailPath =
+    routePath.startsWith('/opportunities/') && !OPPORTUNITIES_UTILITY_PATHS.has(routePath);
+  const showActivitiesHeader = !isOpportunityDetailPath;
+
   const filteredActivities = useMemo(() => {
-    if (selectedCategory === 'all') return activities;
-    return activities.filter((activity) => activity.category === selectedCategory);
-  }, [activities, selectedCategory]);
+    const query = activitySearch.trim().toLowerCase();
+    return activities.filter((activity) => {
+      if (selectedCategory !== 'all' && activity.category !== selectedCategory) return false;
+      if (!query) return true;
+      return [
+        activity.title,
+        activity.shortDescription,
+        activity.fullDescription,
+        activity.format,
+        activity.date,
+        activity.who,
+        activity.prerequisites,
+        t(CATEGORY_LABELS[activity.category]),
+      ].join(' ').toLowerCase().includes(query);
+    });
+  }, [activities, activitySearch, selectedCategory, t]);
 
   const categoryCounts = useMemo(() => {
     return activities.reduce(
@@ -137,83 +216,88 @@ export default function ActivitiesPage({
     );
   }, [activities]);
 
-  const statusCounts = useMemo(() => {
-    return activities.reduce(
-      (counts, activity) => ({
-        ...counts,
-        [activity.status]: (counts[activity.status] ?? 0) + 1,
-      }),
-      { coming: 0, ongoing: 0, completed: 0 } as Record<ActivityStatus, number>,
-    );
-  }, [activities]);
-
-  const featuredActivity =
-    filteredActivities.find((activity) => activity.status === 'ongoing') ??
-    filteredActivities.find((activity) => activity.status === 'coming') ??
-    filteredActivities[0];
-
   return (
     <div className="relative w-full overflow-hidden pb-16 pt-24 text-brand-dark">
-      <div className="absolute inset-x-0 top-20 h-px bg-gradient-to-r from-transparent via-brand-dark/10 to-transparent" />
+      {showActivitiesHeader && (
+        <div className="absolute inset-x-0 top-20 h-px bg-gradient-to-r from-transparent via-brand-dark/10 to-transparent" />
+      )}
 
-      <div className="relative z-10 mx-auto max-w-6xl px-[6%] md:px-[10%]">
-        <div className="mb-8 flex justify-start sm:mb-10">
-          <button
-            onClick={onBackToHome}
-            className="group inline-flex items-center gap-2 px-4 py-2 border border-[#d8d1cc]/60 hover:border-brand-dark text-xs font-mono tracking-wider uppercase text-brand-slate hover:text-brand-dark transition-all rounded-xl cursor-pointer bg-white/20 backdrop-blur-sm"
-          >
-            <ArrowRight className="w-3.5 h-3.5 rotate-180 transition-transform group-hover:-translate-x-0.5" />
-            <span>{t('ui.aboutprojectpage.a9dc864a2e')}</span>
-          </button>
-        </div>
+      <div className="relative z-10 mx-auto max-w-7xl px-[6%] md:px-[10%]">
+        {showActivitiesHeader && (
+          <>
+            <div className="mb-8 flex justify-start sm:mb-10">
+              <button
+                onClick={onBackToHome}
+                className="group inline-flex items-center gap-2 px-4 py-2 border border-[#d8d1cc]/60 hover:border-brand-dark text-xs font-mono tracking-wider uppercase text-brand-slate hover:text-brand-dark transition-all rounded-xl cursor-pointer bg-white/20 backdrop-blur-sm"
+              >
+                <ArrowRight className="w-3.5 h-3.5 rotate-180 transition-transform group-hover:-translate-x-0.5" />
+                <span>{t('ui.aboutprojectpage.a9dc864a2e')}</span>
+              </button>
+            </div>
 
-        <section className="grid gap-8 pb-8 lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)] lg:items-end md:pb-12">
-          <motion.div {...fadeUpLarge} className="max-w-3xl">
-            <h1 className="max-w-3xl text-5xl font-serif font-semibold leading-[0.92] tracking-tight text-brand-dark sm:text-6xl lg:text-7xl">
-              {t('ui.app.814b71a2da')}
-            </h1>
-            <div className="mt-7 grid max-w-xs overflow-hidden rounded-2xl border border-white/60 bg-white/35 shadow-sm backdrop-blur-sm">
-              <Metric label={t('ui.activitiespage.ddc44f9ff3')} value={statusCounts.coming} />
+            <section className="flex justify-center pb-8 md:pb-10">
+              <div className="inline-flex w-full rounded-2xl border border-white/60 bg-white/35 p-1.5 shadow-sm backdrop-blur-xl sm:w-auto">
+                {([
+                  ['events', t('ui.activitiespage.9bd00b51c2'), activities.length],
+                  ['opportunities', t('ui.activitiespage.d4bd169801'), null],
+                ] as const).map(([view, label, count]) => {
+                  const isActive = activeView === view;
+                  return (
+                    <button
+                      key={view}
+                      type="button"
+                      onClick={() => navigateToView(view)}
+                      className={`inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2 text-[11px] font-bold uppercase tracking-wide transition-all sm:flex-none ${
+                        isActive ? 'bg-brand-dark text-white shadow-md' : 'text-brand-slate hover:bg-white/60 hover:text-brand-dark'
+                      }`}
+                    >
+                      <span>{label}</span>
+                      {count !== null && (
+                        <span className={`rounded-full px-2 py-0.5 text-[10px] ${isActive ? 'bg-white/15 text-white' : 'bg-brand-dark/6 text-brand-slate'}`}>
+                          {count}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          </>
+        )}
+
+        {activeView === 'events' ? (
+          <>
+        <section className="pb-8 md:pb-10">
+          <motion.div {...fadeUp} className="grid gap-6">
+            <div className="space-y-4">
+              <h1 className="max-w-4xl text-3xl font-serif font-semibold leading-tight tracking-tight text-brand-dark sm:text-4xl lg:text-5xl">
+                {t('ui.activitiespage.0b2e4667a1')}
+              </h1>
+              <p className="max-w-3xl text-sm leading-relaxed text-brand-slate sm:text-base">
+                {t('ui.activitiespage.9bc3c6004a')}
+              </p>
+            </div>
+            <div className="grid w-full gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
+              <label className="relative block">
+                <span className="sr-only">{t('ui.activitiespage.807368f2dd')}</span>
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-slate/60" />
+                <input
+                  value={activitySearch}
+                  onChange={(event) => setActivitySearch(event.target.value)}
+                  placeholder={t('ui.activitiespage.807368f2dd')}
+                  className="min-h-12 w-full rounded-2xl border border-white/65 bg-white/60 py-3 pl-11 pr-4 text-sm text-brand-dark shadow-[0_10px_35px_rgba(91,100,114,0.08)] outline-none backdrop-blur-xl transition-colors placeholder:text-brand-slate/45 focus:border-[#8f99a8]"
+                />
+              </label>
+              <button
+                type="button"
+                onClick={navigateToOpportunityRecommendations}
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-brand-dark px-5 py-3 text-xs font-semibold text-white"
+              >
+                <Sparkles className="h-4 w-4" />
+                {t('ui.activitiespage.0ad86f239d')}
+              </button>
             </div>
           </motion.div>
-
-          {featuredActivity && (
-            <motion.div
-              {...fadeInScale}
-              className="relative overflow-hidden rounded-[1.75rem] border border-white/65 bg-white/50 shadow-[0_24px_70px_rgba(91,100,114,0.12)] backdrop-blur-md"
-            >
-              <div className={`relative h-48 overflow-hidden bg-gradient-to-br sm:h-56 ${CATEGORY_MAP[featuredActivity.category].accent}`}>
-                <img
-                  src={featuredActivity.imageUrl}
-                  alt={featuredActivity.title}
-                  className="h-full w-full object-cover"
-                  loading="eager"
-                  onError={(event) => {
-                    event.currentTarget.style.display = 'none';
-                  }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/58 via-brand-dark/10 to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4">
-                  <h2 className="text-xl font-serif font-semibold leading-tight text-white sm:text-2xl">
-                    {featuredActivity.title}
-                  </h2>
-                </div>
-              </div>
-              <div className="space-y-4 p-5">
-                <p className="text-sm leading-relaxed text-brand-slate">{featuredActivity.shortDescription}</p>
-                <div className="grid grid-cols-1 gap-2 text-[11px] font-medium text-brand-slate sm:grid-cols-2">
-                  <span className="inline-flex items-center gap-2 rounded-xl bg-white/55 px-3 py-2">
-                    <Calendar className="h-3.5 w-3.5 text-[#bc4638]" />
-                    {featuredActivity.date}
-                  </span>
-                  <span className="inline-flex items-center gap-2 rounded-xl bg-white/55 px-3 py-2">
-                    <Clock className="h-3.5 w-3.5 text-[#3d6b8f]" />
-                    {featuredActivity.format}
-                  </span>
-                </div>
-              </div>
-            </motion.div>
-          )}
         </section>
 
         <section className="sticky top-20 z-20 -mx-2 mb-8 rounded-[1.5rem] border border-white/60 bg-[#fffaf7]/82 p-2 shadow-[0_16px_50px_rgba(91,100,114,0.08)] backdrop-blur-xl">
@@ -269,7 +353,7 @@ export default function ActivitiesPage({
 
         <section className="py-14 md:py-20">
           <motion.div {...fadeUp} className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <div className="max-w-2xl">
+            <div className="max-w-3xl">
               <h2 className="text-3xl font-serif font-semibold tracking-tight text-brand-dark sm:text-4xl">
                 {t('ui.activitiespage.62d6062e')}
               </h2>
@@ -338,7 +422,7 @@ export default function ActivitiesPage({
             className="relative overflow-hidden rounded-[2rem] border border-white/60 bg-brand-dark px-6 py-9 text-center shadow-[0_30px_90px_rgba(17,17,17,0.16)] sm:px-10 sm:py-12"
           >
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
-            <h2 className="mx-auto max-w-2xl text-3xl font-serif font-semibold leading-tight tracking-tight text-white sm:text-4xl md:text-5xl">
+            <h2 className="mx-auto max-w-4xl text-3xl font-serif font-semibold leading-tight tracking-tight text-white sm:text-4xl md:text-5xl">
               {t('ui.activitiespage.97446fff')}
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-white/70">{t('ui.activitiespage.4dbca5f4b0')}</p>
@@ -364,6 +448,12 @@ export default function ActivitiesPage({
             </div>
           </motion.div>
         </section>
+          </>
+        ) : (
+          <Suspense fallback={<div className="rounded-[1.5rem] border border-white/60 bg-white/42 p-8 text-sm text-brand-slate backdrop-blur-xl">{t('common.loading')}</div>}>
+            <OpportunitiesPage onBackToHome={onBackToHome} embedded />
+          </Suspense>
+        )}
       </div>
 
       <AnimatePresence>
@@ -378,15 +468,6 @@ export default function ActivitiesPage({
           />
         )}
       </AnimatePresence>
-    </div>
-  );
-}
-
-function Metric({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="border-r border-white/60 px-3 py-4 last:border-r-0 sm:px-5">
-      <div className="text-2xl font-serif font-semibold leading-none text-brand-dark sm:text-3xl">{value}</div>
-      <div className="mt-1 text-[10px] font-bold uppercase tracking-wide text-brand-slate">{label}</div>
     </div>
   );
 }
@@ -418,7 +499,17 @@ function ActivityCard({
   return (
     <motion.article
       variants={cardItemFadeUp.variants}
-      className="flex min-h-[330px] flex-col rounded-[1.5rem] border border-white/60 bg-white/48 p-5 shadow-sm backdrop-blur-sm transition-colors hover:border-[#d8d1cc] hover:bg-white/62 sm:p-6"
+      role="button"
+      tabIndex={0}
+      onClick={onOpenDetails}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onOpenDetails();
+        }
+      }}
+      aria-label={`${t('ui.activitiespage.4710ead504')}: ${activity.title}`}
+      className="group relative flex min-h-[330px] cursor-pointer flex-col rounded-[1.5rem] border border-white/60 bg-white/48 p-5 shadow-sm backdrop-blur-sm transition-colors hover:border-[#d8d1cc] hover:bg-white/62 sm:p-6"
     >
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -447,14 +538,13 @@ function ActivityCard({
           </span>
         </div>
 
-        <div className="mt-auto pt-5">
-          <button
-            onClick={onOpenDetails}
-            className="inline-flex min-h-11 w-full items-center justify-between rounded-2xl border border-[#d8d1cc]/80 bg-white/50 px-4 py-2.5 text-left text-[11px] font-bold uppercase tracking-wide text-[#8d3026] transition-all hover:border-[#bc4638]/45 hover:bg-white"
+        <div className="mt-auto flex justify-end pt-5">
+          <span
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d8d1cc]/70 bg-white/55 text-[#8d3026] transition-all group-hover:border-[#bc4638]/35 group-hover:bg-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+            aria-hidden="true"
           >
-            <span>{t('ui.activitiespage.4710ead504')}</span>
             <ArrowUpRight className="h-4 w-4" />
-          </button>
+          </span>
         </div>
       </div>
     </motion.article>
@@ -505,7 +595,7 @@ function ActivityDetailsModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="activity-details-title"
-        className="relative z-10 max-h-[88vh] w-[94vw] max-w-3xl overflow-y-auto rounded-[1.75rem] border border-white/60 bg-[#fffaf7]/90 shadow-[0_35px_110px_rgba(17,17,17,0.2)] backdrop-blur-2xl"
+        className="relative z-10 max-h-[88vh] w-[94vw] max-w-5xl overflow-y-auto rounded-[1.75rem] border border-white/60 bg-[#fffaf7]/90 shadow-[0_35px_110px_rgba(17,17,17,0.2)] backdrop-blur-2xl"
       >
         <button
           onClick={onClose}

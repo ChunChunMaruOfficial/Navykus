@@ -8,7 +8,6 @@
   "activitiespage.62d6062e": "Как выбрать активность?",
   "activitiespage.5f082a56": "Не знаете, с чего начать? Определите свой уровень готовности и выберите подходящий формат.",
   "activitiespage.97446fff": "Не знаешь, с чего начать?",
-  "applicationmodal.4666b457": "REGISTRATION FORM",
   "applicationmodal.bc84a155": "MB",
   "applicationmodal.4c971178": "NAVYKUS MEMBER PASS",
   "applicationmodal.475f6e55": "SECURE SYSTEM REGISTRY",
@@ -31,5 +30,10 @@
   "findteampage.291b48f0": "Когда анкета появится на сайте?",
   "findteampage.32c49e31": "Можно ли редактировать анкету?",
   "findteampage.5167e97a": "Что делать, если я уже нашёл команду?",
-  "findteampage.27f20eac": "Как безопасно связаться с участником?"
+  "findteampage.27f20eac": "Как безопасно связаться с участником?",
+  "activitiespage.0b2e4667a1": "События для школьников",
+  "activitiespage.9bc3c6004a": "Находите лекции, воркшопы, проектные спринты, командные форматы и онлайн-встречи, которые помогут развивать навыки и создавать реальные проекты.",
+  "activitiespage.807368f2dd": "Поиск по названию, формату, теме или навыкам...",
+  "activitiespage.0ad86f239d": "Подобрать для меня",
+  "app.2060fe9f62": "Жюри и наставники кубка"
 }

@@ -46,6 +46,7 @@
   "ui": {
     "app": {
       "1995337599": "places in the selection",
+      "ffecc101e5": "Countries of presence",
       "aacca2db": "What is Navykus?",
       "19816f01": "Why do parents and experts choose Navykus?",
       "e07687c4": "Ready to start your journey?",
@@ -70,9 +71,6 @@
       "4e6bae67fb": "international community",
       "36b5f70ec0": "active schoolchildren",
       "ca9bce21fd": "Develop key skills for the future through online championships, create viable projects and connect with like-minded people around the world under the guidance of experienced experts.",
-      "f673591b33": "Student participants",
-      "ffecc101e5": "Countries of presence",
-      "a00ee755e0": "Experts from MIT & YC",
       "2542ef5a41": "Navykus is an innovative ecosystem that blurs the boundaries between countries and school desks. We help talented young people find each other, launch viable projects and express themselves on the international stage.",
       "8ca84fc116": "UPCOMING EVENT",
       "aa324b069f": "Online format",
@@ -82,13 +80,10 @@
       "2c0ba7b4a0": "Registration before:",
       "762a52a7bb": "SUBMIT YOUR APPLICATION",
       "e975e8b6a4": "ABOUT TOURNAMENTS",
-      "2060fe9f62": "Jury and cup mentors",
       "4d8b1fa187": "Guest expert",
       "40c83f7ed9": "SPACES LEFT",
-      "30d2f12f93": "Opportunities to participate in the platform",
       "1634fa6530": "We designed different trajectories for each participant. Find your script and take the first step.",
       "fa424fe227": "Why:",
-      "3c8e417ab7": "Expert advice for the upcoming championship",
       "5c6f09e45e": "Your ideas will be evaluated by authors of global research and practice from international companies.",
       "6d26f92c1f": "EXPERT",
       "3abf2464ad": "QUICK REGISTRATION",
@@ -125,14 +120,15 @@
       "ce65e2cf6b": "Contacts and Support",
       "ed16b5adfc": "Coordinator:",
       "9e059272f1": "Privacy",
-      "3a86197ba3": "Agreement"
+      "3a86197ba3": "Agreement",
+      "2060fe9f62": "Cup jury and mentors"
     },
     "aboutprojectpage": {
       "2805697540": "Take part",
       "3841022721": "“The traditional school focuses on academic theory, while the modern world requires applied skills, developed design thinking and the ability to work in cross-cultural teams. »",
       "d1728b4c": "Do you want to become part of the international community?",
       "a9dc864a2e": "Home",
-      "e260b399ab": "About the Navykus project",
+      "e260b399ab": "About the project",
       "ac15bd8cf7": "We are creating the future of education by connecting active students, academic mentors and global companies into a single, supportive development ecosystem.",
       "0a09c52fdd": "View the championship",
       "10575c4831": "Our Mission",
@@ -156,13 +152,6 @@
       "93290f394a": "Finding like-minded people and creating teams",
       "863ce4f6d3": "Valuable prizes, grants and internships",
       "0d298390c0": "View championships",
-      "7d00c11cfd": "Parents",
-      "14a8fff621": "Investment in a child's successful future",
-      "4a1a794a17": "Mastering in-demand Soft & Hard Skills",
-      "4bc480da26": "Safe online development environment",
-      "1ff1c5428b": "Early career guidance and choice of university",
-      "73b785355b": "Consultations from experts from top universities",
-      "28c1d0bb50": "About the experts",
       "6727fa0866": "Schools and organizations",
       "78fe050899": "Increased prestige and engagement",
       "41a41cd402": "Ready-made turnkey project programs",
@@ -209,6 +198,10 @@
       "b966ab17f5": "You can always write to our 24-hour support service by email info@navykus.org or in the official Telegram account @navykus_com. We will answer any organizational or technical questions."
     },
     "activitiespage": {
+      "0b2e4667a1": "Events for students",
+      "9bc3c6004a": "Find lectures, workshops, project sprints, team formats, and online meetups that help build skills and real projects.",
+      "807368f2dd": "Search by title, format, topic, or skills...",
+      "0ad86f239d": "Match me",
       "62d6062e": "How to choose an activity?",
       "5f082a56": "Don't know where to start? Determine your readiness level and choose the appropriate format.",
       "97446fff": "Don't know where to start?",
@@ -239,11 +232,12 @@
       "26021f2cb2": "For teams",
       "ddc44f9ff3": "Coming soon",
       "2f96e6c2aa": "Running now",
-      "2a785b54e5": "Completed",
-      "6afaf7bd0a": "All activities"
+      "2a785b54e5": "Upcoming",
+      "6afaf7bd0a": "All activities",
+      "9bd00b51c2": "Events",
+      "d4bd169801": "Opportunity catalog"
     },
     "applicationmodal": {
-      "4666b457": "REGISTRATION FORM",
       "bc84a155": "MB",
       "4c971178": "NAVYKUS MEMBER PASS",
       "475f6e55": "SECURE SYSTEM REGISTRY",
@@ -271,7 +265,6 @@
       "a1534409f2": "Attach a file with projects",
       "f5717f85ba": "Click to download file",
       "6272f20d22": "PDF, DOC, PPT, TXT, ZIP, PNG (up to 10 MB)",
-      "684fea0145": "Data is transmitted over an encrypted channel",
       "b55a7aad35": "Checking...",
       "cf4f1950f8": "Send a request",
       "15cd01515e": "You have been registered. Your Navykus Pass digital smart card is generated below.",
@@ -404,7 +397,6 @@
       "64c107dcac": "TO THE WINNERS",
       "26ed71e452": "The main prize of the cup is mentoring support for the startup until its full release and letters of recommendation from MIT professors and Y Combinator trackers.",
       "b4c596db9d": "Take a seat",
-      "b41ff491ad": "How the participation process works (Timeline)",
       "73c7822daa": "We have developed a clear step-by-step online route. Click on the steps to explore details and important markers.",
       "6eaf12bfb5": "STAGE 0",
       "bc6f640c2c": "FROM 07",
@@ -412,7 +404,6 @@
       "87719eaf02": "Finish of the marathon!",
       "a77e33e8d3": "Next",
       "645661f0ee": "To the questionnaire",
-      "4591330e49": "The jury and experts of the championship",
       "642a217314": "Your projects will be assessed by professors from leading universities around the world and practitioners from international corporations. The composition is managed through a CMS system in real time.",
       "40baedef9b": "Area of expertise:",
       "795d6a19a2": "Quick participant registration",
@@ -498,11 +489,8 @@
       "5208d7841a": "— Find a team",
       "801f72c2a4": "Here you can find participants for a championship or project. Choose the right person and contact him.",
       "83874460f8": "View profiles",
-      "6db9425693": "Look at the profiles",
       "748802e8af": "Browse profiles of participants from 15+ countries and find suitable people.",
-      "d37a6b7314": "Select a participant",
       "c481549d83": "Find someone with similar interests and skills.",
-      "9507d02c5c": "Contact him",
       "c90707df4b": "Write to a participant or submit your profile so they can find you.",
       "0247c0a466": "Search by name, interests or skills...",
       "5412a9a9b7": "Filters",
@@ -688,14 +676,6 @@
         "why": "The author needs designers and developers to implement the MVP; a loner needs a strong team to join.",
         "ctaText": "Go to search",
         "actionType": "team"
-      },
-      {
-        "id": "sc-3",
-        "title": "Join the activity",
-        "who": "Parent, teacher or beginner",
-        "why": "Would like to get acquainted with the project, attend free lectures, webinars or watch live broadcasts of the finals.",
-        "ctaText": "View activities",
-        "actionType": "activity"
       }
     ],
     "trustPoints": [
@@ -725,24 +705,7 @@
         "description": "A reliable and supportive community of ambitious peers who motivate you to move forward."
       }
     ],
-    "stats": [
-      {
-        "value": "15+",
-        "label": "participating countries"
-      },
-      {
-        "value": "2.5k+",
-        "label": "active schoolchildren"
-      },
-      {
-        "value": "40+",
-        "label": "international experts"
-      },
-      {
-        "value": "150k$",
-        "label": "grants for the best projects"
-      }
-    ],
+    "stats": [],
     "activities": [
       {
         "id": "act-1",
@@ -803,46 +766,6 @@
         ],
         "prerequisites": "Desire to work in a team. Any skill is welcome.",
         "ctaText": "Participate now"
-      },
-      {
-        "id": "act-4",
-        "title": "Networking evening: Getting to know communities",
-        "shortDescription": "A weekly meeting to meet Navykus members and find like-minded people.",
-        "fullDescription": "A relaxed online meeting in speed-dating format, where you will meet participants from different countries and get an idea of the projects that are being implemented in the Navykus community. Each meeting is dedicated to a specific topic: one week - ecology and sustainable development, the next - IT and startups. The format helps to make acquaintances, find a future team and simply enjoy communication.",
-        "format": "Online meeting",
-        "date": "Every Saturday, 18:00 Moscow time",
-        "imageUrl": "https://images.unsplash.com/photo-1529920549178-802203853118?w=600&h=400&fit=crop",
-        "category": "online-meeting",
-        "status": "ongoing",
-        "who": "All Navykus participants from 12 years old",
-        "benefits": [
-          "Meet participants from 15+ countries",
-          "Find like-minded people for projects",
-          "Learn about the possibilities of the project first hand",
-          "Free participation"
-        ],
-        "prerequisites": "Registration on the platform (free)",
-        "ctaText": "Join"
-      },
-      {
-        "id": "act-5",
-        "title": "Project: School eco-audit",
-        "shortDescription": "Social Initiative - Conduct an environmental audit of your school and propose an improvement plan.",
-        "fullDescription": "A large-scale social project initiative in which schoolchildren around the world conduct an environmental audit of their school: analyze energy consumption, waste recycling rates, environmental literacy of the community and propose a practical plan for improvement. The best projects will be presented at the international Youth Eco Summit and will receive expert support for implementation.",
-        "format": "Project initiative",
-        "date": "July 1 - August 31, 2026",
-        "imageUrl": "https://images.unsplash.com/photo-1443136178219-272d7a6cb2b5?w=600&h=400&fit=crop",
-        "category": "social",
-        "status": "ongoing",
-        "who": "Schoolchildren aged 13–18, activists, representatives of school government",
-        "benefits": [
-          "Real impact on your school's sustainability",
-          "Project management and data analysis skills",
-          "Participation in Youth Eco Summit",
-          "Support for environmental mentors"
-        ],
-        "prerequisites": "Not required, but data science skills are helpful",
-        "ctaText": "Start a project"
       },
       {
         "id": "act-6",
