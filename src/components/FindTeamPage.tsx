@@ -13,7 +13,6 @@ import {
   ChevronDown,
   X,
   MapPin,
-  Mail,
   Send,
   Filter,
   UserCheck,
@@ -26,6 +25,8 @@ import {
   cardStaggerContainer,
   cardItemFadeUp,
 } from '../motion-animations';
+import BrandImage from './BrandImage';
+import StudyBackground from './StudyBackground';
 
 const heroFadeUpLarge = {
   initial: { opacity: 0, y: 30 },
@@ -36,7 +37,8 @@ const heroFadeUpLarge = {
   },
 };
 import { useLocalizedData } from '../i18n/useLocalizedData';
-import type { TeamMember, TeamRole, TeamIntent } from '../types';
+import { useCmsFaqs } from '../hooks/useCmsFaqs';
+import type { FaqItem as CmsFaqItem, TeamMember, TeamRole, TeamIntent } from '../types';
 
 const FIND_TEAM_SEARCH_CLASS =
   'w-full rounded-xl border border-[#d8d1cc] bg-white/70 py-3 pl-11 pr-4 text-xs text-brand-dark outline-none transition-colors placeholder:text-brand-slate/40 focus:border-brand-dark/45 focus:bg-white sm:text-sm';
@@ -63,6 +65,62 @@ const CONTACT_LABELS: Record<string, string> = {
   discord: 'Discord',
 };
 
+const FIND_TEAM_FAQ_ITEMS = [
+  {
+    id: 'find-team-faq-1',
+    question: 'ui.findteampage.6954042f',
+    answer: 'ui.findteampage.a264de7b48',
+  },
+  {
+    id: 'find-team-faq-2',
+    question: 'ui.findteampage.291b48f0',
+    answer: 'ui.findteampage.c4adff98dd',
+  },
+  {
+    id: 'find-team-faq-3',
+    question: 'ui.findteampage.32c49e31',
+    answer: 'ui.findteampage.bb017e0e8a',
+  },
+  {
+    id: 'find-team-faq-4',
+    question: 'ui.findteampage.5167e97a',
+    answer: 'ui.findteampage.b734b04eb7',
+  },
+  {
+    id: 'find-team-faq-5',
+    question: 'ui.findteampage.27f20eac',
+    answer: 'ui.findteampage.a80b8b09d5',
+  },
+] as const;
+
+const COUNTRY_FLAGS: Record<string, string> = {
+  '\u0420\u043e\u0441\u0441\u0438\u044f': '🇷🇺',
+  '\u041a\u0430\u0437\u0430\u0445\u0441\u0442\u0430\u043d': '🇰🇿',
+  '\u042f\u043f\u043e\u043d\u0438\u044f': '🇯🇵',
+  '\u0423\u0437\u0431\u0435\u043a\u0438\u0441\u0442\u0430\u043d': '🇺🇿',
+  '\u0423\u043a\u0440\u0430\u0438\u043d\u0430': '🇺🇦',
+  '\u041e\u0410\u042d': '🇦🇪',
+  '\u0412\u044c\u0435\u0442\u043d\u0430\u043c': '🇻🇳',
+};
+
+const getInitials = (name: string) => name
+  .split(' ')
+  .filter(Boolean)
+  .slice(0, 2)
+  .map((part) => part[0]?.toUpperCase())
+  .join('');
+
+const getAvatarGradient = (id: string) => {
+  const hash = Array.from(id).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const gradients = [
+    'from-[#bc4638] to-[#bd5b82]',
+    'from-[#6b8f71] to-[#4a7c5c]',
+    'from-[#c9a96e] to-[#bd5b82]',
+    'from-[#3d6b8f] to-[#8a6b9d]',
+  ];
+  return gradients[hash % gradients.length];
+};
+
 interface FindTeamPageProps {
   onBackToHome: () => void;
   onNavigateToSection: (id: string) => void;
@@ -83,12 +141,6 @@ function DetailedProfileModal({
   onOpenApplyModal: () => void;
 }) {
   const { t } = useTranslation();
-  const contactLink = member.contactType === 'telegram'
-    ? `https://t.me/${member.contact.replace('@', '')}`
-    : member.contactType === 'email'
-      ? `mailto:${member.contact}`
-      : '#';
-
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -104,7 +156,7 @@ function DetailedProfileModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-          className="relative w-[92%] sm:w-full max-w-5xl max-h-[85vh] overflow-y-auto bg-white/35 backdrop-blur-3xl border border-white/60 rounded-3xl shadow-[inset_0_1.5px_3px_rgba(255,255,255,0.45),0_40px_120px_rgba(27,24,22,0.12)] z-10"
+          className="relative w-[92%] sm:w-full max-w-5xl max-h-[85vh] overflow-y-auto scrollbar-soft bg-white/35 backdrop-blur-3xl border border-white/60 rounded-3xl shadow-[inset_0_1.5px_3px_rgba(255,255,255,0.45),0_40px_120px_rgba(27,24,22,0.12)] z-10"
         >
           <button
             onClick={onClose}
@@ -117,6 +169,15 @@ function DetailedProfileModal({
           <div className="grid gap-8 p-6 sm:p-10 lg:grid-cols-[minmax(0,1fr)_320px]">
             {/* Header */}
             <div className="space-y-6">
+              <div className={`relative aspect-[16/10] overflow-hidden rounded-2xl border border-white/60 bg-gradient-to-br ${getAvatarGradient(member.id)} shadow-[0_18px_55px_rgba(91,100,114,0.12)] lg:hidden`}>
+                <div className="absolute inset-0 bg-white/10 backdrop-blur-[1px]" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="font-serif text-5xl font-semibold text-white/92">
+                    {getInitials(member.name)}
+                  </span>
+                </div>
+              </div>
+
               <div className="space-y-1">
                 <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark tracking-tight">
                   {member.name}
@@ -185,23 +246,32 @@ function DetailedProfileModal({
             </div>
 
             <aside className="space-y-6">
+              <div className={`relative hidden aspect-square overflow-hidden rounded-2xl border border-white/60 bg-gradient-to-br ${getAvatarGradient(member.id)} shadow-[0_18px_55px_rgba(91,100,114,0.12)] lg:block`}>
+                <div className="absolute inset-0 bg-white/10 backdrop-blur-[1px]" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="font-serif text-5xl font-semibold text-white/92 sm:text-6xl">
+                    {getInitials(member.name)}
+                  </span>
+                </div>
+                <div className="absolute bottom-4 left-4 right-4 rounded-xl border border-white/35 bg-white/18 px-3 py-2 text-left text-white shadow-sm backdrop-blur-md">
+                  <div className="text-[10px] font-mono uppercase tracking-widest text-white/70">profile photo</div>
+                  <div className="mt-0.5 truncate text-sm font-semibold">{member.name}</div>
+                </div>
+              </div>
+
               <section className="bg-white/20 border border-white/40 rounded-2xl p-5">
                 <h3 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-2.5">{t('ui.activitiespage.1f75230b6e')}</h3>
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-mono text-brand-slate font-semibold">{CONTACT_LABELS[member.contactType]}:</span>
-                  <span className="text-sm font-medium text-brand-dark">{member.contact}</span>
-                </div>
+                <p className="text-xs leading-relaxed text-brand-slate">{t('ui.enhancements.privateContact')}</p>
               </section>
 
               {/* Actions */}
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <a
-                  href={contactLink}
-                  target="_blank"
-                  rel="noreferrer"
+                <button
+                  type="button"
+                  onClick={onOpenApplyModal}
                   className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white px-6 py-3 rounded-xl text-xs font-medium shadow-lg shadow-[#bc4638]/20 transition-all cursor-pointer"
                 >
-                  <Send className="w-4 h-4" />{t('ui.findteampage.3765795ef8')}</a>
+                  <Send className="w-4 h-4" />{t('ui.findteampage.3765795ef8')}</button>
                 <button
                   onClick={onOpenApplyModal}
                   className="flex-1 bg-white/40 backdrop-blur-md border border-[#d8d1cc] text-[#5b6472] hover:border-brand-terracotta/60 px-6 py-3 rounded-xl text-xs font-medium transition-all cursor-pointer"
@@ -234,18 +304,27 @@ function ProfileCard({
   return (
     <motion.div
       variants={cardItemFadeUp.variants}
-      className={`bg-white/[0.12] glass-card border border-white/[0.15] rounded-2xl p-5 flex flex-col justify-between transition-[background-color,border-color,box-shadow] duration-300 ${isDimmed ? 'opacity-40 grayscale' : 'hover:bg-white/[0.2] hover:border-brand-terracotta/20'}`}
+      className={`bg-white/[0.12] glass-card surface-elevated-soft border border-white/[0.15] rounded-2xl p-5 flex flex-col justify-between transition-[background-color,border-color,box-shadow] duration-300 ${isDimmed ? 'opacity-40 grayscale' : 'hover:bg-white/[0.2] hover:border-brand-terracotta/20'}`}
     >
       <div className="space-y-3">
         {/* Name + meta */}
         <div className="flex items-start justify-between gap-3">
-          <div className="space-y-0.5">
-            <h3 className="text-base font-serif font-medium text-brand-dark leading-tight">{member.name}</h3>
-            <div className="flex flex-wrap items-center gap-2 text-[10px] font-mono text-brand-slate">
-              <span>{member.age}{t('ui.championshippage.b47dce337d')}</span>
-              <span className="flex items-center gap-0.5">
-                <MapPin className="w-3 h-3" /> {member.country}
-              </span>
+          <div className="flex min-w-0 gap-3">
+            <div
+              className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br ${getAvatarGradient(member.id)} text-sm font-bold text-white shadow-sm`}
+              aria-label={`${member.name}, ${COUNTRY_FLAGS[member.country] || ''} ${member.country}`}
+            >
+              {getInitials(member.name)}
+            </div>
+            <div className="min-w-0 space-y-0.5">
+              <h3 className="text-base font-serif font-medium text-brand-dark leading-tight">{member.name}</h3>
+              <div className="flex flex-wrap items-center gap-2 text-[10px] font-mono text-brand-slate">
+                <span>{member.age}{t('ui.championshippage.b47dce337d')}</span>
+                <span className="flex items-center gap-0.5">
+                  <MapPin className="w-3 h-3" /> {COUNTRY_FLAGS[member.country] || ''} {member.country}
+                </span>
+                <span>UTC+3</span>
+              </div>
             </div>
           </div>
           <span className={`text-[9px] font-mono tracking-wider uppercase px-2 py-0.5 rounded-full border shrink-0 ${
@@ -306,7 +385,7 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="bg-white/[0.08] glass-card border border-white/[0.12] rounded-2xl overflow-hidden transition-all duration-300">
+    <div className="bg-white/[0.08] glass-card surface-elevated-soft border border-white/[0.12] rounded-2xl overflow-hidden transition-all duration-300">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between p-5 text-left font-serif font-semibold text-brand-dark text-sm sm:text-base md:text-lg cursor-pointer"
@@ -340,6 +419,15 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
 export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTeamPageProps) {
   const { t, i18n } = useTranslation();
   const { teamMembers, tournaments } = useLocalizedData();
+  const faqItems = useCmsFaqs(
+    'find-team',
+    FIND_TEAM_FAQ_ITEMS.map<CmsFaqItem>((faq) => ({
+      id: faq.id,
+      page: 'find-team',
+      question: t(faq.question),
+      answer: t(faq.answer),
+    })),
+  );
   // Filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('all');
@@ -357,6 +445,42 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [selectedContactType, setSelectedContactType] = useState('all');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'name'>('newest');
+  const [filtersHydrated, setFiltersHydrated] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setSearchQuery(params.get('q') || '');
+    setSelectedCountry(params.get('country') || 'all');
+    setSelectedAgeRange(params.get('age') || 'all');
+    setSelectedTournament(params.get('tournament') || 'all');
+    setSelectedIntent(params.get('intent') || 'all');
+    setSelectedCity(params.get('city') || 'all');
+    setSelectedRole(params.get('role') || 'all');
+    setSelectedContactType(params.get('contact') || 'all');
+    setSortBy((params.get('sort') as typeof sortBy) || 'newest');
+    setSelectedSkills(params.get('skills')?.split(',').filter(Boolean) || []);
+    setSelectedInterests(params.get('interests')?.split(',').filter(Boolean) || []);
+    setFiltersHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!filtersHydrated) return;
+    const params = new URLSearchParams();
+    if (searchQuery.trim()) params.set('q', searchQuery.trim());
+    if (selectedCountry !== 'all') params.set('country', selectedCountry);
+    if (selectedAgeRange !== 'all') params.set('age', selectedAgeRange);
+    if (selectedTournament !== 'all') params.set('tournament', selectedTournament);
+    if (selectedIntent !== 'all') params.set('intent', selectedIntent);
+    if (selectedCity !== 'all') params.set('city', selectedCity);
+    if (selectedRole !== 'all') params.set('role', selectedRole);
+    if (selectedContactType !== 'all') params.set('contact', selectedContactType);
+    if (sortBy !== 'newest') params.set('sort', sortBy);
+    if (selectedSkills.length) params.set('skills', selectedSkills.join(','));
+    if (selectedInterests.length) params.set('interests', selectedInterests.join(','));
+    const query = params.toString();
+    const nextUrl = `${window.location.pathname}${query ? `?${query}` : ''}`;
+    window.history.replaceState({}, '', nextUrl);
+  }, [filtersHydrated, searchQuery, selectedCountry, selectedAgeRange, selectedTournament, selectedIntent, selectedCity, selectedRole, selectedContactType, sortBy, selectedSkills, selectedInterests]);
 
   useEffect(() => {
     setSelectedCountry('all');
@@ -513,7 +637,7 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
     <div className="relative min-h-screen bg-gradient-to-b from-[#fff8f5] via-[#fffaf7] to-[#fdf6f4] text-[#111111] font-sans overflow-x-hidden">
 
       {/* Background systems */}
-      <div className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply z-0" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/stardust.png')" }}></div>
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply z-0" style={{ backgroundImage: "radial-gradient(circle, #111 0.6px, transparent 0.8px)", backgroundSize: "18px 18px" }}></div>
       <div className="absolute inset-0 pointer-events-none z-0">
         <div className="absolute inset-0 opacity-[0.25]" style={{ backgroundImage: "linear-gradient(#d8d1cc 1px, transparent 1px), linear-gradient(90deg, #d8d1cc 1px, transparent 1px)", backgroundSize: "120px 120px" }}></div>
       </div>
@@ -522,6 +646,7 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
         <div className="absolute top-[15%] left-[-12%] w-[500px] h-[500px] rounded-full blur-[130px] opacity-15 animate-ambient-2" style={{ background: "radial-gradient(circle at 60% 40%, #e28fb1, #bd5b82 65%, transparent)" }}></div>
         <div className="absolute bottom-[10%] left-[-5%] w-[400px] h-[400px] rounded-full blur-[100px] opacity-10 animate-ambient-4" style={{ background: "radial-gradient(circle, #bc4638, #f38b76 60%, transparent)" }}></div>
       </div>
+      <StudyBackground />
 
       {/* ======================== HERO BLOCK ======================== */}
       <section className="relative z-10 pt-24 pb-12 md:pt-24 md:pb-16 max-w-7xl mx-auto px-[6%] md:px-[10%]">
@@ -535,27 +660,35 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
           </button>
         </div>
 
-        <motion.div {...heroFadeUpLarge} className="mx-auto max-w-4xl space-y-8 text-center">
+        <motion.div {...heroFadeUpLarge} className="grid gap-8 md:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)] md:items-center">
 
-          <div className="space-y-4">
+          <div className="space-y-6 text-left">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-brand-dark tracking-tight leading-tight">{t('ui.app.d13f387e64')}</h1>
-            <p className="mx-auto max-w-3xl text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.findteampage.801f72c2a4')}</p>
-          </div>
+            <p className="max-w-3xl text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.findteampage.801f72c2a4')}</p>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4">
-            <button
-              onClick={onOpenApplyModal}
-              className="px-8 py-4 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white rounded-2xl text-sm font-medium shadow-xl shadow-[#bc4638]/25 hover:shadow-[#bc4638]/35 hover:scale-[1.01] transition-all flex items-center justify-center gap-2.5 cursor-pointer group"
-            >{t('ui.app.8c26059674')}<ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </button>
-            <button
-              onClick={() => {
-                const el = document.getElementById('profiles-section');
-                el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }}
-              className="px-8 py-4 bg-white/40 backdrop-blur-md border border-[#d8d1cc] hover:border-[#bc4638]/60 rounded-2xl text-sm font-medium text-[#5b6472] hover:text-[#bc4638] transition-all text-center cursor-pointer"
-            >{t('ui.findteampage.83874460f8')}</button>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+              <button
+                onClick={onOpenApplyModal}
+                className="px-8 py-4 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white rounded-2xl text-sm font-medium shadow-xl shadow-[#bc4638]/25 hover:shadow-[#bc4638]/35 hover:scale-[1.01] transition-all flex items-center justify-center gap-2.5 cursor-pointer group"
+              >{t('ui.app.8c26059674')}<ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </button>
+              <button
+                onClick={() => {
+                  const el = document.getElementById('profiles-section');
+                  el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                className="px-8 py-4 bg-white/40 backdrop-blur-md border border-[#d8d1cc] hover:border-[#bc4638]/60 rounded-2xl text-sm font-medium text-[#5b6472] hover:text-[#bc4638] transition-all text-center cursor-pointer"
+              >{t('ui.findteampage.83874460f8')}</button>
+            </div>
           </div>
+          <BrandImage
+            src="/images/find-team/team-discussion.jpg"
+            alt={t('ui.enhancements.findTeamHeroAlt')}
+            aspectRatio="4 / 3"
+            objectPosition="50% 38%"
+            sizes="(min-width: 768px) 42vw, 100vw"
+            overlay
+          />
         </motion.div>
       </section>
 
@@ -780,7 +913,7 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
                           className={FIND_TEAM_FIELD_CLASS}
                         />
                         {skillInput.trim() && filteredSkillOptions.length > 0 && (
-                          <div className="absolute z-20 mt-1 w-full bg-white/95 backdrop-blur-md border border-white/60 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                          <div className="absolute z-20 mt-1 w-full bg-white/95 backdrop-blur-md border border-white/60 rounded-xl shadow-lg max-h-48 overflow-y-auto scrollbar-soft">
                             {filteredSkillOptions
                               .filter((s) => !selectedSkills.includes(s))
                               .slice(0, 30)
@@ -826,7 +959,7 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
                           className={FIND_TEAM_FIELD_CLASS}
                         />
                         {interestInput.trim() && filteredInterestOptions.length > 0 && (
-                          <div className="absolute z-20 mt-1 w-full bg-white/95 backdrop-blur-md border border-white/60 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                          <div className="absolute z-20 mt-1 w-full bg-white/95 backdrop-blur-md border border-white/60 rounded-xl shadow-lg max-h-48 overflow-y-auto scrollbar-soft">
                             {filteredInterestOptions
                               .filter((i) => !selectedInterests.includes(i))
                               .slice(0, 30)
@@ -927,29 +1060,33 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
 
       {/* ======================== SAFETY & TRUST ======================== */}
       <section className="relative z-10 py-12 md:py-16 max-w-7xl mx-auto px-[6%] md:px-[10%]">
-        <motion.div {...fadeUp} className="text-center max-w-3xl mx-auto space-y-3 mb-10">
-          <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark tracking-tight">{t('ui.findteampage.e1cd2e34c2')}</h2>
-          <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.findteampage.fc35e86bc0')}</p>
+        <motion.div {...fadeUp} className="ml-auto mb-10 max-w-3xl space-y-3 text-right">
+          <h2 className="text-3xl font-serif text-brand-dark tracking-tight sm:text-4xl md:text-5xl">{t('ui.findteampage.e1cd2e34c2')}</h2>
+          <p className="ml-auto max-w-2xl text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.findteampage.fc35e86bc0')}</p>
         </motion.div>
         <motion.div {...cardStaggerContainer} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {[
             {
-              icon: <ShieldCheck className="w-5 h-5 text-emerald-600" />,
+              Icon: ShieldCheck,
+              iconColor: 'text-emerald-600/[0.13]',
               title: t('ui.findteampage.068a88033b'),
               desc: t('ui.findteampage.3db06b0fab'),
             },
             {
-              icon: <EyeOff className="w-5 h-5 text-brand-terracotta" />,
+              Icon: EyeOff,
+              iconColor: 'text-brand-terracotta/[0.14]',
               title: t('ui.findteampage.fb356b50e3'),
               desc: t('ui.findteampage.fdb87a056d'),
             },
             {
-              icon: <MessageSquare className="w-5 h-5 text-brand-rose-deep" />,
+              Icon: MessageSquare,
+              iconColor: 'text-brand-rose-deep/[0.13]',
               title: t('ui.findteampage.a85a36cdb3'),
               desc: t('ui.findteampage.4ee576bd39'),
             },
             {
-              icon: <LifeBuoy className="w-5 h-5 text-brand-coral" />,
+              Icon: LifeBuoy,
+              iconColor: 'text-brand-coral/[0.14]',
               title: t('ui.findteampage.b574813bb4'),
               desc: t('ui.findteampage.9a780980af'),
             },
@@ -957,15 +1094,15 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
             <motion.div
               key={item.title}
               variants={cardItemFadeUp.variants}
-              className="bg-white/[0.12] glass-card border border-white/[0.15] p-6 rounded-2xl hover:bg-white/[0.2] transition-[background-color,border-color,box-shadow] duration-300"
+              className="group relative overflow-hidden bg-white/[0.12] glass-card surface-elevated-soft border border-white/[0.15] p-6 rounded-2xl hover:bg-white/[0.2] hover:border-[#bc4638]/25 transition-[background-color,border-color,box-shadow,transform] duration-300 hover:-translate-y-1"
             >
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white/40 border border-white/80 flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.4)]">
-                  {item.icon}
-                </div>
-                  <h3 className="text-sm font-serif font-medium leading-tight text-brand-dark">{item.title}</h3>
-                </div>
+              <item.Icon
+                className={`pointer-events-none absolute left-5 top-1/2 h-16 w-16 -translate-y-1/2 select-none ${item.iconColor} transition-transform duration-300 group-hover:scale-105`}
+                aria-hidden="true"
+                strokeWidth={1.45}
+              />
+              <div className="relative space-y-3 pl-20">
+                <h3 className="text-base font-serif font-semibold leading-tight text-brand-dark sm:text-lg">{item.title}</h3>
                 <p className="text-xs text-brand-slate font-normal md:font-light leading-relaxed">{item.desc}</p>
               </div>
             </motion.div>
@@ -977,7 +1114,7 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
       <section className="relative z-10 py-12 md:py-16 max-w-7xl mx-auto px-[6%] md:px-[10%]">
         <motion.div
           {...fadeInScale}
-          className="bg-gradient-to-br from-[#bc4638]/5 via-white/[0.12] to-[#bd5b82]/8 glass-xl border border-white/[0.15] rounded-3xl p-8 sm:p-12 text-center space-y-6"
+          className="bg-gradient-to-br from-[#bc4638]/5 via-white/[0.12] to-[#bd5b82]/8 glass-xl surface-elevated border border-white/[0.15] rounded-3xl p-8 sm:p-12 text-center space-y-6"
         >
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif text-brand-dark tracking-tight">
             {t('ui.findteampage.53a61877')}</h2>
@@ -996,26 +1133,9 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
           <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark">{t('ui.findteampage.f119ad282e')}</h2>
         </motion.div>
         <motion.div {...fadeUp} className="space-y-4">
-          <FAQItem
-            question={t('ui.findteampage.6954042f')}
-            answer={t('ui.findteampage.a264de7b48')}
-          />
-          <FAQItem
-            question={t('ui.findteampage.291b48f0')}
-            answer={t('ui.findteampage.c4adff98dd')}
-          />
-          <FAQItem
-            question={t('ui.findteampage.32c49e31')}
-            answer={t('ui.findteampage.bb017e0e8a')}
-          />
-          <FAQItem
-            question={t('ui.findteampage.5167e97a')}
-            answer={t('ui.findteampage.b734b04eb7')}
-          />
-          <FAQItem
-            question={t('ui.findteampage.27f20eac')}
-            answer={t('ui.findteampage.a80b8b09d5')}
-          />
+          {faqItems.map((faq) => (
+            <FAQItem key={faq.id} question={faq.question} answer={faq.answer} />
+          ))}
         </motion.div>
       </section>
 

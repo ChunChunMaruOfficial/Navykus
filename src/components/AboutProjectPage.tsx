@@ -27,6 +27,9 @@ import {
   cardStaggerContainer,
   cardItemFadeUp,
 } from '../motion-animations';
+import { useCmsFaqs } from '../hooks/useCmsFaqs';
+import type { FaqItem } from '../types';
+import BrandImage from './BrandImage';
 
 interface Segment {
   id: string;
@@ -44,7 +47,7 @@ interface ActivityItem {
 }
 
 
-interface FAQItem {
+interface FallbackFAQItem {
   id: string;
   question: string;
   answer: string;
@@ -139,7 +142,7 @@ const ACTIVITIES_ITEMS: ActivityItem[] = [
 ];
 
 
-const FAQ_ITEMS: FAQItem[] = [
+const FAQ_ITEMS: FallbackFAQItem[] = [
   {
     id: "faq-1",
     question: 'ui.aboutprojectpage.4b5e0f1908',
@@ -187,6 +190,15 @@ export default function AboutProjectPage({
   
   const [selectedSegmentIdx, setSelectedSegmentIdx] = useState(0);
   const [activeFaqIdx, setActiveFaqIdx] = useState<number | null>(null);
+  const faqItems = useCmsFaqs(
+    'about',
+    FAQ_ITEMS.map<FaqItem>((faq) => ({
+      id: faq.id,
+      page: 'about',
+      question: t(faq.question),
+      answer: t(faq.answer),
+    })),
+  );
 
   const handleNavigateFromAbout = (sectionId: string) => {
     onBackToHome();
@@ -210,44 +222,45 @@ export default function AboutProjectPage({
           </button>
         </div>
 
-        {/* 1. HERO BLOCK (Clean editorial text layout) */}
-        <section className="relative z-10 text-center space-y-6 max-w-3xl mx-auto py-16 md:py-24">
-          <motion.h1 
-            {...heroFadeUp}
-            transition={{ duration: 0.6, delay: 0 }}
-            className="text-4xl sm:text-5xl md:text-6xl font-serif font-light italic tracking-tight text-brand-dark leading-tight"
-          >{t('ui.aboutprojectpage.e260b399ab')}</motion.h1>
-          
-          <motion.p 
-            {...heroFadeUp}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-brand-slate text-sm sm:text-base md:text-lg leading-relaxed font-normal md:font-light"
-          >{t('ui.aboutprojectpage.ac15bd8cf7')}</motion.p>
-
-          <motion.div 
-            {...heroFadeUp}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
-          >
-            <button
-              onClick={onOpenApplyModal}
-              className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white rounded-xl text-xs font-mono tracking-widest uppercase font-semibold shadow-lg shadow-[#bc4638]/15 hover:scale-[1.01] transition-all flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <span>{t('ui.aboutprojectpage.2805697540')}</span>
-              <ArrowUpRight className="w-4 h-4" />
-            </button>
-
-            <button
-              onClick={() => handleNavigateFromAbout('nearest-championship')}
-              className="w-full sm:w-auto px-8 py-3.5 bg-white border border-[#d8d1cc] text-[#5b6472] hover:border-[#bc4638]/60 rounded-xl text-xs font-mono tracking-widest uppercase transition-all text-center cursor-pointer hover:text-brand-dark"
-            >{t('ui.aboutprojectpage.0a09c52fdd')}</button>
+        {/* 1. HERO BLOCK */}
+        <section className="relative z-10 grid gap-8 pb-12 md:grid-cols-[minmax(0,1fr)_minmax(320px,0.86fr)] md:items-center md:pb-16">
+          <motion.div {...heroFadeUp} className="space-y-6 text-left">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif font-light italic tracking-tight text-brand-dark leading-tight">
+              {t('ui.aboutprojectpage.e260b399ab')}
+            </h1>
+            <p className="max-w-2xl text-brand-slate text-sm sm:text-base md:text-lg leading-relaxed font-normal md:font-light">
+              {t('ui.aboutprojectpage.ac15bd8cf7')}
+            </p>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
+              <button
+                onClick={onOpenApplyModal}
+                className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white rounded-xl text-xs font-mono tracking-widest uppercase font-semibold shadow-lg shadow-[#bc4638]/15 hover:scale-[1.01] transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>{t('ui.aboutprojectpage.2805697540')}</span>
+                <ArrowUpRight className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => handleNavigateFromAbout('nearest-championship')}
+                className="w-full sm:w-auto px-8 py-3.5 bg-white border border-[#d8d1cc] text-[#5b6472] hover:border-[#bc4638]/60 rounded-xl text-xs font-mono tracking-widest uppercase transition-all text-center cursor-pointer hover:text-brand-dark"
+              >{t('ui.aboutprojectpage.0a09c52fdd')}</button>
+            </div>
+          </motion.div>
+          <motion.div {...heroFadeUp} transition={{ duration: 0.6, delay: 0.1 }} className="relative">
+            <BrandImage
+              src="/images/about/about-community.jpg"
+              alt={t('ui.enhancements.aboutHeroAlt')}
+              aspectRatio="4 / 3"
+              objectPosition="50% 36%"
+              sizes="(min-width: 768px) 42vw, 100vw"
+              overlay
+            />
           </motion.div>
         </section>
 
         {/* 2. MISSION BLOCK */}
         <motion.section 
           {...fadeUp}
-          className="relative z-10 py-16 md:py-24 bg-white/[0.10] glass-xl border border-white/[0.15] rounded-3xl px-6 sm:px-12 text-center overflow-hidden"
+          className="relative z-10 py-16 md:py-24 bg-white/[0.10] glass-xl surface-elevated border border-white/[0.15] rounded-3xl px-6 sm:px-12 text-center overflow-hidden"
         >
           {/* Faint watermark logo */}
           <div className="absolute inset-0 flex items-center justify-center opacity-[0.06] pointer-events-none select-none z-0 -translate-y-12">
@@ -287,17 +300,38 @@ export default function AboutProjectPage({
             </svg>
           </div>
 
-          <div className="relative z-10 max-w-4xl mx-auto space-y-8">
-            <h2 className="text-3xl sm:text-4xl font-serif text-brand-dark tracking-tight">{t('ui.aboutprojectpage.10575c4831')}</h2>
-            
-            <p className="text-base sm:text-lg text-brand-dark font-medium leading-relaxed italic">{t('ui.aboutprojectpage.3841022721')}</p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10 text-left pt-4">
-              <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.aboutprojectpage.05c82da787')}</p>
-              <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.aboutprojectpage.c2b671bade')}</p>
+          <div className="relative z-10 mx-auto max-w-6xl space-y-8 text-left">
+            <div className="grid gap-8 md:grid-cols-[0.9fr_1.1fr] md:items-center">
+              <div className="relative -mx-6 -mt-16 h-52 overflow-hidden rounded-t-3xl bg-gradient-to-br from-[#bc4638]/15 to-[#bd5b82]/15 sm:-mx-12 md:hidden">
+                <img
+                  src="/images/about/mentor-discussion.jpg"
+                  alt={t('ui.enhancements.aboutMissionAlt')}
+                  className="h-full w-full object-cover [mask-image:linear-gradient(to_bottom,#000_0%,#000_68%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,#000_0%,#000_68%,transparent_100%)]"
+                  loading="lazy"
+                />
+              </div>
+              <div className="hidden md:block">
+                <BrandImage
+                  src="/images/about/mentor-discussion.jpg"
+                  alt={t('ui.enhancements.aboutMissionAlt')}
+                  aspectRatio="4 / 3"
+                  objectPosition="50% 40%"
+                  sizes="(min-width: 768px) 38vw, 100vw"
+                />
+              </div>
+              <div className="space-y-6">
+                <h2 className="text-3xl sm:text-4xl font-serif text-brand-dark tracking-tight">{t('ui.aboutprojectpage.10575c4831')}</h2>
+              
+                <p className="text-base sm:text-lg text-brand-dark font-medium leading-relaxed italic">{t('ui.aboutprojectpage.3841022721')}</p>
+              </div>
             </div>
 
-            <div className="pt-6">
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.aboutprojectpage.05c82da787')}</p>
+                <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.aboutprojectpage.c2b671bade')}</p>
+              </div>
+
               <p className="text-xs sm:text-sm font-mono tracking-wide text-[#bc4638] font-semibold">{t('ui.aboutprojectpage.4d60e65bd8')}</p>
             </div>
           </div>
@@ -317,11 +351,26 @@ export default function AboutProjectPage({
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
             {/* Segments list switcher buttons */}
-            <div className="lg:col-span-5 flex flex-row lg:flex-col overflow-x-auto lg:overflow-visible gap-2 pb-3 lg:pb-0 scrollbar-none snap-x">
+            <div className="lg:col-span-5 flex flex-row lg:flex-col overflow-x-auto lg:overflow-visible gap-2 pb-3 lg:pb-0 scrollbar-soft snap-x" role="tablist" aria-orientation="vertical">
               {AUDIENCE_SEGMENTS.map((seg, idx) => (
                 <button
                   key={seg.id}
+                  id={`audience-tab-${seg.id}`}
+                  role="tab"
+                  aria-selected={selectedSegmentIdx === idx}
+                  aria-controls={`audience-panel-${seg.id}`}
+                  tabIndex={selectedSegmentIdx === idx ? 0 : -1}
                   onClick={() => setSelectedSegmentIdx(idx)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
+                      event.preventDefault();
+                      setSelectedSegmentIdx((idx + 1) % AUDIENCE_SEGMENTS.length);
+                    }
+                    if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
+                      event.preventDefault();
+                      setSelectedSegmentIdx((idx - 1 + AUDIENCE_SEGMENTS.length) % AUDIENCE_SEGMENTS.length);
+                    }
+                  }}
                   className={`flex-shrink-0 snap-start w-64 lg:w-full text-left px-5 py-4 rounded-2xl transition-all border ${
                     selectedSegmentIdx === idx 
                       ? 'bg-brand-dark text-white border-brand-dark shadow-md' 
@@ -348,11 +397,14 @@ export default function AboutProjectPage({
               <AnimatePresence mode="wait">
                 <motion.div
                   key={selectedSegmentIdx}
+                  id={`audience-panel-${AUDIENCE_SEGMENTS[selectedSegmentIdx].id}`}
+                  role="tabpanel"
+                  aria-labelledby={`audience-tab-${AUDIENCE_SEGMENTS[selectedSegmentIdx].id}`}
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.3 }}
-                  className="bg-white/[0.15] glass-panel border border-white/[0.15] rounded-3xl p-6 sm:p-8 text-left space-y-6"
+                  className="bg-white/[0.15] glass-panel surface-elevated border border-white/[0.15] rounded-3xl p-6 sm:p-8 text-left space-y-6"
                 >
                   <div className="space-y-1.5 pb-4">
                     <span className="text-[10px] font-mono uppercase tracking-widest text-[#bc4638] font-bold">{t('ui.aboutprojectpage.7a0e44e136')}</span>
@@ -415,23 +467,31 @@ export default function AboutProjectPage({
           <motion.div {...cardStaggerContainer} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {ACTIVITIES_ITEMS.map((item, idx) => {
               const icons = [Award, Compass, Users, GraduationCap, Calendar, Activity];
+              const iconColors = [
+                'text-[#bc4638]/[0.14]',
+                'text-[#bd5b82]/[0.14]',
+                'text-[#2f6f73]/[0.13]',
+                'text-[#c08a3e]/[0.15]',
+                'text-[#5b6472]/[0.14]',
+                'text-[#8d3026]/[0.13]',
+              ];
               const SelectedIcon = icons[idx % icons.length];
 
               return (
                 <motion.div 
                   key={item.id}
                   variants={cardItemFadeUp.variants}
-                  className="bg-white/[0.12] glass-card border border-white/[0.15] hover:border-brand-terracotta/25 rounded-2xl p-6 text-left flex flex-col justify-between space-y-4 group"
+                  className="group relative overflow-hidden bg-white/[0.12] glass-card surface-elevated-soft border border-white/[0.15] hover:border-brand-terracotta/25 rounded-2xl p-6 text-left flex flex-col justify-between space-y-4"
                 >
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-[#bc4638]/5 text-[#bc4638] flex items-center justify-center transition-transform duration-500 group-hover:scale-110 shrink-0">
-                        <SelectedIcon className="w-5 h-5" />
-                      </div>
-                      <h3 className="text-sm font-serif font-semibold leading-tight text-brand-dark">
-                        {t(item.title)}
-                      </h3>
-                    </div>
+                  <SelectedIcon
+                    className={`pointer-events-none absolute right-5 top-4 h-16 w-16 select-none transition-transform duration-500 group-hover:scale-110 ${iconColors[idx % iconColors.length]}`}
+                    aria-hidden="true"
+                    strokeWidth={1.5}
+                  />
+                  <div className="space-y-3 pr-12">
+                    <h3 className="text-lg sm:text-xl font-serif font-semibold leading-tight text-brand-dark">
+                      {t(item.title)}
+                    </h3>
                     <div className="space-y-1">
                       <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">
                         {t(item.description)}
@@ -454,16 +514,18 @@ export default function AboutProjectPage({
           </motion.div>
 
           <div className="space-y-4">
-            {FAQ_ITEMS.map((faq, idx) => (
+            {faqItems.map((faq, idx) => (
               <div 
                 key={faq.id} 
-                className="bg-white/[0.10] glass-card border border-white/[0.12] rounded-2xl overflow-hidden transition-all duration-300"
+                className="bg-white/[0.10] glass-card surface-elevated-soft border border-white/[0.12] rounded-2xl overflow-hidden transition-all duration-300"
               >
                 <button
                   onClick={() => setActiveFaqIdx(activeFaqIdx === idx ? null : idx)}
+                  aria-expanded={activeFaqIdx === idx}
+                  aria-controls={`about-faq-panel-${faq.id}`}
                   className="w-full flex items-center justify-between p-5 text-left font-serif font-semibold text-brand-dark text-base md:text-lg cursor-pointer"
                 >
-                  <span>{t(faq.question)}</span>
+                  <span>{faq.question}</span>
                   <ChevronDown className={`w-4 h-4 text-brand-slate/60 transition-transform duration-300 flex-shrink-0 ${activeFaqIdx === idx ? 'rotate-180' : ''}`} />
                 </button>
                 
@@ -474,10 +536,11 @@ export default function AboutProjectPage({
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.25 }}
+                      id={`about-faq-panel-${faq.id}`}
                       className="overflow-hidden"
                     >
                       <p className="p-5 pt-0 text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed bg-white/10 text-left">
-                        {t(faq.answer)}
+                        {faq.answer}
                       </p>
                     </motion.div>
                   )}
@@ -491,7 +554,7 @@ export default function AboutProjectPage({
         <section className="relative z-10 py-16 md:py-24 max-w-5xl mx-auto">
           <motion.div
             {...fadeInScale}
-            className="bg-gradient-to-br from-[#bc4638]/8 via-white/[0.12] to-[#bd5b82]/8 glass-xl border border-white/[0.15] rounded-3xl p-8 sm:p-12 text-center space-y-6"
+            className="bg-gradient-to-br from-[#bc4638]/8 via-white/[0.12] to-[#bd5b82]/8 glass-xl surface-elevated border border-white/[0.15] rounded-3xl p-8 sm:p-12 text-center space-y-6"
           >
             <span className="text-[10px] font-mono tracking-[0.2em] text-[#bc4638] uppercase font-bold">{t('ui.aboutprojectpage.4d545fb6ff')}</span>
             

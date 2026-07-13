@@ -1,4 +1,4 @@
-import type { ApplicationForm } from './types';
+import type { ApplicationForm, FaqItem, PageKey } from './types';
 
 const env = (import.meta as any).env || {};
 const API_BASE_URL = env.VITE_API_URL || (env.DEV ? 'http://localhost:4000' : '');
@@ -59,6 +59,16 @@ export const submitCommunityLead = async (payload: {
 
   if (!response.ok) {
     throw new Error('Failed to submit community lead');
+  }
+
+  return response.json();
+};
+
+export const fetchFaqs = async (page: PageKey): Promise<FaqItem[]> => {
+  const response = await fetch(apiUrl(`/api/faqs?page=${encodeURIComponent(page)}`));
+
+  if (!response.ok) {
+    throw new Error('Failed to load FAQs');
   }
 
   return response.json();

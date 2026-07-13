@@ -1,6 +1,7 @@
 import type {
   ActivityItem,
   Expert,
+  FaqItem,
   Pillar,
   TeamMember,
   Tournament,
@@ -95,3 +96,9 @@ export const normalizeStat = (doc: any) => ({
   label: doc.label,
 });
 
+export const normalizeFaq = (doc: any): FaqItem => ({
+  id: publicId(doc),
+  page: doc.page,
+  question: doc.question,
+  answer: doc.answer,
+});

@@ -1,0 +1,62 @@
+[
+  {
+    "filename": "/images/home/navykus-hero-team.jpg",
+    "sourceUrl": "https://images.pexels.com/photos/5212697/pexels-photo-5212697.jpeg?auto=compress&cs=tinysrgb&w=1800",
+    "sourcePage": "https://www.pexels.com/photo/a-two-girls-using-laptop-with-classmates-5212697/",
+    "purpose": "Главный hero домашней страницы"
+  },
+  {
+    "filename": "/images/home/community-classroom.jpg",
+    "sourceUrl": "https://images.pexels.com/photos/5212678/pexels-photo-5212678.jpeg?auto=compress&cs=tinysrgb&w=1600",
+    "sourcePage": "https://www.pexels.com/photo/a-boys-and-girls-in-the-classroom-5212678/",
+    "purpose": "Атмосфера сообщества на домашней странице"
+  },
+  {
+    "filename": "/images/about/about-community.jpg",
+    "sourceUrl": "https://images.pexels.com/photos/5212352/pexels-photo-5212352.jpeg?auto=compress&cs=tinysrgb&w=1800",
+    "sourcePage": "https://www.pexels.com/photo/group-of-students-with-their-teacher-5212352/",
+    "purpose": "Hero страницы о проекте"
+  },
+  {
+    "filename": "/images/about/mentor-discussion.jpg",
+    "sourceUrl": "https://images.pexels.com/photos/5940836/pexels-photo-5940836.jpeg?auto=compress&cs=tinysrgb&w=1600",
+    "sourcePage": "https://www.pexels.com/photo/multiethnic-students-and-teacher-listening-report-of-student-5940836/",
+    "purpose": "Блок миссии и наставничества"
+  },
+  {
+    "filename": "/images/championship/championship-presentation.jpg",
+    "sourceUrl": "https://images.pexels.com/photos/7743257/pexels-photo-7743257.jpeg?auto=compress&cs=tinysrgb&w=1800",
+    "sourcePage": "https://www.pexels.com/photo/students-making-a-report-inside-the-classroom-7743257/",
+    "purpose": "Hero и карточка чемпионата"
+  },
+  {
+    "filename": "/images/championship/technology-case.jpg",
+    "sourceUrl": "https://images.pexels.com/photos/7742832/pexels-photo-7742832.jpeg?auto=compress&cs=tinysrgb&w=1600",
+    "sourcePage": "https://www.pexels.com/photo/boy-and-girl-standing-in-front-of-computer-screen-7742832/",
+    "purpose": "Описание технологического кейса"
+  },
+  {
+    "filename": "/images/activities/public-speaking-workshop.jpg",
+    "sourceUrl": "https://images.pexels.com/photos/17558086/pexels-photo-17558086.jpeg?auto=compress&cs=tinysrgb&w=1600",
+    "sourcePage": "https://www.pexels.com/photo/young-woman-speaking-on-a-microphone-in-a-class-17558086/",
+    "purpose": "Карточка мастер-класса по публичным выступлениям"
+  },
+  {
+    "filename": "/images/find-team/team-discussion.jpg",
+    "sourceUrl": "https://images.pexels.com/photos/5940846/pexels-photo-5940846.jpeg?auto=compress&cs=tinysrgb&w=1800",
+    "sourcePage": "https://www.pexels.com/photo/multiracial-students-sitting-together-and-listening-to-classmate-5940846/",
+    "purpose": "Hero страницы поиска команды"
+  },
+  {
+    "filename": "/images/opportunities/volunteer-project.jpg",
+    "sourceUrl": "https://images.pexels.com/photos/9620524/pexels-photo-9620524.jpeg?auto=compress&cs=tinysrgb&w=1400",
+    "sourcePage": "https://www.pexels.com/photo/four-people-collecting-garbage-9620524/",
+    "purpose": "Волонтерская возможность"
+  },
+  {
+    "filename": "/images/activities/technology-workshop.jpg",
+    "sourceUrl": "https://images.pexels.com/photos/7859354/pexels-photo-7859354.jpeg?auto=compress&cs=tinysrgb&w=1400",
+    "sourcePage": "https://www.pexels.com/photo/a-man-repairing-a-computer-7859354/",
+    "purpose": "Технологический воркшоп"
+  }
+]

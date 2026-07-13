@@ -2,6 +2,7 @@ import React, { lazy, Suspense, useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import {
+  ArrowUp,
   ArrowUpRight,
   Clock,
   ChevronDown,
@@ -13,7 +14,9 @@ import {
 } from 'lucide-react';
 import GlassCrystal from './components/GlassCrystal';
 import ApplicationModal from './components/ApplicationModal';
+import BrandImage from './components/BrandImage';
 import PageSkeleton from './components/PageSkeletons';
+import StudyBackground from './components/StudyBackground';
 import { submitCommunityLead } from './api';
 import { LANGUAGE_FLAGS, SUPPORTED_LANGUAGES, savePreferredLanguage, type SupportedLanguage } from './i18n/languages';
 import { useLocalizedData } from './i18n/useLocalizedData';
@@ -40,6 +43,23 @@ const TITLE_KEYS: Record<Page, string> = {
   championship: 'meta.championship.title',
   activities: 'meta.activities.title',
   'find-team': 'meta.findTeam.title',
+};
+
+const DESCRIPTION_KEYS: Record<Page, string> = {
+  home: 'meta.home.description',
+  about: 'meta.home.description',
+  championship: 'meta.home.description',
+  activities: 'meta.home.description',
+  'find-team': 'meta.home.description',
+};
+
+const upsertMeta = (selector: string, attributes: Record<string, string>) => {
+  let element = document.head.querySelector<HTMLMetaElement>(selector);
+  if (!element) {
+    element = document.createElement('meta');
+    document.head.appendChild(element);
+  }
+  Object.entries(attributes).forEach(([name, value]) => element?.setAttribute(name, value));
 };
 
 const cardStaggerContainer = {
@@ -110,8 +130,19 @@ export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTourney, setSelectedTourney] = useState<string | undefined>(undefined);
   const [showHeader, setShowHeader] = useState(true);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const displayedTrustPoints = trustPoints.length === 5
+    ? [
+      ...trustPoints,
+      {
+        id: 'tr-6',
+        title: 'Понятная траектория роста',
+        description: 'Участник видит следующий шаг: от первой идеи и командной работы до защиты проекта, сертификата и портфолио.',
+      },
+    ]
+    : trustPoints;
 
   useEffect(() => {
     const handlePopState = () => {
@@ -123,11 +154,29 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    document.title = t(TITLE_KEYS[currentPage]);
+    const title = t(TITLE_KEYS[currentPage]);
+    const description = t(DESCRIPTION_KEYS[currentPage]);
+    const canonicalHref = `${window.location.origin}${currentPage === 'home' ? '/' : `/${currentPage}`}`;
+    document.title = title;
     const metaDescription = document.querySelector<HTMLMetaElement>('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.content = t('meta.home.description');
+      metaDescription.content = description;
     }
+    let canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.rel = 'canonical';
+      document.head.appendChild(canonical);
+    }
+    canonical.href = canonicalHref;
+    upsertMeta('meta[property="og:title"]', { property: 'og:title', content: title });
+    upsertMeta('meta[property="og:description"]', { property: 'og:description', content: description });
+    upsertMeta('meta[property="og:type"]', { property: 'og:type', content: 'website' });
+    upsertMeta('meta[property="og:url"]', { property: 'og:url', content: canonicalHref });
+    upsertMeta('meta[property="og:image"]', { property: 'og:image', content: `${window.location.origin}/images/home/navykus-hero-team.jpg` });
+    upsertMeta('meta[name="twitter:card"]', { name: 'twitter:card', content: 'summary_large_image' });
+    upsertMeta('meta[name="twitter:title"]', { name: 'twitter:title', content: title });
+    upsertMeta('meta[name="twitter:description"]', { name: 'twitter:description', content: description });
   }, [currentPage, t, i18n.resolvedLanguage, i18n.language]);
 
   const updatePath = (page: Page) => {
@@ -173,6 +222,7 @@ export default function App() {
 
       window.requestAnimationFrame(() => {
         const currentScrollY = window.scrollY;
+        setShowScrollTop(currentScrollY > 520);
 
         if (currentScrollY <= 40) {
           setShowHeader(true);
@@ -188,10 +238,15 @@ export default function App() {
     };
 
     prevScrollYRef.current = window.scrollY;
+    setShowScrollTop(window.scrollY > 520);
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const openApplyModal = (tournamentId?: string) => {
     setSelectedTourney(tournamentId);
@@ -296,7 +351,7 @@ export default function App() {
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-[#fff8f5] via-[#fffaf7] to-[#fdf6f4] text-[#111111] font-sans overflow-x-hidden selection:bg-brand-pink-dust/30 selection:text-brand-dark">
 
-      <div className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply z-0" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/stardust.png')" }}></div>
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply z-0" style={{ backgroundImage: "radial-gradient(circle, #111 0.6px, transparent 0.8px)", backgroundSize: "18px 18px" }}></div>
 
       <div id="grid-background-system" className="absolute inset-0 pointer-events-none z-0">
         <div className="absolute inset-0 opacity-[0.25]" style={{ backgroundImage: "linear-gradient(#d8d1cc 1px, transparent 1px), linear-gradient(90deg, #d8d1cc 1px, transparent 1px)", backgroundSize: "120px 120px" }}></div>
@@ -361,6 +416,8 @@ export default function App() {
           </svg>
         </div>
       </div>
+
+      {currentPage !== 'find-team' && <StudyBackground />}
 
       <motion.header
         id="navbar-system"
@@ -593,13 +650,21 @@ export default function App() {
             </motion.div>
 
             <motion.div {...cardStaggerContainer} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {pillars.map((pillar) => (
+              {pillars.map((pillar, index) => {
+                const PillarIcon = [Globe, CheckCircle2, Clock][index % 3];
+                return (
                 <motion.div
                   key={pillar.title}
                   variants={cardItemFadeUp.variants}
-                  className="bg-white/[0.12] glass-xl border border-white/[0.15] p-6 sm:p-7 rounded-2xl hover:bg-white/[0.2] hover:border-white/[0.25] transition-[background-color,border-color,box-shadow] duration-300 flex flex-col justify-between"
+                  tabIndex={0}
+                  className="group relative overflow-hidden bg-white/[0.12] glass-xl surface-elevated-soft border border-white/[0.15] p-6 sm:p-7 rounded-2xl hover:bg-white/[0.2] hover:border-[#bc4638]/25 focus-visible:ring-2 focus-visible:ring-[#bc4638]/25 transition-[background-color,border-color,box-shadow,transform] duration-300 flex flex-col justify-between hover:-translate-y-1"
                 >
-                  <div className="space-y-4">
+                  <PillarIcon
+                    className="pointer-events-none absolute right-5 top-3 h-14 w-14 select-none text-[#bc4638]/[0.11] transition-transform duration-300 group-hover:scale-105"
+                    aria-hidden="true"
+                    strokeWidth={1.5}
+                  />
+                  <div className="space-y-4 pr-10">
                     <div className="font-mono text-[11px] sm:text-[10px] text-[#bd5b82] font-semibold tracking-wider">
                       {pillar.label}
                     </div>
@@ -611,16 +676,26 @@ export default function App() {
                     </p>
                   </div>
                 </motion.div>
-              ))}
+              );
+              })}
             </motion.div>
           </section>
 
           <section id="nearest-championship" className="relative z-10 py-16 md:py-20 max-w-7xl mx-auto px-[6%] md:px-[10%] section-accent-rose">
             <motion.div
               {...fadeUpLarge}
-              className="bg-white/[0.12] glass-xl border border-white/[0.15] rounded-3xl p-6 sm:p-10 lg:p-12 grid grid-cols-1 gap-8 items-center"
+              className="overflow-hidden bg-white/[0.12] glass-xl surface-elevated border border-white/[0.15] rounded-3xl"
             >
-              <div className="space-y-6 text-left">
+              <BrandImage
+                src="/images/championship/championship-presentation.jpg"
+                alt={t('ui.enhancements.championshipCardAlt')}
+                aspectRatio="32 / 7"
+                objectPosition="50% 38%"
+                sizes="(min-width: 1280px) 1100px, 100vw"
+                className="rounded-none border-0 shadow-none"
+                overlay
+              />
+              <div className="space-y-6 p-6 text-left sm:p-8 lg:p-10">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-[11px] sm:text-[10px] font-mono tracking-wider text-[#bc4638] bg-[#bc4638]/10 px-2.5 py-1 rounded-md uppercase font-semibold">{t('ui.app.8ca84fc116')}</span>
                   <span className="text-[10px] font-mono text-brand-slate flex items-center gap-1.5 bg-white/40 px-2.5 py-1 rounded-md border border-white/60">
@@ -654,19 +729,15 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-white/60 bg-white/35 p-4 shadow-[0_12px_35px_rgba(91,100,114,0.06)] backdrop-blur-md">
-                  <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                <div className="rounded-2xl border border-white/60 bg-white/35 p-4 surface-elevated-soft backdrop-blur-md">
+                  <div className="mb-3">
                     <h4 className="text-xl font-serif font-semibold leading-tight text-brand-dark sm:text-2xl">
                       {t('ui.app.2060fe9f62')}
                     </h4>
-                    <p className="max-w-md text-xs leading-relaxed text-brand-slate">{t('ui.app.5c6f09e45e')}</p>
                   </div>
                   <div className="grid gap-3 md:grid-cols-3">
-                    {experts.slice(0, 3).map((expert, expertIdx) => (
+                    {experts.slice(0, 3).map((expert) => (
                       <div key={expert.id} className="rounded-xl border border-white/55 bg-white/45 p-3">
-                        <div className="mb-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#bc4638]/10 text-xs font-mono font-semibold text-[#8d3026]">
-                          {expertIdx + 1}
-                        </div>
                         <div className="font-serif text-base font-semibold leading-tight text-brand-dark">{expert.name}</div>
                         <div className="mt-1 text-[11px] leading-relaxed text-brand-slate">{expert.role}</div>
                       </div>
@@ -682,9 +753,10 @@ export default function App() {
                   ))}
                 </div>
 
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-4">
                   <button onClick={() => openApplyModal(nearestTournament.id)} className="px-6 py-3 bg-[#bc4638] text-white hover:bg-[#bc4638]/90 text-xs sm:text-sm font-mono tracking-wider rounded-xl transition-all shadow-md shadow-[#bc4638]/15 cursor-pointer text-center font-medium">{t('ui.app.762a52a7bb')}</button>
-                  <button onClick={() => { setCurrentPage('find-team'); updatePath('find-team'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="px-6 py-3 bg-white/40 border border-[#d8d1cc] text-[#5b6472] hover:border-brand-dark/40 text-xs sm:text-sm font-mono tracking-wider rounded-xl transition-all cursor-pointer text-center">{t('ui.app.e975e8b6a4')}</button>
+                  <button onClick={() => { setCurrentPage('championship'); updatePath('championship'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="px-6 py-3 bg-white/40 border border-[#d8d1cc] text-[#5b6472] hover:border-brand-dark/40 text-xs sm:text-sm font-mono tracking-wider rounded-xl transition-all cursor-pointer text-center">{t('ui.app.2f57076dbe')}</button>
+                  <button onClick={() => { setCurrentPage('find-team'); updatePath('find-team'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="px-6 py-3 bg-white/40 border border-[#d8d1cc] text-[#5b6472] hover:border-brand-dark/40 text-xs sm:text-sm font-mono tracking-wider rounded-xl transition-all cursor-pointer text-center">{t('ui.app.d13f387e64')}</button>
                 </div>
               </div>
 
@@ -694,7 +766,7 @@ export default function App() {
           <section id="embedded-application-form" className="relative z-10 py-16 md:py-24 max-w-7xl mx-auto px-[6%] md:px-[10%]">
             <motion.div
               {...fadeUpLarge}
-              className="bg-white/[0.12] glass-xl border border-white/[0.15] rounded-3xl p-6 sm:p-10 lg:p-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
+              className="bg-white/[0.12] glass-xl surface-elevated border border-white/[0.15] rounded-3xl p-6 sm:p-10 lg:p-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
             >
               <div className="lg:col-span-5 space-y-4 text-left">
                 <span className="text-[11px] sm:text-[10px] font-mono tracking-[0.2em] text-[#bc4638] bg-[#bc4638]/5 px-3 py-1 rounded-full uppercase font-semibold">{t('ui.app.3abf2464ad')}</span>
@@ -715,7 +787,7 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="lg:col-span-7 bg-white/[0.15] glass-panel border border-white/[0.15] rounded-2xl p-6 sm:p-8">
+              <div className="lg:col-span-7 bg-white/[0.15] glass-panel surface-elevated-soft border border-white/[0.15] rounded-2xl p-6 sm:p-8">
                 <AnimatePresence mode="wait">
                   {formSubmitStatus === 'success' ? (
                     <motion.div
@@ -812,12 +884,13 @@ export default function App() {
             </motion.div>
 
             <motion.div {...cardStaggerContainer} className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {trustPoints.map((item, index) => (
+              {displayedTrustPoints.map((item, index) => (
                 <motion.div
                   key={item.id}
                   variants={cardItemFadeUp.variants}
-                  className={`relative overflow-hidden bg-white/[0.12] glass-card border border-white/[0.15] p-6 rounded-2xl flex flex-col justify-between ${index === 0 || index === 3 ? 'md:col-span-2' : 'md:col-span-1'
-                    }`}
+                  className={`relative overflow-hidden bg-white/[0.12] glass-card surface-elevated-soft border border-white/[0.15] p-6 rounded-2xl flex flex-col justify-between ${
+                    index === 0 || index === 3 || index === 4 ? 'md:col-span-2' : 'md:col-span-1'
+                  }`}
                 >
                   <div className="pointer-events-none absolute right-5 top-3 select-none font-serif text-5xl leading-none text-[#bc4638]/[0.11]">
                     {index + 1}
@@ -834,7 +907,7 @@ export default function App() {
           <section id="final-cta" className="relative z-10 py-16 md:py-24 max-w-5xl mx-auto px-[6%] md:px-[10%] section-accent-rose">
             <motion.div
               {...fadeInScale}
-              className="bg-gradient-to-br from-[#bc4638]/8 via-white/[0.12] to-[#bd5b82]/8 glass-xl border border-white/[0.15] rounded-3xl p-8 sm:p-12 text-center space-y-6"
+              className="bg-gradient-to-br from-[#bc4638]/8 via-white/[0.12] to-[#bd5b82]/8 glass-xl surface-elevated border border-white/[0.15] rounded-3xl p-8 sm:p-12 text-center space-y-6"
             >
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif text-brand-dark tracking-tight leading-tight max-w-2xl mx-auto">
                 {t('ui.app.e07687c4')}</h2>
@@ -935,6 +1008,23 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      <AnimatePresence>
+        {showScrollTop && (
+          <motion.button
+            type="button"
+            aria-label="Наверх"
+            onClick={scrollToTop}
+            initial={{ opacity: 0, y: 18, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 14, scale: 0.94 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed bottom-5 right-5 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-white/65 bg-white/45 text-[#bc4638] shadow-[0_16px_45px_rgba(27,24,22,0.12)] backdrop-blur-xl transition-[background-color,border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-[#bc4638]/35 hover:bg-white/70 hover:shadow-[0_18px_52px_rgba(188,70,56,0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#bc4638]/35 sm:bottom-6 sm:right-6 sm:h-12 sm:w-12"
+          >
+            <ArrowUp className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={1.8} />
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       <ApplicationModal
         isOpen={isModalOpen}

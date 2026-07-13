@@ -47,6 +47,15 @@ import {
   heroFadeUpLarge,
 } from '../motion-animations';
 import type { SupportedLanguage } from '../i18n/languages';
+import BrandImage from './BrandImage';
+
+const catalogStaggerContainer = {
+  ...cardStaggerContainer,
+  viewport: {
+    ...cardStaggerContainer.viewport,
+    margin: '0px 0px 260px 0px',
+  },
+};
 
 type CategoryId =
   | 'championships'
@@ -261,6 +270,7 @@ const UI = {
   noResults: lt({ ru: '\u041d\u0438\u0447\u0435\u0433\u043e \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e', en: 'No results', kk: '\u0415\u0448\u0442\u0435\u04a3\u0435 \u0442\u0430\u0431\u044b\u043b\u043c\u0430\u0434\u044b', uz: 'Natija topilmadi', ar: 'لا توجد نتائج', de: 'Keine Ergebnisse', es: 'Sin resultados', tr: 'Sonuç yok' }),
   clearFilters: lt({ ru: '\u041e\u0447\u0438\u0441\u0442\u0438\u0442\u044c \u0444\u0438\u043b\u044c\u0442\u0440\u044b', en: 'Clear filters', kk: '\u0421\u04af\u0437\u0433\u0456\u043b\u0435\u0440\u0434\u0456 \u0442\u0430\u0437\u0430\u043b\u0430\u0443', uz: 'Filtrlarni tozalash', ar: 'مسح الفلاتر', de: 'Filter löschen', es: 'Limpiar filtros', tr: 'Filtreleri temizle' }),
   recommendationsTitle: lt({ ru: '\u041f\u0435\u0440\u0441\u043e\u043d\u0430\u043b\u044c\u043d\u044b\u0439 \u043f\u043e\u0434\u0431\u043e\u0440', en: 'Personal matching', kk: '\u0416\u0435\u043a\u0435 \u0442\u0430\u04a3\u0434\u0430\u0443', uz: 'Shaxsiy tanlov', ar: 'ترشيح شخصي', de: 'Persönliche Empfehlung', es: 'Selección personal', tr: 'Kişisel eşleştirme' }),
+  recommendationsDescription: lt({ ru: 'Подбор учитывает возраст, класс, формат участия, интересы и то, где вы уже пробовали себя: кейсы, исследования, командные проекты и смежные навыки.', en: 'Matching uses your age, grade, preferred format, interests, and what you have already tried: cases, research, team projects, and related skills.', kk: 'Matching uses your age, grade, preferred format, interests, and what you have already tried.', uz: 'Matching uses your age, grade, preferred format, interests, and what you have already tried.', ar: 'Matching uses your age, grade, preferred format, interests, and what you have already tried.', de: 'Matching uses your age, grade, preferred format, interests, and what you have already tried.', es: 'Matching uses your age, grade, preferred format, interests, and what you have already tried.', tr: 'Matching uses your age, grade, preferred format, interests, and what you have already tried.' }),
   favoritesTitle: lt({ ru: '\u0418\u0437\u0431\u0440\u0430\u043d\u043d\u044b\u0435 \u0432\u043e\u0437\u043c\u043e\u0436\u043d\u043e\u0441\u0442\u0438', en: 'Favorite opportunities', kk: '\u0422\u0430\u04a3\u0434\u0430\u0443\u043b\u044b \u043c\u04af\u043c\u043a\u0456\u043d\u0434\u0456\u043a\u0442\u0435\u0440', uz: 'Sevimli imkoniyatlar', ar: 'الفرص المفضلة', de: 'Favorisierte Chancen', es: 'Oportunidades favoritas', tr: 'Favori fırsatlar' }),
   compareTitle: lt({ ru: '\u0421\u0440\u0430\u0432\u043d\u0435\u043d\u0438\u0435 \u0432\u043e\u0437\u043c\u043e\u0436\u043d\u043e\u0441\u0442\u0435\u0439', en: 'Opportunity comparison', kk: '\u041c\u04af\u043c\u043a\u0456\u043d\u0434\u0456\u043a\u0442\u0435\u0440\u0434\u0456 \u0441\u0430\u043b\u044b\u0441\u0442\u044b\u0440\u0443', uz: 'Imkoniyatlarni solishtirish', ar: 'مقارنة الفرص', de: 'Chancenvergleich', es: 'Comparación de oportunidades', tr: 'Fırsat karşılaştırması' }),
   submitTitle: lt({ ru: '\u041f\u0440\u0435\u0434\u043b\u043e\u0436\u0438\u0442\u044c \u0432\u043e\u0437\u043c\u043e\u0436\u043d\u043e\u0441\u0442\u044c', en: 'Submit an opportunity', kk: '\u041c\u04af\u043c\u043a\u0456\u043d\u0434\u0456\u043a \u04b1\u0441\u044b\u043d\u0443', uz: 'Imkoniyat taklif qilish', ar: 'اقترح فرصة', de: 'Chance einreichen', es: 'Proponer oportunidad', tr: 'Fırsat öner' }),
@@ -373,7 +383,7 @@ const OPPORTUNITIES: Opportunity[] = [
     registrationOpen: true,
     seats: 96,
     savedCount: 318,
-    imageUrl: '/assets/images/glass_crystal_prism_1783500841986.jpg',
+    imageUrl: '/images/championship/championship-presentation.jpg',
     editorPick: true,
     recommended: true,
     requirements: [skill('\u041a\u043e\u043c\u0430\u043d\u0434\u0430 3-5 \u0447\u0435\u043b\u043e\u0432\u0435\u043a \u0438\u043b\u0438 \u0433\u043e\u0442\u043e\u0432\u043d\u043e\u0441\u0442\u044c \u043d\u0430\u0439\u0442\u0438 \u043a\u043e\u043c\u0430\u043d\u0434\u0443', 'Team of 3-5 or readiness to find one', '3-5 \u0430\u0434\u0430\u043c\u043d\u0430\u043d \u043a\u043e\u043c\u0430\u043d\u0434\u0430 \u043d\u0435\u043c\u0435\u0441\u0435 \u043e\u043d\u044b \u0442\u0430\u0431\u0443\u0493\u0430 \u0434\u0430\u0439\u044b\u043d\u0434\u044b\u049b', '3-5 kishilik jamoa yoki jamoa topishga tayyorlik', 'فريق من 3-5 أو استعداد لإيجاد فريق', 'Team von 3-5 oder Bereitschaft zur Teamsuche', 'Equipo de 3-5 o disposición a encontrar uno', '3-5 kişilik takım veya takım bulma isteği')],
@@ -408,7 +418,7 @@ const OPPORTUNITIES: Opportunity[] = [
     registrationOpen: true,
     seats: 40,
     savedCount: 204,
-    imageUrl: '/assets/images/glass_crystal_prism_1783500841986.jpg',
+    imageUrl: '/images/activities/cover-educational.svg',
     editorPick: true,
     recommended: true,
     requirements: [skill('\u0418\u043d\u0442\u0435\u0440\u0435\u0441 \u043a \u0438\u0441\u0441\u043b\u0435\u0434\u043e\u0432\u0430\u0442\u0435\u043b\u044c\u0441\u043a\u043e\u0439 \u0442\u0435\u043c\u0435', 'Interest in a research topic', '\u0417\u0435\u0440\u0442\u0442\u0435\u0443 \u0442\u0430\u049b\u044b\u0440\u044b\u0431\u044b\u043d\u0430 \u049b\u044b\u0437\u044b\u0493\u0443\u0448\u044b\u043b\u044b\u049b', 'Tadqiqot mavzusiga qiziqish', 'اهتمام بموضوع بحثي', 'Interesse an einem Forschungsthema', 'Interés por un tema de investigación', 'Araştırma konusuna ilgi')],
@@ -443,7 +453,7 @@ const OPPORTUNITIES: Opportunity[] = [
     registrationOpen: true,
     seats: 160,
     savedCount: 411,
-    imageUrl: '/assets/images/glass_crystal_prism_1783500841986.jpg',
+    imageUrl: '/images/championship/technology-case.jpg',
     editorPick: true,
     recommended: true,
     requirements: [skill('\u041d\u043e\u0443\u0442\u0431\u0443\u043a \u0438 \u0431\u0430\u0437\u043e\u0432\u044b\u0439 \u043e\u043f\u044b\u0442 \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u043c\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u044f', 'Laptop and basic coding experience', '\u041d\u043e\u0443\u0442\u0431\u0443\u043a \u0436\u04d9\u043d\u0435 \u0431\u0430\u0493\u0434\u0430\u0440\u043b\u0430\u043c\u0430\u043b\u0430\u0443 \u043d\u0435\u0433\u0456\u0437\u0434\u0435\u0440\u0456', 'Noutbuk va dasturlash asoslari', 'حاسوب وخبرة برمجة أساسية', 'Laptop und Coding-Grundlagen', 'Portátil y programación básica', 'Dizüstü bilgisayar ve temel kodlama')],
@@ -479,7 +489,7 @@ const OPPORTUNITIES: Opportunity[] = [
     registrationOpen: true,
     seats: 24,
     savedCount: 156,
-    imageUrl: '/assets/images/glass_crystal_prism_1783500841986.jpg',
+    imageUrl: '/images/activities/cover-educational.svg',
     editorPick: false,
     recommended: true,
     requirements: [skill('\u041a\u043e\u0440\u043e\u0442\u043a\u043e\u0435 \u043c\u043e\u0442\u0438\u0432\u0430\u0446\u0438\u043e\u043d\u043d\u043e\u0435 \u043f\u0438\u0441\u044c\u043c\u043e', 'Short motivation letter', '\u049a\u044b\u0441\u049b\u0430 \u043c\u043e\u0442\u0438\u0432\u0430\u0446\u0438\u044f\u043b\u044b\u049b \u0445\u0430\u0442', 'Qisqa motivatsion xat', 'رسالة دافع قصيرة', 'Kurzes Motivationsschreiben', 'Carta breve de motivación', 'Kısa motivasyon mektubu')],
@@ -515,7 +525,7 @@ const OPPORTUNITIES: Opportunity[] = [
     registrationOpen: true,
     seats: 30,
     savedCount: 92,
-    imageUrl: '/assets/images/glass_crystal_prism_1783500841986.jpg',
+    imageUrl: '/images/activities/cover-project.svg',
     editorPick: false,
     recommended: false,
     requirements: [skill('\u041f\u043e\u0440\u0442\u0444\u043e\u043b\u0438\u043e \u0438\u043b\u0438 \u043a\u043e\u0440\u043e\u0442\u043a\u043e\u0435 \u0434\u0438\u0437\u0430\u0439\u043d-\u0437\u0430\u0434\u0430\u043d\u0438\u0435', 'Portfolio or short design task', '\u041f\u043e\u0440\u0442\u0444\u043e\u043b\u0438\u043e \u043d\u0435\u043c\u0435\u0441\u0435 \u049b\u044b\u0441\u049b\u0430 \u0434\u0438\u0437\u0430\u0439\u043d \u0442\u0430\u043f\u0441\u044b\u0440\u043c\u0430\u0441\u044b', 'Portfolio yoki qisqa dizayn vazifasi', 'ملف أو مهمة تصميم قصيرة', 'Portfolio oder kurze Designaufgabe', 'Portafolio o tarea breve', 'Portfolyo veya kısa tasarım görevi')],
@@ -550,7 +560,7 @@ const OPPORTUNITIES: Opportunity[] = [
     registrationOpen: true,
     seats: 120,
     savedCount: 187,
-    imageUrl: '/assets/images/glass_crystal_prism_1783500841986.jpg',
+    imageUrl: '/images/opportunities/volunteer-project.jpg',
     editorPick: false,
     recommended: true,
     requirements: [skill('2-3 \u0447\u0430\u0441\u0430 \u0432 \u043d\u0435\u0434\u0435\u043b\u044e', '2-3 hours per week', '\u0410\u043f\u0442\u0430\u0441\u044b\u043d\u0430 2-3 \u0441\u0430\u0493\u0430\u0442', 'Haftasiga 2-3 soat', '2-3 ساعات أسبوعياً', '2-3 Stunden pro Woche', '2-3 horas por semana', 'Haftada 2-3 saat')],
@@ -586,7 +596,7 @@ const OPPORTUNITIES: Opportunity[] = [
     registrationOpen: true,
     seats: 500,
     savedCount: 275,
-    imageUrl: '/assets/images/glass_crystal_prism_1783500841986.jpg',
+    imageUrl: '/images/activities/cover-educational.svg',
     editorPick: false,
     recommended: false,
     requirements: [skill('\u0411\u0430\u0437\u043e\u0432\u0430\u044f \u043c\u0430\u0442\u0435\u043c\u0430\u0442\u0438\u043a\u0430 \u0438 \u0432\u043d\u0438\u043c\u0430\u0442\u0435\u043b\u044c\u043d\u043e\u0441\u0442\u044c', 'Basic math and attention', '\u041d\u0435\u0433\u0456\u0437\u0433\u0456 \u043c\u0430\u0442\u0435\u043c\u0430\u0442\u0438\u043a\u0430 \u0436\u04d9\u043d\u0435 \u043c\u04b1\u049b\u0438\u044f\u0442\u0442\u044b\u049b', 'Asosiy matematika va e’tibor', 'رياضيات أساسية وانتباه', 'Grundlagenmathe und Aufmerksamkeit', 'Matemática básica y atención', 'Temel matematik ve dikkat')],
@@ -756,9 +766,18 @@ function OpportunityCard({
   return (
     <motion.article
       {...cardItemFadeUp}
-      className="group relative flex h-full min-h-[520px] flex-col overflow-hidden rounded-[1.35rem] border border-white/65 bg-white/46 shadow-[0_18px_55px_rgba(91,100,114,0.09)] backdrop-blur-xl transition-transform duration-300 hover:-translate-y-1"
+      className="group relative flex h-full min-h-[520px] flex-col overflow-hidden rounded-[1.35rem] border border-white/65 bg-white/46 surface-elevated-soft backdrop-blur-xl transition-transform duration-300 hover:-translate-y-1"
     >
-      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#bc4638] via-[#bd5b82] to-[#c9a96e]" />
+      <div className="overflow-hidden bg-white/36">
+        <BrandImage
+          src={opportunity.imageUrl}
+          alt={pick(opportunity.title, language)}
+          aspectRatio="16 / 9"
+          objectPosition={opportunity.category === 'volunteering' ? '50% 48%' : '50% 50%'}
+          sizes="(min-width: 1024px) 30vw, 100vw"
+          className="rounded-none border-0 shadow-none"
+        />
+      </div>
       <div className="flex min-h-0 flex-1 flex-col p-5 sm:p-6">
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wider ${
@@ -1194,10 +1213,27 @@ export default function OpportunitiesPage({
               {pick(UI.matchMe, language)}
             </button>
           </div>
+          {urgent.length > 0 && (
+            <div className="rounded-[1.5rem] border border-[#bc4638]/12 bg-[#bc4638]/7 p-4 surface-elevated-soft backdrop-blur-md">
+              <h2 className="mb-3 flex items-center gap-2 text-lg font-serif font-semibold text-brand-dark">
+                <CalendarClock className="h-5 w-5 text-[#bc4638]" />
+                {pick(UI.urgent, language)}
+              </h2>
+              <div className="grid gap-3 md:grid-cols-3">
+                {urgent.slice(0, 3).map((opportunity) => (
+                  <button key={opportunity.id} onClick={() => navigate(`/opportunities/${opportunity.slug}`)} className="rounded-2xl bg-white/55 p-4 text-left text-xs text-brand-slate">
+                    <span className="font-semibold text-[#bc4638]">{getDaysLeft(opportunity.deadline)} {pick(UI.daysLeft, language)}</span>
+                    <div className="mt-1 font-serif text-base font-semibold text-brand-dark">{pick(opportunity.title, language)}</div>
+                    <div className="mt-1">{opportunity.registrationOpen ? pick(UI.registrationOpen, language) : pick(UI.registrationClosed, language)}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </motion.div>
 
         {!embedded && (
-        <motion.div {...fadeInScale} className="relative hidden min-h-[330px] overflow-hidden rounded-[2rem] border border-white/60 bg-white/35 shadow-[0_24px_70px_rgba(189,91,130,0.12)] backdrop-blur-xl lg:block">
+        <motion.div {...fadeInScale} className="relative hidden min-h-[330px] overflow-hidden rounded-[2rem] border border-white/60 bg-white/35 surface-elevated backdrop-blur-xl lg:block">
           <div className="absolute inset-0 bg-gradient-to-br from-[#bc4638]/8 via-transparent to-[#bd5b82]/12" />
           <div className="absolute inset-0 scale-90">
             <GlassCrystal />
@@ -1212,7 +1248,7 @@ export default function OpportunitiesPage({
       </section>
 
       <section className={catalogSectionClass}>
-        <motion.div {...fadeUp} className="flex gap-2 overflow-x-auto pb-3 scrollbar-none" aria-label={pick(OPPORTUNITIES_NAV_LABELS, language)}>
+        <motion.div {...fadeUp} className="flex gap-2 overflow-x-auto pb-3 scrollbar-soft" aria-label={pick(OPPORTUNITIES_NAV_LABELS, language)}>
           {CATEGORIES.map((category) => {
             const isActive = filters.category === category.id;
             return (
@@ -1248,7 +1284,7 @@ export default function OpportunitiesPage({
             <span className="inline-flex items-center gap-2"><Filter className="h-4 w-4" />{pick(UI.filters, language)}</span>
             <ChevronDown className={`h-4 w-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
           </button>
-          <div className={`${showFilters ? 'grid' : 'hidden'} gap-4 rounded-[1.35rem] border border-white/60 bg-white/42 p-4 backdrop-blur-xl lg:grid`}>
+          <div className={`${showFilters ? 'grid' : 'hidden'} gap-4 rounded-[1.35rem] border border-white/60 bg-white/42 p-4 surface-elevated-soft backdrop-blur-xl lg:grid`}>
             <SelectField label={pick(UI.filters, language)} value={filters.direction} onChange={(value) => updateFilters({ direction: value as DirectionId | 'all' })} options={[{ value: 'all', label: pick(UI.all, language) }, ...Object.entries(DIRECTIONS).map(([value, label]) => ({ value, label: pick(label, language) }))]} />
             <SelectField label={pick(UI.formatLabel, language)} value={filters.format} onChange={(value) => updateFilters({ format: value as FormatId | 'all' })} options={[{ value: 'all', label: pick(UI.all, language) }, ...Object.entries(FORMATS).map(([value, label]) => ({ value, label: pick(label, language) }))]} />
             <SelectField label={pick(UI.sourceLabel, language)} value={filters.source} onChange={(value) => updateFilters({ source: value as SourceId | 'all' })} options={[{ value: 'all', label: pick(UI.all, language) }, { value: 'navykus', label: pick(UI.fromNavykus, language) }, { value: 'verified', label: pick(UI.verified, language) }, { value: 'partner', label: pick(UI.partner, language) }]} />
@@ -1283,7 +1319,7 @@ export default function OpportunitiesPage({
         </aside>
 
         <div>
-          <div className="mb-4 flex flex-col gap-3 rounded-[1.25rem] border border-white/60 bg-white/35 p-3 backdrop-blur-md sm:flex-row sm:items-center sm:justify-between">
+          <div className="mb-4 flex flex-col gap-3 rounded-[1.25rem] border border-white/60 bg-white/35 p-3 surface-elevated-soft backdrop-blur-md sm:flex-row sm:items-center sm:justify-between">
             <div className="text-xs font-mono uppercase tracking-widest text-brand-slate" aria-live="polite">
               <strong className="text-brand-dark">{filtered.length}</strong> {pick(UI.results, language)}
             </div>
@@ -1299,7 +1335,7 @@ export default function OpportunitiesPage({
             <SkeletonGrid />
           ) : visibleItems.length > 0 ? (
             <>
-              <motion.div {...cardStaggerContainer} className="grid items-stretch gap-5 lg:grid-cols-2">
+              <motion.div {...catalogStaggerContainer} className="grid items-stretch gap-5 lg:grid-cols-2">
                 {visibleItems.map(renderCard)}
               </motion.div>
               {visibleCount < filtered.length && (
@@ -1312,7 +1348,7 @@ export default function OpportunitiesPage({
               )}
             </>
           ) : (
-            <div className="rounded-[1.5rem] border border-white/60 bg-white/45 p-8 text-center backdrop-blur-md">
+            <div className="rounded-[1.5rem] border border-white/60 bg-white/45 p-8 text-center surface-elevated-soft backdrop-blur-md">
               <Search className="mx-auto mb-3 h-8 w-8 text-brand-slate/60" />
               <h3 className="font-serif text-2xl font-semibold text-brand-dark">{pick(UI.noResults, language)}</h3>
               <button onClick={() => { resetFilters(); searchInputRef.current?.focus(); }} className="mt-5 inline-flex min-h-11 items-center rounded-xl bg-brand-dark px-5 text-xs font-semibold text-white">
@@ -1334,7 +1370,7 @@ export default function OpportunitiesPage({
               <button
                 key={opportunity.id}
                 onClick={() => navigate(`/opportunities/${opportunity.slug}`)}
-                className="rounded-2xl border border-white/60 bg-white/40 p-4 text-left shadow-[0_12px_35px_rgba(91,100,114,0.07)] backdrop-blur-md transition-transform hover:-translate-y-0.5"
+                className="rounded-2xl border border-white/60 bg-white/40 p-4 text-left surface-elevated-soft backdrop-blur-md transition-transform hover:-translate-y-0.5"
               >
                 <span className="mb-3 inline-flex rounded-full bg-[#bc4638]/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#8d3026]">
                   {getSourceLabel(opportunity.source, language)}
@@ -1347,25 +1383,6 @@ export default function OpportunitiesPage({
         </section>
       )}
 
-      {urgent.length > 0 && (
-        <section className={`${catalogSectionClass} pb-8`}>
-          <div className="rounded-[1.5rem] border border-[#bc4638]/12 bg-[#bc4638]/7 p-4 backdrop-blur-md">
-            <h2 className="mb-3 flex items-center gap-2 text-lg font-serif font-semibold text-brand-dark">
-              <CalendarClock className="h-5 w-5 text-[#bc4638]" />
-              {pick(UI.urgent, language)}
-            </h2>
-            <div className="grid gap-3 md:grid-cols-3">
-              {urgent.slice(0, 3).map((opportunity) => (
-                <button key={opportunity.id} onClick={() => navigate(`/opportunities/${opportunity.slug}`)} className="rounded-2xl bg-white/55 p-4 text-left text-xs text-brand-slate">
-                  <span className="font-semibold text-[#bc4638]">{getDaysLeft(opportunity.deadline)} {pick(UI.daysLeft, language)}</span>
-                  <div className="mt-1 font-serif text-base font-semibold text-brand-dark">{pick(opportunity.title, language)}</div>
-                  <div className="mt-1">{opportunity.registrationOpen ? pick(UI.registrationOpen, language) : pick(UI.registrationClosed, language)}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
     </>
   );
 
@@ -1398,7 +1415,7 @@ export default function OpportunitiesPage({
           {pick(OPPORTUNITIES_NAV_LABELS, language)}
         </button>
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
-          <motion.article {...fadeUpLarge} className="overflow-hidden rounded-[2rem] border border-white/65 bg-white/42 shadow-[0_24px_80px_rgba(91,100,114,0.11)] backdrop-blur-xl">
+          <motion.article {...fadeUpLarge} className="overflow-hidden rounded-[2rem] border border-white/65 bg-white/42 surface-elevated backdrop-blur-xl">
             <div className="relative h-56 overflow-hidden bg-gradient-to-br from-[#bc4638]/15 to-[#bd5b82]/15 sm:h-72">
               <img src={selectedOpportunity.imageUrl} alt={pick(selectedOpportunity.title, language)} className="h-full w-full object-cover opacity-45" loading="lazy" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#fffaf7] via-[#fffaf7]/40 to-transparent" />
@@ -1436,7 +1453,7 @@ export default function OpportunitiesPage({
           </motion.article>
 
           <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
-            <div className="rounded-[1.5rem] border border-white/65 bg-white/48 p-5 shadow-[0_18px_55px_rgba(91,100,114,0.09)] backdrop-blur-xl">
+            <div className="rounded-[1.5rem] border border-white/65 bg-white/48 p-5 surface-elevated-soft backdrop-blur-xl">
               <div className="mb-4 grid gap-2 text-xs text-brand-slate">
                 <span className="inline-flex items-center gap-2"><MapPin className="h-4 w-4 text-[#bd5b82]" />{pick(selectedOpportunity.country, language)}, {pick(selectedOpportunity.city, language)}</span>
                 <span className="inline-flex items-center gap-2"><Users className="h-4 w-4 text-[#6b8f71]" />{pick(PARTICIPATION[selectedOpportunity.participation], language)}</span>
@@ -1512,13 +1529,41 @@ export default function OpportunitiesPage({
     const matches = [...OPPORTUNITIES].sort((a, b) => (quizScores[b.id] || 0) - (quizScores[a.id] || 0));
     return (
       <section className={pageShellClass}>
-        <Header title={pick(UI.recommendationsTitle, language)} language={language} />
+        <Header
+          title={pick(UI.recommendationsTitle, language)}
+          description={pick(UI.recommendationsDescription, language)}
+          language={language}
+        />
         <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
-          <div className="rounded-[1.5rem] border border-white/60 bg-white/42 p-5 backdrop-blur-xl">
+          <div className="rounded-[1.5rem] border border-white/60 bg-white/42 p-5 surface-elevated-soft backdrop-blur-xl">
             <div className="grid gap-4">
               <div className="grid grid-cols-2 gap-2">
-                <label className="grid gap-2 text-[10px] font-mono uppercase tracking-widest text-brand-dark/70">{pick(UI.ageLabel, language)}<input value={quiz.age} onChange={(event) => setQuiz({ ...quiz, age: event.target.value })} className="min-h-11 rounded-xl border border-[#d8d1cc] bg-white/70 px-3 text-xs outline-none" /></label>
-                <label className="grid gap-2 text-[10px] font-mono uppercase tracking-widest text-brand-dark/70">{pick(UI.gradeLabel, language)}<input value={quiz.grade} onChange={(event) => setQuiz({ ...quiz, grade: event.target.value })} className="min-h-11 rounded-xl border border-[#d8d1cc] bg-white/70 px-3 text-xs outline-none" /></label>
+                <label className="grid gap-2 text-[10px] font-mono uppercase tracking-widest text-brand-dark/70">
+                  {pick(UI.ageLabel, language)}
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min={10}
+                    max={19}
+                    placeholder="15"
+                    value={quiz.age}
+                    onChange={(event) => setQuiz({ ...quiz, age: event.target.value.replace(/\D/g, '').slice(0, 2) })}
+                    className="min-h-11 w-full rounded-xl border border-[#d8d1cc] bg-white/70 px-3 text-xs normal-case tracking-normal text-brand-dark outline-none focus:border-brand-dark/45"
+                  />
+                </label>
+                <label className="grid gap-2 text-[10px] font-mono uppercase tracking-widest text-brand-dark/70">
+                  {pick(UI.gradeLabel, language)}
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min={5}
+                    max={11}
+                    placeholder="9"
+                    value={quiz.grade}
+                    onChange={(event) => setQuiz({ ...quiz, grade: event.target.value.replace(/\D/g, '').slice(0, 2) })}
+                    className="min-h-11 w-full rounded-xl border border-[#d8d1cc] bg-white/70 px-3 text-xs normal-case tracking-normal text-brand-dark outline-none focus:border-brand-dark/45"
+                  />
+                </label>
               </div>
               <SelectField label={pick(UI.formatLabel, language)} value={quiz.format} onChange={(value) => setQuiz({ ...quiz, format: value as QuizState['format'] })} options={[{ value: 'any', label: pick(UI.any, language) }, ...Object.entries(FORMATS).map(([value, label]) => ({ value, label: pick(label, language) }))]} />
               <SelectField label={pick(UI.costLabel, language)} value={quiz.cost} onChange={(value) => setQuiz({ ...quiz, cost: value as QuizState['cost'] })} options={[{ value: 'any', label: pick(UI.any, language) }, ...Object.entries(COSTS).map(([value, label]) => ({ value, label: pick(label, language) }))]} />
@@ -1559,7 +1604,7 @@ export default function OpportunitiesPage({
       <section className={pageShellClass}>
         <Header title={pick(UI.compareTitle, language)} language={language} />
         {items.length ? (
-          <div className="overflow-x-auto rounded-[1.5rem] border border-white/60 bg-white/42 p-4 backdrop-blur-xl">
+          <div className="overflow-x-auto scrollbar-soft rounded-[1.5rem] border border-white/60 bg-white/42 p-4 surface-elevated-soft backdrop-blur-xl">
             <table className="min-w-[760px] w-full border-separate border-spacing-0 text-left text-sm">
               <tbody>
                 {[
@@ -1597,7 +1642,7 @@ export default function OpportunitiesPage({
     return (
       <section className={narrowPageShellClass}>
         <Header title={pick(UI.submitTitle, language)} language={language} />
-        <form onSubmit={submitProposal} className="grid gap-4 rounded-[1.5rem] border border-white/60 bg-white/42 p-6 backdrop-blur-xl">
+        <form onSubmit={submitProposal} className="grid gap-4 rounded-[1.5rem] border border-white/60 bg-white/42 p-6 surface-elevated-soft backdrop-blur-xl">
           {(['title', 'organizer', 'link'] as const).map((field) => (
             <label key={field} className="grid gap-2 text-[10px] font-mono uppercase tracking-widest text-brand-dark/70">
               {field === 'title' ? pick(UI.titleLabel, language) : field === 'organizer' ? pick(UI.organizerLabel, language) : pick(UI.linkLabel, language)}
@@ -1622,7 +1667,7 @@ export default function OpportunitiesPage({
     <section className={pageShellClass}>
       <Header title={pick(UI.profileTitle, language)} language={language} />
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-[1.5rem] border border-white/60 bg-white/42 p-5 backdrop-blur-xl">
+        <div className="rounded-[1.5rem] border border-white/60 bg-white/42 p-5 surface-elevated-soft backdrop-blur-xl">
           <h2 className="mb-4 font-serif text-2xl font-semibold text-brand-dark">{pick(UI.tracker, language)}</h2>
           <div className="grid gap-3">
             {applications.length ? applications.map((application) => {
@@ -1636,7 +1681,7 @@ export default function OpportunitiesPage({
             }) : <EmptyState language={language} />}
           </div>
         </div>
-        <div className="rounded-[1.5rem] border border-white/60 bg-white/42 p-5 backdrop-blur-xl">
+        <div className="rounded-[1.5rem] border border-white/60 bg-white/42 p-5 surface-elevated-soft backdrop-blur-xl">
           <h2 className="mb-4 font-serif text-2xl font-semibold text-brand-dark">{pick(UI.portfolio, language)}</h2>
           <div className="grid gap-3">
             {portfolio.length ? portfolio.map((record) => (
@@ -1664,7 +1709,7 @@ export default function OpportunitiesPage({
   );
 }
 
-function Header({ title, language }: { title: string; language: SupportedLanguage }) {
+function Header({ title, description, language }: { title: string; description?: string; language: SupportedLanguage }) {
   return (
     <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
@@ -1673,6 +1718,11 @@ function Header({ title, language }: { title: string; language: SupportedLanguag
           {pick(OPPORTUNITIES_NAV_LABELS, language)}
         </button>
         <h1 className="text-4xl font-serif font-semibold leading-tight text-brand-dark sm:text-5xl">{title}</h1>
+        {description && (
+          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-brand-slate sm:text-base">
+            {description}
+          </p>
+        )}
       </div>
     </div>
   );
@@ -1680,7 +1730,7 @@ function Header({ title, language }: { title: string; language: SupportedLanguag
 
 function EmptyState({ language }: { language: SupportedLanguage }) {
   return (
-    <div className="rounded-[1.5rem] border border-white/60 bg-white/42 p-8 text-center backdrop-blur-xl">
+    <div className="rounded-[1.5rem] border border-white/60 bg-white/42 p-8 text-center surface-elevated-soft backdrop-blur-xl">
       <ShieldCheck className="mx-auto mb-3 h-8 w-8 text-brand-slate/55" />
       <h3 className="font-serif text-2xl font-semibold text-brand-dark">{pick(UI.noResults, language)}</h3>
       <button onClick={() => navigate('/opportunities/recommendations')} className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand-dark px-5 py-2 text-xs font-semibold text-white">

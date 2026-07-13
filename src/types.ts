@@ -61,6 +61,21 @@ export interface TrustPoint {
   description: string;
 }
 
+export interface FaqItem {
+  id: string;
+  page: PageKey;
+  question: string;
+  answer: string;
+}
+
+export type PageKey =
+  | 'home'
+  | 'about'
+  | 'championship'
+  | 'activities'
+  | 'find-team'
+  | 'opportunities';
+
 export interface ActivityItem {
   id: string;
   title: string;

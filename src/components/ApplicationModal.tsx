@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Check, ArrowRight, Ticket as TicketIcon, Upload } from 'lucide-react';
@@ -12,14 +12,16 @@ interface ApplicationModalProps {
 }
 
 const APPLICATION_FIELD_CLASS =
-  'w-full rounded-xl border border-[#d8d1cc] bg-white/70 px-3 py-2 text-xs text-brand-dark outline-none transition-colors placeholder:text-brand-slate/40 focus:border-brand-dark/45 focus:bg-white sm:px-4 sm:py-3 sm:text-sm';
+  'w-full rounded-xl border border-[#d8d1cc] bg-white/70 px-3 py-2 text-xs text-brand-dark outline-none transition-colors placeholder:text-brand-slate/40 focus:border-brand-dark/45 focus:bg-white sm:px-4 sm:py-2.5 sm:text-sm';
 
 const APPLICATION_UPLOAD_CLASS =
-  'group relative flex w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-[#d8d1cc] bg-white/70 px-4 py-5 transition-colors hover:bg-white focus-within:border-brand-dark/45 focus-within:bg-white';
+  'group relative flex w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-[#d8d1cc] bg-white/70 px-4 py-3.5 transition-colors hover:bg-white focus-within:border-brand-dark/45 focus-within:bg-white';
 
 export default function ApplicationModal({ isOpen, onClose, selectedTournamentId }: ApplicationModalProps) {
   const { t } = useTranslation();
   const { tournaments } = useLocalizedData();
+  const modalRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
   const [form, setForm] = useState<ApplicationForm>({
     name: '',
     email: '',
@@ -32,6 +34,7 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
 
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fileError, setFileError] = useState('');
 
   // Sync state if selected tournament changes from outside
   React.useEffect(() => {
@@ -39,6 +42,87 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
       setForm((f) => ({ ...f, tournamentId: selectedTournamentId }));
     }
   }, [selectedTournamentId]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    window.setTimeout(() => {
+      const firstFocusable = modalRef.current?.querySelector<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      );
+      firstFocusable?.focus();
+    }, 0);
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+        return;
+      }
+
+      if (event.key !== 'Tab' || !modalRef.current) return;
+      const focusable = Array.from(
+        modalRef.current.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'),
+      ).filter((element) => !element.hasAttribute('disabled'));
+
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+      previousFocusRef.current?.focus();
+    };
+  }, [isOpen, onClose]);
+
+  const handleFileChange = (file?: File) => {
+    setFileError('');
+    if (!file) {
+      setForm({ ...form, projectFile: null });
+      return;
+    }
+
+    const allowedTypes = new Set([
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-powerpoint',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      'text/plain',
+      'image/jpeg',
+      'image/png',
+    ]);
+    const maxSize = 10 * 1024 * 1024;
+
+    if (!allowedTypes.has(file.type)) {
+      setFileError(t('ui.enhancements.fileTypeError'));
+      setForm({ ...form, projectFile: null });
+      return;
+    }
+
+    if (file.size > maxSize) {
+      setFileError(t('ui.enhancements.fileSizeError'));
+      setForm({ ...form, projectFile: null });
+      return;
+    }
+
+    setForm({ ...form, projectFile: file });
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,12 +175,16 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
 
           {/* Modal Container */}
           <motion.div
+            ref={modalRef}
             id="modal-content"
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
             transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-            className="relative w-[92%] sm:w-full max-w-xl bg-white/35 backdrop-blur-3xl border border-white/60 rounded-3xl shadow-[inset_0_1.5px_3px_rgba(255,255,255,0.45),0_40px_120px_rgba(27,24,22,0.12)] z-10"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="application-modal-title"
+            className="relative max-h-[calc(100vh-2rem)] w-[96%] overflow-hidden sm:w-full max-w-2xl bg-white/35 backdrop-blur-3xl border border-white/60 rounded-3xl shadow-[inset_0_1.5px_3px_rgba(255,255,255,0.45),0_40px_120px_rgba(27,24,22,0.12)] z-10"
           >
             <button
               onClick={onClose}
@@ -106,17 +194,17 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
               <X className="w-5 h-5" />
             </button>
 
-            <div className="p-4 sm:p-8 lg:p-10">
+            <div className="p-4 sm:p-6 lg:p-7">
               {!ticket ? (
                 /* Application Form */
-                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
                   <div>
-                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-serif text-brand-dark tracking-tight">{t('ui.applicationmodal.6b0f724b4e')}</h2>
+                    <h2 id="application-modal-title" className="text-xl sm:text-2xl font-serif text-brand-dark tracking-tight">{t('ui.applicationmodal.6b0f724b4e')}</h2>
                     <p className="text-xs sm:text-sm text-brand-slate mt-1 font-light">{t('ui.applicationmodal.21117adc83')}</p>
                   </div>
 
                   {/* Input fields */}
-                  <div className="space-y-3 sm:space-y-4">
+                  <div className="space-y-2.5 sm:space-y-3">
                     <div>
                       <label className="block text-[10px] sm:text-xs font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">{t('ui.applicationmodal.34fda9e41a')}</label>
                       <input
@@ -129,7 +217,7 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                       <div>
                         <label className="block text-[10px] sm:text-xs font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">{t('ui.applicationmodal.eda3ec0b43')}</label>
                         <input
@@ -154,7 +242,7 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                       <div>
                         <label className="block text-[10px] sm:text-xs font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">{t('ui.applicationmodal.478fefafd8')}</label>
                         <select
@@ -207,8 +295,8 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
                       <label className={APPLICATION_UPLOAD_CLASS}>
                         <input
                           type="file"
-                          accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.zip,.rar,.jpg,.png"
-                          onChange={(e) => setForm({ ...form, projectFile: e.target.files?.[0] || null })}
+                          accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png"
+                          onChange={(e) => handleFileChange(e.target.files?.[0])}
                           className="sr-only"
                         />
                         {form.projectFile ? (
@@ -242,11 +330,12 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
                           </div>
                         )}
                       </label>
+                      {fileError && <p className="mt-2 text-xs text-rose-700">{fileError}</p>}
                     </div>
                   </div>
 
                   {/* Submission actions */}
-                  <div className="flex justify-end pt-2">
+                  <div className="flex justify-end">
                     <button
                       type="submit"
                       disabled={isSubmitting}

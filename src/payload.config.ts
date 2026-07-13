@@ -8,6 +8,7 @@ import { Activities } from './payload/collections/Activities';
 import { Applications } from './payload/collections/Applications';
 import { CommunityLeads } from './payload/collections/CommunityLeads';
 import { Experts } from './payload/collections/Experts';
+import { Faqs } from './payload/collections/Faqs';
 import { Media } from './payload/collections/Media';
 import { Pillars } from './payload/collections/Pillars';
 import { Stats } from './payload/collections/Stats';
@@ -47,6 +48,7 @@ export default buildConfig({
     Tournaments,
     Activities,
     Experts,
+    Faqs,
     TeamMembers,
     TrustPoints,
     Pillars,

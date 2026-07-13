@@ -25,6 +25,9 @@ import {
   Lock,
   ChevronDown,
 } from 'lucide-react';
+import { useCmsFaqs } from '../hooks/useCmsFaqs';
+import type { FaqItem as CmsFaqItem } from '../types';
+import BrandImage from './BrandImage';
 
 interface ChampionshipData {
   id: string;
@@ -47,6 +50,7 @@ interface ChampionshipData {
 }
 
 interface FAQItem {
+  id: string;
   question: string;
   answer: string;
 }
@@ -67,7 +71,7 @@ const SUITABILITY_TABS = [
 type SuitabilityTab = typeof SUITABILITY_TABS[number]['id'];
 
 const keyInfoCardClass =
-  "bg-[#fff4ed]/82 glass-card border border-[#bc4638]/14 p-4 sm:p-5 rounded-2xl text-left flex flex-col justify-between space-y-3 shadow-[0_14px_36px_rgba(188,70,56,0.08)]";
+  "bg-[#fff4ed]/82 glass-card surface-elevated-soft border border-[#bc4638]/14 p-4 sm:p-5 rounded-2xl text-left flex flex-col justify-between space-y-3";
 const keyInfoLabelClass = "text-xs sm:text-[13px] lg:text-sm font-mono uppercase tracking-wider";
 const keyInfoValueClass = "text-base sm:text-lg lg:text-xl font-serif font-bold leading-tight";
 const keyInfoSubtextClass = "text-sm sm:text-base text-brand-slate font-normal md:font-light leading-snug";
@@ -254,32 +258,40 @@ export default function ChampionshipPage({
     }, 150);
   };
 
-  const FAQ_ITEMS: FAQItem[] = [
+  const fallbackFaqItems: FAQItem[] = [
     {
+      id: 'championship-faq-1',
       question: t('ui.championshippage.75eb0d84'),
       answer: t('ui.championshippage.4b587e32b1')
     },
     {
+      id: 'championship-faq-2',
       question: t('ui.championshippage.ccc076b0'),
       answer: t('ui.championshippage.abf0a3c0da')
     },
     {
-      question: t('ui.championshippage.0a5a7de0'),
-      answer: t('ui.championshippage.842ede64f5')
-    },
-    {
+      id: 'championship-faq-3',
       question: t('ui.championshippage.fdb6874f'),
       answer: t('ui.championshippage.c00db4e511')
     },
     {
+      id: 'championship-faq-4',
       question: t('ui.championshippage.c264c842'),
       answer: t('ui.championshippage.75488dd388')
     },
     {
+      id: 'championship-faq-5',
       question: t('ui.championshippage.47dfb4af'),
       answer: t('ui.championshippage.59016ab8e3')
     }
   ];
+  const faqItems = useCmsFaqs(
+    'championship',
+    fallbackFaqItems.map<CmsFaqItem>((faq) => ({
+      ...faq,
+      page: 'championship',
+    })),
+  );
 
   return (
     <div className="relative w-full text-brand-dark pb-16 pt-24">
@@ -299,43 +311,43 @@ export default function ChampionshipPage({
         </div>
 
         {/* 1. HERO BLOCK OF CHAMPIONSHIP */}
-        <section className="relative z-10 text-center space-y-6 mx-auto mb-8 max-w-7xl px-[6%] md:px-[10%]">
-          {/* Status badge based on CMS registration state */}
-          <div className="flex justify-center">
-            {cmsData.registrationStatus === 'open' && (
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 rounded-full text-[10px] font-mono uppercase tracking-widest font-semibold animate-pulse">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>{t('ui.championshippage.6bdc7661d3')}{cmsData.registrationDeadline}
-              </span>
-            )}
-            {cmsData.registrationStatus === 'suspended' && (
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-amber-500/10 text-amber-600 border border-amber-500/20 rounded-full text-[10px] font-mono uppercase tracking-widest font-semibold">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>{t('ui.championshippage.04d60f7ace')}</span>
-            )}
-            {cmsData.registrationStatus === 'closed' && (
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-rose-500/10 text-rose-600 border border-rose-500/20 rounded-full text-[10px] font-mono uppercase tracking-widest font-semibold">
-                <Lock className="w-3 h-3" />{t('ui.championshippage.a9e0cfbc2d')}</span>
-            )}
-          </div>
+        <section className="relative z-10 mx-auto mb-8 grid max-w-7xl gap-8 px-[6%] md:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)] md:items-center md:px-[10%]">
+          <div className="space-y-6 text-left">
+            <div className="flex">
+              {cmsData.registrationStatus === 'open' && (
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 rounded-full text-[10px] font-mono uppercase tracking-widest font-semibold animate-pulse">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>{t('ui.championshippage.6bdc7661d3')}{cmsData.registrationDeadline}
+                </span>
+              )}
+              {cmsData.registrationStatus === 'suspended' && (
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-amber-500/10 text-amber-600 border border-amber-500/20 rounded-full text-[10px] font-mono uppercase tracking-widest font-semibold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>{t('ui.championshippage.04d60f7ace')}</span>
+              )}
+              {cmsData.registrationStatus === 'closed' && (
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-rose-500/10 text-rose-600 border border-rose-500/20 rounded-full text-[10px] font-mono uppercase tracking-widest font-semibold">
+                  <Lock className="w-3 h-3" />{t('ui.championshippage.a9e0cfbc2d')}</span>
+              )}
+            </div>
 
-          <motion.h1 
-            key={cmsData.title}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-light tracking-tight text-brand-dark leading-tight"
-          >
-            {cmsData.title}
-          </motion.h1>
+            <motion.h1 
+              key={cmsData.title}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-light tracking-tight text-brand-dark leading-tight"
+            >
+              {cmsData.title}
+            </motion.h1>
 
-          <motion.p 
-            key={cmsData.pitch}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-brand-slate text-sm sm:text-base md:text-lg leading-relaxed font-light max-w-3xl mx-auto text-balance"
-          >
-            {cmsData.pitch}
-          </motion.p>
+            <motion.p 
+              key={cmsData.pitch}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-brand-slate text-sm sm:text-base md:text-lg leading-relaxed font-light max-w-3xl text-balance"
+            >
+              {cmsData.pitch}
+            </motion.p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
             {cmsData.registrationStatus !== 'closed' ? (
               <a
                 href="#apply-form-section"
@@ -356,6 +368,15 @@ export default function ChampionshipPage({
               className="w-full sm:w-auto px-8 py-3.5 bg-white border border-[#d8d1cc] text-[#5b6472] hover:border-[#bc4638]/60 hover:text-brand-dark rounded-xl text-xs font-mono tracking-widest uppercase transition-all text-center cursor-pointer"
             >{t('ui.app.d13f387e64')}</button>
           </div>
+          </div>
+          <BrandImage
+            src="/images/championship/championship-presentation.jpg"
+            alt={t('ui.enhancements.championshipHeroAlt')}
+            aspectRatio="4 / 3"
+            objectPosition="50% 36%"
+            sizes="(min-width: 768px) 42vw, 100vw"
+            overlay
+          />
         </section>
 
         {/* 2. COMPACT KEY INFO CARDS BLOCK */}
@@ -452,15 +473,22 @@ export default function ChampionshipPage({
         {/* 3. ABOUT THE CHAMPIONSHIP */}
         <motion.section
           {...fadeUpLarge}
-          className="relative z-10 py-10 md:py-14 bg-white/[0.10] glass-xl border border-white/[0.15] rounded-3xl card-blush"
+          className="relative z-10 py-10 md:py-14 bg-white/[0.10] glass-xl surface-elevated border border-white/[0.15] rounded-3xl card-blush"
         >
           <div className="max-w-7xl mx-auto px-[6%] md:px-[10%] grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <div className="lg:col-span-5 space-y-6">
+              <BrandImage
+                src="/images/championship/technology-case.jpg"
+                alt={t('ui.enhancements.championshipCaseAlt')}
+                aspectRatio="16 / 10"
+                objectPosition="50% 45%"
+                sizes="(min-width: 1024px) 35vw, 100vw"
+              />
               <h2 className="text-3xl font-serif text-brand-dark leading-tight">{t('ui.championshippage.f30417ddf0')}</h2>
               <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">
                 {cmsData.description}
               </p>
-              <div className="p-4 bg-white/[0.12] glass-panel rounded-2xl border border-white/[0.12]">
+              <div className="p-4 bg-white/[0.12] glass-panel surface-elevated-soft rounded-2xl border border-white/[0.12]">
                 <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-brand-slate block mb-1">{t('ui.championshippage.d50e039adb')}</span>
                 <p className="text-xs text-brand-dark font-medium leading-relaxed font-serif">
                   {cmsData.expectedResult}
@@ -475,7 +503,7 @@ export default function ChampionshipPage({
               <span className="text-[10px] font-mono uppercase tracking-wider text-brand-dark font-semibold">{t('ui.championshippage.5c807e4149')}</span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {cmsData.themes.map((theme, idx) => (
-                  <div key={idx} className="bg-white/[0.12] glass-card border border-white/[0.15] p-3.5 rounded-xl text-left flex items-start gap-3">
+                  <div key={idx} className="bg-white/[0.12] glass-card surface-elevated-soft border border-white/[0.15] p-3.5 rounded-xl text-left flex items-start gap-3">
                     <span className="w-5 h-5 rounded-full bg-[#bc4638]/5 border border-[#bc4638]/10 font-mono text-[9px] font-bold text-[#bc4638] flex items-center justify-center shrink-0 mt-0.5">
                       {idx + 1}
                     </span>
@@ -534,7 +562,7 @@ export default function ChampionshipPage({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
-                className="bg-white/[0.10] glass-xl border border-white/[0.15] rounded-2xl p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-6 text-left"
+                className="bg-white/[0.10] glass-xl surface-elevated border border-white/[0.15] rounded-2xl p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-6 text-left"
               >
                 {selectedSuitabilityTab === 'all' && (
                   <>
@@ -651,8 +679,9 @@ export default function ChampionshipPage({
           </div>
         </section>
 
-        {/* 9. EMBEDDED FORM & UX STATES */}          <section id="apply-form-section" className="relative z-10 max-w-7xl mx-auto scroll-mt-24 px-[6%] md:px-[10%]">
-          <div className="bg-white/[0.10] glass-xl border border-white/[0.15] rounded-3xl p-6 sm:p-10 space-y-8 max-w-3xl mx-auto">
+        {/* 9. EMBEDDED FORM & UX STATES */}
+        <section id="apply-form-section" className="relative z-10 w-[88vw] md:w-[80vw] max-w-4xl mx-auto scroll-mt-24">
+          <div className="bg-white/[0.10] glass-xl surface-elevated border border-white/[0.15] rounded-3xl p-6 sm:p-10 space-y-8">
             
              <div className="text-center space-y-2 pb-5">
                <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark">{t('ui.championshippage.795d6a19a2')}</h2>
@@ -960,10 +989,10 @@ export default function ChampionshipPage({
           </div>
 
           <div className="space-y-4">
-            {FAQ_ITEMS.map((faq, idx) => (
+            {faqItems.map((faq, idx) => (
               <div 
-                key={idx} 
-                className="bg-white/[0.08] glass-card border border-white/[0.12] rounded-2xl overflow-hidden transition-all duration-300"
+                key={faq.id} 
+                className="bg-white/[0.08] glass-card surface-elevated-soft border border-white/[0.12] rounded-2xl overflow-hidden transition-all duration-300"
               >
                 <button
                   type="button"
@@ -999,7 +1028,7 @@ export default function ChampionshipPage({
           {...fadeInScale}
           className="relative z-10 py-16 md:py-24 max-w-7xl mx-auto px-[6%] md:px-[10%] section-accent-warm"
         >
-          <div className="bg-gradient-to-br from-[#bc4638]/8 via-white/[0.12] to-[#bd5b82]/8 glass-xl border border-white/[0.15] rounded-3xl p-8 sm:p-12 text-center space-y-6">
+          <div className="bg-gradient-to-br from-[#bc4638]/8 via-white/[0.12] to-[#bd5b82]/8 glass-xl surface-elevated border border-white/[0.15] rounded-3xl p-8 sm:p-12 text-center space-y-6">
             
             <h2 className="text-3xl sm:text-4xl font-serif text-brand-dark tracking-tight leading-tight max-w-2xl mx-auto">{t('ui.championshippage.c0e506f98a')}</h2>
             <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed max-w-md mx-auto">{t('ui.championshippage.424ad3a346')}{cmsData.maxParticipants}{t('ui.championshippage.79e49fa24f')}</p>

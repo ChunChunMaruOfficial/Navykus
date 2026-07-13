@@ -15,10 +15,12 @@ import {
   TOURNAMENTS,
   TRUST_POINTS,
 } from '../src/data';
+import type { PageKey } from '../src/types';
 import { getPayloadClient } from './payload';
 import {
   normalizeActivity,
   normalizeExpert,
+  normalizeFaq,
   normalizePillar,
   normalizeStat,
   normalizeTeamMember,
@@ -134,6 +136,25 @@ app.get('/api/tournaments', asyncRoute(async (_req, res) => {
 app.get('/api/activities', asyncRoute(async (_req, res) => {
   const docs = await findPublished('activities');
   res.json(docs.length ? docs.map(normalizeActivity) : ACTIVITIES);
+}));
+
+app.get('/api/faqs', asyncRoute(async (req, res) => {
+  const page = typeof req.query.page === 'string' ? req.query.page : undefined;
+  const where = page ? { page: { equals: page } } : {};
+  const docs = await findPublished('faqs', where);
+  const faqs = docs.map(normalizeFaq);
+
+  if (page) {
+    res.json(faqs.filter((faq) => faq.page === page));
+    return;
+  }
+
+  res.json(
+    faqs.reduce<Record<PageKey, typeof faqs>>((acc, faq) => {
+      acc[faq.page] = [...(acc[faq.page] || []), faq];
+      return acc;
+    }, {} as Record<PageKey, typeof faqs>),
+  );
 }));
 
 app.get('/api/team-members', asyncRoute(async (_req, res) => {
@@ -273,4 +294,3 @@ app.use((error: Error, _req: Request, res: Response, _next: NextFunction) => {
 app.listen(port, '0.0.0.0', () => {
   console.log(`Navykus API listening on http://localhost:${port}`);
 });
-

@@ -26,6 +26,7 @@ import {
   fadeInScale,
   fadeUp,
 } from '../motion-animations';
+import BrandImage from './BrandImage';
 import { ActivityCategory, ActivityItem, ActivityStatus } from '../types';
 import { useLocalizedData } from '../i18n/useLocalizedData';
 
@@ -236,7 +237,7 @@ export default function ActivitiesPage({
             </div>
 
             <section className="flex justify-center pb-8 md:pb-10">
-              <div className="inline-flex w-full rounded-2xl border border-white/60 bg-white/35 p-1.5 shadow-sm backdrop-blur-xl sm:w-auto">
+              <div className="inline-flex w-full rounded-2xl border border-white/60 bg-white/35 p-1.5 surface-elevated-soft backdrop-blur-xl sm:w-auto">
                 {([
                   ['events', t('ui.activitiespage.9bd00b51c2'), activities.length],
                   ['opportunities', t('ui.activitiespage.d4bd169801'), null],
@@ -300,8 +301,8 @@ export default function ActivitiesPage({
           </motion.div>
         </section>
 
-        <section className="sticky top-20 z-20 -mx-2 mb-8 rounded-[1.5rem] border border-white/60 bg-[#fffaf7]/82 p-2 shadow-[0_16px_50px_rgba(91,100,114,0.08)] backdrop-blur-xl">
-          <motion.div {...fadeUp} className="flex gap-2 overflow-x-auto pb-1 scrollbar-none lg:flex-wrap lg:overflow-visible lg:pb-0" aria-label={t('ui.app.814b71a2da')}>
+        <section className="mb-8">
+          <motion.div {...fadeUp} className="flex gap-2 overflow-x-auto pb-3 scrollbar-soft" aria-label={t('ui.app.814b71a2da')}>
             {VISIBLE_CATEGORY_ORDER.map((category) => {
               const isActive = selectedCategory === category;
               const categoryInfo = CATEGORY_MAP[category];
@@ -311,10 +312,11 @@ export default function ActivitiesPage({
                 <button
                   key={category}
                   onClick={() => setSelectedCategory(category)}
-                  className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-2xl border px-4 py-2 text-[11px] font-semibold uppercase tracking-wide transition-all ${
+                  aria-selected={isActive}
+                  className={`inline-flex min-h-12 shrink-0 items-center gap-2 rounded-2xl border px-4 py-2 text-[11px] font-semibold uppercase tracking-wide transition-all ${
                     isActive
                       ? 'border-brand-dark bg-brand-dark text-white shadow-md'
-                      : 'border-transparent bg-white/55 text-brand-slate hover:border-[#d8d1cc] hover:bg-white hover:text-brand-dark'
+                      : 'border-white/60 bg-white/45 text-brand-slate hover:bg-white hover:text-brand-dark'
                   }`}
                 >
                   {categoryInfo.icon}
@@ -393,7 +395,7 @@ export default function ActivitiesPage({
               <motion.div
                 key={card.title}
                 variants={cardItemFadeUp.variants}
-                className="flex min-h-[270px] flex-col justify-between rounded-[1.35rem] border border-white/60 bg-white/42 p-5 shadow-sm backdrop-blur-sm transition-colors hover:bg-white/62"
+                className="flex min-h-[270px] flex-col justify-between rounded-[1.35rem] border border-white/60 bg-white/42 p-5 surface-elevated-soft backdrop-blur-sm transition-colors hover:bg-white/62"
               >
                 <div>
                   <div className="mb-4 flex items-center gap-3">
@@ -450,7 +452,7 @@ export default function ActivitiesPage({
         </section>
           </>
         ) : (
-          <Suspense fallback={<div className="rounded-[1.5rem] border border-white/60 bg-white/42 p-8 text-sm text-brand-slate backdrop-blur-xl">{t('common.loading')}</div>}>
+          <Suspense fallback={<div className="rounded-[1.5rem] border border-white/60 bg-white/42 p-8 text-sm text-brand-slate surface-elevated-soft backdrop-blur-xl">{t('common.loading')}</div>}>
             <OpportunitiesPage onBackToHome={onBackToHome} embedded />
           </Suspense>
         )}
@@ -509,9 +511,23 @@ function ActivityCard({
         }
       }}
       aria-label={`${t('ui.activitiespage.4710ead504')}: ${activity.title}`}
-      className="group relative flex min-h-[330px] cursor-pointer flex-col rounded-[1.5rem] border border-white/60 bg-white/48 p-5 shadow-sm backdrop-blur-sm transition-colors hover:border-[#d8d1cc] hover:bg-white/62 sm:p-6"
+      className="group relative flex min-h-[390px] cursor-pointer flex-col overflow-hidden rounded-[1.5rem] border border-white/60 bg-white/48 surface-elevated-soft backdrop-blur-sm transition-colors hover:border-[#d8d1cc] hover:bg-white/62"
     >
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="overflow-hidden bg-white/35">
+        {activity.imageUrl ? (
+          <BrandImage
+            src={activity.imageUrl}
+            alt={activity.title}
+            aspectRatio="16 / 9"
+            objectPosition="50% 42%"
+            sizes="(min-width: 1024px) 45vw, 100vw"
+            className="rounded-none border-0 shadow-none"
+          />
+        ) : (
+          <div className={`aspect-video w-full bg-gradient-to-br ${categoryInfo.accent} opacity-75`} />
+        )}
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col p-4 sm:p-5">
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <StatusBadge status={activity.status} />
           <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${categoryInfo.chip}`}>
@@ -595,7 +611,7 @@ function ActivityDetailsModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="activity-details-title"
-        className="relative z-10 max-h-[88vh] w-[94vw] max-w-5xl overflow-y-auto rounded-[1.75rem] border border-white/60 bg-[#fffaf7]/90 shadow-[0_35px_110px_rgba(17,17,17,0.2)] backdrop-blur-2xl"
+        className="relative z-10 max-h-[88vh] w-[94vw] max-w-5xl overflow-y-auto scrollbar-soft rounded-[1.75rem] border border-white/60 bg-[#fffaf7]/90 shadow-[0_35px_110px_rgba(17,17,17,0.2)] backdrop-blur-2xl"
       >
         <button
           onClick={onClose}
@@ -605,32 +621,47 @@ function ActivityDetailsModal({
           <X className="h-5 w-5" />
         </button>
 
-        <div className={`relative h-56 overflow-hidden bg-gradient-to-br sm:h-72 ${categoryInfo.accent}`}>
-          <img
-            src={activity.imageUrl}
-            alt={activity.title}
-            className="h-full w-full object-cover"
-            loading="eager"
-            onError={(event) => {
-              event.currentTarget.style.display = 'none';
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/60 via-brand-dark/10 to-transparent" />
-          <div className="absolute bottom-5 left-5 right-16">
-            <div className="mb-3 flex flex-wrap items-center gap-2">
+        <div className="grid gap-5 p-5 pr-16 sm:p-8 sm:pr-20 md:grid-cols-[240px_minmax(0,1fr)] md:items-start">
+          <div className="overflow-hidden rounded-[1.25rem] border border-white/60 bg-white/36">
+            {activity.imageUrl ? (
+              <BrandImage
+                src={activity.imageUrl}
+                alt={activity.title}
+                aspectRatio="4 / 3"
+                objectPosition="50% 42%"
+                loading="eager"
+                sizes="(min-width: 768px) 240px, 100vw"
+                className="rounded-none border-0 shadow-none"
+              />
+            ) : (
+              <div className={`aspect-[4/3] w-full bg-gradient-to-br ${categoryInfo.accent} opacity-75`} />
+            )}
+          </div>
+
+          <div className="space-y-4 text-left">
+            <div className="flex flex-wrap items-center gap-2">
               <StatusBadge status={activity.status} />
               <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${categoryInfo.chip}`}>
                 {categoryInfo.icon}
                 {t(categoryInfo.label)}
               </span>
             </div>
-            <h2 id="activity-details-title" className="text-2xl font-serif font-semibold leading-tight text-white sm:text-4xl">
+            <h2 id="activity-details-title" className="text-2xl font-serif font-semibold leading-tight text-brand-dark sm:text-4xl">
               {activity.title}
             </h2>
+            {!isCompleted && (
+              <button
+                onClick={onOpenApplyModal}
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-[11px] font-bold uppercase tracking-widest text-white shadow-lg shadow-[#bc4638]/12 transition-all hover:opacity-95"
+              >
+                <span>{t('ui.aboutprojectpage.2805697540')}</span>
+                <ArrowUpRight className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
         </div>
 
-        <div className="space-y-6 p-5 sm:p-8">
+        <div className="space-y-6 px-5 pb-5 sm:px-8 sm:pb-8">
           <div className="grid grid-cols-1 gap-2 text-[11px] font-medium text-brand-slate sm:grid-cols-2">
             <span className="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-white/60 bg-white/55 px-3 py-2">
               <Calendar className="h-3.5 w-3.5 shrink-0 text-[#bc4638]" />
@@ -668,7 +699,7 @@ function ActivityDetailsModal({
               onClick={onOpenApplyModal}
               className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-[11px] font-bold uppercase tracking-widest text-white shadow-lg shadow-[#bc4638]/12 transition-all hover:opacity-95"
             >
-              <span>{activity.ctaText}</span>
+              <span>{t('ui.aboutprojectpage.2805697540')}</span>
               <ArrowUpRight className="h-3.5 w-3.5" />
             </button>
           )}
@@ -700,7 +731,7 @@ function EmptyState({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-[1.5rem] border border-white/60 bg-white/48 px-5 py-14 shadow-sm backdrop-blur-sm"
+      className="rounded-[1.5rem] border border-white/60 bg-white/48 px-5 py-14 surface-elevated-soft backdrop-blur-sm"
     >
       <div className="mx-auto flex max-w-md items-start gap-4">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-dark/5 text-brand-slate">
