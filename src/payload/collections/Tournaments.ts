@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload';
 
-import { anyone, authenticated } from '../access';
+import { adminOrModerator, anyone } from '../access';
 import { legacyIdField, publishedField, sortOrderField, textListField } from '../fields';
 
 export const Tournaments: CollectionConfig = {
@@ -11,9 +11,9 @@ export const Tournaments: CollectionConfig = {
   },
   access: {
     read: anyone,
-    create: authenticated,
-    update: authenticated,
-    delete: authenticated,
+    create: adminOrModerator,
+    update: adminOrModerator,
+    delete: adminOrModerator,
   },
   fields: [
     legacyIdField,
@@ -31,4 +31,3 @@ export const Tournaments: CollectionConfig = {
     { name: 'format', type: 'textarea' },
   ],
 };
-

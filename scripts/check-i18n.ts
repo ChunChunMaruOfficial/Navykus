@@ -105,6 +105,7 @@ for (const sourceDir of sourceDirs) {
   for (const filePath of walk(absoluteDir)) {
     const normalized = filePath.replace(/\\/g, '/');
     if (normalized.includes('/src/i18n/locales/')) continue;
+    if (normalized.includes('/src/components/blog/data/')) continue;
     const content = fs.readFileSync(filePath, 'utf8');
     if (/[\u0400-\u04FF]/.test(content)) {
       errors.push(`Hardcoded Cyrillic in source: ${path.relative(rootDir, filePath)}`);

@@ -2,7 +2,7 @@ import path from 'node:path';
 
 import type { CollectionConfig } from 'payload';
 
-import { anyone, authenticated } from '../access';
+import { adminOrModerator, anyone } from '../access';
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -15,9 +15,9 @@ export const Media: CollectionConfig = {
   },
   access: {
     read: anyone,
-    create: authenticated,
-    update: authenticated,
-    delete: authenticated,
+    create: adminOrModerator,
+    update: adminOrModerator,
+    delete: adminOrModerator,
   },
   fields: [
     {
@@ -27,4 +27,3 @@ export const Media: CollectionConfig = {
     },
   ],
 };
-

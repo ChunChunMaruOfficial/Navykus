@@ -35,7 +35,91 @@ const FAQ_SEED = [
   ['find-team-faq-5', 'find-team', 'ui.findteampage.27f20eac', 'ui.findteampage.a80b8b09d5'],
 ] as const;
 
-const upsertByLegacyId = async (
+const EVENT_SEED = [
+  {
+    legacyId: 'event-public-speaking',
+    title: 'Public Speaking Lab',
+    slug: 'public-speaking-lab',
+    shortDescription: 'Online workshop for preparing a confident project presentation.',
+    fullDescription: 'Students practice structure, argumentation, visual support and answers to expert questions.',
+    eventType: 'workshop',
+    eventDate: '2026-09-12T14:00:00.000Z',
+    timeZone: 'Europe/Moscow',
+    format: 'online',
+    country: 'Global',
+    speaker: 'Navykus mentors',
+    participantLimit: 80,
+    registrationDeadline: '2026-09-10T20:59:00.000Z',
+    languages: list(['ru', 'en']),
+    materials: list(['slides', 'checklist']),
+  },
+  {
+    legacyId: 'event-youth-connect',
+    title: 'Asian Youth Connect',
+    slug: 'asian-youth-connect',
+    shortDescription: 'Networking session for students looking for international teammates.',
+    fullDescription: 'Participants introduce their interests, projects and roles they want to cover in future teams.',
+    eventType: 'networking',
+    eventDate: '2026-10-04T12:00:00.000Z',
+    timeZone: 'Asia/Almaty',
+    format: 'hybrid',
+    country: 'Kazakhstan',
+    venue: 'Almaty and online',
+    participantLimit: 120,
+    registrationDeadline: '2026-10-01T20:59:00.000Z',
+    languages: list(['ru', 'kk', 'en']),
+    materials: list(['participant guide']),
+  },
+];
+
+const OPPORTUNITY_SEED = [
+  {
+    legacyId: 'opp-data-olympiad',
+    title: 'Data Literacy Olympiad',
+    slug: 'data-literacy-olympiad',
+    organization: 'Open Data School',
+    opportunityType: 'olympiad',
+    shortDescription: 'Online olympiad in data analysis, visualization and critical thinking.',
+    fullDescription: 'Tasks test graph reading, spotting distortions and explaining insights clearly.',
+    country: 'Global',
+    format: 'online',
+    ageMin: 13,
+    ageMax: 18,
+    deadline: '2026-11-15T20:59:00.000Z',
+    cost: 'free',
+    funding: false,
+    officialUrl: 'https://example.org/data-literacy',
+    internalApplicationsEnabled: true,
+    languages: list(['en', 'ru']),
+    requirements: list(['student status', 'internet access']),
+    benefits: list(['certificate', 'portfolio task']),
+    documents: list(['school confirmation optional']),
+  },
+  {
+    legacyId: 'opp-volunteer-sprint',
+    title: 'Volunteer Impact Sprint',
+    slug: 'volunteer-impact-sprint',
+    organization: 'Open Social Labs',
+    opportunityType: 'volunteering',
+    shortDescription: 'A one-month volunteer sprint for students helping NGOs with digital projects.',
+    fullDescription: 'Choose a task, find a team and record the outcome in your portfolio with mentor confirmation.',
+    country: 'Global',
+    format: 'online',
+    ageMin: 14,
+    ageMax: 19,
+    deadline: '2026-12-05T20:59:00.000Z',
+    cost: 'free',
+    funding: false,
+    officialUrl: 'https://example.org/volunteer-sprint',
+    internalApplicationsEnabled: true,
+    languages: list(['en', 'ru', 'es']),
+    requirements: list(['motivation letter']),
+    benefits: list(['mentor feedback', 'confirmed volunteer hours']),
+    documents: list(['portfolio link optional']),
+  },
+];
+
+const ensureByLegacyId = async (
   collection: string,
   legacyId: string,
   data: Record<string, unknown>,
@@ -53,12 +137,6 @@ const upsertByLegacyId = async (
   });
 
   if (existing.docs[0]) {
-    await payload.update({
-      collection: collection as any,
-      id: existing.docs[0].id,
-      data,
-      overrideAccess: true,
-    });
     return;
   }
 
@@ -75,7 +153,7 @@ const upsertByLegacyId = async (
 const seed = async () => {
   const payload = await getPayloadClient();
   const adminEmail = process.env.ADMIN_EMAIL || 'admin@navykus.local';
-  const adminPassword = process.env.ADMIN_PASSWORD || 'change-me-please';
+  const adminPassword = process.env.ADMIN_PASSWORD;
 
   const existingAdmin = await payload.find({
     collection: 'users' as any,
@@ -89,19 +167,33 @@ const seed = async () => {
   });
 
   if (!existingAdmin.docs[0]) {
+    if (!adminPassword && process.env.NODE_ENV === 'production') {
+      throw new Error('ADMIN_PASSWORD is required to create the seed administrator in production.');
+    }
+
     await payload.create({
       collection: 'users' as any,
       data: {
         email: adminEmail,
-        password: adminPassword,
+        password: adminPassword || 'change-me-please',
         name: 'Navykus Admin',
+        role: 'admin',
+      },
+      overrideAccess: true,
+    });
+  } else if (existingAdmin.docs[0].role !== 'admin') {
+    await payload.update({
+      collection: 'users' as any,
+      id: existingAdmin.docs[0].id,
+      data: {
+        role: 'admin',
       },
       overrideAccess: true,
     });
   }
 
   for (const [index, item] of TOURNAMENTS.entries()) {
-    await upsertByLegacyId('tournaments', item.id, {
+    await ensureByLegacyId('tournaments', item.id, {
       ...item,
       sortOrder: index,
       isPublished: true,
@@ -111,7 +203,7 @@ const seed = async () => {
   }
 
   for (const [index, item] of ACTIVITIES.entries()) {
-    await upsertByLegacyId('activities', item.id, {
+    await ensureByLegacyId('activities', item.id, {
       ...item,
       sortOrder: index,
       isPublished: true,
@@ -120,7 +212,7 @@ const seed = async () => {
   }
 
   for (const [index, item] of EXPERTS.entries()) {
-    await upsertByLegacyId('experts', item.id, {
+    await ensureByLegacyId('experts', item.id, {
       ...item,
       sortOrder: index,
       isPublished: true,
@@ -128,7 +220,7 @@ const seed = async () => {
   }
 
   for (const [index, item] of TEAM_MEMBERS.entries()) {
-    await upsertByLegacyId('team-members', item.id, {
+    await ensureByLegacyId('team-members', item.id, {
       ...item,
       sortOrder: index,
       interests: list(item.interests),
@@ -137,7 +229,7 @@ const seed = async () => {
   }
 
   for (const [index, item] of TRUST_POINTS.entries()) {
-    await upsertByLegacyId('trust-points', item.id, {
+    await ensureByLegacyId('trust-points', item.id, {
       ...item,
       sortOrder: index,
       isPublished: true,
@@ -145,7 +237,7 @@ const seed = async () => {
   }
 
   for (const [index, item] of PILLARS.entries()) {
-    await upsertByLegacyId('pillars', `pillar-${index + 1}`, {
+    await ensureByLegacyId('pillars', `pillar-${index + 1}`, {
       ...item,
       sortOrder: index,
       isPublished: true,
@@ -153,7 +245,7 @@ const seed = async () => {
   }
 
   for (const [index, item] of STATS.entries()) {
-    await upsertByLegacyId('stats', `stat-${index + 1}`, {
+    await ensureByLegacyId('stats', `stat-${index + 1}`, {
       ...item,
       sortOrder: index,
       isPublished: true,
@@ -161,13 +253,98 @@ const seed = async () => {
   }
 
   for (const [index, [legacyId, page, questionKey, answerKey]] of FAQ_SEED.entries()) {
-    await upsertByLegacyId('faqs', legacyId, {
+    await ensureByLegacyId('faqs', legacyId, {
       page,
       question: tr(questionKey),
       answer: tr(answerKey),
       sortOrder: index,
       isPublished: true,
     });
+  }
+
+  for (const [index, item] of EVENT_SEED.entries()) {
+    await ensureByLegacyId('events', item.legacyId, {
+      ...item,
+      sortOrder: index,
+      isPublished: true,
+    });
+  }
+
+  for (const [index, item] of OPPORTUNITY_SEED.entries()) {
+    await ensureByLegacyId('opportunities', item.legacyId, {
+      ...item,
+      sortOrder: index,
+      isPublished: true,
+    });
+  }
+
+  // Seed 3 mock blog posts
+  const adminUser = await payload.find({
+    collection: 'users' as any,
+    where: { email: { equals: adminEmail } },
+    limit: 1,
+    overrideAccess: true,
+  });
+  const adminId = adminUser.docs[0]?.id;
+
+  const BLOG_SEED = [
+    {
+      title: 'Как подготовиться к международному чемпионату',
+      slug: 'kak-podgotovitsya-k-mezhdunarodnomu-chempionatu',
+      excerpt: 'Пошаговый план подготовки: от выбора направления до финальной защиты проекта перед жюри.',
+      content: 'Участие в международном чемпионате — это не только про победу, но и про ценный опыт, новые знакомства и возможность заявить о себе.\n\n## Шаг 1: Выберите направление\n\nОпределитесь, какая тема вам ближе всего: экология, урбанистика, IT-решения или социальное проектирование. Изучите кейсы прошлых сезонов, чтобы понять формат и уровень требований.\n\n## Шаг 2: Соберите команду\n\nЕсли у вас ещё нет команды, воспользуйтесь разделом «Найти команду» на платформе. Ищите людей с complementary навыками: аналитик, дизайнер, разработчик, презентатор.\n\n## Шаг 3: Исследуйте проблему\n\nПогрузитесь в контекст выбранного кейса. Соберите данные, проведите интервью с потенциальными пользователями, изучите существующие решения.\n\n## Шаг 4: Разработайте решение\n\nСформулируйте гипотезу, создайте прототип и протестируйте его на фокус-группе. Убедитесь, что ваше решение реально решает проблему, а не является просто красивой идеей.\n\n## Шаг 5: Подготовьте защиту\n\nСтруктурируйте презентацию: проблема → исследование → решение → результаты. Готовьтесь отвечать на вопросы жюри. Репетируйте защиту с командой не менее трёх раз.\n\nУдачи на чемпионате!',
+      category: 'championships',
+      status: 'published',
+      originalLanguage: 'ru',
+      readingTime: 7,
+      publishedAt: '2026-07-12T10:00:00.000Z',
+      tags: ['чемпионат', 'подготовка', 'жюри', 'советы'],
+    },
+    {
+      title: 'История победителя прошлого сезона',
+      slug: 'istoriya-pobeditelya-proshlogo-sezona',
+      excerpt: 'Интервью с участником, который занял первое место и запустил свой проект после чемпионата.',
+      content: 'Мы поговорили с Артёмом, победителем Navykus Global Case Cup 2025. Его проект «Умный парк» получил высокую оценку жюри и сейчас тестируется в одном из районов Казани.\n\n— Артём, расскажи, с чего всё началось?\n\n— Всё началось с того, что я увидел объявление о чемпионате в школьном чате. Тема устойчивого развития городов меня давно интересовала, и я решил попробовать. Собрал команду из трёх одноклассников, и мы начали работать.\n\n— Какая была основная сложность?\n\n— Самое сложное — правильно сформулировать проблему. Мы хотели объять необъятное, но менторы помогли нам сузить фокус. В итоге мы сосредоточились на проблеме недостатка зелёных зон в спальных районах.\n\n— Что дала тебе победа?\n\n— Во-первых, уверенность в своих силах. Во-вторых, реальные контакты: к нам обратились из городской администрации с предложением пилотировать проект. Сейчас «Умный парк» — это не просто школьный проект, а настоящий стартап.\n\n— Что посоветуешь новым участникам?\n\n— Не бойтесь начинать. Даже если кажется, что идея сырая — берите и делайте. Жюри ценит не столько идеальный продукт, сколько логику мышления и потенциал развития.',
+      category: 'stories',
+      status: 'published',
+      originalLanguage: 'ru',
+      readingTime: 6,
+      publishedAt: '2026-07-10T10:00:00.000Z',
+      tags: ['история', 'победа', 'интервью', 'стартап'],
+    },
+    {
+      title: 'Что такое soft skills и как их развивать',
+      slug: 'chto-takoe-soft-skills',
+      excerpt: 'Объясняем, почему гибкие навыки важнее жёстких и как развивать их через школьные проектные активности.',
+      content: 'В современном мире работодатели всё чаще обращают внимание не только на профессиональные знания, но и на так называемые «гибкие навыки» (soft skills). Что это такое и почему они так важны?\n\n## Что входит в soft skills?\n\n— **Коммуникация**: умение ясно выражать мысли, слушать собеседника, аргументировать свою позицию.\n— **Командная работа**: способность эффективно взаимодействовать с другими людьми для достижения общей цели.\n— **Критическое мышление**: умение анализировать информацию, замечать противоречия и делать обоснованные выводы.\n— **Тайм-менеджмент**: навык планировать своё время и соблюдать дедлайны.\n— **Адаптивность**: готовность меняться и учиться новому в быстро меняющихся условиях.\n\n## Как развивать soft skills через проекты Навыкус?\n\nУчастие в чемпионатах и активностях платформы — отличный способ прокачать гибкие навыки на практике.\n\n1. **Работа в команде** над кейсом учит договариваться, распределять задачи и нести ответственность за общий результат.\n2. **Презентация проекта** перед жюри тренирует навыки публичных выступлений и самопрезентации.\n3. **Работа с дедлайнами** чемпионата помогает освоить тайм-менеджмент.\n4. **Решение нестандартных кейсов** развивает критическое мышление и креативность.\n\nНачните с малого: запишитесь на ближайший воркшоп или соберите команду для участия в чемпионате. Каждый проект — это шаг к вашему развитию!',
+      category: 'education',
+      status: 'published',
+      originalLanguage: 'ru',
+      readingTime: 5,
+      publishedAt: '2026-07-08T10:00:00.000Z',
+      tags: ['soft skills', 'навыки', 'развитие', 'образование'],
+    },
+  ];
+
+  for (const post of BLOG_SEED) {
+    const existing = await payload.find({
+      collection: 'blog-posts' as any,
+      where: { slug: { equals: post.slug } },
+      limit: 1,
+      overrideAccess: true,
+    });
+
+    if (!existing.docs[0]) {
+      await payload.create({
+        collection: 'blog-posts' as any,
+        data: {
+          ...post,
+          author: adminId,
+          tags: list(post.tags),
+        },
+        overrideAccess: true,
+      });
+    }
   }
 
   console.log('Payload seed complete.');

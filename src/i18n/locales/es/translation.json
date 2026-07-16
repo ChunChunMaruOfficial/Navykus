@@ -7,7 +7,8 @@
     "ar": "Arabic",
     "de": "German",
     "es": "Spanish",
-    "tr": "Turkish"
+    "tr": "Turkish",
+    "auto": "Automático"
   },
   "common": {
     "brand": "Navykus",
@@ -23,7 +24,8 @@
     "close": "Cerrar",
     "loading": "Cargando",
     "details": "Más detalles",
-    "collapse": "Colapso"
+    "collapse": "Colapso",
+    "cancel": "Cancelar"
   },
   "meta": {
     "home": {
@@ -41,6 +43,14 @@
     },
     "findTeam": {
       "title": "Encuentra un equipo - Navykus"
+    },
+    "blog": {
+      "title": "Blog — Navykus",
+      "description": "Noticias de la comunidad, artículos educativos, entrevistas, historias de participantes y materiales de la plataforma Navykus."
+    },
+    "notFound": {
+      "title": "Pagina no encontrada - Navykus",
+      "description": "La pagina solicitada no existe. Vuelve a la pagina principal de Navykus."
     }
   },
   "ui": {
@@ -50,8 +60,8 @@
       "aacca2db": "¿Qué es Navykus?",
       "19816f01": "¿Por qué los padres y expertos eligen Navykus?",
       "e07687c4": "¿Listo para comenzar tu viaje?",
-      "a5307558": "mailto:info@navykus.org?subject=Запрос%20политики%20конфиденциальности",
-      "4d9e7853": "mailto:info@navykus.org?subject=Запрос%20пользовательского%20соглашения",
+      "a5307558": "mailto:info@navykus.org?subject=Privacy%20policy%20request",
+      "4d9e7853": "mailto:info@navykus.org?subject=Terms%20request",
       "02ce21d910": "Por favor ingresa tu nombre",
       "1c3299a85e": "Por favor ingresa la edad correcta (de 10 a 22 años)",
       "92ca287f55": "Por favor indica tu país o ciudad",
@@ -101,7 +111,7 @@
       "7acec174f3": "País / Ciudad *",
       "1734a8f063": "Kazajstán, Almatý",
       "0751cc5d9c": "Correo o Telegrama *",
-      "7d521595ce": "@username или e-mail",
+      "7d521595ce": "@username or e-mail",
       "d3e56289ef": "Dirección de interés",
       "d52e1ae8a0": "Desarrollo de proyectos",
       "852dca4487": "resolución de casos",
@@ -121,7 +131,16 @@
       "ed16b5adfc": "Coordinador:",
       "9e059272f1": "Privacidad",
       "3a86197ba3": "Acuerdo",
-      "2060fe9f62": "Jurado y mentores de la copa"
+      "2060fe9f62": "Jurado y mentores de la copa",
+      "trustGrowthTitle": "Ruta clara de crecimiento",
+      "trustGrowthDescription": "Cada participante ve el siguiente paso: desde la primera idea y el trabajo en equipo hasta la defensa del proyecto, el certificado y el portafolio.",
+      "copyright": "© 2026 Navikus Global Education",
+      "madeBy": "creado por Dioxoid Digital",
+      "notFoundEyebrow": "Ruta no encontrada",
+      "notFoundTitle": "Esta pagina se salio del camino",
+      "notFoundDescription": "El enlace puede estar desactualizado o la direccion puede tener un error. Vuelve al inicio y continua tu camino en la comunidad Navykus.",
+      "notFoundCodeLabel": "pagina 404",
+      "scrollTop": "Volver arriba"
     },
     "aboutprojectpage": {
       "2805697540": "participar",
@@ -550,6 +569,88 @@
       "b5c7d9e1f3": "Nombre (A–Z)",
       "c1d2e3f4a5b": "Búsqueda avanzada"
     },
+    "blogpage": {
+      "nav": {
+        "label": "Blog"
+      },
+      "hero": {
+        "eyebrow": "Blog Navykus",
+        "title": "Blog Navykus",
+        "description": "Noticias de la comunidad, artículos educativos, entrevistas, historias de participantes y materiales para crecer y mantenerte al día con todos los eventos de la plataforma.",
+        "cta": "Ver últimas publicaciones",
+        "createCta": "Escribir un artículo",
+        "coverAlt": "Participantes del campeonato de Navykus presentando un proyecto"
+      },
+      "search": {
+        "placeholder": "Buscar artículos, categorías y etiquetas…",
+        "submit": "Buscar"
+      },
+      "categories": {
+        "aria": "Categorías del blog",
+        "all": "Todo"
+      },
+      "cat": {
+        "all": "Todo",
+        "news": "Noticias",
+        "championships": "Campeonatos",
+        "activities": "Actividades",
+        "opportunities": "Oportunidades",
+        "stories": "Historias de participantes",
+        "interviews": "Entrevistas",
+        "tips": "Consejos",
+        "education": "Educación",
+        "projects": "Proyectos"
+      },
+      "featured": {
+        "title": "Publicaciones populares"
+      },
+      "latest": {
+        "title": "Últimas publicaciones"
+      },
+      "readingTime": "{{count}} min",
+      "results": "Publicaciones encontradas: {{count}}",
+      "empty": {
+        "title": "No se encontró nada",
+        "description": "Intenta cambiar tu consulta o restablecer los filtros.",
+        "reset": "Restablecer filtros"
+      },
+      "loadMore": "Cargar más",
+      "newsletter": {
+        "title": "No te pierdas los nuevos materiales",
+        "description": "Suscríbete para ser el primero en enterarte de nuevos campeonatos, oportunidades y publicaciones educativas.",
+        "placeholder": "Tu email",
+        "cta": "Suscribirse"
+      },
+      "translationPending": "Traducción en proceso",
+      "pagination": {
+        "prev": "Anterior",
+        "next": "Siguiente"
+      }
+    },
+    "blogmoderation": {
+      "title": "Moderación del blog",
+      "tabs": {
+        "all": "Todos",
+        "pending_review": "Pendiente de revisión",
+        "approved": "Aprobado",
+        "published": "Publicado",
+        "rejected": "Rechazado",
+        "drafts": "Borradores"
+      },
+      "prevComment": "Comentario",
+      "commentPlaceholder": "Comentario (opcional)",
+      "revision": "Devolver para revisión",
+      "unpublish": "Cancelar publicación",
+      "viewArticle": "Abrir artículo",
+      "myPosts": "Mis publicaciones",
+      "newPost": "Nueva publicación",
+      "editPost": "Editar",
+      "editorComingSoon": "Editor del blog — próximamente.",
+      "adminTabs": {
+        "overview": "Resumen",
+        "blog": "Blog"
+      }
+    },
     "enhancements": {
       "proofCountries": "countries",
       "proofParticipants": "participants",
@@ -586,6 +687,70 @@
       "fileSizeError": "File size must not exceed 10 MB.",
       "privateContact": "Public phone numbers and email addresses are hidden. Invitations are sent through a safe platform flow.",
       "findTeamHeroAlt": "Participants discussing a team project"
+    },
+    "authmodal": {
+      "headerButton": "Authorization",
+      "subtitle": "Log in or create an account to use personal Navykus features.",
+      "success": "Done. You are authorized.",
+      "authorizedTitle": "You are authorized",
+      "authorizedText": "Account {{name}} is connected to the Navykus platform.",
+      "profile": "Open profile",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "codeTab": "Code",
+      "codeTitle": "Log in by code",
+      "codeSubtitle": "Temporary UI for email code login. The sending flow will be connected later.",
+      "codeInput": "Code",
+      "sendCode": "Send",
+      "codeAction": "Continue by code",
+      "codeComingSoon": "Code login UI is ready. Sending and verification will be connected later."
+    },
+    "blogeditor": {
+      "title": "Editor de blog",
+      "createTitle": "Escribir artículo",
+      "editTitle": "Editar artículo",
+      "fields": {
+        "title": "Título",
+        "excerpt": "Extracto",
+        "content": "Contenido",
+        "category": "Categoría",
+        "tags": "Etiquetas (separadas por comas)",
+        "originalLanguage": "Idioma original",
+        "coverId": "ID de imagen de portada",
+        "coverAlt": "Texto alternativo de portada",
+        "seoTitle": "Título SEO",
+        "seoDescription": "Descripción SEO",
+        "slug": "Slug"
+      },
+      "categories": {
+        "news": "Noticias",
+        "championships": "Campeonatos",
+        "activities": "Actividades",
+        "opportunities": "Oportunidades",
+        "stories": "Historias",
+        "interviews": "Entrevistas",
+        "tips": "Consejos",
+        "education": "Educación",
+        "projects": "Proyectos"
+      },
+      "actions": {
+        "saveDraft": "Guardar borrador",
+        "submitReview": "Enviar a revisión",
+        "cancel": "Cancelar",
+        "delete": "Eliminar",
+        "preview": "Vista previa",
+        "hidePreview": "Ocultar vista previa"
+      },
+      "validation": {
+        "titleRequired": "El título es obligatorio",
+        "titleTooLong": "El título no debe superar 200 caracteres",
+        "excerptRequired": "El extracto es obligatorio",
+        "excerptTooLong": "El extracto no debe superar 600 caracteres",
+        "contentRequired": "El contenido es obligatorio",
+        "categoryRequired": "La categoría es obligatoria",
+        "deleteConfirm": "¿Eliminar este artículo permanentemente?"
+      },
+      "readingTime": "{{count}} min"
     }
   },
   "data": {
@@ -863,7 +1028,7 @@
         ],
         "prerequisites": "No requerido",
         "ctaText": "Ver entradas",
-        "ctaLink": "mailto:info@navykus.org?subject=Записи%20конференции%20Будущее%20Skills%202025"
+        "ctaLink": "mailto:info@navykus.org?subject=Future%20Skills%202025%20conference%20recordings"
       },
       {
         "id": "act-9",
@@ -904,7 +1069,7 @@
         ],
         "prerequisites": "No requerido",
         "ctaText": "Ver grabación",
-        "ctaLink": "mailto:info@navykus.org?subject=Запись%20воркшопа%20по%20исследовательской%20работе"
+        "ctaLink": "mailto:info@navykus.org?subject=Research%20workshop%20recording"
       },
       {
         "id": "act-11",
@@ -925,7 +1090,7 @@
         ],
         "prerequisites": "Cualquier habilidad es bienvenida",
         "ctaText": "Resultados del hackatón",
-        "ctaLink": "mailto:info@navykus.org?subject=Итоги%20хакатона%20Доступная%20среда%202025"
+        "ctaLink": "mailto:info@navykus.org?subject=Accessible%20Environment%202025%20hackathon%20results"
       },
       {
         "id": "act-12",
@@ -946,7 +1111,7 @@
         ],
         "prerequisites": "Inglés básico para la comunicación.",
         "ctaText": "Próximo evento",
-        "ctaLink": "mailto:info@navykus.org?subject=Следующее%20событие%20Asian%20Youth%20Connect"
+        "ctaLink": "mailto:info@navykus.org?subject=Next%20Asian%20Youth%20Connect%20event"
       }
     ],
     "teamMembers": [
@@ -1199,5 +1364,247 @@
         "isApproved": true
       }
     ]
+  },
+  "platform": {
+    "nav": {
+      "home": "Inicio",
+      "championships": "Campeonatos",
+      "events": "Eventos",
+      "opportunities": "Oportunidades",
+      "participants": "Participantes",
+      "profile": "Perfil",
+      "admin": "Administrador",
+      "login": "Iniciar sesión"
+    },
+    "actions": {
+      "logout": "Cerrar sesión",
+      "save": "Guardar cambios",
+      "saveDraft": "Guardar borrador",
+      "submit": "Enviar",
+      "markAllRead": "Marcar todo como leído",
+      "publish": "Publicar",
+      "open": "Abrir",
+      "favorite": "Favorito",
+      "apply": "Postularse",
+      "remove": "Eliminar"
+    },
+    "states": {
+      "loading": "Cargando datos...",
+      "error": "Algo salió mal. Inténtalo de nuevo.",
+      "empty": "Aún no hay registros.",
+      "saving": "Guardando...",
+      "saved": "Guardado"
+    },
+    "auth": {
+      "eyebrow": "Cuenta",
+      "loginTitle": "Iniciar sesión",
+      "registerTitle": "Crear cuenta",
+      "forgotTitle": "Recuperar contraseña",
+      "resetTitle": "Restablecer contraseña",
+      "loginAction": "Iniciar sesión",
+      "registerAction": "Registrarse",
+      "forgotAction": "Enviar enlace de recuperación",
+      "resetAction": "Restablecer contraseña",
+      "privacyAccepted": "Acepto la política de privacidad",
+      "termsAccepted": "Acepto los términos de la plataforma",
+      "forgotSuccess": "Si este correo existe, se enviaron instrucciones de recuperación.",
+      "resetSuccess": "La contraseña se ha restablecido.",
+      "devResetToken": "Token de recuperación de desarrollo:",
+      "quickLoginTitle": "Inicio rápido",
+      "quickLoginAction": "Usar",
+      "quickLoginHint": "Continuar como {{name}}. El navegador puede completar la contraseña."
+    },
+    "fields": {
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "country": "País",
+      "city": "Ciudad",
+      "dateOfBirth": "Fecha de nacimiento",
+      "schoolGrade": "Grado escolar",
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "passwordConfirmation": "Confirmación de contraseña",
+      "resetToken": "Token de recuperación",
+      "school": "Escuela",
+      "ageGroup": "Grupo de edad",
+      "portfolio": "Portafolio",
+      "interests": "Intereses",
+      "skills": "Habilidades",
+      "languages": "Idiomas",
+      "biography": "Biografía",
+      "itemId": "ID del objeto",
+      "itemTitle": "Título del objeto",
+      "motivation": "Motivación",
+      "title": "Título",
+      "description": "Descripción",
+      "requiredSkills": "Habilidades requeridas"
+    },
+    "dashboard": {
+      "profile": "Perfil",
+      "applications": "Solicitudes",
+      "favorites": "Favoritos",
+      "notifications": "Notificaciones",
+      "team": "Búsqueda de equipo",
+      "settings": "Ajustes",
+      "overview": "Panel",
+      "blog": "Mis artículos"
+    },
+    "roles": {
+      "user": "Usuario",
+      "moderator": "Moderador",
+      "admin": "Administrador"
+    },
+    "privacy": {
+      "publicProfile": "Mostrar mi perfil público",
+      "teamSearchAvailable": "Disponible para búsqueda de equipo",
+      "showCity": "Mostrar ciudad",
+      "showSchool": "Mostrar escuela",
+      "showAge": "Mostrar edad",
+      "showEmail": "Mostrar correo electrónico",
+      "showSocialLinks": "Mostrar enlaces sociales"
+    },
+    "itemTypes": {
+      "all": "Todo",
+      "championship": "Campeonato",
+      "event": "Evento",
+      "opportunity": "Oportunidad",
+      "participant": "Participante",
+      "team-post": "Publicación de equipo"
+    },
+    "status": {
+      "draft": "Borrador",
+      "submitted": "Enviado",
+      "under_review": "En revisión",
+      "clarification_required": "Aclaración requerida",
+      "approved": "Aprobado",
+      "rejected": "Rechazado",
+      "cancelled": "Cancelado",
+      "new": "Nuevo",
+      "confirmed": "Confirmado",
+      "contacted": "Contactado",
+      "pending_review": "Pendiente de revisión",
+      "needs_revision": "Requiere revisión",
+      "published": "Publicado",
+      "archived": "Archivado"
+    },
+    "notifications": {
+      "application_submitted": "Solicitud enviada",
+      "application_status_changed": "Estado de solicitud cambiado",
+      "clarification_requested": "Aclaración solicitada",
+      "team_response_received": "Respuesta de equipo recibida",
+      "team_response_accepted": "Respuesta de equipo aceptada",
+      "team_response_rejected": "Respuesta de equipo rechazada",
+      "team_invitation_received": "Invitación de equipo recibida",
+      "upcoming_deadline": "Fecha límite próxima",
+      "upcoming_event": "Evento próximo",
+      "announcement": "Anuncio"
+    },
+    "errors": {
+      "API_ERROR": "La solicitud falló",
+      "AUTH_REQUIRED": "Inicia sesión para continuar",
+      "AUTH_INVALID_REGISTRATION": "Revisa los campos de registro",
+      "AUTH_AGREEMENT_REQUIRED": "Acepta la política y los términos",
+      "AUTH_LOGIN_FAILED": "Correo electrónico o contraseña inválidos",
+      "AUTH_CREDENTIALS_REQUIRED": "Introduce correo electrónico y contraseña",
+      "AUTH_EMAIL_REQUIRED": "Introduce correo electrónico",
+      "AUTH_EMAIL_EXISTS": "Este correo ya está registrado",
+      "AUTH_INVALID_RESET": "Datos de recuperación inválidos",
+      "FORBIDDEN": "Acceso denegado",
+      "FAVORITE_INVALID": "Los datos del favorito son inválidos",
+      "APPLICATION_STATUS_INVALID": "El estado de la solicitud es inválido",
+      "APPLICATION_TARGET_REQUIRED": "Selecciona un objetivo de solicitud",
+      "APPLICATION_DUPLICATE": "Ya tienes una solicitud activa para este elemento",
+      "PARTICIPANT_NOT_FOUND": "Participante no encontrado",
+      "TEAM_POST_INVALID": "Los datos de la publicación de equipo son inválidos",
+      "TEAM_RESPONSE_INVALID": "La respuesta de equipo es inválida",
+      "TEAM_RESPONSE_DUPLICATE": "Ya respondiste a esta publicación",
+      "TEAM_RESPONSE_STATUS_INVALID": "El estado de la respuesta de equipo es inválido",
+      "ACCOUNT_BLOCKED": "La cuenta esta bloqueada",
+      "USER_ROLE_INVALID": "El rol de usuario no es valido",
+      "USER_STATUS_INVALID": "El estado de la cuenta no es valido",
+      "USER_SELF_BLOCK_FORBIDDEN": "No puedes bloquear tu propia cuenta",
+      "USER_LAST_ADMIN_FORBIDDEN": "Se requiere al menos un administrador activo",
+      "AVATAR_REQUIRED": "Elige un archivo de foto de perfil.",
+      "AVATAR_INVALID": "Sube una imagen JPG, PNG o WebP válida.",
+      "INTERNAL_SERVER_ERROR": "Error interno del servidor. Intente más tarde."
+    },
+    "placeholders": {
+      "search": "Buscar..."
+    },
+    "team": {
+      "myPost": "Mi publicación",
+      "response": "Respuesta"
+    },
+    "admin": {
+      "users": "Usuarios",
+      "applications": "Solicitudes",
+      "activeChampionships": "Campeonatos activos",
+      "upcomingEvents": "Eventos próximos",
+      "publishedOpportunities": "Oportunidades publicadas",
+      "teamPosts": "Publicaciones de equipo",
+      "role": "Rol",
+      "accountStatus": "Estado de la cuenta",
+      "adminOnly": "Solo los administradores pueden cambiar roles y estado de cuenta."
+    },
+    "accountStatus": {
+      "active": "Activo",
+      "pending": "Pendiente",
+      "blocked": "Bloqueado"
+    },
+    "dashboardHome": {
+      "eyebrow": "Espacio personal",
+      "title": "{{name}}, tu panel de Navykus",
+      "description": "Sigue solicitudes, favoritos, notificaciones, búsqueda de equipo y preparación del perfil en un solo lugar.",
+      "profileCompletion": "Completitud del perfil",
+      "activity": "Actividad reciente",
+      "activeApplications": "{{count}} solicitudes activas",
+      "emptyActivity": "Aún no hay actividad. Empieza explorando campeonatos o guardando una oportunidad.",
+      "explore": "Explorar campeonatos",
+      "stats": {
+        "applications": "Solicitudes",
+        "favorites": "Favoritos",
+        "notifications": "Sin leer",
+        "team": "Actividad de equipo"
+      },
+      "actions": {
+        "completeProfile": "Completar perfil",
+        "completeProfileText": "Añade habilidades, intereses, escuela, portafolio y ajustes de visibilidad.",
+        "findOpportunity": "Encontrar una oportunidad",
+        "findOpportunityText": "Guarda eventos, oportunidades y campeonatos en favoritos.",
+        "findTeam": "Encontrar compañeros",
+        "findTeamText": "Abre participantes públicos y crea tu flujo de búsqueda de equipo."
+      }
+    },
+    "avatar": {
+      "title": "Foto de perfil",
+      "upload": "Subir foto",
+      "uploading": "Subiendo...",
+      "uploaded": "Foto de perfil guardada",
+      "positionX": "Eje horizontal",
+      "positionY": "Eje vertical",
+      "scale": "Acercamiento",
+      "help": "Elige una imagen de tu dispositivo y ajusta el recorte antes de guardarla.",
+      "uploadError": "No se pudo subir la foto de perfil",
+      "cropHint": "Arrastra la imagen dentro del círculo. Usa los botones para acercar o girar.",
+      "cropTitle": "Editar foto de perfil",
+      "cropText": "Coloca tu rostro dentro del círculo y guarda la versión final como foto de perfil.",
+      "zoomIn": "Acercar",
+      "zoomOut": "Alejar",
+      "rotate": "Girar",
+      "reset": "Restablecer",
+      "saveCrop": "Guardar foto"
+    },
+    "settings": {
+      "accountTitle": "Cuenta",
+      "accountText": "Cierra sesión o elimina la cuenta junto con los datos del perfil.",
+      "deleteAccount": "Eliminar cuenta",
+      "deleteConfirm": "¿Eliminar la cuenta? Esta acción no se puede deshacer.",
+      "deleteError": "No se pudo eliminar la cuenta.",
+      "languageTitle": "Idioma de la interfaz",
+      "languageText": "Elige el idioma que se usará en el sitio y en tu perfil."
+    },
+    "details": {
+      "history": "Historial"
+    }
   }
 }

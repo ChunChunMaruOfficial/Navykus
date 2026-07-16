@@ -550,6 +550,64 @@
       "b5c7d9e1f3": "الاسم (أ–ي)",
       "c1d2e3f4a5b": "بحث متقدم"
     },
+    "blogpage": {
+      "nav": {
+        "label": "المدونة"
+      },
+      "hero": {
+        "eyebrow": "مدونة نافيكوس",
+        "title": "مدونة نافيكوس",
+        "description": "أخبار المجتمع، مقالات تعليمية، مقابلات، قصص المشاركين ومواد تساعدك على النمو والبقاء على اطلاع بجميع أحداث المنصة.",
+        "cta": "عرض أحدث المنشورات",
+        "createCta": "كتابة مقالة",
+        "coverAlt": "يقدم مشاركو بطولة نافيكوس مشروعًا"
+      },
+      "search": {
+        "placeholder": "البحث في المقالات والتصنيفات والوسوم…",
+        "submit": "بحث"
+      },
+      "categories": {
+        "aria": "تصنيفات المدونة",
+        "all": "الكل"
+      },
+      "cat": {
+        "all": "الكل",
+        "news": "أخبار",
+        "championships": "بطولات",
+        "activities": "نشاطات",
+        "opportunities": "فرص",
+        "stories": "قصص المشاركين",
+        "interviews": "مقابلات",
+        "tips": "نصائح",
+        "education": "تعليم",
+        "projects": "مشاريع"
+      },
+      "featured": {
+        "title": "المنشورات الشائعة"
+      },
+      "latest": {
+        "title": "آخر المنشورات"
+      },
+      "readingTime": "{{count}} دق",
+      "results": "المنشورات الموجودة: {{count}}",
+      "empty": {
+        "title": "لم يعثر على شيء",
+        "description": "حاول تغيير استعلامك أو إعادة تعيين الفلاتر.",
+        "reset": "إعادة تعيين الفلاتر"
+      },
+      "loadMore": "تحميل المزيد",
+      "newsletter": {
+        "title": "لا تفوا المنشورات الجديدة",
+        "description": "اشترك لتكون أول من يعرف بالبطولات الجديدة والفرص والمنشورات التعليمية.",
+        "placeholder": "بريدك الإلكتروني",
+        "cta": "اشتراك"
+      },
+      "translationPending": "الترجمة قيد الإنجاز",
+      "pagination": {
+        "prev": "السابق",
+        "next": "التالي"
+      }
+    },
     "enhancements": {
       "proofCountries": "countries",
       "proofParticipants": "participants",
@@ -1199,5 +1257,12 @@
         "isApproved": true
       }
     ]
+  },
+  "platform": {
+    "errors": {
+      "API_ERROR": "فشل الطلب",
+      "INTERNAL_SERVER_ERROR": "خطأ داخلي في الخادم",
+      "AUTH_EMAIL_EXISTS": "هذا البريد الإلكتروني مسجل بالفعل"
+    }
   }
 }

@@ -523,7 +523,7 @@ export default function AboutProjectPage({
                   onClick={() => setActiveFaqIdx(activeFaqIdx === idx ? null : idx)}
                   aria-expanded={activeFaqIdx === idx}
                   aria-controls={`about-faq-panel-${faq.id}`}
-                  className="w-full flex items-center justify-between p-5 text-left font-serif font-semibold text-brand-dark text-base md:text-lg cursor-pointer"
+                  className="w-full flex items-center justify-between p-5 text-left font-serif font-semibold text-brand-dark text-lg md:text-xl cursor-pointer"
                 >
                   <span>{faq.question}</span>
                   <ChevronDown className={`w-4 h-4 text-brand-slate/60 transition-transform duration-300 flex-shrink-0 ${activeFaqIdx === idx ? 'rotate-180' : ''}`} />

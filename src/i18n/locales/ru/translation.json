@@ -7,7 +7,8 @@
     "ar": "العربية",
     "de": "Deutsch",
     "es": "Español",
-    "tr": "Türkçe"
+    "tr": "Türkçe",
+    "auto": "Авто"
   },
   "common": {
     "brand": "Навыкус",
@@ -23,7 +24,8 @@
     "close": "Закрыть",
     "loading": "Загрузка",
     "details": "Подробнее",
-    "collapse": "Свернуть"
+    "collapse": "Свернуть",
+    "cancel": "Отмена"
   },
   "meta": {
     "home": {
@@ -41,6 +43,14 @@
     },
     "findTeam": {
       "title": "Найти команду — Навыкус"
+    },
+    "blog": {
+      "title": "Блог — Навыкус",
+      "description": "Новости сообщества, образовательные статьи, интервью, истории участников и материалы платформы Навыкус."
+    },
+    "notFound": {
+      "title": "Страница не найдена — Навыкус",
+      "description": "Запрошенная страница не найдена. Вернитесь на главную страницу Навыкус."
     }
   },
   "ui": {
@@ -121,7 +131,16 @@
       "ed16b5adfc": "Координатор:",
       "9e059272f1": "Конфиденциальность",
       "3a86197ba3": "Соглашение",
-      "2060fe9f62": "Жюри и наставники кубка"
+      "2060fe9f62": "Жюри и наставники кубка",
+      "trustGrowthTitle": "Понятная траектория роста",
+      "trustGrowthDescription": "Участник видит следующий шаг: от первой идеи и командной работы до защиты проекта, сертификата и портфолио.",
+      "copyright": "© 2026 Navikus Global Education",
+      "madeBy": "сделано Dioxoid Digital",
+      "notFoundEyebrow": "Маршрут не найден",
+      "notFoundTitle": "Эта страница ушла с маршрута",
+      "notFoundDescription": "Похоже, ссылка устарела или адрес введен с ошибкой. Вернитесь на главную и продолжите путь в сообществе Навыкус.",
+      "notFoundCodeLabel": "страница 404",
+      "scrollTop": "Наверх"
     },
     "aboutprojectpage": {
       "2805697540": "Принять участие",
@@ -550,6 +569,135 @@
       "b5c7d9e1f3": "Имя (А→Я)",
       "c1d2e3f4a5b": "Расширенный поиск"
     },
+    "blogeditor": {
+      "title": "Редактор статьи",
+      "createTitle": "Новая статья",
+      "editTitle": "Редактировать статью",
+      "fields": {
+        "title": "Заголовок",
+        "excerpt": "Аннотация",
+        "content": "Содержание",
+        "category": "Категория",
+        "tags": "Теги (через запятую)",
+        "originalLanguage": "Язык оригинала",
+        "coverId": "ID обложки",
+        "coverAlt": "Описание обложки",
+        "seoTitle": "SEO заголовок",
+        "seoDescription": "SEO описание",
+        "slug": "Slug (URL)"
+      },
+      "categories": {
+        "news": "Новости",
+        "championships": "Чемпионаты",
+        "activities": "Активности",
+        "opportunities": "Возможности",
+        "stories": "Истории участников",
+        "interviews": "Интервью",
+        "tips": "Советы",
+        "education": "Образование",
+        "projects": "Проекты"
+      },
+      "actions": {
+        "saveDraft": "Сохранить черновик",
+        "submitReview": "Отправить на модерацию",
+        "cancel": "Отмена",
+        "delete": "Удалить",
+        "preview": "Предпросмотр",
+        "hidePreview": "Скрыть предпросмотр"
+      },
+      "validation": {
+        "titleRequired": "Укажите заголовок",
+        "titleTooLong": "Заголовок не должен превышать 200 символов",
+        "excerptRequired": "Укажите аннотацию",
+        "excerptTooLong": "Аннотация не должна превышать 600 символов",
+        "contentRequired": "Добавьте содержание",
+        "categoryRequired": "Выберите категорию",
+        "deleteConfirm": "Удалить статью навсегда? Это действие нельзя отменить."
+      },
+      "readingTime": "{{count}} мин. чтения"
+    },
+    "blogpage": {
+      "nav": {
+        "label": "Блог"
+      },
+      "hero": {
+        "eyebrow": "Блог Навыкус",
+        "title": "Блог Навыкус",
+        "description": "Новости сообщества, образовательные статьи, интервью, истории участников и материалы, которые помогут развиваться и оставаться в курсе всех событий платформы.",
+        "cta": "Смотреть последние публикации",
+        "createCta": "Написать статью",
+        "coverAlt": "Участники чемпионата Навыкус представляют проект"
+      },
+      "search": {
+        "placeholder": "Поиск по статьям, категориям и тегам…",
+        "submit": "Поиск"
+      },
+      "categories": {
+        "aria": "Категории блога",
+        "all": "Все"
+      },
+      "cat": {
+        "all": "Все",
+        "news": "Новости",
+        "championships": "Чемпионаты",
+        "activities": "Активности",
+        "opportunities": "Возможности",
+        "stories": "Истории участников",
+        "interviews": "Интервью",
+        "tips": "Советы",
+        "education": "Образование",
+        "projects": "Проекты"
+      },
+      "featured": {
+        "title": "Популярные материалы"
+      },
+      "latest": {
+        "title": "Последние публикации"
+      },
+      "readingTime": "{{count}} мин",
+      "results": "Найдено материалов: {{count}}",
+      "empty": {
+        "title": "Ничего не найдено",
+        "description": "Попробуйте изменить запрос или сбросить фильтры.",
+        "reset": "Сбросить фильтры"
+      },
+      "loadMore": "Показать ещё",
+      "newsletter": {
+        "title": "Не пропускайте новые материалы",
+        "description": "Подпишитесь, чтобы первыми узнавать о новых чемпионатах, возможностях и образовательных публикациях.",
+        "placeholder": "Ваш email",
+        "cta": "Подписаться"
+      },
+      "translationPending": "Перевод в процессе",
+      "pagination": {
+        "prev": "Назад",
+        "next": "Далее"
+      }
+    },
+    "blogmoderation": {
+      "title": "Модерация блога",
+      "tabs": {
+        "all": "Все",
+        "pending_review": "На проверке",
+        "approved": "Одобрено",
+        "published": "Опубликовано",
+        "rejected": "Отклонено",
+        "drafts": "Черновики"
+      },
+      "prevComment": "Комментарий",
+      "commentPlaceholder": "Комментарий (необязательно)",
+      "revision": "Вернуть на доработку",
+      "unpublish": "Снять с публикации",
+      "viewArticle": "Открыть статью",
+      "myPosts": "Мои посты",
+      "newPost": "Новый пост",
+      "editPost": "Редактировать",
+      "editorComingSoon": "Редактор блога — скоро.",
+      "adminTabs": {
+        "overview": "Обзор",
+        "blog": "Блог"
+      }
+    },
     "enhancements": {
       "proofCountries": "стран",
       "proofParticipants": "участников",
@@ -586,6 +734,23 @@
       "fileSizeError": "Размер файла не должен превышать 10 МБ.",
       "privateContact": "Публичные телефоны и email скрыты. Приглашение отправляется через безопасный сценарий платформы.",
       "findTeamHeroAlt": "Участники обсуждают командный проект"
+    },
+    "authmodal": {
+      "headerButton": "Авторизация",
+      "subtitle": "Войдите или создайте аккаунт, чтобы использовать личные функции Navykus.",
+      "success": "Готово. Вы авторизованы.",
+      "authorizedTitle": "Вы авторизованы",
+      "authorizedText": "Аккаунт {{name}} подключен к платформе Navykus.",
+      "profile": "Открыть профиль",
+      "showPassword": "Показать пароль",
+      "hidePassword": "Скрыть пароль",
+      "codeTab": "Код",
+      "codeTitle": "Вход по коду",
+      "codeSubtitle": "Пока это UI для входа по коду. Отправку подключим позже.",
+      "codeInput": "Код",
+      "sendCode": "Отправить",
+      "codeAction": "Войти по коду",
+      "codeComingSoon": "UI для входа по коду готов. Отправка и проверка будут позже."
     }
   },
   "data": {
@@ -1199,5 +1364,247 @@
         "isApproved": true
       }
     ]
+  },
+  "platform": {
+    "nav": {
+      "home": "На главную",
+      "championships": "Чемпионаты",
+      "events": "События",
+      "opportunities": "Возможности",
+      "participants": "Участники",
+      "profile": "Профиль",
+      "admin": "Админ",
+      "login": "Войти"
+    },
+    "actions": {
+      "logout": "Выйти",
+      "save": "Сохранить",
+      "saveDraft": "Сохранить черновик",
+      "submit": "Отправить",
+      "markAllRead": "Прочитать все",
+      "publish": "Опубликовать",
+      "open": "Открыть",
+      "favorite": "В избранное",
+      "apply": "Подать заявку",
+      "remove": "Удалить"
+    },
+    "states": {
+      "loading": "Загрузка...",
+      "error": "Что-то пошло не так. Попробуйте еще раз.",
+      "empty": "Записей пока нет.",
+      "saving": "Сохранение...",
+      "saved": "Сохранено"
+    },
+    "auth": {
+      "eyebrow": "Аккаунт",
+      "loginTitle": "Вход",
+      "registerTitle": "Регистрация",
+      "forgotTitle": "Восстановление пароля",
+      "resetTitle": "Сброс пароля",
+      "loginAction": "Войти",
+      "registerAction": "Зарегистрироваться",
+      "forgotAction": "Отправить ссылку",
+      "resetAction": "Сбросить пароль",
+      "privacyAccepted": "Я согласен с политикой конфиденциальности",
+      "termsAccepted": "Я согласен с условиями",
+      "forgotSuccess": "Если email есть в системе, инструкции отправлены.",
+      "resetSuccess": "Пароль сброшен.",
+      "devResetToken": "Токен сброса для разработки:",
+      "quickLoginTitle": "Быстрый вход",
+      "quickLoginAction": "Использовать",
+      "quickLoginHint": "Продолжить как {{name}}. Пароль может подставить браузер."
+    },
+    "fields": {
+      "firstName": "Имя",
+      "lastName": "Фамилия",
+      "country": "Страна",
+      "city": "Город",
+      "dateOfBirth": "Дата рождения",
+      "schoolGrade": "Класс",
+      "email": "Email",
+      "password": "Пароль",
+      "passwordConfirmation": "Повтор пароля",
+      "resetToken": "Токен сброса",
+      "school": "Школа",
+      "ageGroup": "Возраст",
+      "portfolio": "Портфолио",
+      "interests": "Интересы",
+      "skills": "Навыки",
+      "languages": "Языки",
+      "biography": "О себе",
+      "itemId": "ID",
+      "itemTitle": "Название",
+      "motivation": "Мотивация",
+      "title": "Заголовок",
+      "description": "Описание",
+      "requiredSkills": "Нужные навыки"
+    },
+    "dashboard": {
+      "profile": "Профиль",
+      "applications": "Заявки",
+      "favorites": "Избранное",
+      "notifications": "Уведомления",
+      "team": "Поиск команды",
+      "settings": "Настройки",
+      "overview": "Кабинет",
+      "blog": "Мои статьи"
+    },
+    "roles": {
+      "user": "Пользователь",
+      "moderator": "Модератор",
+      "admin": "Администратор"
+    },
+    "privacy": {
+      "publicProfile": "Показывать мой публичный профиль",
+      "teamSearchAvailable": "Доступен для поиска команды",
+      "showCity": "Показывать город",
+      "showSchool": "Показывать школу",
+      "showAge": "Показывать возраст",
+      "showEmail": "Показывать email",
+      "showSocialLinks": "Показывать социальные ссылки"
+    },
+    "itemTypes": {
+      "all": "Все",
+      "championship": "Чемпионат",
+      "event": "Событие",
+      "opportunity": "Возможность",
+      "participant": "Участник",
+      "team-post": "Пост команды"
+    },
+    "status": {
+      "draft": "Черновик",
+      "submitted": "Отправлено",
+      "under_review": "На проверке",
+      "clarification_required": "Нужно уточнение",
+      "approved": "Одобрено",
+      "rejected": "Отклонено",
+      "cancelled": "Отменено",
+      "new": "Новая",
+      "confirmed": "Подтверждено",
+      "contacted": "Связались",
+      "pending_review": "Ожидает модерации",
+      "needs_revision": "Нужна доработка",
+      "published": "Опубликовано",
+      "archived": "В архиве"
+    },
+    "notifications": {
+      "application_submitted": "Заявка отправлена",
+      "application_status_changed": "Статус заявки изменён",
+      "clarification_requested": "Запрошено уточнение",
+      "team_response_received": "Получен ответ команды",
+      "team_response_accepted": "Ответ команды принят",
+      "team_response_rejected": "Ответ команды отклонён",
+      "team_invitation_received": "Получено приглашение в команду",
+      "upcoming_deadline": "Скоро дедлайн",
+      "upcoming_event": "Скоро событие",
+      "announcement": "Объявление"
+    },
+    "errors": {
+      "API_ERROR": "Запрос не выполнен",
+      "AUTH_REQUIRED": "Войдите, чтобы продолжить",
+      "AUTH_INVALID_REGISTRATION": "Проверьте поля регистрации",
+      "AUTH_AGREEMENT_REQUIRED": "Примите политику и условия",
+      "AUTH_LOGIN_FAILED": "Неверный email или пароль",
+      "AUTH_CREDENTIALS_REQUIRED": "Введите email и пароль",
+      "AUTH_EMAIL_REQUIRED": "Введите email",
+      "AUTH_EMAIL_EXISTS": "Этот email уже зарегистрирован",
+      "AUTH_INVALID_RESET": "Некорректные данные сброса",
+      "FORBIDDEN": "Доступ запрещён",
+      "FAVORITE_INVALID": "Некорректные данные избранного",
+      "APPLICATION_STATUS_INVALID": "Некорректный статус заявки",
+      "APPLICATION_TARGET_REQUIRED": "Выберите цель заявки",
+      "APPLICATION_DUPLICATE": "У вас уже есть активная заявка на этот объект",
+      "PARTICIPANT_NOT_FOUND": "Участник не найден",
+      "TEAM_POST_INVALID": "Некорректные данные поста команды",
+      "TEAM_RESPONSE_INVALID": "Некорректный ответ команды",
+      "TEAM_RESPONSE_DUPLICATE": "Вы уже ответили на этот пост",
+      "TEAM_RESPONSE_STATUS_INVALID": "Некорректный статус ответа команды",
+      "ACCOUNT_BLOCKED": "Аккаунт заблокирован",
+      "USER_ROLE_INVALID": "Некорректная роль пользователя",
+      "USER_STATUS_INVALID": "Некорректный статус аккаунта",
+      "USER_SELF_BLOCK_FORBIDDEN": "Нельзя заблокировать собственный аккаунт",
+      "USER_LAST_ADMIN_FORBIDDEN": "Нужен хотя бы один активный администратор",
+      "AVATAR_REQUIRED": "Выбери файл аватара.",
+      "AVATAR_INVALID": "Загрузи корректное изображение JPG, PNG или WebP.",
+      "INTERNAL_SERVER_ERROR": "Внутренняя ошибка сервера. Попробуйте позже."
+    },
+    "placeholders": {
+      "search": "Поиск..."
+    },
+    "team": {
+      "myPost": "Мой пост",
+      "response": "Ответ"
+    },
+    "admin": {
+      "users": "Пользователи",
+      "applications": "Заявки",
+      "activeChampionships": "Активные чемпионаты",
+      "upcomingEvents": "Ближайшие события",
+      "publishedOpportunities": "Опубликованные возможности",
+      "teamPosts": "Посты команд",
+      "role": "Роль",
+      "accountStatus": "Статус аккаунта",
+      "adminOnly": "Только администраторы могут менять роли и статус аккаунта."
+    },
+    "accountStatus": {
+      "active": "Активен",
+      "pending": "Ожидает",
+      "blocked": "Заблокирован"
+    },
+    "dashboardHome": {
+      "eyebrow": "Личное пространство",
+      "title": "{{name}}, ваш кабинет Navykus",
+      "description": "Здесь собраны заявки, избранное, уведомления, командная активность и готовность профиля.",
+      "profileCompletion": "Заполнение профиля",
+      "activity": "Последняя активность",
+      "activeApplications": "{{count}} активных заявок",
+      "emptyActivity": "Активности пока нет. Начните с чемпионатов или сохраните возможность.",
+      "explore": "Изучить чемпионаты",
+      "stats": {
+        "applications": "Заявки",
+        "favorites": "Избранное",
+        "notifications": "Непрочитанные",
+        "team": "Команда"
+      },
+      "actions": {
+        "completeProfile": "Заполнить профиль",
+        "completeProfileText": "Добавьте навыки, интересы, школу, портфолио и настройки видимости.",
+        "findOpportunity": "Найти возможность",
+        "findOpportunityText": "Сохраняйте события, возможности и чемпионаты в избранное.",
+        "findTeam": "Найти команду",
+        "findTeamText": "Откройте участников и соберите свой поток поиска команды."
+      }
+    },
+    "avatar": {
+      "title": "Аватар",
+      "upload": "Загрузить фото",
+      "uploading": "Загрузка...",
+      "uploaded": "Аватар сохранён",
+      "positionX": "Горизонталь",
+      "positionY": "Вертикаль",
+      "scale": "Масштаб",
+      "help": "Выберите изображение из проводника, затем красиво кадрируйте его перед сохранением.",
+      "uploadError": "Не удалось загрузить аватар",
+      "cropHint": "Перетаскивайте фото внутри круга. Кнопками можно менять масштаб и поворот.",
+      "cropTitle": "Редактировать аватар",
+      "cropText": "Разместите лицо в круге и сохраните готовую версию как аватар.",
+      "zoomIn": "Увеличить",
+      "zoomOut": "Уменьшить",
+      "rotate": "Повернуть",
+      "reset": "Сбросить",
+      "saveCrop": "Сохранить фото"
+    },
+    "settings": {
+      "accountTitle": "Аккаунт",
+      "accountText": "Выйдите из сессии или удалите аккаунт вместе с данными профиля.",
+      "deleteAccount": "Удалить аккаунт",
+      "deleteConfirm": "Удалить аккаунт? Это действие нельзя отменить.",
+      "deleteError": "Не удалось удалить аккаунт.",
+      "languageTitle": "Язык интерфейса",
+      "languageText": "Выберите язык, который будет использоваться на сайте и в профиле."
+    },
+    "details": {
+      "history": "История изменений"
+    }
   }
 }

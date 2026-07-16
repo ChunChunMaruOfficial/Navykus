@@ -101,11 +101,9 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
       'application/pdf',
       'application/msword',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/vnd.ms-powerpoint',
-      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-      'text/plain',
       'image/jpeg',
       'image/png',
+      'image/webp',
     ]);
     const maxSize = 10 * 1024 * 1024;
 
@@ -295,7 +293,7 @@ export default function ApplicationModal({ isOpen, onClose, selectedTournamentId
                       <label className={APPLICATION_UPLOAD_CLASS}>
                         <input
                           type="file"
-                          accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png"
+                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
                           onChange={(e) => handleFileChange(e.target.files?.[0])}
                           className="sr-only"
                         />

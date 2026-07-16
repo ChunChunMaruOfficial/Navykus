@@ -72,12 +72,23 @@ export interface Config {
     tournaments: Tournament;
     activities: Activity;
     experts: Expert;
+    faqs: Faq;
+    events: Event;
+    opportunities: Opportunity;
     'team-members': TeamMember;
+    'team-posts': TeamPost;
+    'team-responses': TeamResponse;
     'trust-points': TrustPoint;
     pillars: Pillar;
     stats: Stat;
     applications: Application;
+    'application-status-history': ApplicationStatusHistory;
+    favorites: Favorite;
+    notifications: Notification;
     'community-leads': CommunityLead;
+    'blog-posts': BlogPost;
+    'blog-post-localizations': BlogPostLocalization;
+    'blog-moderation-history': BlogModerationHistory;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -90,12 +101,23 @@ export interface Config {
     tournaments: TournamentsSelect<false> | TournamentsSelect<true>;
     activities: ActivitiesSelect<false> | ActivitiesSelect<true>;
     experts: ExpertsSelect<false> | ExpertsSelect<true>;
+    faqs: FaqsSelect<false> | FaqsSelect<true>;
+    events: EventsSelect<false> | EventsSelect<true>;
+    opportunities: OpportunitiesSelect<false> | OpportunitiesSelect<true>;
     'team-members': TeamMembersSelect<false> | TeamMembersSelect<true>;
+    'team-posts': TeamPostsSelect<false> | TeamPostsSelect<true>;
+    'team-responses': TeamResponsesSelect<false> | TeamResponsesSelect<true>;
     'trust-points': TrustPointsSelect<false> | TrustPointsSelect<true>;
     pillars: PillarsSelect<false> | PillarsSelect<true>;
     stats: StatsSelect<false> | StatsSelect<true>;
     applications: ApplicationsSelect<false> | ApplicationsSelect<true>;
+    'application-status-history': ApplicationStatusHistorySelect<false> | ApplicationStatusHistorySelect<true>;
+    favorites: FavoritesSelect<false> | FavoritesSelect<true>;
+    notifications: NotificationsSelect<false> | NotificationsSelect<true>;
     'community-leads': CommunityLeadsSelect<false> | CommunityLeadsSelect<true>;
+    'blog-posts': BlogPostsSelect<false> | BlogPostsSelect<true>;
+    'blog-post-localizations': BlogPostLocalizationsSelect<false> | BlogPostLocalizationsSelect<true>;
+    'blog-moderation-history': BlogModerationHistorySelect<false> | BlogModerationHistorySelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -142,6 +164,60 @@ export interface UserAuthOperations {
 export interface User {
   id: number;
   name?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  avatar?: (number | null) | Media;
+  avatarUrl?: string | null;
+  avatarAlt?: string | null;
+  avatarPositionX?: number | null;
+  avatarPositionY?: number | null;
+  avatarScale?: number | null;
+  country?: string | null;
+  city?: string | null;
+  dateOfBirth?: string | null;
+  ageGroup?: string | null;
+  school?: string | null;
+  schoolGrade?: string | null;
+  biography?: string | null;
+  interests?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  skills?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  languages?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  portfolio?: string | null;
+  preferredLanguage?: ('ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr') | null;
+  preferredLanguageMode?: ('auto' | 'manual') | null;
+  socialLinks?:
+    | {
+        label: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  teamSearchAvailable?: boolean | null;
+  publicProfile?: boolean | null;
+  accountStatus: 'active' | 'blocked' | 'pending';
+  privacy?: {
+    showCity?: boolean | null;
+    showSchool?: boolean | null;
+    showAge?: boolean | null;
+    showEmail?: boolean | null;
+    showSocialLinks?: boolean | null;
+  };
+  role: 'user' | 'moderator' | 'admin';
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -269,6 +345,125 @@ export interface Expert {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faqs".
+ */
+export interface Faq {
+  id: number;
+  /**
+   * Stable ID from the original frontend data file.
+   */
+  legacyId?: string | null;
+  sortOrder?: number | null;
+  isPublished?: boolean | null;
+  page: 'home' | 'about' | 'championship' | 'activities' | 'find-team' | 'opportunities';
+  question: string;
+  answer: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: number;
+  /**
+   * Stable ID from the original frontend data file.
+   */
+  legacyId?: string | null;
+  sortOrder?: number | null;
+  isPublished?: boolean | null;
+  title: string;
+  slug: string;
+  shortDescription: string;
+  fullDescription?: string | null;
+  imageUrl?: string | null;
+  eventType: string;
+  eventDate: string;
+  timeZone?: string | null;
+  format: 'online' | 'offline' | 'hybrid';
+  country?: string | null;
+  venue?: string | null;
+  speaker?: string | null;
+  participantLimit?: number | null;
+  registrationDeadline?: string | null;
+  onlineLink?: string | null;
+  languages?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  materials?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "opportunities".
+ */
+export interface Opportunity {
+  id: number;
+  /**
+   * Stable ID from the original frontend data file.
+   */
+  legacyId?: string | null;
+  sortOrder?: number | null;
+  isPublished?: boolean | null;
+  title: string;
+  slug: string;
+  organization: string;
+  opportunityType: string;
+  shortDescription: string;
+  fullDescription?: string | null;
+  logoUrl?: string | null;
+  country?: string | null;
+  format?: ('online' | 'offline' | 'hybrid') | null;
+  ageMin?: number | null;
+  ageMax?: number | null;
+  deadline?: string | null;
+  cost?: string | null;
+  funding?: boolean | null;
+  officialUrl?: string | null;
+  internalApplicationsEnabled?: boolean | null;
+  languages?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  requirements?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  benefits?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  documents?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "team-members".
  */
 export interface TeamMember {
@@ -303,6 +498,58 @@ export interface TeamMember {
   contact: string;
   contactType: 'telegram' | 'email' | 'discord';
   isApproved?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "team-posts".
+ */
+export interface TeamPost {
+  id: number;
+  user: number | User;
+  title: string;
+  description: string;
+  status?: ('draft' | 'published' | 'hidden') | null;
+  championshipId?: string | null;
+  projectName?: string | null;
+  communicationLanguage?: string | null;
+  timeZone?: string | null;
+  workingFormat?: ('online' | 'offline' | 'hybrid') | null;
+  openPositions?: number | null;
+  requiredSkills?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  ownSkills?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  interests?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "team-responses".
+ */
+export interface TeamResponse {
+  id: number;
+  post: number | TeamPost;
+  sender: number | User;
+  recipient: number | User;
+  kind?: ('response' | 'invitation') | null;
+  message: string;
+  status?: ('pending' | 'accepted' | 'rejected') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -365,7 +612,21 @@ export interface Stat {
 export interface Application {
   id: number;
   ticketId: string;
-  status: 'new' | 'confirmed' | 'contacted' | 'rejected';
+  user?: (number | null) | User;
+  itemType?: ('championship' | 'event' | 'opportunity' | 'program' | 'team-post') | null;
+  itemId?: string | null;
+  itemTitle?: string | null;
+  status:
+    | 'draft'
+    | 'submitted'
+    | 'under_review'
+    | 'clarification_required'
+    | 'approved'
+    | 'rejected'
+    | 'cancelled'
+    | 'new'
+    | 'confirmed'
+    | 'contacted';
   name: string;
   email: string;
   grade?: string | null;
@@ -378,8 +639,101 @@ export interface Application {
   teamSize?: string | null;
   portfolioLink?: string | null;
   coverLetter?: string | null;
+  customAnswers?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  adminComment?: string | null;
+  internalNotes?: string | null;
+  submittedAt?: string | null;
+  cancelledAt?: string | null;
   attachments?: (number | Media)[] | null;
   source?: ('modal' | 'inline' | 'championship' | 'find-team' | 'api') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "application-status-history".
+ */
+export interface ApplicationStatusHistory {
+  id: number;
+  application: number | Application;
+  user: number | User;
+  actor?: (number | null) | User;
+  previousStatus?: string | null;
+  status: string;
+  comment?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "favorites".
+ */
+export interface Favorite {
+  id: number;
+  user: number | User;
+  itemType: 'championship' | 'event' | 'opportunity' | 'participant' | 'team-post';
+  itemId: string;
+  itemTitle: string;
+  href: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "notifications".
+ */
+export interface Notification {
+  id: number;
+  user: number | User;
+  type:
+    | 'application_submitted'
+    | 'application_status_changed'
+    | 'clarification_requested'
+    | 'team_response_received'
+    | 'team_response_accepted'
+    | 'team_response_rejected'
+    | 'team_invitation_received'
+    | 'upcoming_deadline'
+    | 'upcoming_event'
+    | 'announcement'
+    | 'blog_post_submitted'
+    | 'blog_post_pending_review'
+    | 'blog_post_approved'
+    | 'blog_post_published'
+    | 'blog_post_rejected'
+    | 'blog_post_needs_revision';
+  relatedType?:
+    | (
+        | 'application'
+        | 'championship'
+        | 'event'
+        | 'opportunity'
+        | 'participant'
+        | 'team-post'
+        | 'team-response'
+        | 'blog-post'
+      )
+    | null;
+  relatedId?: string | null;
+  href?: string | null;
+  data?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  readAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -395,6 +749,106 @@ export interface CommunityLead {
   contact: string;
   interest?: string | null;
   source?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-posts".
+ */
+export interface BlogPost {
+  id: number;
+  /**
+   * Stable ID from the original frontend data file.
+   */
+  legacyId?: string | null;
+  sortOrder?: number | null;
+  /**
+   * Original title
+   */
+  title: string;
+  excerpt: string;
+  /**
+   * Markdown or plain text.
+   */
+  content: string;
+  cover?: (number | null) | Media;
+  coverAlt?: string | null;
+  category:
+    | 'news'
+    | 'championships'
+    | 'activities'
+    | 'opportunities'
+    | 'stories'
+    | 'interviews'
+    | 'tips'
+    | 'education'
+    | 'projects';
+  tags?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  status: 'draft' | 'pending_review' | 'needs_revision' | 'approved' | 'published' | 'rejected' | 'archived';
+  author: number | User;
+  originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
+  /**
+   * URL slug
+   */
+  slug: string;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  /**
+   * In minutes. Auto-calculated if not set.
+   */
+  readingTime?: number | null;
+  views?: number | null;
+  likes?: number | null;
+  publishedAt?: string | null;
+  /**
+   * Last comment from moderator to author
+   */
+  moderationComment?: string | null;
+  isApproved?: boolean | null;
+  isPublished?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-post-localizations".
+ */
+export interface BlogPostLocalization {
+  id: number;
+  post: number | BlogPost;
+  language: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
+  title: string;
+  excerpt: string;
+  content: string;
+  slug: string;
+  coverAlt?: string | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  translationStatus: 'pending' | 'in_progress' | 'ready' | 'failed';
+  errorMessage?: string | null;
+  generatedAt?: string | null;
+  attempts?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-moderation-history".
+ */
+export interface BlogModerationHistory {
+  id: number;
+  post: number | BlogPost;
+  author?: (number | null) | User;
+  actor?: (number | null) | User;
+  previousStatus?: string | null;
+  status: string;
+  comment?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -443,8 +897,28 @@ export interface PayloadLockedDocument {
         value: number | Expert;
       } | null)
     | ({
+        relationTo: 'faqs';
+        value: number | Faq;
+      } | null)
+    | ({
+        relationTo: 'events';
+        value: number | Event;
+      } | null)
+    | ({
+        relationTo: 'opportunities';
+        value: number | Opportunity;
+      } | null)
+    | ({
         relationTo: 'team-members';
         value: number | TeamMember;
+      } | null)
+    | ({
+        relationTo: 'team-posts';
+        value: number | TeamPost;
+      } | null)
+    | ({
+        relationTo: 'team-responses';
+        value: number | TeamResponse;
       } | null)
     | ({
         relationTo: 'trust-points';
@@ -463,8 +937,32 @@ export interface PayloadLockedDocument {
         value: number | Application;
       } | null)
     | ({
+        relationTo: 'application-status-history';
+        value: number | ApplicationStatusHistory;
+      } | null)
+    | ({
+        relationTo: 'favorites';
+        value: number | Favorite;
+      } | null)
+    | ({
+        relationTo: 'notifications';
+        value: number | Notification;
+      } | null)
+    | ({
         relationTo: 'community-leads';
         value: number | CommunityLead;
+      } | null)
+    | ({
+        relationTo: 'blog-posts';
+        value: number | BlogPost;
+      } | null)
+    | ({
+        relationTo: 'blog-post-localizations';
+        value: number | BlogPostLocalization;
+      } | null)
+    | ({
+        relationTo: 'blog-moderation-history';
+        value: number | BlogModerationHistory;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -514,6 +1012,62 @@ export interface PayloadMigration {
  */
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
+  firstName?: T;
+  lastName?: T;
+  avatar?: T;
+  avatarUrl?: T;
+  avatarAlt?: T;
+  avatarPositionX?: T;
+  avatarPositionY?: T;
+  avatarScale?: T;
+  country?: T;
+  city?: T;
+  dateOfBirth?: T;
+  ageGroup?: T;
+  school?: T;
+  schoolGrade?: T;
+  biography?: T;
+  interests?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  skills?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  languages?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  portfolio?: T;
+  preferredLanguage?: T;
+  preferredLanguageMode?: T;
+  socialLinks?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        id?: T;
+      };
+  teamSearchAvailable?: T;
+  publicProfile?: T;
+  accountStatus?: T;
+  privacy?:
+    | T
+    | {
+        showCity?: T;
+        showSchool?: T;
+        showAge?: T;
+        showEmail?: T;
+        showSocialLinks?: T;
+      };
+  role?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -626,6 +1180,113 @@ export interface ExpertsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faqs_select".
+ */
+export interface FaqsSelect<T extends boolean = true> {
+  legacyId?: T;
+  sortOrder?: T;
+  isPublished?: T;
+  page?: T;
+  question?: T;
+  answer?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events_select".
+ */
+export interface EventsSelect<T extends boolean = true> {
+  legacyId?: T;
+  sortOrder?: T;
+  isPublished?: T;
+  title?: T;
+  slug?: T;
+  shortDescription?: T;
+  fullDescription?: T;
+  imageUrl?: T;
+  eventType?: T;
+  eventDate?: T;
+  timeZone?: T;
+  format?: T;
+  country?: T;
+  venue?: T;
+  speaker?: T;
+  participantLimit?: T;
+  registrationDeadline?: T;
+  onlineLink?: T;
+  languages?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  materials?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  seoTitle?: T;
+  seoDescription?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "opportunities_select".
+ */
+export interface OpportunitiesSelect<T extends boolean = true> {
+  legacyId?: T;
+  sortOrder?: T;
+  isPublished?: T;
+  title?: T;
+  slug?: T;
+  organization?: T;
+  opportunityType?: T;
+  shortDescription?: T;
+  fullDescription?: T;
+  logoUrl?: T;
+  country?: T;
+  format?: T;
+  ageMin?: T;
+  ageMax?: T;
+  deadline?: T;
+  cost?: T;
+  funding?: T;
+  officialUrl?: T;
+  internalApplicationsEnabled?: T;
+  languages?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  requirements?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  benefits?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  documents?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  seoTitle?: T;
+  seoDescription?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "team-members_select".
  */
 export interface TeamMembersSelect<T extends boolean = true> {
@@ -654,6 +1315,56 @@ export interface TeamMembersSelect<T extends boolean = true> {
   contact?: T;
   contactType?: T;
   isApproved?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "team-posts_select".
+ */
+export interface TeamPostsSelect<T extends boolean = true> {
+  user?: T;
+  title?: T;
+  description?: T;
+  status?: T;
+  championshipId?: T;
+  projectName?: T;
+  communicationLanguage?: T;
+  timeZone?: T;
+  workingFormat?: T;
+  openPositions?: T;
+  requiredSkills?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  ownSkills?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  interests?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "team-responses_select".
+ */
+export interface TeamResponsesSelect<T extends boolean = true> {
+  post?: T;
+  sender?: T;
+  recipient?: T;
+  kind?: T;
+  message?: T;
+  status?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -703,6 +1414,10 @@ export interface StatsSelect<T extends boolean = true> {
  */
 export interface ApplicationsSelect<T extends boolean = true> {
   ticketId?: T;
+  user?: T;
+  itemType?: T;
+  itemId?: T;
+  itemTitle?: T;
   status?: T;
   name?: T;
   email?: T;
@@ -716,8 +1431,55 @@ export interface ApplicationsSelect<T extends boolean = true> {
   teamSize?: T;
   portfolioLink?: T;
   coverLetter?: T;
+  customAnswers?: T;
+  adminComment?: T;
+  internalNotes?: T;
+  submittedAt?: T;
+  cancelledAt?: T;
   attachments?: T;
   source?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "application-status-history_select".
+ */
+export interface ApplicationStatusHistorySelect<T extends boolean = true> {
+  application?: T;
+  user?: T;
+  actor?: T;
+  previousStatus?: T;
+  status?: T;
+  comment?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "favorites_select".
+ */
+export interface FavoritesSelect<T extends boolean = true> {
+  user?: T;
+  itemType?: T;
+  itemId?: T;
+  itemTitle?: T;
+  href?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "notifications_select".
+ */
+export interface NotificationsSelect<T extends boolean = true> {
+  user?: T;
+  type?: T;
+  relatedType?: T;
+  relatedId?: T;
+  href?: T;
+  data?: T;
+  readAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -732,6 +1494,76 @@ export interface CommunityLeadsSelect<T extends boolean = true> {
   contact?: T;
   interest?: T;
   source?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-posts_select".
+ */
+export interface BlogPostsSelect<T extends boolean = true> {
+  legacyId?: T;
+  sortOrder?: T;
+  title?: T;
+  excerpt?: T;
+  content?: T;
+  cover?: T;
+  coverAlt?: T;
+  category?: T;
+  tags?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  status?: T;
+  author?: T;
+  originalLanguage?: T;
+  slug?: T;
+  seoTitle?: T;
+  seoDescription?: T;
+  readingTime?: T;
+  views?: T;
+  likes?: T;
+  publishedAt?: T;
+  moderationComment?: T;
+  isApproved?: T;
+  isPublished?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-post-localizations_select".
+ */
+export interface BlogPostLocalizationsSelect<T extends boolean = true> {
+  post?: T;
+  language?: T;
+  title?: T;
+  excerpt?: T;
+  content?: T;
+  slug?: T;
+  coverAlt?: T;
+  seoTitle?: T;
+  seoDescription?: T;
+  translationStatus?: T;
+  errorMessage?: T;
+  generatedAt?: T;
+  attempts?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-moderation-history_select".
+ */
+export interface BlogModerationHistorySelect<T extends boolean = true> {
+  post?: T;
+  author?: T;
+  actor?: T;
+  previousStatus?: T;
+  status?: T;
+  comment?: T;
   updatedAt?: T;
   createdAt?: T;
 }

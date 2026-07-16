@@ -550,6 +550,64 @@
       "b5c7d9e1f3": "Name (A–Z)",
       "c1d2e3f4a5b": "Erweiterte Suche"
     },
+    "blogpage": {
+      "nav": {
+        "label": "Blog"
+      },
+      "hero": {
+        "eyebrow": "Navykus Blog",
+        "title": "Navykus Blog",
+        "description": "Community-News, Bildungsartikel, Interviews, Teilnehmergeschichten und Materialien, die dir helfen, dich weiterzuentwickeln und über alle Plattform-Events auf dem Laufenden zu bleiben.",
+        "cta": "Neueste Beiträge ansehen",
+        "createCta": "Artikel schreiben",
+        "coverAlt": "Teilnehmer der Navykus-Meisterschaft präsentieren ein Projekt"
+      },
+      "search": {
+        "placeholder": "Nach Artikeln, Kategorien und Tags suchen…",
+        "submit": "Suche"
+      },
+      "categories": {
+        "aria": "Blog-Kategorien",
+        "all": "Alle"
+      },
+      "cat": {
+        "all": "Alle",
+        "news": "Nachrichten",
+        "championships": "Meisterschaften",
+        "activities": "Aktivitäten",
+        "opportunities": "Möglichkeiten",
+        "stories": "Teilnehmergeschichten",
+        "interviews": "Interviews",
+        "tips": "Tipps",
+        "education": "Bildung",
+        "projects": "Projekte"
+      },
+      "featured": {
+        "title": "Beliebte Beiträge"
+      },
+      "latest": {
+        "title": "Neueste Beiträge"
+      },
+      "readingTime": "{{count}} Min",
+      "results": "Gefundene Beiträge: {{count}}",
+      "empty": {
+        "title": "Nichts gefunden",
+        "description": "Versuche, deine Suche zu ändern oder die Filter zurückzusetzen.",
+        "reset": "Filter zurücksetzen"
+      },
+      "loadMore": "Mehr laden",
+      "newsletter": {
+        "title": "Verpasse keine neuen Beiträge",
+        "description": "Abonniere, um als Erster von neuen Meisterschaften, Möglichkeiten und Bildungsartikeln zu erfahren.",
+        "placeholder": "Deine E-Mail",
+        "cta": "Abonnieren"
+      },
+      "translationPending": "Übersetzung in Bearbeitung",
+      "pagination": {
+        "prev": "Zurück",
+        "next": "Weiter"
+      }
+    },
     "enhancements": {
       "proofCountries": "countries",
       "proofParticipants": "participants",
@@ -1199,5 +1257,12 @@
         "isApproved": true
       }
     ]
+  },
+  "platform": {
+    "errors": {
+      "API_ERROR": "Anfrage fehlgeschlagen",
+      "INTERNAL_SERVER_ERROR": "Interner Serverfehler",
+      "AUTH_EMAIL_EXISTS": "Diese E-Mail ist bereits registriert"
+    }
   }
 }

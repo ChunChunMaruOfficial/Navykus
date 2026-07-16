@@ -181,13 +181,10 @@
     position: relative;
     display: inline-block;
     isolation: isolate;
-    background: linear-gradient(105deg, #111111 0%, #bc4638 38%, #bd5b82 58%, #111111 100%);
-    background-size: 220% 100%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: hero-brand-sheen 7s ease-in-out infinite;
-    text-shadow: 0 14px 42px rgba(188, 70, 56, 0.12);
+    color: #111111;
+    text-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.55),
+      0 14px 42px rgba(17, 17, 17, 0.10);
   }
 
   .hero-brand-word::after {

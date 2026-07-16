@@ -550,6 +550,64 @@
       "b5c7d9e1f3": "Ism (A–Z)",
       "c1d2e3f4a5b": "Kengaytirilgan qidiruv"
     },
+    "blogpage": {
+      "nav": {
+        "label": "Blog"
+      },
+      "hero": {
+        "eyebrow": "Navykus blogi",
+        "title": "Navykus blogi",
+        "description": "Jamiyat yangiliklari, ta‘limiy maqolalar, intervyular, ishtirokchilar hikoyalari va rivojlanishga yordam beradigan hamda platformaning barcha voqealaridan xabardor bo‘lib turishni ta’minlovchi materiallar.",
+        "cta": "So‘nggi nashrlarni ko‘rish",
+        "createCta": "Maqola yozish",
+        "coverAlt": "Navykus chempionati ishtirokchilari loyihani taqdim etmoqda"
+      },
+      "search": {
+        "placeholder": "Maqolalar, kategoriyalar va teglar bo‘yicha qidirish…",
+        "submit": "Qidirish"
+      },
+      "categories": {
+        "aria": "Blog kategoriyalari",
+        "all": "Barchasi"
+      },
+      "cat": {
+        "all": "Barchasi",
+        "news": "Yangiliklar",
+        "championships": "Chempionatlar",
+        "activities": "Faoliyatlar",
+        "opportunities": "Imkoniyatlar",
+        "stories": "Ishtirokchilar hikoyalari",
+        "interviews": "Intervyular",
+        "tips": "Maslahatlar",
+        "education": "Ta‘lim",
+        "projects": "Loyihalar"
+      },
+      "featured": {
+        "title": "Ommabop maqolalar"
+      },
+      "latest": {
+        "title": "So‘nggi maqolalar"
+      },
+      "readingTime": "{{count}} daq",
+      "results": "Topilgan maqolalar: {{count}}",
+      "empty": {
+        "title": "Hech narsa topilmadi",
+        "description": "So‘rovingizni o‘zgartiring yoki filtrlarni tiklang.",
+        "reset": "Filtrlarni tiklash"
+      },
+      "loadMore": "Ko‘proq yuklash",
+      "newsletter": {
+        "title": "Yangi maqolalarni o‘tkazib yubormang",
+        "description": "Yangi chempionatlar, imkoniyatlar va ta‘limiy nashrlardan birinchi bo‘lib xabardor bo‘lish uchun obuna bo‘ling.",
+        "placeholder": "Sizning emailingiz",
+        "cta": "Obuna bo‘lish"
+      },
+      "translationPending": "Tarjima jarayonda",
+      "pagination": {
+        "prev": "Oldingi",
+        "next": "Keyingi"
+      }
+    },
     "enhancements": {
       "proofCountries": "countries",
       "proofParticipants": "participants",
@@ -1199,5 +1257,12 @@
         "isApproved": true
       }
     ]
+  },
+  "platform": {
+    "errors": {
+      "API_ERROR": "So'rov bajarilmadi",
+      "INTERNAL_SERVER_ERROR": "Ichki server xatosi",
+      "AUTH_EMAIL_EXISTS": "Bu elektron pochta allaqachon ro'yxatdan o'tgan"
+    }
   }
 }

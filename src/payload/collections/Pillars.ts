@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload';
 
-import { anyone, authenticated } from '../access';
+import { adminOrModerator, anyone } from '../access';
 import { legacyIdField, publishedField, sortOrderField } from '../fields';
 
 export const Pillars: CollectionConfig = {
@@ -11,9 +11,9 @@ export const Pillars: CollectionConfig = {
   },
   access: {
     read: anyone,
-    create: authenticated,
-    update: authenticated,
-    delete: authenticated,
+    create: adminOrModerator,
+    update: adminOrModerator,
+    delete: adminOrModerator,
   },
   fields: [
     legacyIdField,
@@ -24,4 +24,3 @@ export const Pillars: CollectionConfig = {
     { name: 'description', type: 'textarea', required: true },
   ],
 };
-

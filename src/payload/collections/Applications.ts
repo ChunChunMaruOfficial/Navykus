@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload';
 
-import { authenticated } from '../access';
+import { adminOrModerator, isAdmin, isModerator } from '../access';
 
 export const Applications: CollectionConfig = {
   slug: 'applications',
@@ -9,18 +9,40 @@ export const Applications: CollectionConfig = {
     group: 'Submissions',
   },
   access: {
-    read: authenticated,
+    read: adminOrModerator,
     create: () => true,
-    update: authenticated,
-    delete: authenticated,
+    update: adminOrModerator,
+    delete: adminOrModerator,
   },
   fields: [
     { name: 'ticketId', type: 'text', required: true, index: true },
+    { name: 'user', type: 'relationship', relationTo: 'users' },
+    {
+      name: 'itemType',
+      type: 'select',
+      defaultValue: 'championship',
+      options: ['championship', 'event', 'opportunity', 'program', 'team-post'],
+      index: true,
+    },
+    { name: 'itemId', type: 'text', index: true },
+    { name: 'itemTitle', type: 'text' },
     {
       name: 'status',
       type: 'select',
-      defaultValue: 'new',
-      options: ['new', 'confirmed', 'contacted', 'rejected'],
+      defaultValue: 'draft',
+      options: [
+        'draft',
+        'submitted',
+        'under_review',
+        'clarification_required',
+        'approved',
+        'rejected',
+        'cancelled',
+        'new',
+        'confirmed',
+        'contacted',
+      ],
+      index: true,
       required: true,
     },
     { name: 'name', type: 'text', required: true },
@@ -35,6 +57,18 @@ export const Applications: CollectionConfig = {
     { name: 'teamSize', type: 'text' },
     { name: 'portfolioLink', type: 'text' },
     { name: 'coverLetter', type: 'textarea' },
+    { name: 'customAnswers', type: 'json' },
+    { name: 'adminComment', type: 'textarea' },
+    {
+      name: 'internalNotes',
+      type: 'textarea',
+      access: {
+        read: ({ req: { user } }) => isAdmin(user) || isModerator(user),
+        update: ({ req: { user } }) => isAdmin(user) || isModerator(user),
+      },
+    },
+    { name: 'submittedAt', type: 'text' },
+    { name: 'cancelledAt', type: 'text' },
     {
       name: 'attachments',
       type: 'relationship',
@@ -49,4 +83,3 @@ export const Applications: CollectionConfig = {
     },
   ],
 };
-

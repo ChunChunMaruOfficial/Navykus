@@ -17,6 +17,8 @@ import {
 } from '../src/data';
 import type { PageKey } from '../src/types';
 import { getPayloadClient } from './payload';
+import { registerPlatformRoutes } from './platform';
+import { registerBlogRoutes } from './blog';
 import {
   normalizeActivity,
   normalizeExpert,
@@ -34,10 +36,66 @@ const uploadDir = path.resolve(process.cwd(), 'uploads', 'incoming');
 
 fs.mkdirSync(uploadDir, { recursive: true });
 
+const allowedUploadTypes = new Map([
+  ['.jpg', 'image/jpeg'],
+  ['.jpeg', 'image/jpeg'],
+  ['.png', 'image/png'],
+  ['.webp', 'image/webp'],
+  ['.pdf', 'application/pdf'],
+  ['.doc', 'application/msword'],
+  ['.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+]);
+
+const startsWithBytes = (buffer: Buffer, bytes: number[]) => {
+  return bytes.every((byte, index) => buffer[index] === byte);
+};
+
+const isExpectedFileContent = async (file: Express.Multer.File) => {
+  const extension = path.extname(file.originalname).toLowerCase();
+  const buffer = await fs.promises.readFile(file.path);
+
+  if (extension === '.jpg' || extension === '.jpeg') {
+    return startsWithBytes(buffer, [0xff, 0xd8, 0xff]);
+  }
+  if (extension === '.png') {
+    return startsWithBytes(buffer, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+  }
+  if (extension === '.webp') {
+    return buffer.subarray(0, 4).toString('ascii') === 'RIFF' && buffer.subarray(8, 12).toString('ascii') === 'WEBP';
+  }
+  if (extension === '.pdf') {
+    return buffer.subarray(0, 5).toString('ascii') === '%PDF-';
+  }
+  if (extension === '.doc') {
+    return startsWithBytes(buffer, [0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]);
+  }
+  if (extension === '.docx') {
+    return startsWithBytes(buffer, [0x50, 0x4b, 0x03, 0x04]);
+  }
+
+  return false;
+};
+
+const removeUploadedFile = async (file?: Express.Multer.File) => {
+  if (!file) return;
+  await fs.promises.unlink(file.path).catch(() => undefined);
+};
+
 const upload = multer({
   dest: uploadDir,
   limits: {
     fileSize: 10 * 1024 * 1024,
+  },
+  fileFilter: (_req, file, callback) => {
+    const extension = path.extname(file.originalname).toLowerCase();
+    const expectedMime = allowedUploadTypes.get(extension);
+
+    if (!expectedMime || expectedMime !== file.mimetype) {
+      callback(new Error('UNSUPPORTED_FILE_TYPE'));
+      return;
+    }
+
+    callback(null, true);
   },
 });
 
@@ -49,9 +107,10 @@ const asyncRoute = (
 
 app.use((req, res, next) => {
   const configuredOrigin = process.env.CORS_ORIGIN;
-  res.header('Access-Control-Allow-Origin', configuredOrigin || req.headers.origin || '*');
+  res.header('Access-Control-Allow-Origin', configuredOrigin || req.headers.origin || 'http://localhost:3000');
+  res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Vary', 'Origin');
-  res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
 
   if (req.method === 'OPTIONS') {
@@ -63,6 +122,10 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json({ limit: '1mb' }));
+app.use('/media', express.static(path.resolve(process.cwd(), 'uploads', 'media')));
+
+registerPlatformRoutes(app);
+registerBlogRoutes(app);
 
 const findPublished = async (collection: string, where: Record<string, unknown> = {}) => {
   const payload = await getPayloadClient();
@@ -167,13 +230,20 @@ app.post('/api/applications', upload.single('projectFile'), asyncRoute(async (re
   const body = req.body || {};
 
   if (!body.name || !body.email) {
-    res.status(400).json({ error: 'name and email are required' });
+    await removeUploadedFile(req.file);
+    res.status(400).json({ code: 'APPLICATION_REQUIRED_FIELDS' });
     return;
   }
 
-  const attachmentIds: string[] = [];
+  const attachmentIds: Array<string | number> = [];
 
   if (req.file) {
+    if (!(await isExpectedFileContent(req.file))) {
+      await removeUploadedFile(req.file);
+      res.status(415).json({ code: 'UNSUPPORTED_FILE_TYPE' });
+      return;
+    }
+
     const media = await payload.create({
       collection: 'media' as any,
       data: {
@@ -183,7 +253,7 @@ app.post('/api/applications', upload.single('projectFile'), asyncRoute(async (re
       overrideAccess: true,
     });
 
-    attachmentIds.push(String(media.id));
+    attachmentIds.push(media.id);
   }
 
   const ticketId = `NVK-${Math.floor(10000 + Math.random() * 90000)}-${String(body.city || 'WEB').slice(0, 3).toUpperCase()}`;
@@ -223,7 +293,7 @@ app.post('/api/community-leads', asyncRoute(async (req, res) => {
   const body = req.body || {};
 
   if (!body.name || !body.age || !body.location || !body.contact) {
-    res.status(400).json({ error: 'name, age, location and contact are required' });
+    res.status(400).json({ code: 'COMMUNITY_LEAD_REQUIRED_FIELDS' });
     return;
   }
 
@@ -248,7 +318,7 @@ app.post('/api/team-members', asyncRoute(async (req, res) => {
   const body = req.body || {};
 
   if (!body.name || !body.age || !body.country || !body.shortBio || !body.contact) {
-    res.status(400).json({ error: 'name, age, country, shortBio and contact are required' });
+    res.status(400).json({ code: 'TEAM_MEMBER_REQUIRED_FIELDS' });
     return;
   }
 
@@ -285,8 +355,24 @@ if (fs.existsSync(distPath)) {
 
 app.use((error: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error(error);
+
+  if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
+    res.status(413).json({ code: 'FILE_TOO_LARGE' });
+    return;
+  }
+
+  if (error instanceof multer.MulterError && error.code === 'LIMIT_UNEXPECTED_FILE') {
+    res.status(400).json({ code: 'UNEXPECTED_FILE' });
+    return;
+  }
+
+  if (error.message === 'UNSUPPORTED_FILE_TYPE') {
+    res.status(415).json({ code: 'UNSUPPORTED_FILE_TYPE' });
+    return;
+  }
+
   res.status(500).json({
-    error: 'Internal server error',
+    code: 'INTERNAL_SERVER_ERROR',
     message: process.env.NODE_ENV === 'production' ? undefined : error.message,
   });
 });

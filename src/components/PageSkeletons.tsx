@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 
-export type SkeletonPage = 'home' | 'about' | 'championship' | 'activities' | 'find-team' | 'opportunities';
+export type SkeletonPage = 'home' | 'about' | 'championship' | 'activities' | 'find-team' | 'blog' | 'not-found' | 'opportunities';
 
 const pageAccent: Record<SkeletonPage, string> = {
   home: 'from-[#bc4638]/18 via-[#f38b76]/10 to-[#bd5b82]/16',
@@ -9,6 +9,8 @@ const pageAccent: Record<SkeletonPage, string> = {
   championship: 'from-[#bc4638]/18 via-[#c9a96e]/12 to-[#6b8f71]/14',
   activities: 'from-[#6b8f71]/14 via-[#bc4638]/10 to-[#bd5b82]/14',
   'find-team': 'from-[#3d6b8f]/12 via-[#bd5b82]/12 to-[#bc4638]/14',
+  blog: 'from-[#bc4638]/14 via-[#c9a96e]/12 to-[#6b8f71]/14',
+  'not-found': 'from-[#bc4638]/14 via-[#bd5b82]/12 to-[#c9a96e]/12',
   opportunities: 'from-[#bc4638]/14 via-[#bd5b82]/12 to-[#c9a96e]/12',
 };
 

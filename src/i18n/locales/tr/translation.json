@@ -550,6 +550,64 @@
       "b5c7d9e1f3": "İsim (A–Z)",
       "c1d2e3f4a5b": "Gelişmiş arama"
     },
+    "blogpage": {
+      "nav": {
+        "label": "Blog"
+      },
+      "hero": {
+        "eyebrow": "Navykus Blog",
+        "title": "Navykus Blog",
+        "description": "Topluluk haberleri, eğitim makaleleri, röportajlar, katılımcı hikâyeleri ve gelişmenize yardımcı olacak ve tüm platform etkinliklerinden haberdar olmanızı sağlayacak materyaller.",
+        "cta": "Son yayınları görüntüle",
+        "createCta": "Makale yaz",
+        "coverAlt": "Navykus şampiyonası katılımcıları proje sunuyor"
+      },
+      "search": {
+        "placeholder": "Makaleler, kategoriler ve etiketler arasında arama yapın…",
+        "submit": "Ara"
+      },
+      "categories": {
+        "aria": "Blog kategorileri",
+        "all": "Tümü"
+      },
+      "cat": {
+        "all": "Tümü",
+        "news": "Haberler",
+        "championships": "Şampiyonalar",
+        "activities": "Etkinlikler",
+        "opportunities": "Fırsatlar",
+        "stories": "Katılımcı hikayeleri",
+        "interviews": "Röportajlar",
+        "tips": "İpuçları",
+        "education": "Eğitim",
+        "projects": "Projeler"
+      },
+      "featured": {
+        "title": "Popüler gönderiler"
+      },
+      "latest": {
+        "title": "Son gönderiler"
+      },
+      "readingTime": "{{count}} dk",
+      "results": "Bulunan gönderiler: {{count}}",
+      "empty": {
+        "title": "Hiçbir şey bulunamadı",
+        "description": "Sorgunuzu değiştirmeyi veya filtreleri sıfırlamayı deneyin.",
+        "reset": "Filtreleri sıfırla"
+      },
+      "loadMore": "Daha fazla yükle",
+      "newsletter": {
+        "title": "Yeni gönderileri kaçırmayın",
+        "description": "Yeni şampiyonalar, fırsatlar ve eğitim yayınlarından ilk sizin haberdar olmanız için abone olun.",
+        "placeholder": "E-postanız",
+        "cta": "Abone ol"
+      },
+      "translationPending": "Çeviri devam ediyor",
+      "pagination": {
+        "prev": "Önceki",
+        "next": "Sonraki"
+      }
+    },
     "enhancements": {
       "proofCountries": "countries",
       "proofParticipants": "participants",
@@ -1199,5 +1257,12 @@
         "isApproved": true
       }
     ]
+  },
+  "platform": {
+    "errors": {
+      "API_ERROR": "İstek başarısız oldu",
+      "INTERNAL_SERVER_ERROR": "Sunucu hatası",
+      "AUTH_EMAIL_EXISTS": "Bu e-posta zaten kayıtlı"
+    }
   }
 }

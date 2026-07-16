@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload';
 
-import { authenticated } from '../access';
+import { adminOrModerator } from '../access';
 
 export const CommunityLeads: CollectionConfig = {
   slug: 'community-leads',
@@ -9,10 +9,10 @@ export const CommunityLeads: CollectionConfig = {
     group: 'Submissions',
   },
   access: {
-    read: authenticated,
+    read: adminOrModerator,
     create: () => true,
-    update: authenticated,
-    delete: authenticated,
+    update: adminOrModerator,
+    delete: adminOrModerator,
   },
   fields: [
     { name: 'name', type: 'text', required: true },
@@ -23,4 +23,3 @@ export const CommunityLeads: CollectionConfig = {
     { name: 'source', type: 'text', defaultValue: 'home-inline' },
   ],
 };
-

@@ -354,12 +354,12 @@ export default function ActivitiesPage({
         </section>
 
         <section className="py-14 md:py-20">
-          <motion.div {...fadeUp} className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <div className="max-w-3xl">
+          <motion.div {...fadeUp} className="mb-8 text-center">
+            <div className="mx-auto max-w-3xl">
               <h2 className="text-3xl font-serif font-semibold tracking-tight text-brand-dark sm:text-4xl">
                 {t('ui.activitiespage.62d6062e')}
               </h2>
-              <p className="mt-3 text-sm leading-relaxed text-brand-slate">
+              <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-brand-slate">
                 {t('ui.activitiespage.5f082a56')}
               </p>
             </div>

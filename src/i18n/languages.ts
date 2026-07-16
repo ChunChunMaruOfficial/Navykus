@@ -9,6 +9,7 @@ export const LANGUAGE_STORAGE_KEY = 'navykus.language';
 const LANGUAGE_SOURCE_STORAGE_KEY = 'navykus.language.source';
 
 const MANUAL_LANGUAGE_SOURCE = 'manual';
+const LEGACY_LANGUAGE_SOURCE_STORAGE_KEY = 'navykus.languageSource';
 
 export const LANGUAGE_FLAGS: Record<SupportedLanguage, string> = {
   ru: '🇷🇺',
@@ -241,6 +242,19 @@ export const savePreferredLanguage = (language: SupportedLanguage) => {
   try {
     localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
     localStorage.setItem(LANGUAGE_SOURCE_STORAGE_KEY, MANUAL_LANGUAGE_SOURCE);
+    localStorage.setItem(LEGACY_LANGUAGE_SOURCE_STORAGE_KEY, MANUAL_LANGUAGE_SOURCE);
+  } catch {
+    // localStorage can be disabled by browser privacy settings.
+  }
+};
+
+export const clearPreferredLanguage = () => {
+  if (typeof localStorage === 'undefined') return;
+
+  try {
+    localStorage.removeItem(LANGUAGE_STORAGE_KEY);
+    localStorage.removeItem(LANGUAGE_SOURCE_STORAGE_KEY);
+    localStorage.removeItem(LEGACY_LANGUAGE_SOURCE_STORAGE_KEY);
   } catch {
     // localStorage can be disabled by browser privacy settings.
   }

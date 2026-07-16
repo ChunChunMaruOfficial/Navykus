@@ -388,7 +388,7 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
     <div className="bg-white/[0.08] glass-card surface-elevated-soft border border-white/[0.12] rounded-2xl overflow-hidden transition-all duration-300">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-5 text-left font-serif font-semibold text-brand-dark text-sm sm:text-base md:text-lg cursor-pointer"
+        className="w-full flex items-center justify-between p-5 text-left font-serif font-semibold text-brand-dark text-base sm:text-lg md:text-xl cursor-pointer"
       >
         <span>{question}</span>
         <ChevronDown className={`w-4 h-4 text-brand-slate/60 transition-transform duration-300 flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
@@ -1060,9 +1060,9 @@ export default function FindTeamPage({ onBackToHome, onOpenApplyModal }: FindTea
 
       {/* ======================== SAFETY & TRUST ======================== */}
       <section className="relative z-10 py-12 md:py-16 max-w-7xl mx-auto px-[6%] md:px-[10%]">
-        <motion.div {...fadeUp} className="ml-auto mb-10 max-w-3xl space-y-3 text-right">
+        <motion.div {...fadeUp} className="mx-auto mb-10 max-w-3xl space-y-3 text-center">
           <h2 className="text-3xl font-serif text-brand-dark tracking-tight sm:text-4xl md:text-5xl">{t('ui.findteampage.e1cd2e34c2')}</h2>
-          <p className="ml-auto max-w-2xl text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.findteampage.fc35e86bc0')}</p>
+          <p className="mx-auto max-w-2xl text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.findteampage.fc35e86bc0')}</p>
         </motion.div>
         <motion.div {...cardStaggerContainer} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {[

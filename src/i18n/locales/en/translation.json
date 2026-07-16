@@ -7,7 +7,8 @@
     "ar": "Arabic",
     "de": "German",
     "es": "Spanish",
-    "tr": "Turkish"
+    "tr": "Turkish",
+    "auto": "Auto"
   },
   "common": {
     "brand": "Navykus",
@@ -23,7 +24,8 @@
     "close": "Close",
     "loading": "Loading",
     "details": "More details",
-    "collapse": "Collapse"
+    "collapse": "Collapse",
+    "cancel": "Cancel"
   },
   "meta": {
     "home": {
@@ -41,6 +43,14 @@
     },
     "findTeam": {
       "title": "Find a team - Navykus"
+    },
+    "blog": {
+      "title": "Blog — Navykus",
+      "description": "Community news, educational articles, interviews, participant stories and materials of the Navykus platform."
+    },
+    "notFound": {
+      "title": "Page not found - Navykus",
+      "description": "The requested page was not found. Return to the Navykus home page."
     }
   },
   "ui": {
@@ -50,8 +60,8 @@
       "aacca2db": "What is Navykus?",
       "19816f01": "Why do parents and experts choose Navykus?",
       "e07687c4": "Ready to start your journey?",
-      "a5307558": "mailto:info@navykus.org?subject=Запрос%20политики%20конфиденциальности",
-      "4d9e7853": "mailto:info@navykus.org?subject=Запрос%20пользовательского%20соглашения",
+      "a5307558": "mailto:info@navykus.org?subject=Privacy%20policy%20request",
+      "4d9e7853": "mailto:info@navykus.org?subject=Terms%20request",
       "02ce21d910": "Please enter your name",
       "1c3299a85e": "Please enter the correct age (from 10 to 22 years old)",
       "92ca287f55": "Please indicate your country or city",
@@ -101,7 +111,7 @@
       "7acec174f3": "Country / City *",
       "1734a8f063": "Kazakhstan, Almaty",
       "0751cc5d9c": "Mail or Telegram *",
-      "7d521595ce": "@username или e-mail",
+      "7d521595ce": "@username or e-mail",
       "d3e56289ef": "Direction of interest",
       "d52e1ae8a0": "Project development",
       "852dca4487": "Case solving",
@@ -121,7 +131,16 @@
       "ed16b5adfc": "Coordinator:",
       "9e059272f1": "Privacy",
       "3a86197ba3": "Agreement",
-      "2060fe9f62": "Cup jury and mentors"
+      "2060fe9f62": "Cup jury and mentors",
+      "trustGrowthTitle": "Clear growth path",
+      "trustGrowthDescription": "Participants see the next step: from first idea and teamwork to project defense, certificate, and portfolio.",
+      "copyright": "© 2026 Navikus Global Education",
+      "madeBy": "made by Dioxoid Digital",
+      "notFoundEyebrow": "Route not found",
+      "notFoundTitle": "This page drifted off course",
+      "notFoundDescription": "The link may be outdated, or the address may have a typo. Return home and continue your path through the Navykus community.",
+      "notFoundCodeLabel": "404 page",
+      "scrollTop": "Back to top"
     },
     "aboutprojectpage": {
       "2805697540": "Take part",
@@ -550,6 +569,88 @@
       "b5c7d9e1f3": "Name (A–Z)",
       "c1d2e3f4a5b": "Advanced search"
     },
+    "blogpage": {
+      "nav": {
+        "label": "Blog"
+      },
+      "hero": {
+        "eyebrow": "Navykus Blog",
+        "title": "Navykus Blog",
+        "description": "Community news, educational articles, interviews, participant stories and materials to help you grow and stay up to date with all platform events.",
+        "cta": "View latest posts",
+        "createCta": "Write a blog post",
+        "coverAlt": "Navykus championship participants presenting a project"
+      },
+      "search": {
+        "placeholder": "Search articles, categories and tags…",
+        "submit": "Search"
+      },
+      "categories": {
+        "aria": "Blog categories",
+        "all": "All"
+      },
+      "cat": {
+        "all": "All",
+        "news": "News",
+        "championships": "Championships",
+        "activities": "Activities",
+        "opportunities": "Opportunities",
+        "stories": "Participant stories",
+        "interviews": "Interviews",
+        "tips": "Tips",
+        "education": "Education",
+        "projects": "Projects"
+      },
+      "featured": {
+        "title": "Popular posts"
+      },
+      "latest": {
+        "title": "Latest posts"
+      },
+      "readingTime": "{{count}} min",
+      "results": "Posts found: {{count}}",
+      "empty": {
+        "title": "Nothing found",
+        "description": "Try changing your query or resetting the filters.",
+        "reset": "Reset filters"
+      },
+      "loadMore": "Load more",
+      "newsletter": {
+        "title": "Don't miss new posts",
+        "description": "Subscribe to be the first to know about new championships, opportunities and educational publications.",
+        "placeholder": "Your email",
+        "cta": "Subscribe"
+      },
+      "translationPending": "Translation in progress",
+      "pagination": {
+        "prev": "Prev",
+        "next": "Next"
+      }
+    },
+    "blogmoderation": {
+      "title": "Blog moderation",
+      "tabs": {
+        "all": "All",
+        "pending_review": "Pending review",
+        "approved": "Approved",
+        "published": "Published",
+        "rejected": "Rejected",
+        "drafts": "Drafts"
+      },
+      "prevComment": "Previous comment",
+      "commentPlaceholder": "Comment (optional)",
+      "revision": "Return for revision",
+      "unpublish": "Unpublish",
+      "viewArticle": "View article",
+      "myPosts": "My posts",
+      "newPost": "New post",
+      "editPost": "Edit",
+      "editorComingSoon": "Blog editor — coming soon.",
+      "adminTabs": {
+        "overview": "Overview",
+        "blog": "Blog"
+      }
+    },
     "enhancements": {
       "proofCountries": "countries",
       "proofParticipants": "participants",
@@ -586,6 +687,70 @@
       "fileSizeError": "File size must not exceed 10 MB.",
       "privateContact": "Public phone numbers and email addresses are hidden. Invitations are sent through a safe platform flow.",
       "findTeamHeroAlt": "Participants discussing a team project"
+    },
+    "authmodal": {
+      "headerButton": "Authorization",
+      "subtitle": "Log in or create an account to use personal Navykus features.",
+      "success": "Done. You are authorized.",
+      "authorizedTitle": "You are authorized",
+      "authorizedText": "Account {{name}} is connected to the Navykus platform.",
+      "profile": "Open profile",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "codeTab": "Code",
+      "codeTitle": "Log in by code",
+      "codeSubtitle": "Temporary UI for email code login. The sending flow will be connected later.",
+      "codeInput": "Code",
+      "sendCode": "Send",
+      "codeAction": "Continue by code",
+      "codeComingSoon": "Code login UI is ready. Sending and verification will be connected later."
+    },
+    "blogeditor": {
+      "title": "Blog Editor",
+      "createTitle": "Write an article",
+      "editTitle": "Edit article",
+      "fields": {
+        "title": "Title",
+        "excerpt": "Excerpt",
+        "content": "Content",
+        "category": "Category",
+        "tags": "Tags (comma-separated)",
+        "originalLanguage": "Original language",
+        "coverId": "Cover image ID",
+        "coverAlt": "Cover alt text",
+        "seoTitle": "SEO Title",
+        "seoDescription": "SEO Description",
+        "slug": "Slug"
+      },
+      "categories": {
+        "news": "News",
+        "championships": "Championships",
+        "activities": "Activities",
+        "opportunities": "Opportunities",
+        "stories": "Participant Stories",
+        "interviews": "Interviews",
+        "tips": "Tips",
+        "education": "Education",
+        "projects": "Projects"
+      },
+      "actions": {
+        "saveDraft": "Save Draft",
+        "submitReview": "Submit for Review",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "preview": "Preview",
+        "hidePreview": "Hide Preview"
+      },
+      "validation": {
+        "titleRequired": "Title is required",
+        "titleTooLong": "Title must be under 200 characters",
+        "excerptRequired": "Excerpt is required",
+        "excerptTooLong": "Excerpt must be under 600 characters",
+        "contentRequired": "Content is required",
+        "categoryRequired": "Category is required",
+        "deleteConfirm": "Delete this article permanently?"
+      },
+      "readingTime": "{{count}} min"
     }
   },
   "data": {
@@ -863,7 +1028,7 @@
         ],
         "prerequisites": "Not required",
         "ctaText": "View entries",
-        "ctaLink": "mailto:info@navykus.org?subject=Записи%20конференции%20Будущее%20Skills%202025"
+        "ctaLink": "mailto:info@navykus.org?subject=Future%20Skills%202025%20conference%20recordings"
       },
       {
         "id": "act-9",
@@ -904,7 +1069,7 @@
         ],
         "prerequisites": "Not required",
         "ctaText": "Watch recording",
-        "ctaLink": "mailto:info@navykus.org?subject=Запись%20воркшопа%20по%20исследовательской%20работе"
+        "ctaLink": "mailto:info@navykus.org?subject=Research%20workshop%20recording"
       },
       {
         "id": "act-11",
@@ -925,7 +1090,7 @@
         ],
         "prerequisites": "Any skill is welcome",
         "ctaText": "Hackathon results",
-        "ctaLink": "mailto:info@navykus.org?subject=Итоги%20хакатона%20Доступная%20среда%202025"
+        "ctaLink": "mailto:info@navykus.org?subject=Accessible%20Environment%202025%20hackathon%20results"
       },
       {
         "id": "act-12",
@@ -946,7 +1111,7 @@
         ],
         "prerequisites": "Basic English for communication",
         "ctaText": "Next event",
-        "ctaLink": "mailto:info@navykus.org?subject=Следующее%20событие%20Asian%20Youth%20Connect"
+        "ctaLink": "mailto:info@navykus.org?subject=Next%20Asian%20Youth%20Connect%20event"
       }
     ],
     "teamMembers": [
@@ -1199,5 +1364,247 @@
         "isApproved": true
       }
     ]
+  },
+  "platform": {
+    "nav": {
+      "home": "Home",
+      "championships": "Championships",
+      "events": "Events",
+      "opportunities": "Opportunities",
+      "participants": "Participants",
+      "profile": "Profile",
+      "admin": "Admin",
+      "login": "Log in"
+    },
+    "actions": {
+      "logout": "Log out",
+      "save": "Save changes",
+      "saveDraft": "Save draft",
+      "submit": "Submit",
+      "markAllRead": "Mark all as read",
+      "publish": "Publish",
+      "open": "Open",
+      "favorite": "Favorite",
+      "apply": "Apply",
+      "remove": "Remove"
+    },
+    "states": {
+      "loading": "Loading data...",
+      "error": "Something went wrong. Try again.",
+      "empty": "No records yet.",
+      "saving": "Saving...",
+      "saved": "Saved"
+    },
+    "auth": {
+      "eyebrow": "Account",
+      "loginTitle": "Log in",
+      "registerTitle": "Create account",
+      "forgotTitle": "Recover password",
+      "resetTitle": "Reset password",
+      "loginAction": "Log in",
+      "registerAction": "Register",
+      "forgotAction": "Send reset link",
+      "resetAction": "Reset password",
+      "privacyAccepted": "I accept the privacy policy",
+      "termsAccepted": "I accept the platform terms",
+      "forgotSuccess": "If this email exists, reset instructions were sent.",
+      "resetSuccess": "Password has been reset.",
+      "devResetToken": "Development reset token:",
+      "quickLoginTitle": "Quick login",
+      "quickLoginAction": "Use",
+      "quickLoginHint": "Continue as {{name}}. Your browser can fill the password."
+    },
+    "fields": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "country": "Country",
+      "city": "City",
+      "dateOfBirth": "Date of birth",
+      "schoolGrade": "School grade",
+      "email": "Email",
+      "password": "Password",
+      "passwordConfirmation": "Password confirmation",
+      "resetToken": "Reset token",
+      "school": "School",
+      "ageGroup": "Age group",
+      "portfolio": "Portfolio",
+      "interests": "Interests",
+      "skills": "Skills",
+      "languages": "Languages",
+      "biography": "Biography",
+      "itemId": "Object ID",
+      "itemTitle": "Object title",
+      "motivation": "Motivation",
+      "title": "Title",
+      "description": "Description",
+      "requiredSkills": "Required skills"
+    },
+    "dashboard": {
+      "profile": "Profile",
+      "applications": "Applications",
+      "favorites": "Favorites",
+      "notifications": "Notifications",
+      "team": "Team search",
+      "settings": "Settings",
+      "overview": "Dashboard",
+      "blog": "My articles"
+    },
+    "roles": {
+      "user": "User",
+      "moderator": "Moderator",
+      "admin": "Admin"
+    },
+    "privacy": {
+      "publicProfile": "Show my public profile",
+      "teamSearchAvailable": "Available for team search",
+      "showCity": "Show city",
+      "showSchool": "Show school",
+      "showAge": "Show age",
+      "showEmail": "Show email",
+      "showSocialLinks": "Show social links"
+    },
+    "itemTypes": {
+      "all": "All",
+      "championship": "Championship",
+      "event": "Event",
+      "opportunity": "Opportunity",
+      "participant": "Participant",
+      "team-post": "Team post"
+    },
+    "status": {
+      "draft": "Draft",
+      "submitted": "Submitted",
+      "under_review": "Under review",
+      "clarification_required": "Clarification required",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "cancelled": "Cancelled",
+      "new": "New",
+      "confirmed": "Confirmed",
+      "contacted": "Contacted",
+      "pending_review": "Pending review",
+      "published": "Published",
+      "needs_revision": "Needs revision",
+      "archived": "Archived"
+    },
+    "notifications": {
+      "application_submitted": "Application submitted",
+      "application_status_changed": "Application status changed",
+      "clarification_requested": "Clarification requested",
+      "team_response_received": "Team response received",
+      "team_response_accepted": "Team response accepted",
+      "team_response_rejected": "Team response rejected",
+      "team_invitation_received": "Team invitation received",
+      "upcoming_deadline": "Upcoming deadline",
+      "upcoming_event": "Upcoming event",
+      "announcement": "Announcement"
+    },
+    "errors": {
+      "API_ERROR": "Request failed",
+      "AUTH_REQUIRED": "Log in to continue",
+      "AUTH_INVALID_REGISTRATION": "Check registration fields",
+      "AUTH_AGREEMENT_REQUIRED": "Accept the policy and terms",
+      "AUTH_LOGIN_FAILED": "Invalid email or password",
+      "AUTH_CREDENTIALS_REQUIRED": "Enter email and password",
+      "AUTH_EMAIL_REQUIRED": "Enter email",
+      "AUTH_EMAIL_EXISTS": "This email is already registered",
+      "AUTH_INVALID_RESET": "Invalid reset data",
+      "FORBIDDEN": "Access denied",
+      "FAVORITE_INVALID": "Favorite data is invalid",
+      "APPLICATION_STATUS_INVALID": "Application status is invalid",
+      "APPLICATION_TARGET_REQUIRED": "Select an application target",
+      "APPLICATION_DUPLICATE": "You already have an active application for this item",
+      "PARTICIPANT_NOT_FOUND": "Participant not found",
+      "TEAM_POST_INVALID": "Team post data is invalid",
+      "TEAM_RESPONSE_INVALID": "Team response is invalid",
+      "TEAM_RESPONSE_DUPLICATE": "You already responded to this post",
+      "TEAM_RESPONSE_STATUS_INVALID": "Team response status is invalid",
+      "ACCOUNT_BLOCKED": "Account is blocked",
+      "USER_ROLE_INVALID": "User role is invalid",
+      "USER_STATUS_INVALID": "Account status is invalid",
+      "USER_SELF_BLOCK_FORBIDDEN": "You cannot block your own account",
+      "USER_LAST_ADMIN_FORBIDDEN": "At least one active administrator is required",
+      "AVATAR_REQUIRED": "Choose an avatar file.",
+      "AVATAR_INVALID": "Upload a valid JPG, PNG, or WebP image.",
+      "INTERNAL_SERVER_ERROR": "Internal server error. Please try later."
+    },
+    "placeholders": {
+      "search": "Search..."
+    },
+    "team": {
+      "myPost": "My post",
+      "response": "Response"
+    },
+    "admin": {
+      "users": "Users",
+      "applications": "Applications",
+      "activeChampionships": "Active championships",
+      "upcomingEvents": "Upcoming events",
+      "publishedOpportunities": "Published opportunities",
+      "teamPosts": "Team posts",
+      "role": "Role",
+      "accountStatus": "Account status",
+      "adminOnly": "Only administrators can change user roles and account status."
+    },
+    "accountStatus": {
+      "active": "Active",
+      "pending": "Pending",
+      "blocked": "Blocked"
+    },
+    "dashboardHome": {
+      "eyebrow": "Personal workspace",
+      "title": "{{name}}, your Navykus dashboard",
+      "description": "Track applications, favorites, notifications, team search activity, and profile readiness in one place.",
+      "profileCompletion": "Profile completion",
+      "activity": "Recent activity",
+      "activeApplications": "{{count}} active applications",
+      "emptyActivity": "No activity yet. Start by exploring championships or saving an opportunity.",
+      "explore": "Explore championships",
+      "stats": {
+        "applications": "Applications",
+        "favorites": "Favorites",
+        "notifications": "Unread",
+        "team": "Team activity"
+      },
+      "actions": {
+        "completeProfile": "Complete profile",
+        "completeProfileText": "Add skills, interests, school, portfolio, and visibility settings.",
+        "findOpportunity": "Find an opportunity",
+        "findOpportunityText": "Save events, opportunities, and championships to your favorites.",
+        "findTeam": "Find teammates",
+        "findTeamText": "Open public participants and build your team-search flow."
+      }
+    },
+    "avatar": {
+      "title": "Avatar",
+      "upload": "Upload photo",
+      "uploading": "Uploading...",
+      "uploaded": "Avatar saved",
+      "positionX": "Horizontal",
+      "positionY": "Vertical",
+      "scale": "Zoom",
+      "help": "Choose an image from your device, then refine the crop before saving.",
+      "uploadError": "Failed to upload avatar",
+      "cropHint": "Drag the image inside the circle. Use the buttons to zoom or rotate.",
+      "cropTitle": "Edit profile photo",
+      "cropText": "Place your face inside the circle and save the final version as your avatar.",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "rotate": "Rotate",
+      "reset": "Reset",
+      "saveCrop": "Save photo"
+    },
+    "settings": {
+      "accountTitle": "Account",
+      "accountText": "Log out of this session or delete the account together with profile data.",
+      "deleteAccount": "Delete account",
+      "deleteConfirm": "Delete account? This action cannot be undone.",
+      "deleteError": "Failed to delete account.",
+      "languageTitle": "Interface language",
+      "languageText": "Choose the language used across the site and your profile."
+    },
+    "details": {
+      "history": "History"
+    }
   }
 }

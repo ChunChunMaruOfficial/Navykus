@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useState, useEffect, useRef } from 'react';
+import React, { lazy, Suspense, useCallback, useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -9,16 +9,28 @@ import {
   CheckCircle2,
   AlertCircle,
   Globe,
+  Home,
   Menu,
+  SearchX,
   X,
 } from 'lucide-react';
 import GlassCrystal from './components/GlassCrystal';
 import ApplicationModal from './components/ApplicationModal';
+import AuthModal from './components/AuthModal';
 import BrandImage from './components/BrandImage';
 import PageSkeleton from './components/PageSkeletons';
 import StudyBackground from './components/StudyBackground';
-import { submitCommunityLead } from './api';
-import { LANGUAGE_FLAGS, SUPPORTED_LANGUAGES, savePreferredLanguage, type SupportedLanguage } from './i18n/languages';
+import { fetchContactSettings, platformApi, submitCommunityLead, type ContactSettings, type PlatformUser } from './api';
+import {
+  LANGUAGE_FLAGS,
+  SUPPORTED_LANGUAGES,
+  clearPreferredLanguage,
+  detectSupportedLanguageFromBrowser,
+  getSavedPreferredLanguage,
+  isSupportedLanguage,
+  savePreferredLanguage,
+  type SupportedLanguage,
+} from './i18n/languages';
 import { useLocalizedData } from './i18n/useLocalizedData';
 import {
   fadeUp,
@@ -31,9 +43,23 @@ const AboutProjectPage = lazy(() => import('./components/AboutProjectPage'));
 const ChampionshipPage = lazy(() => import('./components/ChampionshipPage'));
 const ActivitiesPage = lazy(() => import('./components/ActivitiesPage'));
 const FindTeamPage = lazy(() => import('./components/FindTeamPage'));
+const BlogPage = lazy(() => import('./components/BlogPage'));
+const PlatformPage = lazy(() => import('./components/PlatformPage'));
 
-const PAGE_PATHS = ['about', 'championship', 'activities', 'find-team'] as const;
-type Page = 'home' | typeof PAGE_PATHS[number];
+const PAGE_PATHS = ['about', 'championship', 'activities', 'find-team', 'blog'] as const;
+type Page = 'home' | 'not-found' | typeof PAGE_PATHS[number];
+const PLATFORM_PATHS = [
+  '/login',
+  '/register',
+  '/forgot-password',
+  '/reset-password',
+  '/profile',
+  '/participants',
+  '/championships',
+  '/events',
+  '/opportunities',
+  '/platform/admin',
+] as const;
 
 const cardEase: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -43,6 +69,8 @@ const TITLE_KEYS: Record<Page, string> = {
   championship: 'meta.championship.title',
   activities: 'meta.activities.title',
   'find-team': 'meta.findTeam.title',
+  blog: 'meta.blog.title',
+  'not-found': 'meta.notFound.title',
 };
 
 const DESCRIPTION_KEYS: Record<Page, string> = {
@@ -51,6 +79,8 @@ const DESCRIPTION_KEYS: Record<Page, string> = {
   championship: 'meta.home.description',
   activities: 'meta.home.description',
   'find-team': 'meta.home.description',
+  blog: 'meta.blog.description',
+  'not-found': 'meta.notFound.description',
 };
 
 const upsertMeta = (selector: string, attributes: Record<string, string>) => {
@@ -108,13 +138,78 @@ const isPagePath = (value: string): value is typeof PAGE_PATHS[number] => {
 
 const getPageFromPath = (): Page => {
   if (typeof window === 'undefined') return 'home';
-  const page = window.location.pathname.replace(/\/$/, '').slice(1);
-  if (page === 'opportunities' || page === 'profile/opportunities' || page.startsWith('opportunities/')) return 'activities';
-  return isPagePath(page) ? page : 'home';
+  if (getIsPlatformRoute()) return 'home';
+  const path = window.location.pathname.replace(/\/$/, '');
+  if (!path) return 'home';
+  const page = path.slice(1);
+  return isPagePath(page) ? page : 'not-found';
+};
+
+const getIsPlatformRoute = () => {
+  if (typeof window === 'undefined') return false;
+  const path = window.location.pathname.replace(/\/$/, '') || '/';
+  return PLATFORM_PATHS.some((platformPath) => path === platformPath || path.startsWith(`${platformPath}/`));
 };
 
 function PageFallback({ page }: { page: Page }) {
   return <PageSkeleton page={page} />;
+}
+
+function NotFoundPage({ onBackToHome }: { onBackToHome: () => void }) {
+  const { t } = useTranslation();
+
+  return (
+    <main className="relative z-10 min-h-[78vh] px-[6%] pb-20 pt-36 md:px-[10%] md:pb-28 md:pt-44">
+      <motion.section
+        {...heroFadeUpLarge}
+        className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-8 overflow-hidden rounded-[2rem] border border-white/[0.18] bg-white/[0.14] p-6 shadow-[0_28px_90px_rgba(91,100,114,0.14)] backdrop-blur-2xl sm:p-10 lg:grid-cols-12 lg:p-12"
+      >
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(188,70,56,0.13),transparent_28%),radial-gradient(circle_at_84%_18%,rgba(189,91,130,0.12),transparent_30%),linear-gradient(135deg,rgba(255,255,255,0.32),rgba(255,255,255,0.08))]" />
+        <div className="pointer-events-none absolute -bottom-28 -right-24 h-72 w-72 rounded-full bg-[#c9a96e]/18 blur-[78px]" />
+
+        <div className="relative lg:col-span-7">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#bc4638]/15 bg-white/45 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#bc4638] shadow-[inset_0_1px_1px_rgba(255,255,255,0.52)]">
+            <SearchX className="h-3.5 w-3.5" strokeWidth={1.8} />
+            {t('ui.app.notFoundEyebrow')}
+          </div>
+
+          <h1 className="max-w-3xl text-4xl font-serif font-light leading-[1.02] tracking-tight text-brand-dark sm:text-5xl md:text-6xl">
+            {t('ui.app.notFoundTitle')}
+          </h1>
+
+          <p className="mt-5 max-w-xl text-sm font-normal leading-relaxed text-brand-slate sm:text-base md:font-light">
+            {t('ui.app.notFoundDescription')}
+          </p>
+
+          <button
+            type="button"
+            onClick={onBackToHome}
+            className="mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-6 py-3 text-xs font-semibold uppercase tracking-widest text-white shadow-lg shadow-[#bc4638]/15 transition-[opacity,transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:opacity-95 hover:shadow-xl hover:shadow-[#bc4638]/20 focus-visible:ring-2 focus-visible:ring-[#bc4638]/35"
+          >
+            <Home className="h-4 w-4" strokeWidth={1.8} />
+            {t('common.backHome')}
+          </button>
+        </div>
+
+        <div className="relative lg:col-span-5">
+          <div className="relative mx-auto flex aspect-square w-full max-w-[360px] items-center justify-center rounded-[2rem] border border-white/[0.22] bg-white/[0.16] shadow-[inset_0_1px_0_rgba(255,255,255,0.5),0_20px_70px_rgba(188,70,56,0.08)] backdrop-blur-xl">
+            <div className="absolute inset-5 rounded-[1.5rem] border border-[#d8d1cc]/35" />
+            <div className="absolute left-8 top-8 h-3 w-3 rounded-full bg-[#6b8f71]/70 shadow-[0_0_26px_rgba(107,143,113,0.38)]" />
+            <div className="absolute bottom-10 right-10 h-4 w-4 rounded-full bg-[#c9a96e]/75 shadow-[0_0_30px_rgba(201,169,110,0.38)]" />
+            <div className="relative text-center">
+              <div className="font-serif text-[5.5rem] font-semibold leading-none tracking-normal text-brand-dark sm:text-[7rem]">
+                404
+              </div>
+              <div className="mx-auto mt-4 h-px w-28 bg-gradient-to-r from-transparent via-[#bc4638]/45 to-transparent" />
+              <div className="mt-4 text-[10px] font-mono font-semibold uppercase tracking-[0.24em] text-brand-slate">
+                {t('ui.app.notFoundCodeLabel')}
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.section>
+    </main>
+  );
 }
 
 export default function App() {
@@ -128,18 +223,24 @@ export default function App() {
   } = useLocalizedData();
   const [currentPage, setCurrentPage] = useState<Page>(getPageFromPath);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [selectedTourney, setSelectedTourney] = useState<string | undefined>(undefined);
   const [showHeader, setShowHeader] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isPlatformRoute, setIsPlatformRoute] = useState(getIsPlatformRoute);
+  const navRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
+  const [authUser, setAuthUser] = useState<PlatformUser | null | undefined>(undefined);
+  const [contactSettings, setContactSettings] = useState<ContactSettings | null>(null);
   const displayedTrustPoints = trustPoints.length === 5
     ? [
       ...trustPoints,
       {
         id: 'tr-6',
-        title: 'Понятная траектория роста',
-        description: 'Участник видит следующий шаг: от первой идеи и командной работы до защиты проекта, сертификата и портфолио.',
+        title: t('ui.app.trustGrowthTitle'),
+        description: t('ui.app.trustGrowthDescription'),
       },
     ]
     : trustPoints;
@@ -148,15 +249,44 @@ export default function App() {
     const handlePopState = () => {
       const page = getPageFromPath();
       setCurrentPage(page);
+      setIsPlatformRoute(getIsPlatformRoute());
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
+    platformApi.me()
+      .then((result) => {
+        if (!cancelled) setAuthUser(result.user);
+      })
+      .catch(() => {
+        if (!cancelled) setAuthUser(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleAuthChange = (event: Event) => {
+      setAuthUser((event as CustomEvent<{ user: PlatformUser | null }>).detail?.user ?? null);
+    };
+    window.addEventListener('platform-auth-change', handleAuthChange);
+    return () => window.removeEventListener('platform-auth-change', handleAuthChange);
+  }, []);
+
+  useEffect(() => {
+    fetchContactSettings().then(setContactSettings);
+  }, []);
+
+  useEffect(() => {
     const title = t(TITLE_KEYS[currentPage]);
     const description = t(DESCRIPTION_KEYS[currentPage]);
-    const canonicalHref = `${window.location.origin}${currentPage === 'home' ? '/' : `/${currentPage}`}`;
+    const canonicalHref = currentPage === 'not-found'
+      ? window.location.href
+      : `${window.location.origin}${currentPage === 'home' ? '/' : `/${currentPage}`}`;
     document.title = title;
     const metaDescription = document.querySelector<HTMLMetaElement>('meta[name="description"]');
     if (metaDescription) {
@@ -177,6 +307,12 @@ export default function App() {
     upsertMeta('meta[name="twitter:card"]', { name: 'twitter:card', content: 'summary_large_image' });
     upsertMeta('meta[name="twitter:title"]', { name: 'twitter:title', content: title });
     upsertMeta('meta[name="twitter:description"]', { name: 'twitter:description', content: description });
+
+    if (currentPage === 'not-found') {
+      upsertMeta('meta[name="robots"]', { name: 'robots', content: 'noindex' });
+    } else {
+      document.head.querySelector<HTMLMetaElement>('meta[name="robots"]')?.remove();
+    }
   }, [currentPage, t, i18n.resolvedLanguage, i18n.language]);
 
   const updatePath = (page: Page) => {
@@ -252,6 +388,37 @@ export default function App() {
     setSelectedTourney(tournamentId);
     setIsModalOpen(true);
   };
+
+  const openAuthModal = () => {
+    setIsMobileMenuOpen(false);
+    setIsAuthModalOpen(true);
+  };
+
+  const navigateToProfile = () => {
+    setIsMobileMenuOpen(false);
+    setIsAuthModalOpen(false);
+    window.history.pushState({}, '', '/profile');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const updateNavIndicator = useCallback(() => {
+    if (currentPage === 'home' || currentPage === 'not-found') {
+      setIndicatorStyle({ left: 0, width: 0, opacity: 0 });
+      return;
+    }
+    const activeRef = navRefs.current[currentPage];
+    if (activeRef) {
+      const { offsetLeft, offsetWidth } = activeRef;
+      setIndicatorStyle({ left: offsetLeft, width: offsetWidth, opacity: 1 });
+    }
+  }, [currentPage]);
+
+  useEffect(() => {
+    updateNavIndicator();
+    window.addEventListener('resize', updateNavIndicator);
+    return () => window.removeEventListener('resize', updateNavIndicator);
+  }, [updateNavIndicator]);
 
   const navigateToPage = (page: Page) => {
     setCurrentPage(page);
@@ -338,7 +505,10 @@ export default function App() {
     debates: t('ui.app.b0f4d8ce6d'),
     research: t('ui.app.ac41209943'),
   };
-  const currentLanguage = (i18n.resolvedLanguage || i18n.language || 'ru') as SupportedLanguage;
+  const resolvedLanguage = (i18n.resolvedLanguage || i18n.language || 'ru').split('-')[0];
+  const currentLanguage = isSupportedLanguage(resolvedLanguage) ? resolvedLanguage : 'ru';
+  const isAutoLanguage = !getSavedPreferredLanguage();
+  const autoLanguage = detectSupportedLanguageFromBrowser();
   const languages = SUPPORTED_LANGUAGES.map((code) => ({
     code,
     label: t(`languages.${code}`),
@@ -474,23 +644,39 @@ export default function App() {
             <span className="font-semibold tracking-tight text-sm sm:text-base text-[#111111]">{t('ui.app.b1a2ec16fe')}</span>
           </button>
 
-          <nav className="hidden md:flex items-center gap-4 lg:gap-8 text-[11px] lg:text-[12px] font-medium text-[#5b6472] uppercase tracking-wider">
+          <nav className="relative hidden md:flex items-center gap-4 lg:gap-8 text-[11px] lg:text-[12px] font-medium text-[#5b6472] uppercase tracking-wider">
             <button
+              ref={(el) => { navRefs.current['about'] = el; }}
               onClick={() => navigateToPage('about')}
-              className={`hover:text-[#bc4638] transition-colors cursor-pointer ${currentPage === 'about' ? 'text-[#bc4638] font-bold underline decoration-2 underline-offset-4' : ''}`}
+              className={`transition-colors cursor-pointer py-1 ${currentPage === 'about' ? 'text-[#bc4638]' : 'hover:text-[#bc4638]'}`}
             >{t('ui.app.d1a90b77df')}</button>
             <button
+              ref={(el) => { navRefs.current['championship'] = el; }}
               onClick={() => navigateToPage('championship')}
-              className={`hover:text-[#bc4638] transition-colors cursor-pointer ${currentPage === 'championship' ? 'text-[#bc4638] font-bold underline decoration-2 underline-offset-4' : ''}`}
+              className={`transition-colors cursor-pointer py-1 ${currentPage === 'championship' ? 'text-[#bc4638]' : 'hover:text-[#bc4638]'}`}
             >{t('ui.app.2f57076dbe')}</button>
             <button
+              ref={(el) => { navRefs.current['find-team'] = el; }}
               onClick={() => navigateToPage('find-team')}
-              className={`hover:text-[#bc4638] transition-colors cursor-pointer ${currentPage === 'find-team' ? 'text-[#bc4638] font-bold underline decoration-2 underline-offset-4' : ''}`}
+              className={`transition-colors cursor-pointer py-1 ${currentPage === 'find-team' ? 'text-[#bc4638]' : 'hover:text-[#bc4638]'}`}
             >{t('ui.app.d13f387e64')}</button>
             <button
+              ref={(el) => { navRefs.current['activities'] = el; }}
               onClick={() => navigateToPage('activities')}
-              className={`hover:text-[#bc4638] transition-colors cursor-pointer ${currentPage === 'activities' ? 'text-[#bc4638] font-bold underline decoration-2 underline-offset-4' : ''}`}
+              className={`transition-colors cursor-pointer py-1 ${currentPage === 'activities' ? 'text-[#bc4638]' : 'hover:text-[#bc4638]'}`}
             >{t('ui.app.814b71a2da')}</button>
+            <button
+              ref={(el) => { navRefs.current['blog'] = el; }}
+              onClick={() => navigateToPage('blog')}
+              className={`transition-colors cursor-pointer py-1 ${currentPage === 'blog' ? 'text-[#bc4638]' : 'hover:text-[#bc4638]'}`}
+            >{t('ui.blogpage.nav.label')}</button>
+            <motion.div
+              layoutId="nav-indicator"
+              className="absolute bottom-0 h-0.5 bg-[#bc4638] rounded-full pointer-events-none"
+              initial={false}
+              animate={{ left: indicatorStyle.left, width: indicatorStyle.width, opacity: indicatorStyle.opacity }}
+              transition={{ type: 'spring', stiffness: 380, damping: 35 }}
+            />
           </nav>
 
           <div className="flex items-center gap-1.5 sm:gap-3">
@@ -517,6 +703,24 @@ export default function App() {
                     className="absolute right-0 mt-2 w-40 rounded-2xl bg-white/80 backdrop-blur-2xl border border-white/60 shadow-[0_15px_40px_rgba(189,91,130,0.1)] p-1.5 z-50 overflow-hidden"
                   >
                     <div className="space-y-0.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          clearPreferredLanguage();
+                          void i18n.changeLanguage(detectSupportedLanguageFromBrowser());
+                          setIsLangDropdownOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all text-left cursor-pointer ${isAutoLanguage
+                            ? 'bg-brand-dark text-white font-medium'
+                            : 'text-brand-slate hover:bg-white/40 hover:text-brand-dark'
+                          }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span>{LANGUAGE_FLAGS[autoLanguage]}</span>
+                          <span>{t('languages.auto')}</span>
+                        </div>
+                        <span className="font-mono text-[10px] uppercase tracking-wider">{autoLanguage}</span>
+                      </button>
                       {languages.map((l) => (
                         <button
                           key={l.code}
@@ -556,11 +760,10 @@ export default function App() {
             </button>
 
             <button
-              onClick={() => openApplyModal()}
+              onClick={authUser ? navigateToProfile : openAuthModal}
               className="hidden sm:block bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white px-3 sm:px-4 lg:px-5 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-[12px] font-medium shadow-lg shadow-[#bc4638]/20 hover:scale-[1.02] transition-transform cursor-pointer whitespace-nowrap"
             >
-              <span className="inline lg:hidden">{t('ui.app.8c26059674')}</span>
-              <span className="hidden lg:inline">{t('ui.app.8c26059674')}</span>
+              <span>{authUser ? t('platform.nav.profile') : t('ui.authmodal.headerButton')}</span>
             </button>
           </div>
         </div>
@@ -579,7 +782,8 @@ export default function App() {
                 <button onClick={() => navigateToPage('championship')} className={`rounded-2xl px-4 py-3 text-left transition-colors ${currentPage === 'championship' ? 'bg-brand-dark text-white' : 'hover:bg-white/60 hover:text-brand-dark'}`}>{t('ui.app.2f57076dbe')}</button>
                 <button onClick={() => navigateToPage('find-team')} className={`rounded-2xl px-4 py-3 text-left transition-colors ${currentPage === 'find-team' ? 'bg-brand-dark text-white' : 'hover:bg-white/60 hover:text-brand-dark'}`}>{t('ui.app.d13f387e64')}</button>
                 <button onClick={() => navigateToPage('activities')} className={`rounded-2xl px-4 py-3 text-left transition-colors ${currentPage === 'activities' ? 'bg-brand-dark text-white' : 'hover:bg-white/60 hover:text-brand-dark'}`}>{t('ui.app.814b71a2da')}</button>
-                <button onClick={() => { setIsMobileMenuOpen(false); openApplyModal(); }} className="mt-1 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-4 py-3 text-left font-semibold text-white shadow-lg shadow-[#bc4638]/15">{t('ui.app.24cd8dc78d')}</button>
+                <button onClick={() => navigateToPage('blog')} className={`rounded-2xl px-4 py-3 text-left transition-colors ${currentPage === 'blog' ? 'bg-brand-dark text-white' : 'hover:bg-white/60 hover:text-brand-dark'}`}>{t('ui.blogpage.nav.label')}</button>
+                <button onClick={authUser ? navigateToProfile : openAuthModal} className="mt-1 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-4 py-3 text-left font-semibold text-white shadow-lg shadow-[#bc4638]/15">{authUser ? t('platform.nav.profile') : t('ui.authmodal.headerButton')}</button>
               </div>
             </motion.div>
           )}
@@ -587,7 +791,11 @@ export default function App() {
       </motion.header>
 
       <Suspense fallback={<PageFallback page={currentPage} />}>
-      {currentPage === 'home' ? (
+      {isPlatformRoute ? (
+        <PlatformPage />
+      ) : currentPage === 'not-found' ? (
+        <NotFoundPage onBackToHome={() => navigateToPage('home')} />
+      ) : currentPage === 'home' ? (
         <>
           <section
             id="hero-intro"
@@ -896,7 +1104,7 @@ export default function App() {
                     {index + 1}
                   </div>
                   <div className="space-y-3 text-left">
-                    <h3 className="text-base sm:text-lg font-serif font-semibold text-brand-dark">{item.title}</h3>
+                    <h3 className="text-lg sm:text-xl font-serif font-semibold text-brand-dark">{item.title}</h3>
                     <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{item.description}</p>
                   </div>
                 </motion.div>
@@ -952,6 +1160,26 @@ export default function App() {
             onOpenApplyModal={() => openApplyModal()}
           />
         </div>
+      ) : currentPage === 'blog' ? (
+        <div className="w-full">
+          <BlogPage
+            onBackToHome={() => {
+              setCurrentPage('home'); updatePath('home');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onCreateBlog={() => {
+              if (authUser) {
+                setIsMobileMenuOpen(false);
+                setIsAuthModalOpen(false);
+                window.history.pushState({}, '', '/profile/blog/new');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              } else {
+                openAuthModal();
+              }
+            }}
+          />
+        </div>
       ) : (
         <div className="w-full">
           <ActivitiesPage
@@ -983,27 +1211,31 @@ export default function App() {
                 <li><button onClick={() => { setCurrentPage('championship'); updatePath('championship'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#bc4638] transition-colors cursor-pointer">{t('ui.app.2757f706cf')}</button></li>
                 <li><button onClick={() => { setCurrentPage('activities'); updatePath('activities'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#bc4638] transition-colors cursor-pointer">{t('ui.app.814b71a2da')}</button></li>
                 <li><button onClick={() => { setCurrentPage('find-team'); updatePath('find-team'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#bc4638] transition-colors cursor-pointer">{t('ui.app.d13f387e64')}</button></li>
+                <li><button onClick={() => { setCurrentPage('blog'); updatePath('blog'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#bc4638] transition-colors cursor-pointer">{t('ui.blogpage.nav.label')}</button></li>
               </ul>
             </div>
 
             <div className="md:col-span-4 space-y-3">
               <h4 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold">{t('ui.app.ce65e2cf6b')}</h4>
               <ul className="space-y-1.5 text-xs text-brand-slate font-normal md:font-light">
-                <li>Email: <a href="mailto:info@navykus.org" className="hover:text-[#bc4638] transition-colors">info@navykus.org</a></li>
-                <li>Telegram: <a href="https://t.me/navykus_com" target="_blank" rel="noreferrer" className="hover:text-[#bc4638] transition-colors">@navykus_com</a></li>
-                <li>{t('ui.app.ed16b5adfc')}<span className="text-brand-dark/80">+7 (999) 000-00-00</span></li>
+                <li>Email: <a href={`mailto:${contactSettings?.email || 'info@navykus.org'}`} className="hover:text-[#bc4638] transition-colors">{contactSettings?.email || 'info@navykus.org'}</a></li>
+                <li>Telegram: <a href={`https://t.me/${(contactSettings?.telegram || '@navykus_com').replace('@', '')}`} target="_blank" rel="noreferrer" className="hover:text-[#bc4638] transition-colors">{contactSettings?.telegram || '@navykus_com'}</a></li>
+                <li>{t('ui.app.ed16b5adfc')}<span className="text-brand-dark/80">{contactSettings?.phone || '+7 (999) 000-00-00'}</span></li>
+                {contactSettings?.address && (
+                  <li className="text-brand-dark/80">{contactSettings.address}</li>
+                )}
               </ul>
             </div>
           </div>
 
           <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex flex-wrap gap-4 text-[11px] text-brand-slate/80 font-normal md:font-light">
-              <span>© 2026 Navikus Global Education</span>
+              <span>{t('ui.app.copyright')}</span>
               <a href={t('ui.app.a5307558')} className="hover:text-[#bc4638] transition-colors">{t('ui.app.9e059272f1')}</a>
               <a href={t('ui.app.4d9e7853')} className="hover:text-[#bc4638] transition-colors">{t('ui.app.3a86197ba3')}</a>
             </div>
             <div className="text-[11px] font-mono tracking-[0.15em] text-[#5b6472] opacity-40 lowercase">
-              made by dioxoid digital
+              {t('ui.app.madeBy')}
             </div>
           </div>
         </div>
@@ -1013,7 +1245,7 @@ export default function App() {
         {showScrollTop && (
           <motion.button
             type="button"
-            aria-label="Наверх"
+            aria-label={t('ui.app.scrollTop')}
             onClick={scrollToTop}
             initial={{ opacity: 0, y: 18, scale: 0.92 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -1030,6 +1262,11 @@ export default function App() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         selectedTournamentId={selectedTourney}
+      />
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onAuthChange={setAuthUser}
       />
     </div>
   );

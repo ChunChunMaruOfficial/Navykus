@@ -488,19 +488,13 @@ export default function ChampionshipPage({
               <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">
                 {cmsData.description}
               </p>
-              <div className="p-4 bg-white/[0.12] glass-panel surface-elevated-soft rounded-2xl border border-white/[0.12]">
-                <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-brand-slate block mb-1">{t('ui.championshippage.d50e039adb')}</span>
-                <p className="text-xs text-brand-dark font-medium leading-relaxed font-serif">
-                  {cmsData.expectedResult}
-                </p>
-              </div>
             </div>
 
             <div className="lg:col-span-7 space-y-6">
             
             {/* Themes list from CMS */}
             <div className="space-y-3">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-brand-dark font-semibold">{t('ui.championshippage.5c807e4149')}</span>
+              <span className="text-[10px] font-mono uppercase tracking-wider text-brand-dark font-semibold mb-1 block">{t('ui.championshippage.5c807e4149')}</span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {cmsData.themes.map((theme, idx) => (
                   <div key={idx} className="bg-white/[0.12] glass-card surface-elevated-soft border border-white/[0.15] p-3.5 rounded-xl text-left flex items-start gap-3">
@@ -515,7 +509,7 @@ export default function ChampionshipPage({
 
             {/* Evaluation Criteria */}
             <div className="space-y-3 pt-2">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-brand-dark font-semibold">{t('ui.championshippage.9ab00a25e1')}</span>
+              <span className="text-[10px] font-mono uppercase tracking-wider text-brand-dark font-semibold mb-1 block">{t('ui.championshippage.9ab00a25e1')}</span>
               <div className="space-y-2">
                 {cmsData.evaluationCriteria.map((crit, idx) => (
                   <div key={idx} className="flex items-start gap-2 text-xs text-brand-slate font-normal md:font-light">
@@ -525,6 +519,14 @@ export default function ChampionshipPage({
                 ))}
               </div>
             </div>
+
+            {/* Expected Result (MVP) */}
+            <div className="p-4 bg-white/[0.12] glass-panel surface-elevated-soft rounded-2xl border border-white/[0.12]">
+                <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-brand-slate block mb-1">{t('ui.championshippage.d50e039adb')}</span>
+                <p className="text-sm sm:text-base text-brand-dark font-medium leading-relaxed font-serif">
+                  {cmsData.expectedResult}
+                </p>
+              </div>
 
           </div>
           </div>
@@ -607,14 +609,14 @@ export default function ChampionshipPage({
                         </li>
                       </ul>
                     </div>
-                    <div className="bg-brand-dark text-white rounded-xl p-5 flex flex-col justify-between">
+                    <div className="bg-gradient-to-br from-[#bc4638]/5 to-[#bd5b82]/5 rounded-xl p-5 flex flex-col justify-between border border-white/40">
                       <div>
-                        <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-brand-terracotta font-bold">{t('ui.championshippage.9f228ac331')}</span>
-                        <p className="text-xs text-white/85 mt-1.5 font-light leading-relaxed">{t('ui.championshippage.a3e6b0b4fd')}</p>
+                        <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bc4638] font-bold">{t('ui.championshippage.9f228ac331')}</span>
+                        <p className="text-xs text-brand-slate mt-1.5 font-light leading-relaxed">{t('ui.championshippage.a3e6b0b4fd')}</p>
                       </div>
                       <button
                         onClick={() => handleNavigateFromChampionship('scenarios')}
-                        className="text-xs font-mono font-bold text-brand-terracotta hover:underline inline-flex items-center gap-1 mt-4 cursor-pointer text-left"
+                        className="text-xs font-mono font-bold text-[#bc4638] hover:underline inline-flex items-center gap-1 mt-4 cursor-pointer text-left"
                       >{t('ui.championshippage.6e3ec9704e')}<ArrowRight className="w-3 h-3" />
                       </button>
                     </div>
@@ -997,7 +999,7 @@ export default function ChampionshipPage({
                 <button
                   type="button"
                   onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
-                  className="w-full flex items-center justify-between p-5 text-left font-serif font-semibold text-brand-dark text-sm sm:text-base md:text-lg cursor-pointer"
+                  className="w-full flex items-center justify-between p-5 text-left font-serif font-semibold text-brand-dark text-base sm:text-lg md:text-xl cursor-pointer"
                 >
                   <span>{faq.question}</span>
                   <ChevronDown className={`w-4 h-4 text-brand-slate/60 transition-transform duration-300 flex-shrink-0 ${activeFaq === idx ? 'rotate-180' : ''}`} />

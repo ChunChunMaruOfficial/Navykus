@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload';
 
-import { anyone, authenticated } from '../access';
+import { adminOrModerator, anyone } from '../access';
 import { legacyIdField, publishedField, sortOrderField } from '../fields';
 
 export const TrustPoints: CollectionConfig = {
@@ -11,9 +11,9 @@ export const TrustPoints: CollectionConfig = {
   },
   access: {
     read: anyone,
-    create: authenticated,
-    update: authenticated,
-    delete: authenticated,
+    create: adminOrModerator,
+    update: adminOrModerator,
+    delete: adminOrModerator,
   },
   fields: [
     legacyIdField,
@@ -23,4 +23,3 @@ export const TrustPoints: CollectionConfig = {
     { name: 'description', type: 'textarea', required: true },
   ],
 };
-

@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload';
 
-import { anyone, authenticated } from '../access';
+import { adminOrModerator, anyone } from '../access';
 import { legacyIdField, sortOrderField, textListField } from '../fields';
 
 export const TeamMembers: CollectionConfig = {
@@ -12,8 +12,8 @@ export const TeamMembers: CollectionConfig = {
   access: {
     read: anyone,
     create: anyone,
-    update: authenticated,
-    delete: authenticated,
+    update: adminOrModerator,
+    delete: adminOrModerator,
   },
   fields: [
     legacyIdField,
@@ -44,4 +44,3 @@ export const TeamMembers: CollectionConfig = {
     { name: 'isApproved', type: 'checkbox', defaultValue: false },
   ],
 };
-
