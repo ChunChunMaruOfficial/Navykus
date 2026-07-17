@@ -133,11 +133,13 @@ function Shell({
   unread,
   children,
   onLogout,
+  onLogin,
 }: {
   user?: PlatformUser | null;
   unread: number;
   children: React.ReactNode;
   onLogout: () => void;
+  onLogin?: () => void;
 }) {
   const { t } = useTranslation();
   const isProfileRoute = currentPath().startsWith('/profile');
@@ -180,7 +182,7 @@ function Shell({
                   </button>
                 </>
               ) : (
-                <button type="button" onClick={() => navigate('/login')} className="rounded-xl bg-brand-dark px-3 py-2 text-white">
+                <button type="button" onClick={onLogin} className="rounded-xl bg-brand-dark px-3 py-2 text-white">
                   {t('platform.nav.login')}
                 </button>
               )}
@@ -249,7 +251,7 @@ function AuthView({ mode, onAuth }: { mode: 'login' | 'register' | 'forgot' | 'r
           passwordConfirmation: String(form.passwordConfirmation || ''),
         });
         setMessage(t('platform.auth.resetSuccess'));
-        navigate('/login');
+        navigate('/');
       }
       setState('success');
     } catch (error) {
@@ -315,8 +317,6 @@ function AuthView({ mode, onAuth }: { mode: 'login' | 'register' | 'forgot' | 'r
         {message && <div className={`rounded-xl px-4 py-3 text-sm ${state === 'error' ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`}>{message}</div>}
       </form>
       <div className="flex flex-wrap gap-3 text-xs font-semibold text-brand-slate">
-        <button type="button" onClick={() => navigate('/login')}>{t('platform.auth.loginTitle')}</button>
-        <button type="button" onClick={() => navigate('/register')}>{t('platform.auth.registerTitle')}</button>
         <button type="button" onClick={() => navigate('/forgot-password')}>{t('platform.auth.forgotTitle')}</button>
       </div>
     </section>
@@ -952,7 +952,7 @@ function ProfileEditor({ user, onUser, settingsOnly = false }: { user: PlatformU
   const syncLogout = () => {
     onUser(null);
     window.dispatchEvent(new CustomEvent('platform-auth-change', { detail: { user: null } }));
-    navigate('/login');
+    navigate('/');
   };
   const logout = async () => {
     setAccountState('loading');
@@ -1410,7 +1410,7 @@ function FavoriteButton({ user, itemType, itemId, itemTitle, href }: { user?: Pl
 
   const add = async () => {
     if (!user) {
-      navigate('/login');
+      navigate('/');
       return;
     }
     setState('loading');
@@ -1611,7 +1611,7 @@ function AdminView({ user }: { user?: PlatformUser | null }) {
   );
 }
 
-export default function PlatformPage() {
+export default function PlatformPage({ onLogin }: { onLogin?: () => void }) {
   const [route, setRoute] = useState(getRoute);
   const [user, setUser] = useState<PlatformUser | null | undefined>(undefined);
   const [unread, setUnread] = useState(0);
@@ -1638,8 +1638,24 @@ export default function PlatformPage() {
     await platformApi.logout().catch(() => undefined);
     setUser(null);
     window.dispatchEvent(new CustomEvent('platform-auth-change', { detail: { user: null } }));
-    navigate('/login');
+    navigate('/');
   };
+
+  // Redirect unauthenticated users away from login/register/profile
+  const needsRedirect = useMemo(() => {
+    if (user === undefined) return null; // still loading auth
+    // /login and /register should NEVER be standalone — auth is only via modal
+    if (route.path === '/login' || route.path === '/register') return '/';
+    // /profile requires authentication
+    if (route.path.startsWith('/profile') && !user) return '/';
+    return null;
+  }, [route.path, user]);
+
+  useEffect(() => {
+    if (needsRedirect) {
+      navigate(needsRedirect);
+    }
+  }, [needsRedirect]);
 
   const content = useMemo(() => {
     // Public routes that don't need auth — render immediately
@@ -1647,9 +1663,8 @@ export default function PlatformPage() {
     if (route.path === '/forgot-password') return <AuthView mode="forgot" onAuth={setUser} />;
     if (route.path === '/reset-password') return <AuthView mode="reset" onAuth={setUser} />;
     if (user === undefined) return <StateBlock state="loading"><div /></StateBlock>;
-    if (route.path === '/login') return user ? <Dashboard user={user} onUser={setUser} /> : <AuthView mode="login" onAuth={setUser} />;
-    if (route.path === '/register') return user ? <Dashboard user={user} onUser={setUser} /> : <AuthView mode="register" onAuth={setUser} />;
-    if (route.path.startsWith('/profile')) return user ? <Dashboard user={user} onUser={setUser} /> : <AuthView mode="login" onAuth={setUser} />;
+    if (route.path === '/login' || route.path === '/register') return null;
+    if (route.path.startsWith('/profile')) return user ? <Dashboard user={user} onUser={setUser} /> : null;
     if (route.path.startsWith('/participants')) return <ParticipantsView user={user} />;
     if (route.path === '/platform/admin') return <AdminView user={user} />;
     if (route.path === '/platform/admin/blog') return <BlogModerationPanel user={user} />;
@@ -1659,7 +1674,7 @@ export default function PlatformPage() {
   }, [route.path, user]);
 
   return (
-    <Shell user={user} unread={unread} onLogout={logout}>
+    <Shell user={user} unread={unread} onLogout={logout} onLogin={onLogin}>
       {content}
     </Shell>
   );

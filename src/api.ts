@@ -147,6 +147,7 @@ const REMEMBERED_PLATFORM_ACCOUNT_KEY = 'navykus.rememberedPlatformAccount';
 
 export type RememberedPlatformAccount = {
   email: string;
+  token?: string;
   name?: string;
   firstName?: string;
   lastName?: string;
@@ -173,6 +174,7 @@ export const getRememberedPlatformAccount = (): RememberedPlatformAccount | unde
     if (!parsed.email || typeof parsed.email !== 'string') return undefined;
     return {
       email: parsed.email,
+      token: typeof parsed.token === 'string' ? parsed.token : undefined,
       name: typeof parsed.name === 'string' ? parsed.name : undefined,
       firstName: typeof parsed.firstName === 'string' ? parsed.firstName : undefined,
       lastName: typeof parsed.lastName === 'string' ? parsed.lastName : undefined,
@@ -183,12 +185,16 @@ export const getRememberedPlatformAccount = (): RememberedPlatformAccount | unde
   }
 };
 
-export const rememberPlatformAccount = (user: Pick<PlatformUser, 'email' | 'firstName' | 'lastName' | 'name'>) => {
+export const rememberPlatformAccount = (
+  user: Pick<PlatformUser, 'email' | 'firstName' | 'lastName' | 'name'>,
+  token?: string,
+) => {
   const storage = browserStorage();
   if (!storage || !user.email) return;
 
   const remembered: RememberedPlatformAccount = {
     email: user.email,
+    token,
     name: user.name,
     firstName: user.firstName,
     lastName: user.lastName,
@@ -330,9 +336,11 @@ export type BlogModerationHistoryEntry = {
 export const platformApi = {
   me: () => requestJson<{ user: PlatformUser }>('/api/auth/me'),
   login: (payload: { email: string; password: string }) =>
-    requestJson<{ user: PlatformUser }>('/api/auth/login', { method: 'POST', body: JSON.stringify(payload) }),
+    requestJson<{ user: PlatformUser; token: string }>('/api/auth/login', { method: 'POST', body: JSON.stringify(payload) }),
   register: (payload: Record<string, unknown>) =>
-    requestJson<{ user: PlatformUser }>('/api/auth/register', { method: 'POST', body: JSON.stringify(payload) }),
+    requestJson<{ user: PlatformUser; token: string }>('/api/auth/register', { method: 'POST', body: JSON.stringify(payload) }),
+  quickLogin: (token: string) =>
+    requestJson<{ user: PlatformUser }>('/api/auth/quick-login', { method: 'POST', body: JSON.stringify({ token }) }),
   logout: () => requestJson<{ ok: boolean }>('/api/auth/logout', { method: 'POST' }),
   deleteProfile: () => requestJson<{ ok: boolean }>('/api/profile', { method: 'DELETE' }),
   forgotPassword: (email: string) =>

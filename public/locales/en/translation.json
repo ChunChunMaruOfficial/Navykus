@@ -1499,6 +1499,7 @@
     "errors": {
       "API_ERROR": "Request failed",
       "AUTH_REQUIRED": "Log in to continue",
+      "AUTH_RATE_LIMIT": "Too many requests. Please try again later.",
       "AUTH_INVALID_REGISTRATION": "Check registration fields",
       "AUTH_AGREEMENT_REQUIRED": "Accept the policy and terms",
       "AUTH_LOGIN_FAILED": "Invalid email or password",
@@ -1509,9 +1510,8 @@
       "FORBIDDEN": "Access denied",
       "FAVORITE_INVALID": "Favorite data is invalid",
       "APPLICATION_STATUS_INVALID": "Application status is invalid",
-      "APPLICATION_TARGET_REQUIRED": "Select an application target",
       "APPLICATION_DUPLICATE": "You already have an active application for this item",
-      "PARTICIPANT_NOT_FOUND": "Participant not found",
+      "APPLICATION_TARGET_REQUIRED": "Select an application target",
       "TEAM_POST_INVALID": "Team post data is invalid",
       "TEAM_RESPONSE_INVALID": "Team response is invalid",
       "TEAM_RESPONSE_DUPLICATE": "You already responded to this post",
@@ -1523,7 +1523,8 @@
       "USER_LAST_ADMIN_FORBIDDEN": "At least one active administrator is required",
       "AVATAR_REQUIRED": "Choose an avatar file.",
       "AVATAR_INVALID": "Upload a valid JPG, PNG, or WebP image.",
-      "INTERNAL_SERVER_ERROR": "Internal server error. Please try later."
+      "INTERNAL_SERVER_ERROR": "Internal server error. Please try later.",
+      "PARTICIPANT_NOT_FOUND": "Participant not found"
     },
     "placeholders": {
       "search": "Search..."

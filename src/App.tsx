@@ -827,7 +827,7 @@ export default function App() {
 
       <Suspense fallback={<PageFallback page={currentPage} />}>
       {isPlatformRoute ? (
-        <PlatformPage />
+        <PlatformPage onLogin={openAuthModal} />
       ) : currentPage === 'not-found' ? (
         <NotFoundPage onBackToHome={() => navigateToPage('home')} />
       ) : currentPage === 'home' ? (

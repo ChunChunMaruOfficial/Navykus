@@ -82,6 +82,8 @@ export default function AuthModal({ isOpen, onClose, onAuthChange }: AuthModalPr
   const { t } = useTranslation();
   const modalRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+  const onAuthChangeRef = useRef(onAuthChange);
+  onAuthChangeRef.current = onAuthChange;
   const [mode, setMode] = useState<AuthMode>('login');
   const [isCodeLogin, setIsCodeLogin] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -111,13 +113,13 @@ export default function AuthModal({ isOpen, onClose, onAuthChange }: AuthModalPr
     setRememberedAccount(getRememberedPlatformAccount());
     platformApi.me().then((result) => {
       setUser(result.user);
-      onAuthChange?.(result.user);
+      onAuthChangeRef.current?.(result.user);
       openProfile();
     }).catch(() => {
       setUser(null);
-      onAuthChange?.(null);
+      onAuthChangeRef.current?.(null);
     });
-  }, [isOpen, onAuthChange]);
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -170,6 +172,28 @@ export default function AuthModal({ isOpen, onClose, onAuthChange }: AuthModalPr
     setForm((current) => ({ ...current, [key]: value }));
   };
 
+  const quickLogin = async () => {
+    if (!rememberedAccount?.token) {
+      // No stored token, fall back to filling in the email
+      useRememberedAccount();
+      return;
+    }
+    setState('loading');
+    setMessage('');
+    try {
+      const result = await platformApi.quickLogin(rememberedAccount.token);
+      setUser(result.user);
+      rememberPlatformAccount(result.user, rememberedAccount.token);
+      setRememberedAccount(getRememberedPlatformAccount());
+      onAuthChangeRef.current?.(result.user);
+      setState('idle');
+      openProfile();
+    } catch {
+      // Token expired, fall back to password login
+      useRememberedAccount();
+    }
+  };
+
   const useRememberedAccount = () => {
     if (!rememberedAccount) return;
     setMode('login');
@@ -202,9 +226,9 @@ export default function AuthModal({ isOpen, onClose, onAuthChange }: AuthModalPr
         : await platformApi.register(form);
 
       setUser(result.user);
-      rememberPlatformAccount(result.user);
+      rememberPlatformAccount(result.user, result.token);
       setRememberedAccount(getRememberedPlatformAccount());
-      onAuthChange?.(result.user);
+      onAuthChangeRef.current?.(result.user);
       setState('idle');
       setMessage('');
       openProfile();
@@ -218,7 +242,7 @@ export default function AuthModal({ isOpen, onClose, onAuthChange }: AuthModalPr
     setState('loading');
     await platformApi.logout().catch(() => undefined);
     setUser(null);
-    onAuthChange?.(null);
+    onAuthChangeRef.current?.(null);
     setState('idle');
     setMessage('');
   };
@@ -347,7 +371,7 @@ export default function AuthModal({ isOpen, onClose, onAuthChange }: AuthModalPr
                   {mode === 'login' && rememberedAccount && (
                     <button
                       type="button"
-                      onClick={useRememberedAccount}
+                      onClick={quickLogin}
                       className="flex w-full items-center gap-3 rounded-2xl border border-brand-pink-dust/30 bg-white/35 p-3 text-left transition-colors hover:bg-white/55"
                     >
                       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-dark text-white">

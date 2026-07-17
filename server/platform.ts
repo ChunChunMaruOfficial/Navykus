@@ -400,7 +400,7 @@ const catalogWhere = (req: Request, searchFields: string[], extra: Record<string
 export const registerPlatformRoutes = (app: Express) => {
   const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 10,
+    max: 30,
     message: { code: 'AUTH_RATE_LIMIT' },
     standardHeaders: true,
     legacyHeaders: false,
@@ -470,7 +470,7 @@ export const registerPlatformRoutes = (app: Express) => {
       }
 
       setSessionCookie(res, login.token, login.exp);
-      res.status(201).json({ user, passwordWarning });
+      res.status(201).json({ user, passwordWarning, token: login.token });
     } catch (error) {
       next(error);
     }
@@ -503,9 +503,42 @@ export const registerPlatformRoutes = (app: Express) => {
       }
 
       setSessionCookie(res, login.token, login.exp);
-      res.json({ user });
+      res.json({ user, token: login.token });
     } catch (_error) {
       res.status(401).json({ code: 'AUTH_LOGIN_FAILED' });
+    }
+  });
+
+  app.post('/api/auth/quick-login', async (req, res, next) => {
+    try {
+      const token = String(req.body?.token || '');
+      if (!token) {
+        res.status(400).json({ code: 'AUTH_TOKEN_REQUIRED' });
+        return;
+      }
+
+      const payload = await getPayloadClient();
+      const result = await payload.auth({
+        headers: new Headers({
+          Authorization: `Bearer ${token}`,
+        }),
+      }).catch(() => undefined);
+
+      if (!result?.user) {
+        res.status(401).json({ code: 'AUTH_TOKEN_INVALID' });
+        return;
+      }
+
+      const user = normalizeUser(result.user as unknown as Record<string, unknown>);
+      if (user.accountStatus === 'blocked') {
+        res.status(403).json({ code: 'ACCOUNT_BLOCKED' });
+        return;
+      }
+
+      setSessionCookie(res, token);
+      res.json({ user });
+    } catch (error) {
+      next(error);
     }
   });
 
