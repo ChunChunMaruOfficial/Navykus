@@ -52,7 +52,7 @@ export default buildConfig({
     ? nodemailerAdapter({
         defaultFromAddress: process.env.SMTP_FROM || 'noreply@navykus.org',
         defaultFromName: process.env.SMTP_FROM_NAME || 'Navykus',
-        transport: {
+        transportOptions: {
           host: process.env.SMTP_HOST,
           port: Number(process.env.SMTP_PORT) || 587,
           secure: process.env.SMTP_SECURE === 'true',
