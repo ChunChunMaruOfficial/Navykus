@@ -211,16 +211,7 @@ export default function AboutProjectPage({
     <div className="relative w-full text-brand-dark pb-16 pt-24">
       <div className="max-w-7xl mx-auto px-[6%] md:px-[10%]">
         
-        {/* Back navigation */}
-        <div className="flex justify-start mb-8 sm:mb-12">
-          <button 
-            onClick={onBackToHome}
-            className="group inline-flex items-center gap-2 px-4 py-2 border border-[#d8d1cc]/60 hover:border-brand-dark text-xs font-mono tracking-wider uppercase text-brand-slate hover:text-brand-dark transition-all rounded-xl cursor-pointer bg-white/20 backdrop-blur-sm"
-          >
-            <ArrowRight className="w-3.5 h-3.5 rotate-180 transition-transform group-hover:-translate-x-0.5" />
-            <span>{t('ui.aboutprojectpage.a9dc864a2e')}</span>
-          </button>
-        </div>
+        {/* Back navigation removed */}
 
         {/* 1. HERO BLOCK */}
         <section className="relative z-10 grid gap-8 pb-12 md:grid-cols-[minmax(0,1fr)_minmax(320px,0.86fr)] md:items-center md:pb-16">

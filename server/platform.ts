@@ -1,4 +1,5 @@
 ﻿import type { Express, Request, Response } from 'express';
+import rateLimit from 'express-rate-limit';
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -397,6 +398,16 @@ const catalogWhere = (req: Request, searchFields: string[], extra: Record<string
 };
 
 export const registerPlatformRoutes = (app: Express) => {
+  const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    message: { code: 'AUTH_RATE_LIMIT' },
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+
+  app.use('/api/auth/', authLimiter);
+
   app.post('/api/auth/register', async (req: AuthenticatedRequest, res, next) => {
     try {
       const payload = await getPayloadClient();
@@ -1168,6 +1179,28 @@ export const registerPlatformRoutes = (app: Express) => {
     }
   });
 
+  app.get('/api/championships/featured', async (req, res, next) => {
+    try {
+      const payload = await getPayloadClient();
+      const result = await payload.find({
+        collection: 'tournaments' as any,
+        where: {
+          isPublished: { equals: true },
+          isFeatured: { equals: true },
+        },
+        limit: 1,
+        overrideAccess: true,
+      });
+      if (result.docs.length === 0) {
+        res.status(404).json({ code: 'NO_FEATURED_CHAMPIONSHIP' });
+        return;
+      }
+      res.json({ doc: result.docs[0] });
+    } catch (error) {
+      next(error);
+    }
+  });
+
   app.get('/api/events', async (req, res, next) => {
     try {
       const payload = await getPayloadClient();
@@ -1196,6 +1229,39 @@ export const registerPlatformRoutes = (app: Express) => {
         page,
         limit,
         sort: req.query.sort === 'deadline' ? 'deadline' : '-createdAt',
+        overrideAccess: true,
+      });
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get('/api/activities', async (req, res, next) => {
+    try {
+      const payload = await getPayloadClient();
+      const { page, limit } = pageOptions(req);
+      const q = typeof req.query.q === 'string' ? req.query.q.trim() : '';
+      const category = typeof req.query.category === 'string' ? req.query.category : undefined;
+      const status = typeof req.query.status === 'string' ? req.query.status : undefined;
+      const where: Record<string, unknown> = {
+        isPublished: { equals: true },
+        ...(category ? { category: { equals: category } } : {}),
+        ...(status ? { status: { equals: status } } : {}),
+      };
+      if (q) {
+        where.or = [
+          { title: { like: q } },
+          { shortDescription: { like: q } },
+          { fullDescription: { like: q } },
+        ];
+      }
+      const result = await payload.find({
+        collection: 'activities' as any,
+        where,
+        page,
+        limit,
+        sort: req.query.sort === 'oldest' ? 'createdAt' : '-sortOrder',
         overrideAccess: true,
       });
       res.json(result);

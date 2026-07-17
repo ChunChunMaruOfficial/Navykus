@@ -367,7 +367,7 @@ export const platformApi = {
     requestJson<{ post: CatalogDoc }>('/api/profile/team-posts', { method: 'POST', body: JSON.stringify(payload) }),
   respondToTeamPost: (id: string | number, payload: Record<string, unknown>) =>
     requestJson<{ response: CatalogDoc }>(`/api/team-posts/${id}/responses`, { method: 'POST', body: JSON.stringify(payload) }),
-  catalog: (type: 'championships' | 'events' | 'opportunities', query = '') =>
+  catalog: (type: 'championships' | 'events' | 'opportunities' | 'activities', query = '') =>
     requestJson<{ docs: CatalogDoc[]; totalDocs: number; totalPages: number }>(`/api/${type}${query}`),
   adminSummary: () => requestJson<Record<string, number>>('/api/admin/summary'),
   adminUsers: (query = '') => requestJson<{ docs: PlatformUser[] }>(`/api/admin/users${query}`),

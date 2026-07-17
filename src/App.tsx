@@ -9,7 +9,6 @@ import {
   CheckCircle2,
   AlertCircle,
   Globe,
-  Home,
   Menu,
   SearchX,
   X,
@@ -44,7 +43,7 @@ const ChampionshipPage = lazy(() => import('./components/ChampionshipPage'));
 const ActivitiesPage = lazy(() => import('./components/ActivitiesPage'));
 const FindTeamPage = lazy(() => import('./components/FindTeamPage'));
 const BlogPage = lazy(() => import('./components/BlogPage'));
-const PlatformPage = lazy(() => import('./components/PlatformPage'));
+import PlatformPage from './components/PlatformPage';
 
 const PAGE_PATHS = ['about', 'championship', 'activities', 'find-team', 'blog'] as const;
 type Page = 'home' | 'not-found' | typeof PAGE_PATHS[number];
@@ -181,14 +180,7 @@ function NotFoundPage({ onBackToHome }: { onBackToHome: () => void }) {
             {t('ui.app.notFoundDescription')}
           </p>
 
-          <button
-            type="button"
-            onClick={onBackToHome}
-            className="mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-6 py-3 text-xs font-semibold uppercase tracking-widest text-white shadow-lg shadow-[#bc4638]/15 transition-[opacity,transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:opacity-95 hover:shadow-xl hover:shadow-[#bc4638]/20 focus-visible:ring-2 focus-visible:ring-[#bc4638]/35"
-          >
-            <Home className="h-4 w-4" strokeWidth={1.8} />
-            {t('common.backHome')}
-          </button>
+
         </div>
 
         <div className="relative lg:col-span-5">
@@ -234,7 +226,8 @@ export default function App() {
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
   const [authUser, setAuthUser] = useState<PlatformUser | null | undefined>(undefined);
   const [contactSettings, setContactSettings] = useState<ContactSettings | null>(null);
-  const displayedTrustPoints = trustPoints.length === 5
+  const [featuredTournament, setFeaturedTournament] = useState<Record<string, unknown> | null>(null);
+  const displayedTrustPoints = trustPoints?.length === 5
     ? [
       ...trustPoints,
       {
@@ -243,7 +236,7 @@ export default function App() {
         description: t('ui.app.trustGrowthDescription'),
       },
     ]
-    : trustPoints;
+    : trustPoints || [];
 
   useEffect(() => {
     const handlePopState = () => {
@@ -279,6 +272,22 @@ export default function App() {
 
   useEffect(() => {
     fetchContactSettings().then(setContactSettings);
+  }, []);
+
+  useEffect(() => {
+    const apiBase = (import.meta as any).env?.VITE_API_URL || ((import.meta as any).env?.DEV ? 'http://localhost:4000' : '');
+    fetch(`${apiBase}/api/championships/featured`)
+      .then((res) => {
+        if (!res.ok) throw new Error('No featured championship');
+        return res.json();
+      })
+      .then((data: { doc: Record<string, unknown> }) => {
+        setFeaturedTournament(data.doc);
+      })
+      .catch(() => {
+        // No featured championship set in CMS, use i18n fallback
+        setFeaturedTournament(null);
+      });
   }, []);
 
   useEffect(() => {
@@ -498,7 +507,33 @@ export default function App() {
     }
   };
 
-  const nearestTournament = tournaments[0];
+  const nearestTournament = featuredTournament
+    ? {
+        id: String(featuredTournament.id || 'cms-featured'),
+        title: String(featuredTournament.title || tournaments?.[0]?.title || 'Navykus Global Case Cup: Sustainable Cities'),
+        type: String(featuredTournament.type || 'Кейс-чемпионат'),
+        date: String(featuredTournament.date || '18–25 Сентября 2026'),
+        registrationDeadline: String(featuredTournament.registrationDeadline || '15 Сентября 2026'),
+        description: String(featuredTournament.description || 'Разработка инновационных решений для урбанистических проблем будущего.'),
+        skills: Array.isArray(featuredTournament.skills) ? featuredTournament.skills.map((s: unknown) => typeof s === 'string' ? s : String((s as { value?: string }).value || '')) : tournaments?.[0]?.skills || [],
+        mentors: Array.isArray(featuredTournament.mentors) ? featuredTournament.mentors.map((m: unknown) => typeof m === 'string' ? m : String((m as { value?: string }).value || '')) : tournaments?.[0]?.mentors || [],
+        maxParticipants: Number(featuredTournament.maxParticipants) || tournaments?.[0]?.maxParticipants || 120,
+        suitableFor: String(featuredTournament.suitableFor || tournaments?.[0]?.suitableFor || ''),
+        format: String(featuredTournament.format || ''),
+      }
+    : tournaments?.[0] ?? {
+    id: 'fallback',
+    title: 'Navykus Global Case Cup: Sustainable Cities',
+    type: 'Кейс-чемпионат',
+    date: '18–25 Сентября 2026',
+    registrationDeadline: '15 Сентября 2026',
+    description: 'Разработка инновационных решений для урбанистических проблем будущего. Международное жюри, реальные кейсы от урбанистов, архитекторов и экологов со всего мира.',
+    skills: ['Системное мышление', 'Экологическое проектирование', 'Teamwork', 'Презентация'],
+    mentors: ['д-р Марк Шпильман (MIT)', 'Елена Самарина (УрбанХаб)', 'Артур де Гроот (Роттердамский университет)'],
+    maxParticipants: 120,
+    suitableFor: 'Школьники 8–11 классов, увлеченные экологией, урбанистикой и социальными инновациями.',
+    format: 'Онлайн (групповой этап, защита проектов по видеосвязи)',
+  };
   const inlineInterestLabels: Record<string, string> = {
     projects: t('ui.app.d52e1ae8a0'),
     cases: t('ui.app.852dca4487'),
@@ -858,11 +893,11 @@ export default function App() {
             </motion.div>
 
             <motion.div {...cardStaggerContainer} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {pillars.map((pillar, index) => {
+              {pillars?.map((pillar, index) => {
                 const PillarIcon = [Globe, CheckCircle2, Clock][index % 3];
                 return (
                 <motion.div
-                  key={pillar.title}
+                  key={index}
                   variants={cardItemFadeUp.variants}
                   tabIndex={0}
                   className="group relative overflow-hidden bg-white/[0.12] glass-xl surface-elevated-soft border border-white/[0.15] p-6 sm:p-7 rounded-2xl hover:bg-white/[0.2] hover:border-[#bc4638]/25 focus-visible:ring-2 focus-visible:ring-[#bc4638]/25 transition-[background-color,border-color,box-shadow,transform] duration-300 flex flex-col justify-between hover:-translate-y-1"
@@ -944,7 +979,7 @@ export default function App() {
                     </h4>
                   </div>
                   <div className="grid gap-3 md:grid-cols-3">
-                    {experts.slice(0, 3).map((expert) => (
+                    {experts?.slice(0, 3).map((expert) => (
                       <div key={expert.id} className="rounded-xl border border-white/55 bg-white/45 p-3">
                         <div className="font-serif text-base font-semibold leading-tight text-brand-dark">{expert.name}</div>
                         <div className="mt-1 text-[11px] leading-relaxed text-brand-slate">{expert.role}</div>
@@ -1152,10 +1187,6 @@ export default function App() {
       ) : currentPage === 'find-team' ? (
         <div className="w-full">
           <FindTeamPage
-            onBackToHome={() => {
-              setCurrentPage('home'); updatePath('home');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
             onNavigateToSection={scrollToSection}
             onOpenApplyModal={() => openApplyModal()}
           />
@@ -1163,10 +1194,6 @@ export default function App() {
       ) : currentPage === 'blog' ? (
         <div className="w-full">
           <BlogPage
-            onBackToHome={() => {
-              setCurrentPage('home'); updatePath('home');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
             onCreateBlog={() => {
               if (authUser) {
                 setIsMobileMenuOpen(false);
@@ -1183,10 +1210,6 @@ export default function App() {
       ) : (
         <div className="w-full">
           <ActivitiesPage
-            onBackToHome={() => {
-              setCurrentPage('home'); updatePath('home');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
             onNavigateToSection={scrollToSection}
             onOpenApplyModal={() => openApplyModal()}
           />

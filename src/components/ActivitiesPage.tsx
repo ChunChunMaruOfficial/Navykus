@@ -28,7 +28,8 @@ import {
 } from '../motion-animations';
 import BrandImage from './BrandImage';
 import { ActivityCategory, ActivityItem, ActivityStatus } from '../types';
-import { useLocalizedData } from '../i18n/useLocalizedData';
+import { useCmsActivities } from '../hooks/useCmsActivities';
+import { OPPORTUNITIES } from './OpportunitiesPage';
 
 type CategoryFilter = ActivityCategory | 'all';
 type ActivityView = 'events' | 'opportunities';
@@ -36,7 +37,6 @@ type ActivityView = 'events' | 'opportunities';
 const OpportunitiesPage = lazy(() => import('./OpportunitiesPage'));
 
 interface ActivitiesPageProps {
-  onBackToHome: () => void;
   onNavigateToSection: (sectionId: string) => void;
   onOpenApplyModal: () => void;
 }
@@ -137,12 +137,11 @@ const OPPORTUNITIES_UTILITY_PATHS = new Set([
 ]);
 
 export default function ActivitiesPage({
-  onBackToHome,
   onNavigateToSection,
   onOpenApplyModal,
 }: ActivitiesPageProps) {
   const { t } = useTranslation();
-  const { activities } = useLocalizedData();
+  const activities = useCmsActivities();
   const [activeView, setActiveView] = useState<ActivityView>(getInitialActivityView);
   const [routePath, setRoutePath] = useState(getCurrentPath);
   const [selectedCategory, setSelectedCategory] = useState<CategoryFilter>('all');
@@ -186,7 +185,7 @@ export default function ActivitiesPage({
   };
 
   const isOpportunityDetailPath =
-    routePath.startsWith('/opportunities/') && !OPPORTUNITIES_UTILITY_PATHS.has(routePath);
+    (routePath === '/opportunities' || routePath.startsWith('/opportunities/')) && !OPPORTUNITIES_UTILITY_PATHS.has(routePath);
   const showActivitiesHeader = !isOpportunityDetailPath;
 
   const filteredActivities = useMemo(() => {
@@ -226,21 +225,13 @@ export default function ActivitiesPage({
       <div className="relative z-10 mx-auto max-w-7xl px-[6%] md:px-[10%]">
         {showActivitiesHeader && (
           <>
-            <div className="mb-8 flex justify-start sm:mb-10">
-              <button
-                onClick={onBackToHome}
-                className="group inline-flex items-center gap-2 px-4 py-2 border border-[#d8d1cc]/60 hover:border-brand-dark text-xs font-mono tracking-wider uppercase text-brand-slate hover:text-brand-dark transition-all rounded-xl cursor-pointer bg-white/20 backdrop-blur-sm"
-              >
-                <ArrowRight className="w-3.5 h-3.5 rotate-180 transition-transform group-hover:-translate-x-0.5" />
-                <span>{t('ui.aboutprojectpage.a9dc864a2e')}</span>
-              </button>
-            </div>
+
 
             <section className="flex justify-center pb-8 md:pb-10">
               <div className="inline-flex w-full rounded-2xl border border-white/60 bg-white/35 p-1.5 surface-elevated-soft backdrop-blur-xl sm:w-auto">
                 {([
                   ['events', t('ui.activitiespage.9bd00b51c2'), activities.length],
-                  ['opportunities', t('ui.activitiespage.d4bd169801'), null],
+                  ['opportunities', t('ui.activitiespage.d4bd169801'), OPPORTUNITIES.length],
                 ] as const).map(([view, label, count]) => {
                   const isActive = activeView === view;
                   return (
@@ -453,7 +444,7 @@ export default function ActivitiesPage({
           </>
         ) : (
           <Suspense fallback={<div className="rounded-[1.5rem] border border-white/60 bg-white/42 p-8 text-sm text-brand-slate surface-elevated-soft backdrop-blur-xl">{t('common.loading')}</div>}>
-            <OpportunitiesPage onBackToHome={onBackToHome} embedded />
+            <OpportunitiesPage embedded />
           </Suspense>
         )}
       </div>

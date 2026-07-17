@@ -47,6 +47,7 @@ import {
   heroFadeUpLarge,
 } from '../motion-animations';
 import type { SupportedLanguage } from '../i18n/languages';
+import { useCmsOpportunities } from '../hooks/useCmsOpportunities';
 import BrandImage from './BrandImage';
 
 const catalogStaggerContainer = {
@@ -355,7 +356,7 @@ const PARTICIPATION: Record<ParticipationId, LText> = {
 
 const skill = (ru: string, en: string, kk: string, uz: string, ar: string, de: string, es: string, tr: string) => lt({ ru, en, kk, uz, ar, de, es, tr });
 
-const OPPORTUNITIES: Opportunity[] = [
+export const OPPORTUNITIES: Opportunity[] = [
   {
     id: 'op-001',
     slug: 'navykus-global-case-cup',
@@ -885,10 +886,8 @@ function SkeletonGrid() {
 }
 
 export default function OpportunitiesPage({
-  onBackToHome,
   embedded = false,
 }: {
-  onBackToHome: () => void;
   embedded?: boolean;
 }) {
   const { i18n } = useTranslation();
@@ -909,6 +908,48 @@ export default function OpportunitiesPage({
   const [proposal, setProposal] = useState({ title: '', organizer: '', link: '', note: '' });
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success'>('idle');
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+
+  const cmsOpportunities = useCmsOpportunities();
+  const allOpportunities = useMemo(() => {
+    if (!cmsOpportunities?.length) return OPPORTUNITIES;
+    const mapped: Opportunity[] = (cmsOpportunities || []).map((doc) => ({
+      id: `cms-${doc.id}`,
+      slug: doc.slug,
+      source: 'verified' as SourceId,
+      category: (doc.type === 'olympiad' ? 'olympiads' : doc.type === 'volunteering' ? 'volunteering' : doc.type === 'internship' ? 'internships' : 'projects') as CategoryId,
+      direction: 'social' as DirectionId,
+      format: (['online', 'offline', 'hybrid'].includes(doc.format) ? doc.format : 'online') as FormatId,
+      participation: 'both' as ParticipationId,
+      cost: (doc.cost === 'paid' ? 'paid' : doc.cost === 'scholarship' ? 'scholarship' : 'free') as CostId,
+      title: lt({ ru: doc.title, en: doc.title, kk: doc.title, uz: doc.title, ar: doc.title, de: doc.title, es: doc.title, tr: doc.title }),
+      organizer: lt({ ru: doc.organization, en: doc.organization, kk: doc.organization, uz: doc.organization, ar: doc.organization, de: doc.organization, es: doc.organization, tr: doc.organization }),
+      summary: lt({ ru: doc.shortDescription, en: doc.shortDescription, kk: doc.shortDescription, uz: doc.shortDescription, ar: doc.shortDescription, de: doc.shortDescription, es: doc.shortDescription, tr: doc.shortDescription }),
+      description: lt({ ru: doc.fullDescription || doc.shortDescription, en: doc.fullDescription || doc.shortDescription, kk: doc.fullDescription || doc.shortDescription, uz: doc.fullDescription || doc.shortDescription, ar: doc.fullDescription || doc.shortDescription, de: doc.fullDescription || doc.shortDescription, es: doc.fullDescription || doc.shortDescription, tr: doc.fullDescription || doc.shortDescription }),
+      country: lt({ ru: doc.country, en: doc.country, kk: doc.country, uz: doc.country, ar: doc.country, de: doc.country, es: doc.country, tr: doc.country }),
+      city: lt({ ru: '', en: '', kk: '', uz: '', ar: '', de: '', es: '', tr: '' }),
+      languages: doc.languages.filter((l): l is SupportedLanguage => ['ru','en','kk','uz','ar','de','es','tr'].includes(l)),
+      skills: [],
+      keywords: [doc.organization, doc.type].filter(Boolean),
+      minAge: doc.ageMin || 0,
+      maxAge: doc.ageMax || 25,
+      grades: [],
+      deadline: doc.deadline,
+      startDate: '',
+      finalDeadline: !!doc.deadline,
+      registrationOpen: !doc.deadline || new Date(doc.deadline) > new Date(),
+      seats: 0,
+      savedCount: 0,
+      imageUrl: doc.logoUrl || '',
+      editorPick: false,
+      recommended: false,
+      requirements: [],
+      outcomes: (doc.benefits || []).map((b) => lt({ ru: b, en: b, kk: b, uz: b, ar: b, de: b, es: b, tr: b })),
+      externalUrl: doc.officialUrl,
+      portfolioValue: 0,
+      publishedAt: doc.createdAt,
+    }));
+    return [...mapped, ...OPPORTUNITIES];
+  }, [cmsOpportunities]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setIsLoading(false), 350);
@@ -959,8 +1000,9 @@ export default function OpportunitiesPage({
     ? OPPORTUNITIES.find((opportunity) => opportunity.slug === route.slug)
     : undefined;
   const catalogHeroClass = embedded
-    ? "relative z-10 mx-auto max-w-7xl px-0 pb-8 pt-0"
-    : "relative z-10 mx-auto max-w-7xl px-[6%] pb-8 pt-28 md:px-[10%] md:pt-34";
+    ? "relative z-10 w-full overflow-hidden pb-8"
+    : "relative z-10 w-full overflow-hidden pb-8 -mt-6";
+
   const catalogSectionClass = embedded
     ? "relative z-10 mx-auto max-w-7xl px-0"
     : "relative z-10 mx-auto max-w-7xl px-[6%] md:px-[10%]";
@@ -969,10 +1011,10 @@ export default function OpportunitiesPage({
     : "relative z-10 mx-auto grid max-w-7xl gap-6 px-[6%] pb-16 md:px-[10%] lg:grid-cols-[300px_minmax(0,1fr)]";
   const pageShellClass = embedded
     ? "relative z-10 mx-auto max-w-7xl px-0 pb-16 pt-4"
-    : "relative z-10 mx-auto max-w-7xl px-[6%] pb-20 pt-28 md:px-[10%]";
+    : "relative z-10 mx-auto max-w-7xl px-[6%] pb-20 pt-4 md:px-[10%]";
   const narrowPageShellClass = embedded
     ? "relative z-10 mx-auto max-w-5xl px-0 pb-16 pt-4"
-    : "relative z-10 mx-auto max-w-5xl px-[6%] pb-20 pt-28 md:px-[10%]";
+    : "relative z-10 mx-auto max-w-5xl px-[6%] pb-20 pt-4 md:px-[10%]";
 
   useEffect(() => {
     document.title = routeTitle(route.mode, language, selectedOpportunity);
@@ -987,18 +1029,18 @@ export default function OpportunitiesPage({
 
   const categoryCounts = useMemo(() => {
     return CATEGORIES.reduce<Record<CategoryId, number>>((acc, category) => {
-      acc[category.id] = OPPORTUNITIES.filter((opportunity) => opportunity.category === category.id).length;
+      acc[category.id] = allOpportunities.filter((opportunity) => opportunity.category === category.id).length;
       return acc;
     }, {} as Record<CategoryId, number>);
   }, []);
 
   const countries = useMemo(
-    () => Array.from(new Set(OPPORTUNITIES.map((item) => pick(item.country, language)))).sort((a, b) => a.localeCompare(b)),
+    () => Array.from(new Set(allOpportunities.map((item) => pick(item.country, language)))).sort((a, b) => a.localeCompare(b)),
     [language],
   );
 
   const quizScores = useMemo(() => {
-    return OPPORTUNITIES.reduce<Record<string, number>>((acc, opportunity) => {
+    return allOpportunities.reduce<Record<string, number>>((acc, opportunity) => {
       acc[opportunity.id] = scoreOpportunity(opportunity, quiz, language);
       return acc;
     }, {});
@@ -1009,7 +1051,7 @@ export default function OpportunitiesPage({
     const age = Number(filters.age);
     const grade = Number(filters.grade);
 
-    const result = OPPORTUNITIES.filter((opportunity) => {
+    const result = allOpportunities.filter((opportunity) => {
       if (filters.category !== 'all' && opportunity.category !== filters.category) return false;
       if (filters.direction !== 'all' && opportunity.direction !== filters.direction) return false;
       if (filters.format !== 'all' && opportunity.format !== filters.format) return false;
@@ -1058,12 +1100,12 @@ export default function OpportunitiesPage({
   }, [debouncedQuery, filters, language, quizScores, sortBy]);
 
   const recommended = useMemo(
-    () => OPPORTUNITIES.filter((opportunity) => opportunity.recommended).slice(0, 4),
+    () => allOpportunities.filter((opportunity) => opportunity.recommended).slice(0, 4),
     [],
   );
 
   const urgent = useMemo(
-    () => OPPORTUNITIES.filter((opportunity) => {
+    () => allOpportunities.filter((opportunity) => {
       const days = getDaysLeft(opportunity.deadline);
       return opportunity.finalDeadline && opportunity.registrationOpen && days !== null && days >= 0 && days <= 14;
     }).sort((a, b) => (getDaysLeft(a.deadline) ?? 99) - (getDaysLeft(b.deadline) ?? 99)),
@@ -1178,16 +1220,10 @@ export default function OpportunitiesPage({
     <>
       <section className={catalogHeroClass}>
         {!embedded && (
-        <div className="mb-8 flex justify-start sm:mb-10">
-          <button
-            onClick={onBackToHome}
-            className="group inline-flex items-center gap-2 px-4 py-2 border border-[#d8d1cc]/60 hover:border-brand-dark text-xs font-mono tracking-wider uppercase text-brand-slate hover:text-brand-dark transition-all rounded-xl cursor-pointer bg-white/20 backdrop-blur-sm"
-          >
-            <ArrowRight className="w-3.5 h-3.5 rotate-180 transition-transform group-hover:-translate-x-0.5" />
-            <span>{pick(UI.breadcrumbHome, language)}</span>
-          </button>
-        </div>
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-dark/10 to-transparent" />
         )}
+
+        <div className={!embedded ? "mx-auto max-w-7xl px-[6%] md:px-[10%]" : ""}>
         <div className={embedded ? "grid gap-6" : "grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-center"}>
         <motion.div {...heroFadeUpLarge} className="space-y-6">
           <div className="space-y-4">
@@ -1231,19 +1267,7 @@ export default function OpportunitiesPage({
             </div>
           )}
         </motion.div>
-
-        {!embedded && (
-        <motion.div {...fadeInScale} className="relative hidden min-h-[330px] overflow-hidden rounded-[2rem] border border-white/60 bg-white/35 surface-elevated backdrop-blur-xl lg:block">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#bc4638]/8 via-transparent to-[#bd5b82]/12" />
-          <div className="absolute inset-0 scale-90">
-            <GlassCrystal />
-          </div>
-          <div className="absolute bottom-5 left-5 right-5 grid grid-cols-2 gap-3">
-            <Metric icon={<ClipboardCheck className="h-4 w-4" />} value={OPPORTUNITIES.length} label={pick(UI.published, language)} />
-            <Metric icon={<Heart className="h-4 w-4" />} value={favorites.length} label={pick(UI.saved, language)} />
-          </div>
-        </motion.div>
-        )}
+        </div>
         </div>
       </section>
 
@@ -1582,14 +1606,27 @@ export default function OpportunitiesPage({
           </div>
           <motion.div {...cardStaggerContainer} className="grid items-stretch gap-5 lg:grid-cols-2">
             {matches.map(renderCard)}
-          </motion.div>
-        </div>
-      </section>
+</motion.div>
+
+        {!embedded && (
+        <motion.div {...fadeInScale} className="relative hidden min-h-[330px] overflow-hidden rounded-[2rem] border border-white/60 bg-white/35 surface-elevated backdrop-blur-xl lg:block">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#bc4638]/8 via-transparent to-[#bd5b82]/12" />
+          <div className="absolute inset-0 scale-90">
+            <GlassCrystal />
+          </div>
+          <div className="absolute bottom-5 left-5 right-5 grid grid-cols-2 gap-3">
+            <Metric icon={<ClipboardCheck className="h-4 w-4" />} value={OPPORTUNITIES.length} label={pick(UI.published, language)} />
+            <Metric icon={<Heart className="h-4 w-4" />} value={favorites.length} label={pick(UI.saved, language)} />
+          </div>
+        </motion.div>
+        )}
+         </div>
+       </section>
     );
   };
 
   const renderFavorites = () => {
-    const items = OPPORTUNITIES.filter((opportunity) => favorites.includes(opportunity.id));
+    const items = allOpportunities.filter((opportunity) => favorites.includes(opportunity.id));
     return (
       <section className={pageShellClass}>
         <Header title={pick(UI.favoritesTitle, language)} language={language} />
@@ -1599,7 +1636,7 @@ export default function OpportunitiesPage({
   };
 
   const renderCompare = () => {
-    const items = OPPORTUNITIES.filter((opportunity) => compare.includes(opportunity.id));
+    const items = allOpportunities.filter((opportunity) => compare.includes(opportunity.id));
     return (
       <section className={pageShellClass}>
         <Header title={pick(UI.compareTitle, language)} language={language} />

@@ -38,6 +38,7 @@ import {
 import BlogEditor from './BlogEditor';
 import BlogModerationPanel from './BlogModerationPanel';
 import MyBlogPosts from './MyBlogPosts';
+import OpportunitiesPage from './OpportunitiesPage';
 import {
   LANGUAGE_FLAGS,
   SUPPORTED_LANGUAGES,
@@ -140,11 +141,12 @@ function Shell({
 }) {
   const { t } = useTranslation();
   const isProfileRoute = currentPath().startsWith('/profile');
+  const isOpportunitiesRoute = currentPath() === '/opportunities' || currentPath().startsWith('/opportunities/');
 
   return (
     <main className="relative z-10 min-h-screen px-4 pb-12 pt-28 sm:px-6 sm:pt-32 lg:px-10">
       <div className={`mx-auto flex flex-col gap-6 ${isProfileRoute ? 'max-w-6xl' : 'max-w-7xl'}`}>
-        {!isProfileRoute && (
+        {!isProfileRoute && !isOpportunitiesRoute && (
           <header className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/60 bg-white/50 px-4 py-3 shadow-[0_20px_80px_rgba(27,24,22,0.08)] backdrop-blur-xl">
             <button type="button" onClick={() => navigate('/')} className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-brand-slate">
               <ChevronLeft className="h-4 w-4" />
@@ -1640,11 +1642,13 @@ export default function PlatformPage() {
   };
 
   const content = useMemo(() => {
+    // Public routes that don't need auth — render immediately
+    if (route.path === '/opportunities' || route.path.startsWith('/opportunities/')) return <OpportunitiesPage onBackToHome={() => navigate('/')} />;
+    if (route.path === '/forgot-password') return <AuthView mode="forgot" onAuth={setUser} />;
+    if (route.path === '/reset-password') return <AuthView mode="reset" onAuth={setUser} />;
     if (user === undefined) return <StateBlock state="loading"><div /></StateBlock>;
     if (route.path === '/login') return user ? <Dashboard user={user} onUser={setUser} /> : <AuthView mode="login" onAuth={setUser} />;
     if (route.path === '/register') return user ? <Dashboard user={user} onUser={setUser} /> : <AuthView mode="register" onAuth={setUser} />;
-    if (route.path === '/forgot-password') return <AuthView mode="forgot" onAuth={setUser} />;
-    if (route.path === '/reset-password') return <AuthView mode="reset" onAuth={setUser} />;
     if (route.path.startsWith('/profile')) return user ? <Dashboard user={user} onUser={setUser} /> : <AuthView mode="login" onAuth={setUser} />;
     if (route.path.startsWith('/participants')) return <ParticipantsView user={user} />;
     if (route.path === '/platform/admin') return <AdminView user={user} />;

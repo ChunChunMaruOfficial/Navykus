@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -26,6 +26,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { useCmsFaqs } from '../hooks/useCmsFaqs';
+import { useCmsTournaments } from '../hooks/useCmsTournaments';
 import type { FaqItem as CmsFaqItem } from '../types';
 import BrandImage from './BrandImage';
 
@@ -82,6 +83,23 @@ export default function ChampionshipPage({
   onOpenApplyModal 
 }: ChampionshipPageProps) {
   const { t } = useTranslation();
+  const cmsTournaments = useCmsTournaments();
+
+  // Sync CMS tournament data into editable state
+  useEffect(() => {
+    if (cmsTournaments && cmsTournaments.length > 0) {
+      const tourney = cmsTournaments[0];
+      setCmsData((prev) => ({
+        ...prev,
+        title: tourney.title || prev.title,
+        description: tourney.description || prev.description,
+        date: tourney.date || prev.date,
+        registrationDeadline: tourney.registrationDeadline || prev.registrationDeadline,
+        format: tourney.format || prev.format,
+        maxParticipants: tourney.maxParticipants || prev.maxParticipants,
+      }));
+    }
+  }, [cmsTournaments]);
 
   // CMS/Editable state with prefilled default championship data
   const [cmsData, setCmsData] = useState<ChampionshipData>({
@@ -298,17 +316,7 @@ export default function ChampionshipPage({
       <div className="space-y-16">
         
         {/* Back navigation */}
-        <div className="max-w-7xl mx-auto px-[6%] md:px-[10%]">
-          <div className="flex justify-start mb-8 sm:mb-12">
-            <button
-              onClick={onBackToHome}
-              className="group inline-flex items-center gap-2 px-4 py-2 border border-[#d8d1cc]/60 hover:border-brand-dark text-xs font-mono tracking-wider uppercase text-brand-slate hover:text-brand-dark transition-all rounded-xl cursor-pointer bg-white/20 backdrop-blur-sm"
-            >
-              <ArrowRight className="w-3.5 h-3.5 rotate-180 transition-transform group-hover:-translate-x-0.5" />
-              <span>{t('ui.aboutprojectpage.a9dc864a2e')}</span>
-            </button>
-          </div>
-        </div>
+        {/* Back navigation removed */}
 
         {/* 1. HERO BLOCK OF CHAMPIONSHIP */}
         <section className="relative z-10 mx-auto mb-8 grid max-w-7xl gap-8 px-[6%] md:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)] md:items-center md:px-[10%]">
@@ -1025,36 +1033,7 @@ export default function ChampionshipPage({
           </div>
         </motion.section>
 
-        {/* 11. FINAL CALL TO ACTION */}
-        <motion.section
-          {...fadeInScale}
-          className="relative z-10 py-16 md:py-24 max-w-7xl mx-auto px-[6%] md:px-[10%] section-accent-warm"
-        >
-          <div className="bg-gradient-to-br from-[#bc4638]/8 via-white/[0.12] to-[#bd5b82]/8 glass-xl surface-elevated border border-white/[0.15] rounded-3xl p-8 sm:p-12 text-center space-y-6">
-            
-            <h2 className="text-3xl sm:text-4xl font-serif text-brand-dark tracking-tight leading-tight max-w-2xl mx-auto">{t('ui.championshippage.c0e506f98a')}</h2>
-            <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed max-w-md mx-auto">{t('ui.championshippage.424ad3a346')}{cmsData.maxParticipants}{t('ui.championshippage.79e49fa24f')}</p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              {cmsData.registrationStatus !== 'closed' ? (
-                <a
-                  href="#apply-form-section"
-                  className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white hover:opacity-95 text-xs font-mono tracking-widest rounded-xl transition-all shadow-lg shadow-[#bc4638]/15 font-bold uppercase"
-                >{t('ui.app.24cd8dc78d')}</a>
-              ) : (
-                <button
-                  disabled
-                  className="w-full sm:w-auto px-8 py-3.5 bg-gray-300 text-gray-500 rounded-xl text-xs font-mono tracking-widest uppercase cursor-not-allowed font-bold"
-                >{t('ui.championshippage.a9e0cfbc2d')}</button>
-              )}
-
-              <button
-                onClick={() => handleNavigateFromChampionship('scenarios')}
-                className="w-full sm:w-auto px-8 py-3.5 bg-white/50 border border-[#d8d1cc] text-[#5b6472] hover:border-[#bc4638]/60 text-xs font-mono tracking-widest rounded-xl transition-all cursor-pointer uppercase font-semibold"
-              >{t('ui.app.d13f387e64')}</button>
-            </div>
-          </div>
-        </motion.section>
 
       </div>
     </div>

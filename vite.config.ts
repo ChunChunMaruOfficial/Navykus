@@ -11,6 +11,19 @@ export default defineConfig(() => {
         '@': path.resolve(__dirname, '.'),
       },
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['react', 'react-dom', 'react-i18next', 'i18next'],
+            ui: ['lucide-react', 'motion'],
+            payload: ['payload'],
+            admin: ['next'],
+          },
+        },
+      },
+      chunkSizeWarningLimit: 600,
+    },
     server: {
       port: 3000,
       strictPort: true,
@@ -37,10 +50,7 @@ export default defineConfig(() => {
           changeOrigin: true,
         },
       },
-      // HMR is disabled in AI Studio via DISABLE_HMR env var.
-      // Do not modify - file watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
-      // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
   };

@@ -53,11 +53,10 @@ const formatDate = (iso: string, language: string) => {
 const PER_PAGE = 9;
 
 interface BlogPageProps {
-  onBackToHome: () => void;
   onCreateBlog?: () => void;
 }
 
-export default function BlogPage({ onBackToHome, onCreateBlog }: BlogPageProps) {
+export default function BlogPage({ onCreateBlog }: BlogPageProps) {
   const { t, i18n } = useTranslation();
   const browserLang = (i18n.resolvedLanguage || i18n.language || 'ru').split('-')[0];
   const language = useMemo(() => (SUPPORTED_LANGUAGES as readonly string[]).includes(browserLang) ? browserLang as SupportedLanguage : 'ru', [browserLang]);
@@ -99,12 +98,12 @@ export default function BlogPage({ onBackToHome, onCreateBlog }: BlogPageProps) 
   useEffect(() => { setPage(1); }, [selectedCategory, submittedSearch]);
   useEffect(() => { fetchList(); }, [fetchList]);
 
-  const featuredPosts = useMemo(() => posts.slice(0, 3), [posts]);
+  const featuredPosts = useMemo(() => (posts || []).slice(0, 3), [posts]);
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     for (const c of BLOG_CATEGORIES) counts[c] = 0;
-    for (const p of posts) counts[p.category] = (counts[p.category] || 0) + 1;
+    for (const p of posts || []) counts[p.category] = (counts[p.category] || 0) + 1;
     return counts;
   }, [posts]);
 
@@ -121,15 +120,6 @@ export default function BlogPage({ onBackToHome, onCreateBlog }: BlogPageProps) 
 
       {/* HERO */}
       <section className="relative z-10 mx-auto max-w-7xl px-[6%] pb-12 pt-24 md:px-[10%] md:pb-16 md:pt-28">
-                <div className="flex justify-start mb-8 sm:mb-12">
-          <button
-            onClick={onBackToHome}
-            className="group inline-flex items-center gap-2 px-4 py-2 border border-[#d8d1cc]/60 hover:border-brand-dark text-xs font-mono tracking-wider uppercase text-brand-slate hover:text-brand-dark transition-all rounded-xl cursor-pointer bg-white/20 backdrop-blur-sm"
-          >
-            <ArrowRight className="w-3.5 h-3.5 rotate-180 transition-transform group-hover:-translate-x-0.5" />
-            <span>{t('ui.aboutprojectpage.a9dc864a2e')}</span>
-          </button>
-        </div>
         <motion.div {...heroFadeUpLarge} className="grid items-center gap-8 md:grid-cols-[minmax(0,1fr)_minmax(320px,0.85fr)]">
           <div className="space-y-6 text-left">
             <h1 className="text-3xl font-serif font-light leading-[1.05] tracking-tight text-brand-dark sm:text-4xl md:text-5xl lg:text-[52px]">{t('ui.blogpage.hero.title')}</h1>
@@ -205,9 +195,9 @@ export default function BlogPage({ onBackToHome, onCreateBlog }: BlogPageProps) 
         <motion.div {...fadeUp} className="mb-8"><h2 className="text-2xl font-serif font-semibold tracking-tight text-brand-dark sm:text-3xl">{t('ui.blogpage.latest.title')}</h2><p className="mt-2 text-sm text-brand-slate">{t('ui.blogpage.results', { count: totalDocs })}</p></motion.div>
         {loadState === 'loading' && <div className="rounded-2xl border border-white/60 bg-white/45 p-10 text-center backdrop-blur-xl"><div className="mx-auto mb-4 h-8 w-8 animate-pulse rounded-full bg-brand-dark/10" /><p className="text-sm text-brand-slate">{t('common.loading')}</p></div>}
         {loadState === 'error' && <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-sm text-red-700">{errorMsg}</div>}
-        {loadState === 'success' && posts.length > 0 && (
+        {loadState === 'success' && (posts || []).length > 0 && (
         <motion.div {...cardStaggerContainer} className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">{posts.map((post) => <BlogCard key={post.id} post={post} t={t} language={language} />)}</motion.div>)}
-        {loadState === 'success' && posts.length === 0 && (
+        {loadState === 'success' && (posts || []).length === 0 && (
         <motion.div {...fadeInScale} className="rounded-2xl border border-white/60 bg-white/45 p-10 text-center backdrop-blur-xl">
           <Search className="mx-auto mb-4 h-8 w-8 text-brand-slate/40" />
           <h3 className="text-lg font-serif text-brand-dark">{t('ui.blogpage.empty.title')}</h3><p className="mt-2 text-sm text-brand-slate">{t('ui.blogpage.empty.description')}</p>

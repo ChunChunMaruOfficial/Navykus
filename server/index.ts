@@ -4,7 +4,33 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import express, { type NextFunction, type Request, type Response } from 'express';
+import rateLimit from 'express-rate-limit';
 import multer from 'multer';
+
+const requiredEnv = [
+  'PAYLOAD_SECRET',
+  'CORS_ORIGIN',
+  'DATABASE_URL',
+  'PAYLOAD_PUBLIC_SERVER_URL',
+  'SERVER_URL',
+];
+
+for (const key of requiredEnv) {
+  if (!process.env[key]) {
+    console.error(`Missing required environment variable: ${key}`);
+    process.exit(1);
+  }
+}
+
+if (process.env.NODE_ENV === 'production') {
+  const prodRequired = ['SMTP_HOST', 'SMTP_USER', 'SMTP_PASS'];
+  for (const key of prodRequired) {
+    if (!process.env[key]) {
+      console.error(`Missing required production environment variable: ${key}`);
+      process.exit(1);
+    }
+  }
+}
 
 import {
   ACTIVITIES,
@@ -107,7 +133,11 @@ const asyncRoute = (
 
 app.use((req, res, next) => {
   const configuredOrigin = process.env.CORS_ORIGIN;
-  res.header('Access-Control-Allow-Origin', configuredOrigin || req.headers.origin || 'http://localhost:3000');
+  if (!configuredOrigin) {
+    console.error('CORS_ORIGIN environment variable is required in production');
+    process.exit(1);
+  }
+  res.header('Access-Control-Allow-Origin', configuredOrigin);
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Vary', 'Origin');
   res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
@@ -118,6 +148,25 @@ app.use((req, res, next) => {
     return;
   }
 
+  next();
+});
+
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { code: 'RATE_LIMIT_EXCEEDED' },
+});
+
+app.use('/api/', apiLimiter);
+
+app.use((_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
   next();
 });
 
@@ -165,8 +214,13 @@ const findApprovedTeamMembers = async () => {
 };
 
 app.get('/api/health', asyncRoute(async (_req, res) => {
-  await getPayloadClient();
-  res.json({ ok: true, service: 'navykus-express-payload' });
+  try {
+    const payload = await getPayloadClient();
+    await payload.find({ collection: 'users', limit: 0 });
+    res.json({ ok: true, service: 'navykus-express-payload', db: 'connected' });
+  } catch {
+    res.status(503).json({ ok: false, service: 'navykus-express-payload', db: 'disconnected' });
+  }
 }));
 
 app.get('/api/content/home', asyncRoute(async (_req, res) => {

@@ -35,7 +35,7 @@ const rootDir = path.resolve(dirname, '..');
 const adminRouteGroupDir = path.resolve(rootDir, 'admin', 'app', '(payload)');
 
 export default buildConfig({
-  secret: process.env.PAYLOAD_SECRET || 'dev-payload-secret-change-me',
+  secret: process.env.PAYLOAD_SECRET!,
   serverURL:
     process.env.PAYLOAD_PUBLIC_SERVER_URL ||
     process.env.SERVER_URL ||

@@ -1,15 +1,8 @@
 import i18n from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
+import HttpBackend from 'i18next-http-backend';
 import { initReactI18next } from 'react-i18next';
 
-import ar from './locales/ar/translation.json';
-import de from './locales/de/translation.json';
-import en from './locales/en/translation.json';
-import es from './locales/es/translation.json';
-import kk from './locales/kk/translation.json';
-import ru from './locales/ru/translation.json';
-import tr from './locales/tr/translation.json';
-import uz from './locales/uz/translation.json';
 import {
   DEFAULT_LANGUAGE,
   detectSupportedLanguageFromBrowser,
@@ -17,17 +10,6 @@ import {
   getSavedPreferredLanguage,
   SUPPORTED_LANGUAGES,
 } from './languages';
-
-const resources = {
-  ru: { translation: ru },
-  en: { translation: en },
-  kk: { translation: kk },
-  uz: { translation: uz },
-  ar: { translation: ar },
-  de: { translation: de },
-  es: { translation: es },
-  tr: { translation: tr },
-};
 
 const languageDetector = new LanguageDetector();
 
@@ -43,9 +25,9 @@ languageDetector.addDetector({
 
 i18n
   .use(languageDetector)
+  .use(HttpBackend)
   .use(initReactI18next)
   .init({
-    resources,
     supportedLngs: SUPPORTED_LANGUAGES,
     fallbackLng: DEFAULT_LANGUAGE,
     defaultNS: 'translation',
@@ -55,6 +37,9 @@ i18n
     detection: {
       order: ['manualPreference', 'browserRegion'],
       caches: [],
+    },
+    backend: {
+      loadPath: '/locales/{{lng}}/translation.json',
     },
     react: {
       useSuspense: false,

@@ -70,6 +70,40 @@ const EVENT_SEED = [
     languages: list(['ru', 'kk', 'en']),
     materials: list(['participant guide']),
   },
+  {
+    legacyId: 'event-code-marathon',
+    title: 'Code Marathon: Web Development',
+    slug: 'code-marathon-web-dev',
+    shortDescription: '24-hour coding marathon for building web projects from scratch.',
+    fullDescription: 'Teams compete to build a functional web application within 24 hours. Mentors provide guidance, and the best projects win prizes.',
+    eventType: 'hackathon',
+    eventDate: '2026-08-20T09:00:00.000Z',
+    timeZone: 'Europe/Moscow',
+    format: 'online',
+    country: 'Global',
+    speaker: 'Industry experts',
+    participantLimit: 60,
+    registrationDeadline: '2026-08-15T20:59:00.000Z',
+    languages: list(['ru', 'en']),
+    materials: list(['starter kit', 'API docs']),
+  },
+  {
+    legacyId: 'event-leadership-forum',
+    title: 'Youth Leadership Forum 2026',
+    slug: 'youth-leadership-forum-2026',
+    shortDescription: 'Three-day forum with workshops, panels and project pitches.',
+    fullDescription: 'Young leaders gather to discuss global challenges, develop projects and connect with mentors and investors.',
+    eventType: 'forum',
+    eventDate: '2026-11-05T10:00:00.000Z',
+    timeZone: 'Asia/Almaty',
+    format: 'offline',
+    country: 'Kazakhstan',
+    venue: 'Almaty Congress Center',
+    participantLimit: 200,
+    registrationDeadline: '2026-10-20T20:59:00.000Z',
+    languages: list(['ru', 'kk', 'en']),
+    materials: list(['program', 'notebook']),
+  },
 ];
 
 const OPPORTUNITY_SEED = [
@@ -197,6 +231,7 @@ const seed = async () => {
       ...item,
       sortOrder: index,
       isPublished: true,
+      isFeatured: index === 0, // Mark the first tournament as featured
       skills: list(item.skills),
       mentors: list(item.mentors),
     });
