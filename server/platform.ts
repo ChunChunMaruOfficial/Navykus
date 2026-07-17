@@ -1,5 +1,6 @@
 ﻿import type { Express, Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
+import crypto from 'node:crypto';
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -17,6 +18,7 @@ type PlatformUser = {
   email: string;
   role: Role;
   accountStatus: 'active' | 'blocked' | 'pending';
+  emailVerified?: boolean;
   firstName?: string;
   lastName?: string;
   name?: string;
@@ -197,6 +199,7 @@ const normalizeUser = (doc: Record<string, unknown>): PlatformUser => ({
   email: String(doc.email || ''),
   role: (doc.role === 'admin' || doc.role === 'moderator' ? doc.role : 'user') as Role,
   accountStatus: (doc.accountStatus === 'blocked' || doc.accountStatus === 'pending' ? doc.accountStatus : 'active') as 'active' | 'blocked' | 'pending',
+  emailVerified: Boolean(doc.emailVerified),
   firstName: typeof doc.firstName === 'string' ? doc.firstName : undefined,
   lastName: typeof doc.lastName === 'string' ? doc.lastName : undefined,
   name: typeof doc.name === 'string' ? doc.name : undefined,
@@ -397,6 +400,31 @@ const catalogWhere = (req: Request, searchFields: string[], extra: Record<string
   return where;
 };
 
+const generateCode = () => String(Math.floor(100000 + Math.random() * 900000));
+
+const CODE_TTL_MINUTES = 10;
+
+const sendVerificationEmail = async (payload: any, to: string, code: string, subject: string) => {
+  if (!process.env.SMTP_HOST) return;
+  try {
+    await payload.sendEmail({
+      to,
+      from: `${process.env.SMTP_FROM_NAME || 'Navykus'} <${process.env.SMTP_FROM || 'noreply@navykus.online'}>`,
+      subject,
+      html: `
+        <div style="font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px;">
+          <h1 style="font-size: 24px; color: #1b1816;">${subject}</h1>
+          <p style="font-size: 14px; color: #5b6472;">Ваш код подтверждения:</p>
+          <div style="font-size: 32px; font-weight: bold; letter-spacing: 0.5em; color: #bc4638; margin: 24px 0; text-align: center;">${code}</div>
+          <p style="font-size: 12px; color: #5b6472;">Код действует ${CODE_TTL_MINUTES} минут. Если вы не запрашивали этот код, просто проигнорируйте это письмо.</p>
+        </div>
+      `,
+    });
+  } catch (error) {
+    console.error('Failed to send email:', error);
+  }
+};
+
 export const registerPlatformRoutes = (app: Express) => {
   const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -443,15 +471,20 @@ export const registerPlatformRoutes = (app: Express) => {
         email,
         password,
         role: 'user',
-        accountStatus: 'active',
+        accountStatus: 'pending',
+        emailVerified: false,
+        verificationCode: generateCode(),
+        verificationCodeExpired: new Date(Date.now() + CODE_TTL_MINUTES * 60 * 1000).toISOString(),
         ...pickProfileUpdate(body),
-      };
+      } as any;
 
-      await payload.create({
+      const created = await payload.create({
         collection: USER_COLLECTION,
         data: userData,
         overrideAccess: true,
-      });
+      }) as any;
+
+      await sendVerificationEmail(payload, email, created.verificationCode, 'Подтвердите вашу почту — Navykus');
 
       const login = await payload.login({
         collection: USER_COLLECTION,
@@ -604,6 +637,188 @@ export const registerPlatformRoutes = (app: Express) => {
       res.json({ status: 'reset', passwordWarning });
     } catch (_error) {
       res.status(400).json({ code: 'AUTH_INVALID_RESET' });
+    }
+  });
+
+  app.post('/api/auth/send-code', async (req, res, next) => {
+    try {
+      const payload = await getPayloadClient();
+      const email = String(req.body?.email || '').trim().toLowerCase();
+      if (!email) {
+        res.status(400).json({ code: 'AUTH_EMAIL_REQUIRED' });
+        return;
+      }
+
+      const result = await payload.find({
+        collection: USER_COLLECTION,
+        where: { email: { equals: email } },
+        limit: 1,
+        overrideAccess: true,
+      });
+
+      if (result.docs.length === 0) {
+        res.status(404).json({ code: 'AUTH_USER_NOT_FOUND' });
+        return;
+      }
+
+      const userDoc = result.docs[0] as any;
+      if (userDoc.accountStatus === 'blocked') {
+        res.status(403).json({ code: 'ACCOUNT_BLOCKED' });
+        return;
+      }
+
+      const code = generateCode();
+      const expired = new Date(Date.now() + CODE_TTL_MINUTES * 60 * 1000).toISOString();
+
+      await payload.update({
+        collection: USER_COLLECTION,
+        id: userDoc.id,
+        data: { verificationCode: code, verificationCodeExpired: expired },
+        overrideAccess: true,
+      });
+
+      await sendVerificationEmail(payload, email, code, 'Код для входа — Navykus');
+
+      res.json({ status: 'sent' });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/api/auth/verify-code', async (req, res, next) => {
+    try {
+      const payload = await getPayloadClient();
+      const email = String(req.body?.email || '').trim().toLowerCase();
+      const code = String(req.body?.code || '').trim();
+
+      if (!email || !code) {
+        res.status(400).json({ code: 'AUTH_CODE_REQUIRED' });
+        return;
+      }
+
+      const result = await payload.find({
+        collection: USER_COLLECTION,
+        where: { email: { equals: email } },
+        limit: 1,
+        overrideAccess: true,
+      });
+
+      if (result.docs.length === 0) {
+        res.status(404).json({ code: 'AUTH_USER_NOT_FOUND' });
+        return;
+      }
+
+      const userDoc = result.docs[0] as any;
+      const storedCode = userDoc.verificationCode;
+      const expiredAt = userDoc.verificationCodeExpired ? new Date(userDoc.verificationCodeExpired) : null;
+
+      if (!storedCode || storedCode !== code) {
+        res.status(400).json({ code: 'AUTH_CODE_INVALID' });
+        return;
+      }
+
+      if (!expiredAt || expiredAt.getTime() < Date.now()) {
+        res.status(400).json({ code: 'AUTH_CODE_EXPIRED' });
+        return;
+      }
+
+      const user = normalizeUser(userDoc);
+      if (user.accountStatus === 'blocked') {
+        res.status(403).json({ code: 'ACCOUNT_BLOCKED' });
+        return;
+      }
+
+      // Generate JWT token directly using payload secret
+      const jwt = await import('jsonwebtoken');
+      const token = jwt.sign(
+        {
+          id: userDoc.id,
+          email: userDoc.email,
+          collection: USER_COLLECTION,
+          loginType: 'api',
+        },
+        process.env.PAYLOAD_SECRET || '',
+        { expiresIn: '7d' },
+      );
+
+      await payload.update({
+        collection: USER_COLLECTION,
+        id: userDoc.id,
+        data: { verificationCode: '', verificationCodeExpired: '', emailVerified: true, accountStatus: 'active' },
+        overrideAccess: true,
+      });
+
+      setSessionCookie(res, token, Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60);
+      res.json({ user, token });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/api/auth/verify-email', async (req, res, next) => {
+    try {
+      const user = await requireUser(req, res);
+      if (!user) return;
+      const payload = await getPayloadClient();
+
+      const userDoc = await payload.findByID({
+        collection: USER_COLLECTION,
+        id: user.id,
+        overrideAccess: true,
+      }) as any;
+
+      const code = String(req.body?.code || '').trim();
+      const storedCode = userDoc.verificationCode;
+      const expiredAt = userDoc.verificationCodeExpired ? new Date(userDoc.verificationCodeExpired) : null;
+
+      if (!storedCode || storedCode !== code) {
+        res.status(400).json({ code: 'AUTH_CODE_INVALID' });
+        return;
+      }
+      if (!expiredAt || expiredAt.getTime() < Date.now()) {
+        res.status(400).json({ code: 'AUTH_CODE_EXPIRED' });
+        return;
+      }
+
+      await payload.update({
+        collection: USER_COLLECTION,
+        id: user.id,
+        data: {
+          emailVerified: true,
+          verificationCode: '',
+          verificationCodeExpired: '',
+          accountStatus: 'active',
+        },
+        overrideAccess: true,
+      });
+
+      res.json({ status: 'verified' });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/api/auth/resend-verification', async (req, res, next) => {
+    try {
+      const user = await requireUser(req, res);
+      if (!user) return;
+      const payload = await getPayloadClient();
+
+      const code = generateCode();
+      const expired = new Date(Date.now() + CODE_TTL_MINUTES * 60 * 1000).toISOString();
+
+      await payload.update({
+        collection: USER_COLLECTION,
+        id: user.id,
+        data: { verificationCode: code, verificationCodeExpired: expired },
+        overrideAccess: true,
+      });
+
+      await sendVerificationEmail(payload, user.email, code, 'Подтвердите вашу почту — Navykus');
+
+      res.json({ status: 'sent' });
+    } catch (error) {
+      next(error);
     }
   });
 

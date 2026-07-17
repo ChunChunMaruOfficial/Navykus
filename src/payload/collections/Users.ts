@@ -129,6 +129,28 @@ export const Users: CollectionConfig = {
       },
     },
     {
+      name: 'emailVerified',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'verificationCode',
+      type: 'text',
+      admin: {
+        hidden: true,
+      },
+    },
+    {
+      name: 'verificationCodeExpires',
+      type: 'text',
+      admin: {
+        hidden: true,
+      },
+    },
+    {
       name: 'role',
       type: 'select',
       defaultValue: 'user',

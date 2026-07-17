@@ -110,6 +110,7 @@ export type PlatformUser = {
   email: string;
   role: 'user' | 'moderator' | 'admin';
   accountStatus: 'active' | 'blocked' | 'pending';
+  emailVerified?: boolean;
   firstName?: string;
   lastName?: string;
   name?: string;
@@ -342,6 +343,14 @@ export const platformApi = {
   quickLogin: (token: string) =>
     requestJson<{ user: PlatformUser }>('/api/auth/quick-login', { method: 'POST', body: JSON.stringify({ token }) }),
   logout: () => requestJson<{ ok: boolean }>('/api/auth/logout', { method: 'POST' }),
+  sendCode: (email: string) =>
+    requestJson<{ status: string }>('/api/auth/send-code', { method: 'POST', body: JSON.stringify({ email }) }),
+  verifyCode: (payload: { email: string; code: string }) =>
+    requestJson<{ user: PlatformUser; token: string }>('/api/auth/verify-code', { method: 'POST', body: JSON.stringify(payload) }),
+  verifyEmail: (code: string) =>
+    requestJson<{ status: string }>('/api/auth/verify-email', { method: 'POST', body: JSON.stringify({ code }) }),
+  resendVerification: () =>
+    requestJson<{ status: string }>('/api/auth/resend-verification', { method: 'POST' }),
   deleteProfile: () => requestJson<{ ok: boolean }>('/api/profile', { method: 'DELETE' }),
   forgotPassword: (email: string) =>
     requestJson<{ status: string; resetToken?: string }>('/api/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) }),

@@ -743,11 +743,18 @@
       "hidePassword": "Скрыть пароль",
       "codeTab": "Код",
       "codeTitle": "Вход по коду",
-      "codeSubtitle": "Пока это UI для входа по коду. Отправку подключим позже.",
+      "codeSubtitle": "Введите email — мы отправим код подтверждения.",
       "codeInput": "Код",
-      "sendCode": "Отправить",
-      "codeAction": "Войти по коду",
-      "codeComingSoon": "UI для входа по коду готов. Отправка и проверка будут позже."
+      "sendCode": "Отправить код",
+      "codeAction": "Войти",
+      "codeSent": "Код отправлен на вашу почту. Проверьте входящие.",
+      "verifyEmailTitle": "Подтвердите почту",
+      "verifyEmailText": "Мы отправили код на {{email}}. Введите его, чтобы завершить регистрацию.",
+      "verifyEmailPrompt": "Подтвердите почту, чтобы получить доступ к платформе.",
+      "verifyAction": "Подтвердить",
+      "resendCode": "Отправить снова",
+      "codeResent": "Код отправлен повторно.",
+      "emailVerified": "Почта подтверждена. Добро пожаловать!"
     }
   },
   "data": {
@@ -1505,6 +1512,10 @@
       "AUTH_CREDENTIALS_REQUIRED": "Введите email и пароль",
       "AUTH_EMAIL_REQUIRED": "Введите email",
       "AUTH_EMAIL_EXISTS": "Этот email уже зарегистрирован",
+      "AUTH_USER_NOT_FOUND": "Пользователь с таким email не найден",
+      "AUTH_CODE_REQUIRED": "Введите email и код",
+      "AUTH_CODE_INVALID": "Неверный код",
+      "AUTH_CODE_EXPIRED": "Код истёк, запросите новый",
       "AUTH_INVALID_RESET": "Некорректные данные сброса",
       "FORBIDDEN": "Доступ запрещён",
       "FAVORITE_INVALID": "Некорректные данные избранного",

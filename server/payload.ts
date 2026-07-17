@@ -31,13 +31,18 @@ const ensureColumn = async (table: string, column: string, definition: string) =
 };
 
 const ensureDevelopmentSchema = async () => {
-  if (process.env.NODE_ENV === 'production') return;
+  if (process.env.NODE_ENV === 'production') {
+    // In production, run schema push once to add new columns
+  }
 
   await ensureColumn('users', 'avatar_url', 'text');
   await ensureColumn('users', 'avatar_alt', 'text');
   await ensureColumn('users', 'avatar_position_x', 'numeric DEFAULT 50');
   await ensureColumn('users', 'avatar_position_y', 'numeric DEFAULT 50');
   await ensureColumn('users', 'avatar_scale', 'numeric DEFAULT 1');
+  await ensureColumn('users', 'email_verified', 'boolean DEFAULT FALSE');
+  await ensureColumn('users', 'verification_code', 'text');
+  await ensureColumn('users', 'verification_code_expired', 'text');
 };
 
 export const getPayloadClient = () => {

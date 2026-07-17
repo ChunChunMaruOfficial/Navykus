@@ -209,14 +209,52 @@ export default function AuthModal({ isOpen, onClose, onAuthChange }: AuthModalPr
     }, 0);
   };
 
+  const [codeSent, setCodeSent] = useState(false);
+  const [showEmailVerify, setShowEmailVerify] = useState(false);
+  const [verifyCode, setVerifyCode] = useState('');
+  const [resendTimer, setResendTimer] = useState(0);
+
+  useEffect(() => {
+    if (resendTimer <= 0) return;
+    const interval = setInterval(() => setResendTimer((current) => Math.max(0, current - 1)), 1000);
+    return () => clearInterval(interval);
+  }, [resendTimer]);
+
+  const sendLoginCode = async () => {
+    if (!form.email || resendTimer > 0) return;
+    setState('loading');
+    setMessage('');
+    try {
+      await platformApi.sendCode(form.email);
+      setCodeSent(true);
+      setResendTimer(30);
+      setState('idle');
+      setMessage(t('ui.authmodal.codeSent'));
+    } catch (error) {
+      setState('error');
+      setMessage(t(`platform.errors.${(error as Error).name}`, { defaultValue: t('platform.errors.API_ERROR') }));
+    }
+  };
+
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     setState('loading');
     setMessage('');
 
     if (mode === 'login' && isCodeLogin) {
-      setState('idle');
-      setMessage(t('ui.authmodal.codeComingSoon'));
+      try {
+        const result = await platformApi.verifyCode({ email: form.email, code: verifyCode });
+        setUser(result.user);
+        rememberPlatformAccount(result.user, result.token);
+        setRememberedAccount(getRememberedPlatformAccount());
+        onAuthChangeRef.current?.(result.user);
+        setState('idle');
+        setMessage('');
+        openProfile();
+      } catch (error) {
+        setState('error');
+        setMessage(t(`platform.errors.${(error as Error).name}`, { defaultValue: t('platform.errors.API_ERROR') }));
+      }
       return;
     }
 
@@ -230,11 +268,45 @@ export default function AuthModal({ isOpen, onClose, onAuthChange }: AuthModalPr
       setRememberedAccount(getRememberedPlatformAccount());
       onAuthChangeRef.current?.(result.user);
       setState('idle');
-      setMessage('');
+      if (!result.user.emailVerified) {
+        setShowEmailVerify(true);
+        setMessage(t('ui.authmodal.verifyEmailPrompt'));
+      } else {
+        setMessage('');
+        openProfile();
+      }
+    } catch (error) {
+      setState('error');
+      setMessage(t(`platform.errors.${(error as Error).name}`, { defaultValue: t('platform.errors.API_ERROR') }));
+    }
+  };
+
+  const confirmEmail = async () => {
+    setState('loading');
+    setMessage('');
+    try {
+      await platformApi.verifyEmail(verifyCode);
+      setUser((prev) => prev ? { ...prev, emailVerified: true, accountStatus: 'active' } : prev);
+      setShowEmailVerify(false);
+      setState('idle');
+      setMessage(t('ui.authmodal.emailVerified'));
       openProfile();
     } catch (error) {
       setState('error');
       setMessage(t(`platform.errors.${(error as Error).name}`, { defaultValue: t('platform.errors.API_ERROR') }));
+    }
+  };
+
+  const resendVerification = async () => {
+    if (resendTimer > 0) return;
+    setState('loading');
+    try {
+      await platformApi.resendVerification();
+      setResendTimer(30);
+      setState('idle');
+      setMessage(t('ui.authmodal.codeResent'));
+    } catch {
+      setState('error');
     }
   };
 
@@ -416,36 +488,40 @@ export default function AuthModal({ isOpen, onClose, onAuthChange }: AuthModalPr
 
                       <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-dark/70 sm:text-xs">
                         {t('platform.fields.email')}
-                        <input
-                          type="email"
-                          required
-                          value={form.email}
-                          onChange={(event) => update('email', event.target.value)}
-                          placeholder="name@example.com"
-                          className={`${AUTH_FIELD_CLASS} mt-1`}
-                        />
+                        <div className="mt-1 grid grid-cols-[1fr_auto] gap-2">
+                          <input
+                            type="email"
+                            required
+                            value={form.email}
+                            onChange={(event) => update('email', event.target.value)}
+                            placeholder="name@example.com"
+                            className={`${AUTH_FIELD_CLASS}`}
+                          />
+                          {mode === 'login' && isCodeLogin && (
+                            <button
+                              type="button"
+                              onClick={sendLoginCode}
+                              disabled={state === 'loading' || !form.email || resendTimer > 0}
+                              className="rounded-xl border border-brand-pink-dust/30 bg-brand-bg-2 px-4 text-xs font-semibold text-brand-slate transition-colors hover:bg-white/60 disabled:opacity-50 whitespace-nowrap"
+                            >
+                              {resendTimer > 0 ? `${resendTimer}s` : t('ui.authmodal.sendCode')}
+                            </button>
+                          )}
+                        </div>
                       </label>
 
                       {mode === 'login' && isCodeLogin ? (
-                        <div className="grid grid-cols-[1fr_auto] gap-2">
-                          <label className="block min-w-0 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70 sm:text-xs">
-                            {t('ui.authmodal.codeInput')}
-                            <input
-                              inputMode="numeric"
-                              value=""
-                              disabled
-                              placeholder="000000"
-                              className={`${AUTH_FIELD_CLASS} mt-1 tracking-[0.35em] disabled:cursor-not-allowed disabled:opacity-60`}
-                            />
-                          </label>
-                          <button
-                            type="button"
-                            disabled
-                            className="mt-5 rounded-xl border border-brand-pink-dust/30 bg-brand-bg-2 px-4 text-xs font-semibold text-brand-slate disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            {t('ui.authmodal.sendCode')}
-                          </button>
-                        </div>
+                        <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-dark/70 sm:text-xs">
+                          {t('ui.authmodal.codeInput')}
+                          <input
+                            inputMode="numeric"
+                            value={verifyCode}
+                            onChange={(event) => setVerifyCode(event.target.value)}
+                            maxLength={6}
+                            placeholder="000000"
+                            className={`${AUTH_FIELD_CLASS} mt-1 tracking-[0.35em]`}
+                          />
+                        </label>
                       ) : (
                         <div className="grid grid-cols-1 gap-3">
                           <PasswordField
@@ -505,7 +581,7 @@ export default function AuthModal({ isOpen, onClose, onAuthChange }: AuthModalPr
                     )}
                     <button
                       type="submit"
-                      disabled={state === 'loading'}
+                      disabled={state === 'loading' || (mode === 'login' && isCodeLogin && verifyCode.length !== 6)}
                       className="flex items-center justify-center gap-2 rounded-xl bg-brand-terracotta px-6 py-3 text-sm font-medium text-white shadow-lg shadow-brand-terracotta/20 transition-all duration-300 hover:bg-brand-terracotta/95 hover:shadow-brand-terracotta/35 disabled:opacity-75"
                     >
                       {state === 'loading' && <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />}
@@ -513,6 +589,41 @@ export default function AuthModal({ isOpen, onClose, onAuthChange }: AuthModalPr
                     </button>
                   </div>
                 </motion.form>
+              )}
+
+              {showEmailVerify && user && (
+                <motion.div layout className="space-y-4 rounded-2xl border border-white/60 bg-white/20 p-5">
+                  <div>
+                    <h3 className="font-serif text-xl text-brand-dark">{t('ui.authmodal.verifyEmailTitle')}</h3>
+                    <p className="mt-1 text-sm text-brand-slate">{t('ui.authmodal.verifyEmailText', { email: user.email })}</p>
+                  </div>
+                  <input
+                    inputMode="numeric"
+                    value={verifyCode}
+                    onChange={(event) => setVerifyCode(event.target.value)}
+                    maxLength={6}
+                    placeholder="000000"
+                    className={`${AUTH_FIELD_CLASS} tracking-[0.35em]`}
+                  />
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={confirmEmail}
+                      disabled={state === 'loading' || !verifyCode}
+                      className="flex-1 rounded-xl bg-brand-terracotta py-3 text-xs font-medium text-white disabled:opacity-75"
+                    >
+                      {t('ui.authmodal.verifyAction')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={resendVerification}
+                      disabled={state === 'loading' || resendTimer > 0}
+                      className="rounded-xl border border-[#d8d1cc] bg-white/40 px-4 py-3 text-xs font-semibold text-brand-slate disabled:opacity-50 whitespace-nowrap"
+                    >
+                      {resendTimer > 0 ? `${resendTimer}s` : t('ui.authmodal.resendCode')}
+                    </button>
+                  </div>
+                </motion.div>
               )}
             </motion.div>
           </motion.div>
