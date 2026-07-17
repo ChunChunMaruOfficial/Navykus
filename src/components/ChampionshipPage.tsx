@@ -517,11 +517,11 @@ export default function ChampionshipPage({
 
             {/* Evaluation Criteria */}
             <div className="space-y-3 pt-2">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-brand-dark font-semibold mb-1 block">{t('ui.championshippage.9ab00a25e1')}</span>
-              <div className="space-y-2">
+              <span className="text-xs sm:text-sm font-mono uppercase tracking-wider text-brand-dark font-semibold mb-1 block">{t('ui.championshippage.9ab00a25e1')}</span>
+              <div className="space-y-3">
                 {cmsData.evaluationCriteria.map((crit, idx) => (
-                  <div key={idx} className="flex items-start gap-2 text-xs text-brand-slate font-normal md:font-light">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                  <div key={idx} className="flex items-start gap-3 text-base sm:text-lg text-brand-slate font-normal md:font-light">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 shrink-0" />
                     <span>{crit}</span>
                   </div>
                 ))}
@@ -530,8 +530,8 @@ export default function ChampionshipPage({
 
             {/* Expected Result (MVP) */}
             <div className="p-4 bg-white/[0.12] glass-panel surface-elevated-soft rounded-2xl border border-white/[0.12]">
-                <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-brand-slate block mb-1">{t('ui.championshippage.d50e039adb')}</span>
-                <p className="text-sm sm:text-base text-brand-dark font-medium leading-relaxed font-serif">
+                <span className="text-sm sm:text-base font-mono uppercase tracking-wider text-brand-slate block mb-2">{t('ui.championshippage.d50e039adb')}</span>
+                <p className="text-lg sm:text-xl text-brand-dark font-medium leading-relaxed font-serif">
                   {cmsData.expectedResult}
                 </p>
               </div>
@@ -995,7 +995,7 @@ export default function ChampionshipPage({
           className="relative z-10 py-16 md:py-24 w-[88vw] md:w-[80vw] max-w-4xl mx-auto space-y-6 section-accent-warm"
         >
           <div className="text-center space-y-3">
-            <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark">{t('ui.findteampage.f119ad282e')}</h2>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif text-brand-dark tracking-tight">{t('ui.findteampage.f119ad282e')}</h2>
           </div>
 
           <div className="space-y-4">

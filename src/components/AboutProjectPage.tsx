@@ -501,7 +501,7 @@ export default function AboutProjectPage({
             {...fadeUp}
             className="mb-10 text-center space-y-3"
           >
-            <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark tracking-tight">{t('ui.findteampage.f119ad282e')}</h2>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif text-brand-dark tracking-tight">{t('ui.findteampage.f119ad282e')}</h2>
           </motion.div>
 
           <div className="space-y-4">

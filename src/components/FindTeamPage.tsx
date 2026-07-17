@@ -1218,7 +1218,7 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
       {/* ======================== FAQ ======================== */}
       <section className="relative z-10 py-16 md:py-24 max-w-7xl mx-auto px-[6%] md:px-[10%] space-y-6 section-accent-warm">
         <motion.div {...fadeUp} className="text-center space-y-3">
-          <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark">{t('ui.findteampage.f119ad282e')}</h2>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif text-brand-dark tracking-tight">{t('ui.findteampage.f119ad282e')}</h2>
         </motion.div>
         <motion.div {...fadeUp} className="space-y-4">
           {faqItems.map((faq) => (

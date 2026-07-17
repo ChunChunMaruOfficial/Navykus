@@ -19,7 +19,7 @@ import AuthModal from './components/AuthModal';
 import BrandImage from './components/BrandImage';
 import PageSkeleton from './components/PageSkeletons';
 import StudyBackground from './components/StudyBackground';
-import { fetchContactSettings, platformApi, submitCommunityLead, type ContactSettings, type PlatformUser } from './api';
+import { fetchContactSettings, platformApi, type ContactSettings, type PlatformUser } from './api';
 import {
   LANGUAGE_FLAGS,
   SUPPORTED_LANGUAGES,
@@ -342,6 +342,7 @@ export default function App() {
   const [formInterest, setFormInterest] = useState('projects');
   const [formSubmitStatus, setFormSubmitStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [formErrors, setFormErrors] = useState<string[]>([]);
+  const [pendingInlineProfile, setPendingInlineProfile] = useState<{ firstName?: string; age?: string; city?: string; contact?: string; interest?: string } | null>(null);
 
   useEffect(() => {
     const handleOutsideClick = () => {
@@ -486,25 +487,33 @@ export default function App() {
     }
 
     setFormErrors([]);
-    setFormSubmitStatus('submitting');
+    setPendingInlineProfile({
+      firstName: formName.trim(),
+      age: formAge.trim(),
+      city: formLocation.trim(),
+      contact: formContact.trim(),
+      interest: inlineInterestLabels[formInterest] || formInterest,
+    });
+    setIsAuthModalOpen(true);
+  };
 
+  const applyPendingInlineProfile = async (user: PlatformUser | null) => {
+    if (!user || !pendingInlineProfile) return;
     try {
-      await submitCommunityLead({
-        name: formName,
-        age: formAge,
-        location: formLocation,
-        contact: formContact,
-        interest: inlineInterestLabels[formInterest] || formInterest,
+      await platformApi.updateProfile({
+        firstName: pendingInlineProfile.firstName,
+        ageGroup: pendingInlineProfile.age,
+        city: pendingInlineProfile.city,
+        biography: pendingInlineProfile.interest ? `Interest: ${pendingInlineProfile.interest}\nContact: ${pendingInlineProfile.contact}` : pendingInlineProfile.contact,
       });
-      setFormSubmitStatus('success');
-      setFormName('');
-      setFormAge('');
-      setFormLocation('');
-      setFormContact('');
-    } catch (error) {
-      setFormErrors([t('ui.app.9a16b2582b')]);
-      setFormSubmitStatus('error');
+    } catch {
+      // ignore profile update errors
     }
+    setPendingInlineProfile(null);
+    setFormName('');
+    setFormAge('');
+    setFormLocation('');
+    setFormContact('');
   };
 
   const nearestTournament = featuredTournament
@@ -1012,8 +1021,6 @@ export default function App() {
               className="bg-white/[0.12] glass-xl surface-elevated border border-white/[0.15] rounded-3xl p-6 sm:p-10 lg:p-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
             >
               <div className="lg:col-span-5 space-y-4 text-left">
-                <span className="text-[11px] sm:text-[10px] font-mono tracking-[0.2em] text-[#bc4638] bg-[#bc4638]/5 px-3 py-1 rounded-full uppercase font-semibold">{t('ui.app.3abf2464ad')}</span>
-
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-serif text-brand-dark tracking-tight leading-tight">{t('ui.app.031b5a9779')}</h2>
 
                 <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.app.8062a560c4')}</p>
@@ -1101,15 +1108,8 @@ export default function App() {
                       </div>
 
                       <div className="pt-2">
-                        <button type="submit" disabled={formSubmitStatus === 'submitting'} className="w-full bg-brand-dark hover:bg-[#bc4638] text-white text-xs font-mono tracking-widest py-3.5 rounded-xl transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 font-medium">
-                          {formSubmitStatus === 'submitting' ? (
-                            <>
-                              <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                              <span>{t('ui.app.185f27b7f2')}</span>
-                            </>
-                          ) : (
-                            <span>{t('ui.app.41c1690460')}</span>
-                          )}
+                        <button type="submit" disabled={false} className="w-full bg-brand-dark hover:bg-[#bc4638] text-white text-xs font-mono tracking-widest py-3.5 rounded-xl transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 font-medium">
+                          <span>{t('platform.auth.registerAction')}</span>
                         </button>
                       </div>
                     </form>
@@ -1121,9 +1121,9 @@ export default function App() {
 
           <section id="trust-block" className="relative z-10 py-16 md:py-24 max-w-7xl mx-auto px-[6%] md:px-[10%] space-y-12 section-accent-warm">
             <motion.div {...fadeUp} className="text-center max-w-2xl mx-auto space-y-3">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif text-brand-dark tracking-tight">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif text-brand-dark tracking-tight">
                 {t('ui.app.19816f01')}</h2>
-              <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.app.c8e427d5b3')}</p>
+              <p className="text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.app.c8e427d5b3')}</p>
             </motion.div>
 
             <motion.div {...cardStaggerContainer} className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1139,8 +1139,8 @@ export default function App() {
                     {index + 1}
                   </div>
                   <div className="space-y-3 text-left">
-                    <h3 className="text-lg sm:text-xl font-serif font-semibold text-brand-dark">{item.title}</h3>
-                    <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{item.description}</p>
+                    <h3 className="text-xl sm:text-2xl font-serif font-semibold text-brand-dark">{item.title}</h3>
+                    <p className="text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed">{item.description}</p>
                   </div>
                 </motion.div>
               ))}
@@ -1257,9 +1257,9 @@ export default function App() {
               <a href={t('ui.app.a5307558')} className="hover:text-[#bc4638] transition-colors">{t('ui.app.9e059272f1')}</a>
               <a href={t('ui.app.4d9e7853')} className="hover:text-[#bc4638] transition-colors">{t('ui.app.3a86197ba3')}</a>
             </div>
-            <div className="text-[11px] font-mono tracking-[0.15em] text-[#5b6472] opacity-40 lowercase">
+            <a href="https://dioxoid.com" target="_blank" rel="noreferrer" className="text-[11px] font-mono tracking-[0.15em] text-[#5b6472] opacity-40 lowercase cursor-pointer">
               {t('ui.app.madeBy')}
-            </div>
+            </a>
           </div>
         </div>
       </footer>
@@ -1289,7 +1289,7 @@ export default function App() {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
-        onAuthChange={setAuthUser}
+        onAuthChange={(user) => { setAuthUser(user); void applyPendingInlineProfile(user); }}
       />
     </div>
   );

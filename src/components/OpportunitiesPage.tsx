@@ -1224,7 +1224,7 @@ export default function OpportunitiesPage({
         )}
 
         <div className={!embedded ? "mx-auto max-w-7xl px-[6%] md:px-[10%]" : ""}>
-        <div className={embedded ? "grid gap-6" : "grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-center"}>
+        <div className={embedded ? "grid gap-6" : "grid gap-8"}>
         <motion.div {...heroFadeUpLarge} className="space-y-6">
           <div className="space-y-4">
             <h1 className={`${embedded ? "text-3xl sm:text-4xl lg:text-5xl" : "text-4xl sm:text-6xl lg:text-7xl"} font-serif font-semibold leading-[0.98] tracking-tight text-brand-dark`}>
