@@ -60,6 +60,7 @@ interface ChampionshipPageProps {
   onBackToHome: () => void;
   onNavigateToSection: (sectionId: string) => void;
   onOpenApplyModal: () => void;
+  onOpenAuthModal?: () => void;
 }
 
 const SUITABILITY_TABS = [
@@ -80,7 +81,8 @@ const keyInfoSubtextClass = "text-sm sm:text-base text-brand-slate font-normal m
 export default function ChampionshipPage({ 
   onBackToHome, 
   onNavigateToSection, 
-  onOpenApplyModal 
+  onOpenApplyModal,
+  onOpenAuthModal,
 }: ChampionshipPageProps) {
   const { t } = useTranslation();
   const cmsTournaments = useCmsTournaments();
@@ -233,22 +235,38 @@ export default function ChampionshipPage({
     }
 
     setFormErrorMsg('');
-    setFormStatus('submitting');
+    sessionStorage.setItem('navykus.pendingChampionshipProfile', JSON.stringify({
+      name: formData.name.trim(),
+      email: formData.email.trim(),
+      age: formData.age.trim(),
+      city: formData.city.trim(),
+      contact: formData.contact.trim(),
+      hasTeam: formData.hasTeam,
+      teamSize: formData.teamSize,
+      interests: formData.interests,
+      portfolioLink: formData.portfolioLink,
+      coverLetter: formData.coverLetter,
+    }));
 
-    setTimeout(() => {
-      const ticketId = 'NV-CUP-' + Math.floor(100000 + Math.random() * 900000);
-      const seatNum = Math.floor(12 + Math.random() * 98);
-      const regTime = new Date().toLocaleString('ru-RU', { 
-        day: 'numeric', 
-        month: 'short', 
-        year: 'numeric', 
-        hour: '2-digit', 
-        minute: '2-digit' 
-      });
+    if (onOpenAuthModal) {
+      onOpenAuthModal();
+    } else {
+      setFormStatus('submitting');
+      setTimeout(() => {
+        const ticketId = 'NV-CUP-' + Math.floor(100000 + Math.random() * 900000);
+        const seatNum = Math.floor(12 + Math.random() * 98);
+        const regTime = new Date().toLocaleString('ru-RU', { 
+          day: 'numeric', 
+          month: 'short', 
+          year: 'numeric', 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        });
 
-      setGeneratedTicket({ ticketId, seatNum, regTime });
-      setFormStatus('success');
-    }, 1500);
+        setGeneratedTicket({ ticketId, seatNum, regTime });
+        setFormStatus('success');
+      }, 1500);
+    }
   };
 
   // Reset form
@@ -517,11 +535,11 @@ export default function ChampionshipPage({
 
             {/* Evaluation Criteria */}
             <div className="space-y-3 pt-2">
-              <span className="text-xs sm:text-sm font-mono uppercase tracking-wider text-brand-dark font-semibold mb-1 block">{t('ui.championshippage.9ab00a25e1')}</span>
-              <div className="space-y-3">
+              <span className="text-[11px] sm:text-xs font-mono uppercase tracking-wider text-brand-dark font-semibold mb-1 block">{t('ui.championshippage.9ab00a25e1')}</span>
+              <div className="space-y-2.5">
                 {cmsData.evaluationCriteria.map((crit, idx) => (
-                  <div key={idx} className="flex items-start gap-3 text-base sm:text-lg text-brand-slate font-normal md:font-light">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 shrink-0" />
+                  <div key={idx} className="flex items-start gap-2.5 text-sm sm:text-base text-brand-slate font-normal md:font-light">
+                    <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600 mt-0.5 shrink-0" />
                     <span>{crit}</span>
                   </div>
                 ))}
@@ -530,8 +548,8 @@ export default function ChampionshipPage({
 
             {/* Expected Result (MVP) */}
             <div className="p-4 bg-white/[0.12] glass-panel surface-elevated-soft rounded-2xl border border-white/[0.12]">
-                <span className="text-sm sm:text-base font-mono uppercase tracking-wider text-brand-slate block mb-2">{t('ui.championshippage.d50e039adb')}</span>
-                <p className="text-lg sm:text-xl text-brand-dark font-medium leading-relaxed font-serif">
+                <span className="text-[11px] sm:text-xs font-mono uppercase tracking-wider text-brand-slate block mb-1.5">{t('ui.championshippage.d50e039adb')}</span>
+                <p className="text-base sm:text-lg text-brand-dark font-medium leading-relaxed font-serif">
                   {cmsData.expectedResult}
                 </p>
               </div>
@@ -695,7 +713,7 @@ export default function ChampionshipPage({
             
              <div className="text-center space-y-2 pb-5">
                <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark">{t('ui.championshippage.795d6a19a2')}</h2>
-              <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed max-w-md mx-auto">{t('ui.championshippage.5788077ace')}</p>
+               <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed max-w-md mx-auto">{t('ui.championshippage.5788077ace')}</p>
             </div>
 
             {/* SUCCESS OR INPUT STATE */}
@@ -973,7 +991,7 @@ export default function ChampionshipPage({
                             </>
                           ) : (
                             <>
-                              <span>{t('ui.championshippage.c1e5fa9018')}</span>
+                              <span>{t('platform.auth.registerAction')}</span>
                               <ArrowRight className="w-4 h-4" />
                             </>
                           )}
@@ -1007,7 +1025,7 @@ export default function ChampionshipPage({
                 <button
                   type="button"
                   onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
-                  className="w-full flex items-center justify-between p-5 text-left font-serif font-semibold text-brand-dark text-base sm:text-lg md:text-xl cursor-pointer"
+                  className="w-full flex items-center justify-between p-5 text-left font-serif font-semibold text-brand-dark text-xl sm:text-2xl md:text-3xl cursor-pointer"
                 >
                   <span>{faq.question}</span>
                   <ChevronDown className={`w-4 h-4 text-brand-slate/60 transition-transform duration-300 flex-shrink-0 ${activeFaq === idx ? 'rotate-180' : ''}`} />

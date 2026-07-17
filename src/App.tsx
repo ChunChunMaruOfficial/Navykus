@@ -498,7 +498,25 @@ export default function App() {
   };
 
   const applyPendingInlineProfile = async (user: PlatformUser | null) => {
-    if (!user || !pendingInlineProfile) return;
+    if (!user) return;
+    const pendingChampionship = sessionStorage.getItem('navykus.pendingChampionshipProfile');
+    if (pendingChampionship) {
+      try {
+        const data = JSON.parse(pendingChampionship);
+        await platformApi.updateProfile({
+          firstName: data.name,
+          ageGroup: data.age,
+          city: data.city,
+          biography: data.coverLetter ? `Cover letter: ${data.coverLetter}\nContact: ${data.contact}` : `Contact: ${data.contact}`,
+          portfolio: data.portfolioLink,
+        });
+        sessionStorage.removeItem('navykus.pendingChampionshipProfile');
+      } catch {
+        // ignore profile update errors
+      }
+      return;
+    }
+    if (!pendingInlineProfile) return;
     try {
       await platformApi.updateProfile({
         firstName: pendingInlineProfile.firstName,
@@ -1182,6 +1200,7 @@ export default function App() {
             }}
             onNavigateToSection={scrollToSection}
             onOpenApplyModal={() => openApplyModal()}
+            onOpenAuthModal={() => setIsAuthModalOpen(true)}
           />
         </div>
       ) : currentPage === 'find-team' ? (
