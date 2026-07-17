@@ -57,6 +57,7 @@ import {
 } from './normalizers';
 
 const app = express();
+app.set('trust proxy', 1);
 const port = Number(process.env.API_PORT || process.env.PORT || 4000);
 const uploadDir = path.resolve(process.cwd(), 'uploads', 'incoming');
 
