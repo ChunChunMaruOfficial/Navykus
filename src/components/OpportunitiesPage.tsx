@@ -649,13 +649,13 @@ const getDaysLeft = (deadline?: string) => {
 const getRoute = (): { mode: RouteMode; slug?: string } => {
   if (typeof window === 'undefined') return { mode: 'catalog' };
   const path = window.location.pathname.replace(/\/$/, '') || '/';
-  if (path === '/opportunities/recommendations') return { mode: 'recommendations' };
-  if (path === '/opportunities/favorites') return { mode: 'favorites' };
-  if (path === '/opportunities/compare') return { mode: 'compare' };
-  if (path === '/opportunities/submit') return { mode: 'submit' };
+  if (path === '/activities/opportunities/recommendations') return { mode: 'recommendations' };
+  if (path === '/activities/opportunities/favorites') return { mode: 'favorites' };
+  if (path === '/activities/opportunities/compare') return { mode: 'compare' };
+  if (path === '/activities/opportunities/submit') return { mode: 'submit' };
   if (path === '/profile/opportunities') return { mode: 'profile' };
-  if (path.startsWith('/opportunities/')) {
-    return { mode: 'detail', slug: decodeURIComponent(path.replace('/opportunities/', '')) };
+  if (path.startsWith('/activities/opportunities/')) {
+    return { mode: 'detail', slug: decodeURIComponent(path.replace('/activities/opportunities/', '')) };
   }
   return { mode: 'catalog' };
 };
@@ -831,7 +831,7 @@ function OpportunityCard({
         <div className="mt-auto flex flex-wrap items-center gap-2 pt-6">
           <button
             type="button"
-            onClick={() => navigate(`/opportunities/${opportunity.slug}`)}
+            onClick={() => navigate(`/activities/opportunities/${opportunity.slug}`)}
             className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-brand-dark px-4 py-2.5 text-xs font-semibold text-white transition-transform hover:scale-[1.01]"
           >
             {pick(UI.details, language)}
@@ -1123,7 +1123,7 @@ export default function OpportunitiesPage({
     if (nextSort !== 'recommended') params.set('sort', nextSort);
     const suffix = params.toString() ? `?${params.toString()}` : '';
     const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
-    const catalogPath = currentPath === '/activities' ? '/activities' : '/opportunities';
+    const catalogPath = currentPath.startsWith('/activities/opportunities') ? '/activities/opportunities' : '/activities/events';
     window.history.replaceState({}, '', `${catalogPath}${suffix}`);
   };
 
@@ -1201,15 +1201,15 @@ export default function OpportunitiesPage({
 
   const renderHeaderActions = () => (
     <div className="flex flex-wrap gap-2">
-      <button onClick={() => navigate('/opportunities/recommendations')} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-[#bc4638]/15">
+      <button onClick={() => navigate('/activities/opportunities/recommendations')} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-[#bc4638]/15">
         <Sparkles className="h-4 w-4" />
         {pick(UI.matchMe, language)}
       </button>
-      <button onClick={() => navigate('/opportunities/favorites')} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/60 bg-white/45 px-4 py-2 text-xs font-semibold text-brand-slate">
+      <button onClick={() => navigate('/activities/opportunities/favorites')} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/60 bg-white/45 px-4 py-2 text-xs font-semibold text-brand-slate">
         <Heart className="h-4 w-4" />
         {favorites.length}
       </button>
-      <button onClick={() => navigate('/opportunities/compare')} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/60 bg-white/45 px-4 py-2 text-xs font-semibold text-brand-slate">
+      <button onClick={() => navigate('/activities/opportunities/compare')} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/60 bg-white/45 px-4 py-2 text-xs font-semibold text-brand-slate">
         <Scale className="h-4 w-4" />
         {compare.length}
       </button>
@@ -1244,7 +1244,7 @@ export default function OpportunitiesPage({
                 className="min-h-12 w-full rounded-2xl border border-white/65 bg-white/60 py-3 pl-11 pr-4 text-sm text-brand-dark shadow-[0_10px_35px_rgba(91,100,114,0.08)] outline-none backdrop-blur-xl transition-colors placeholder:text-brand-slate/45 focus:border-[#8f99a8]"
               />
             </label>
-            <button onClick={() => navigate('/opportunities/recommendations')} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-brand-dark px-5 py-3 text-xs font-semibold text-white">
+            <button onClick={() => navigate('/activities/opportunities/recommendations')} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-brand-dark px-5 py-3 text-xs font-semibold text-white">
               <Sparkles className="h-4 w-4" />
               {pick(UI.matchMe, language)}
             </button>
@@ -1257,7 +1257,7 @@ export default function OpportunitiesPage({
               </h2>
               <div className="grid gap-3 md:grid-cols-3">
                 {urgent.slice(0, 3).map((opportunity) => (
-                  <button key={opportunity.id} onClick={() => navigate(`/opportunities/${opportunity.slug}`)} className="rounded-2xl bg-white/55 p-4 text-left text-xs text-brand-slate">
+                  <button key={opportunity.id} onClick={() => navigate(`/activities/opportunities/${opportunity.slug}`)} className="rounded-2xl bg-white/55 p-4 text-left text-xs text-brand-slate">
                     <span className="font-semibold text-[#bc4638]">{getDaysLeft(opportunity.deadline)} {pick(UI.daysLeft, language)}</span>
                     <div className="mt-1 font-serif text-base font-semibold text-brand-dark">{pick(opportunity.title, language)}</div>
                     <div className="mt-1">{opportunity.registrationOpen ? pick(UI.registrationOpen, language) : pick(UI.registrationClosed, language)}</div>
@@ -1392,9 +1392,7 @@ export default function OpportunitiesPage({
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {recommended.map((opportunity) => (
               <button
-                key={opportunity.id}
-                onClick={() => navigate(`/opportunities/${opportunity.slug}`)}
-                className="rounded-2xl border border-white/60 bg-white/40 p-4 text-left surface-elevated-soft backdrop-blur-md transition-transform hover:-translate-y-0.5"
+                key={opportunity.id}onClick={() => navigate(`/activities/opportunities/${opportunity.slug}`)} className="rounded-2xl border border-white/60 bg-white/40 p-4 text-left surface-elevated-soft backdrop-blur-md transition-transform hover:-translate-y-0.5"
               >
                 <span className="mb-3 inline-flex rounded-full bg-[#bc4638]/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#8d3026]">
                   {getSourceLabel(opportunity.source, language)}
@@ -1415,7 +1413,7 @@ export default function OpportunitiesPage({
       return (
         <section className={`${pageShellClass} text-center`}>
           <h1 className="font-serif text-4xl font-semibold text-brand-dark">{pick(UI.noResults, language)}</h1>
-          <button onClick={() => navigate('/opportunities')} className="mt-6 rounded-xl bg-brand-dark px-5 py-3 text-xs font-semibold text-white">{pick(OPPORTUNITIES_NAV_LABELS, language)}</button>
+          <button onClick={() => navigate('/activities/opportunities')} className="mt-6 rounded-xl bg-brand-dark px-5 py-3 text-xs font-semibold text-white">{pick(OPPORTUNITIES_NAV_LABELS, language)}</button>
         </section>
       );
     }

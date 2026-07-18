@@ -34,6 +34,9 @@ import { OPPORTUNITIES } from './OpportunitiesPage';
 type CategoryFilter = ActivityCategory | 'all';
 type ActivityView = 'events' | 'opportunities';
 
+const ACTIVITIES_EVENTS_PATH = '/activities/events';
+const ACTIVITIES_OPPORTUNITIES_PATH = '/activities/opportunities';
+
 const OpportunitiesPage = lazy(() => import('./OpportunitiesPage'));
 
 interface ActivitiesPageProps {
@@ -119,7 +122,7 @@ const feedStaggerContainer = {
 const getInitialActivityView = (): ActivityView => {
   if (typeof window === 'undefined') return 'events';
   const path = window.location.pathname.replace(/\/$/, '') || '/';
-  return path === '/opportunities' || path === '/profile/opportunities' || path.startsWith('/opportunities/')
+  return path === ACTIVITIES_OPPORTUNITIES_PATH || path.startsWith(ACTIVITIES_OPPORTUNITIES_PATH + '/')
     ? 'opportunities'
     : 'events';
 };
@@ -130,10 +133,10 @@ const getCurrentPath = () => {
 };
 
 const OPPORTUNITIES_UTILITY_PATHS = new Set([
-  '/opportunities/recommendations',
-  '/opportunities/favorites',
-  '/opportunities/compare',
-  '/opportunities/submit',
+  `${ACTIVITIES_OPPORTUNITIES_PATH}/recommendations`,
+  `${ACTIVITIES_OPPORTUNITIES_PATH}/favorites`,
+  `${ACTIVITIES_OPPORTUNITIES_PATH}/compare`,
+  `${ACTIVITIES_OPPORTUNITIES_PATH}/submit`,
 ]);
 
 export default function ActivitiesPage({
@@ -165,7 +168,7 @@ export default function ActivitiesPage({
 
   const navigateToView = (view: ActivityView) => {
     setActiveView(view);
-    const nextPath = view === 'events' ? '/activities' : '/opportunities';
+    const nextPath = view === 'events' ? ACTIVITIES_EVENTS_PATH : ACTIVITIES_OPPORTUNITIES_PATH;
     const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
     if (currentPath !== nextPath) {
       window.history.pushState({}, '', nextPath);
@@ -177,16 +180,14 @@ export default function ActivitiesPage({
 
   const navigateToOpportunityRecommendations = () => {
     setActiveView('opportunities');
-    const nextPath = '/opportunities/recommendations';
+    const nextPath = `${ACTIVITIES_OPPORTUNITIES_PATH}/recommendations`;
     window.history.pushState({}, '', nextPath);
     setRoutePath(nextPath);
     window.dispatchEvent(new PopStateEvent('popstate'));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const isOpportunityDetailPath =
-    (routePath === '/opportunities' || routePath.startsWith('/opportunities/')) && !OPPORTUNITIES_UTILITY_PATHS.has(routePath);
-  const showActivitiesHeader = !isOpportunityDetailPath;
+  const showActivitiesHeader = true;
 
   const filteredActivities = useMemo(() => {
     const query = activitySearch.trim().toLowerCase();

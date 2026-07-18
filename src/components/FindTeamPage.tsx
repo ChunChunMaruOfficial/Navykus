@@ -40,6 +40,7 @@ const heroFadeUpLarge = {
 };
 import { useLocalizedData } from '../i18n/useLocalizedData';
 import { useCmsFaqs } from '../hooks/useCmsFaqs';
+import type { PlatformUser } from '../api';
 import type { FaqItem as CmsFaqItem, TeamMember, TeamRole, TeamIntent } from '../types';
 
 const FIND_TEAM_SEARCH_CLASS =
@@ -126,6 +127,8 @@ const getAvatarGradient = (id: string) => {
 interface FindTeamPageProps {
   onNavigateToSection: (id: string) => void;
   onOpenApplyModal: () => void;
+  authUser?: PlatformUser | null;
+  onOpenAuthModal?: () => void;
 }
 
 /* ------------------------------------------------------------------ */
@@ -490,10 +493,359 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Team Profile Modal (Register / My Profile)                        */
+/* ------------------------------------------------------------------ */
+
+function TeamProfileModal({
+  authUser,
+  onClose,
+  onOpenAuthModal,
+}: {
+  authUser?: PlatformUser | null;
+  onClose: () => void;
+  onOpenAuthModal?: () => void;
+}) {
+  const { t } = useTranslation();
+  const { teamMembers } = useLocalizedData();
+  const [formName, setFormName] = useState('');
+  const [formEmail, setFormEmail] = useState('');
+  const [formAge, setFormAge] = useState('');
+  const [formCountry, setFormCountry] = useState('');
+  const [formCity, setFormCity] = useState('');
+  const [formContactType, setFormContactType] = useState('telegram');
+  const [formContact, setFormContact] = useState('');
+  const [formSkills, setFormSkills] = useState<string[]>([]);
+  const [formInterests, setFormInterests] = useState<string[]>([]);
+  const [formRoles, setFormRoles] = useState<TeamRole[]>([]);
+  const [skillInput, setSkillInput] = useState('');
+  const [interestInput, setInterestInput] = useState('');
+  const [formBio, setFormBio] = useState('');
+  const [formWhyLooking, setFormWhyLooking] = useState('');
+  const [formErrors, setFormErrors] = useState<string[]>([]);
+
+  const uniqueCountries = useMemo(
+    () => Array.from(new Set(teamMembers.map((m) => m.country))),
+    [teamMembers],
+  );
+  const allSkills = useMemo(
+    () => Array.from(new Set(teamMembers.flatMap((m) => m.skills))).sort(),
+    [teamMembers],
+  );
+  const allInterests = useMemo(
+    () => Array.from(new Set(teamMembers.flatMap((m) => m.interests))).sort(),
+    [teamMembers],
+  );
+  const filteredSkillOptions = useMemo(() => {
+    const q = skillInput.toLowerCase().trim();
+    if (!q) return allSkills;
+    return allSkills.filter((s) => s.toLowerCase().includes(q));
+  }, [allSkills, skillInput]);
+  const filteredInterestOptions = useMemo(() => {
+    const q = interestInput.toLowerCase().trim();
+    if (!q) return allInterests;
+    return allInterests.filter((i) => i.toLowerCase().includes(q));
+  }, [allInterests, interestInput]);
+
+  // If user is authenticated, build a profile from authUser data
+  const userProfile = authUser ? {
+    name: authUser.firstName || authUser.name || authUser.email,
+    age: parseInt(authUser.ageGroup || '0', 10) || 16,
+    country: authUser.country || '',
+    city: authUser.city || '',
+    shortBio: authUser.biography || '',
+    interests: authUser.interests || [],
+    skills: authUser.skills || [],
+    contact: authUser.email,
+    contactType: 'email' as const,
+  } : null;
+
+  const handleRegister = (e: React.FormEvent) => {
+    e.preventDefault();
+    const errors: string[] = [];
+    if (!formName.trim()) errors.push(t('ui.app.02ce21d910'));
+    if (!formEmail.trim() || !formEmail.includes('@')) errors.push('Укажите корректный email');
+    if (!formAge.trim() || isNaN(Number(formAge)) || Number(formAge) < 10 || Number(formAge) > 24) errors.push(t('ui.app.1c3299a85e'));
+    if (!formCountry.trim()) errors.push(t('ui.app.92ca287f55'));
+    if (!formContact.trim()) errors.push(t('ui.app.a4bae5e597'));
+
+    if (errors.length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+
+    setFormErrors([]);
+    sessionStorage.setItem('navykus.pendingFindTeamProfile', JSON.stringify({
+      name: formName.trim(),
+      email: formEmail.trim(),
+      age: formAge.trim(),
+      country: formCountry.trim(),
+      city: formCity.trim(),
+      contactType: formContactType,
+      contact: formContact.trim(),
+      skills: formSkills,
+      interests: formInterests,
+      targetRoles: formRoles,
+      shortBio: formBio.trim(),
+      whyLooking: formWhyLooking.trim(),
+    }));
+    onOpenAuthModal?.();
+    onClose();
+  };
+
+  return (
+    <AnimatePresence>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+          className="absolute inset-0 bg-brand-dark/20 backdrop-blur-md"
+        />
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 15 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 15 }}
+          transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+          className="relative max-h-[calc(100vh-2rem)] w-[96%] sm:w-full max-w-2xl bg-white/35 backdrop-blur-3xl border border-white/60 rounded-3xl shadow-[inset_0_1.5px_3px_rgba(255,255,255,0.45),0_40px_120px_rgba(27,24,22,0.12)] z-10 overflow-y-auto scrollbar-soft"
+        >
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 p-2 rounded-full hover:bg-brand-bg-3/50 text-brand-dark transition-colors z-20"
+            aria-label={t('ui.applicationmodal.877618185f')}
+          >
+            <X className="w-5 h-5" />
+          </button>
+
+          <div className="p-6 sm:p-8">
+            {authUser && userProfile ? (
+              /* ===== AUTHENTICATED: My Profile ===== */
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-serif text-brand-dark tracking-tight">{t('ui.findteampage.myProfile')}</h2>
+                  <p className="text-xs sm:text-sm text-brand-slate mt-1 font-light">{t('ui.findteampage.myProfileDesc')}</p>
+                </div>
+
+                <div className="bg-white/[0.12] glass-card surface-elevated-soft border border-white/[0.15] rounded-2xl p-5">
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br ${getAvatarGradient(authUser.id)} text-base font-bold text-white shadow-sm`}>
+                      {getInitials(userProfile.name)}
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="text-lg font-serif font-medium text-brand-dark">{userProfile.name}</h3>
+                      <div className="flex flex-wrap items-center gap-2 text-[10px] font-mono text-brand-slate mt-0.5">
+                        {userProfile.age > 0 && <span>{userProfile.age}{t('ui.championshippage.b47dce337d')}</span>}
+                        {(userProfile.country || userProfile.city) && (
+                          <span className="flex items-center gap-0.5">
+                            <MapPin className="w-3 h-3" /> {[userProfile.country, userProfile.city].filter(Boolean).join(', ')}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {userProfile.shortBio && (
+                    <div className="mb-3">
+                      <h4 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-1.5">{t('ui.findteampage.53fa567ce7')}</h4>
+                      <p className="text-xs text-brand-slate font-light leading-relaxed">{userProfile.shortBio}</p>
+                    </div>
+                  )}
+
+                  {userProfile.interests.length > 0 && (
+                    <div className="mb-3">
+                      <h4 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-1.5">{t('ui.findteampage.747ac9c080')}</h4>
+                      <div className="flex flex-wrap gap-1.5">
+                        {userProfile.interests.map((i) => (
+                          <span key={i} className="text-[10px] px-2 py-0.5 rounded-full bg-brand-rose-deep/10 text-brand-rose-deep font-medium">{i}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {userProfile.skills.length > 0 && (
+                    <div className="mb-3">
+                      <h4 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-1.5">{t('ui.findteampage.176bd58504')}</h4>
+                      <div className="flex flex-wrap gap-1.5">
+                        {userProfile.skills.map((s) => (
+                          <span key={s} className="text-[10px] px-2 py-0.5 rounded-full bg-brand-terracotta/10 text-brand-terracotta font-medium">{s}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="bg-white/20 border border-white/40 rounded-xl p-4">
+                    <h4 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-1.5">{t('ui.activitiespage.1f75230b6e')}</h4>
+                    <div className="flex items-center gap-2 text-xs text-brand-slate">
+                      <Mail className="w-3.5 h-3.5 text-rose-600" />
+                      <span>{authUser.email}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={onClose}
+                  className="w-full bg-brand-dark text-white text-xs font-medium py-3 rounded-xl transition-all duration-200 cursor-pointer text-center hover:bg-brand-dark/95"
+                >{t('ui.applicationmodal.4b5dbcf3e2')}</button>
+              </div>
+            ) : (
+              /* ===== NOT AUTH: Registration Form ===== */
+              <form onSubmit={handleRegister} className="space-y-3 sm:space-y-4">
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-serif text-brand-dark tracking-tight">{t('platform.auth.registerTitle')}</h2>
+                  <p className="text-xs sm:text-sm text-brand-slate mt-1 font-light">{t('ui.findteampage.registerDesc')}</p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+                  <div>
+                    <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">{t('ui.applicationmodal.34fda9e41a')}<span className="text-brand-terracotta">*</span></label>
+                    <input type="text" required value={formName} onChange={(e) => setFormName(e.target.value)} placeholder={t('ui.applicationmodal.bd41d2e3e9')} className={FIND_TEAM_FIELD_CLASS} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">Email<span className="text-brand-terracotta">*</span></label>
+                    <input type="email" required value={formEmail} onChange={(e) => setFormEmail(e.target.value)} placeholder="name@example.com" className={FIND_TEAM_FIELD_CLASS} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">{t('ui.championshippage.b520139c06')}<span className="text-brand-terracotta">*</span></label>
+                    <input type="number" required value={formAge} onChange={(e) => setFormAge(e.target.value)} placeholder={t('ui.championshippage.7a94346b9f')} className={FIND_TEAM_FIELD_CLASS} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">{t('ui.findteampage.d45e4de05b')}<span className="text-brand-terracotta">*</span></label>
+                    <select value={formCountry} onChange={(e) => setFormCountry(e.target.value)} className={FIND_TEAM_SELECT_CLASS}>
+                      <option value="">{t('ui.findteampage.b4a5be85c1')}</option>
+                      {uniqueCountries.map((c) => <option key={c}>{c}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">{t('ui.championshippage.450778ada1')}</label>
+                    <input type="text" value={formCity} onChange={(e) => setFormCity(e.target.value)} placeholder={t('ui.championshippage.6dfb2adc1d')} className={FIND_TEAM_FIELD_CLASS} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">{t('ui.findteampage.c8d0e2f4a7')}<span className="text-brand-terracotta">*</span></label>
+                      <select value={formContactType} onChange={(e) => setFormContactType(e.target.value)} className={FIND_TEAM_SELECT_CLASS}>
+                        {Object.keys(CONTACT_LABELS).map((ct) => <option key={ct} value={ct}>{CONTACT_LABELS[ct]}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">{t('ui.findteampage.3765795ef8')}<span className="text-brand-terracotta">*</span></label>
+                      <input type="text" required value={formContact} onChange={(e) => setFormContact(e.target.value)} placeholder="@username" className={FIND_TEAM_FIELD_CLASS} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Skills multi-tag */}
+                <div>
+                  <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">{t('ui.findteampage.e4f6b0a2c1')}</label>
+                  <div className="relative">
+                    <input type="text" value={skillInput} onChange={(e) => setSkillInput(e.target.value)} placeholder={t('ui.findteampage.f5a7c1d3e4')} className={FIND_TEAM_FIELD_CLASS} />
+                    {skillInput.trim() && filteredSkillOptions.length > 0 && (
+                      <div className="absolute z-20 mt-1 w-full bg-white/95 backdrop-blur-md border border-white/60 rounded-xl shadow-lg max-h-36 overflow-y-auto scrollbar-soft">
+                        {filteredSkillOptions.filter((s) => !formSkills.includes(s)).slice(0, 20).map((s) => (
+                          <button key={s} type="button" onClick={() => { setFormSkills((prev) => [...prev, s]); setSkillInput(''); }} className="w-full text-left px-3 py-1.5 text-xs text-brand-dark hover:bg-brand-terracotta/10 transition-colors cursor-pointer">{s}</button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  {formSkills.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {formSkills.map((s) => (
+                        <span key={s} className="inline-flex items-center gap-1 text-[10px] font-mono bg-brand-terracotta/10 text-brand-terracotta border border-brand-terracotta/20 rounded-full px-2.5 py-0.5">
+                          {s}
+                          <button type="button" onClick={() => setFormSkills((prev) => prev.filter((x) => x !== s))} className="hover:text-brand-terracotta cursor-pointer"><X className="w-2.5 h-2.5" /></button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Interests multi-tag */}
+                <div>
+                  <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">{t('ui.findteampage.a6b8c0d2e5')}</label>
+                  <div className="relative">
+                    <input type="text" value={interestInput} onChange={(e) => setInterestInput(e.target.value)} placeholder={t('ui.findteampage.b7c9d1e3f6')} className={FIND_TEAM_FIELD_CLASS} />
+                    {interestInput.trim() && filteredInterestOptions.length > 0 && (
+                      <div className="absolute z-20 mt-1 w-full bg-white/95 backdrop-blur-md border border-white/60 rounded-xl shadow-lg max-h-36 overflow-y-auto scrollbar-soft">
+                        {filteredInterestOptions.filter((i) => !formInterests.includes(i)).slice(0, 20).map((i) => (
+                          <button key={i} type="button" onClick={() => { setFormInterests((prev) => [...prev, i]); setInterestInput(''); }} className="w-full text-left px-3 py-1.5 text-xs text-brand-dark hover:bg-brand-rose-deep/10 transition-colors cursor-pointer">{i}</button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  {formInterests.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {formInterests.map((i) => (
+                        <span key={i} className="inline-flex items-center gap-1 text-[10px] font-mono bg-brand-rose-deep/10 text-brand-rose-deep border border-brand-rose-deep/15 rounded-full px-2.5 py-0.5">
+                          {i}
+                          <button type="button" onClick={() => setFormInterests((prev) => prev.filter((x) => x !== i))} className="hover:text-brand-rose-deep cursor-pointer"><X className="w-2.5 h-2.5" /></button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Target roles */}
+                <div>
+                  <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">{t('ui.findteampage.c0a1b9f7e4')}</label>
+                  <div className="flex flex-wrap gap-2">
+                    {(Object.keys(ROLE_LABELS) as TeamRole[]).map((role) => (
+                      <button
+                        key={role}
+                        type="button"
+                        onClick={() => setFormRoles((prev) => prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role])}
+                        className={`text-[10px] font-mono tracking-wider px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${
+                          formRoles.includes(role)
+                            ? 'bg-brand-terracotta/10 border-brand-terracotta/30 text-brand-terracotta'
+                            : 'bg-white/40 border-white/50 text-brand-slate hover:bg-white/60'
+                        }`}
+                      >
+                        {t(ROLE_LABELS[role])}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Bio / Why looking */}
+                <div>
+                  <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">{t('ui.findteampage.0d5ce0304e')}</label>
+                  <textarea
+                    rows={3}
+                    value={formWhyLooking}
+                    onChange={(e) => setFormWhyLooking(e.target.value)}
+                    placeholder={t('ui.findteampage.b7c9d1e3f6')}
+                    className={FIND_TEAM_FIELD_CLASS + ' resize-none'}
+                  />
+                </div>
+
+                {formErrors.length > 0 && (
+                  <div className="p-3 bg-rose-50 border border-rose-100 text-rose-800 text-xs rounded-xl">
+                    {formErrors.map((err, i) => <p key={i}>{err}</p>)}
+                  </div>
+                )}
+
+                <div className="flex justify-end pt-2">
+                  <button
+                    type="submit"
+                    className="px-8 py-3 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white rounded-xl text-xs font-medium shadow-lg shadow-[#bc4638]/20 hover:shadow-[#bc4638]/35 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <span>{t('platform.auth.registerAction')}</span>
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </motion.div>
+      </div>
+    </AnimatePresence>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /*  Main Page                                                         */
 /* ------------------------------------------------------------------ */
 
-export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
+export default function FindTeamPage({ onOpenApplyModal, authUser, onOpenAuthModal }: FindTeamPageProps) {
   const { t, i18n } = useTranslation();
   const { teamMembers, tournaments } = useLocalizedData();
   const faqItems = useCmsFaqs(
@@ -526,6 +878,17 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+
+    // Check if any advanced filter params are present → auto-open advanced search
+    const hasAdvancedParams =
+      (params.get('city') && params.get('city') !== 'all') ||
+      (params.get('role') && params.get('role') !== 'all') ||
+      (params.get('contact') && params.get('contact') !== 'all') ||
+      (params.get('sort') && params.get('sort') !== 'newest') ||
+      !!params.get('skills') ||
+      !!params.get('interests');
+    setShowAdvanced(hasAdvancedParams);
+
     setSearchQuery(params.get('q') || '');
     setSelectedCountry(params.get('country') || 'all');
     setSelectedAgeRange(params.get('age') || 'all');
@@ -589,6 +952,11 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
 
   // Modal state
   const [selectedProfile, setSelectedProfile] = useState<TeamMember | null>(null);
+  const [showTeamProfileModal, setShowTeamProfileModal] = useState(false);
+
+  const handleOpenTeamProfile = () => {
+    setShowTeamProfileModal(true);
+  };
 
   /* ---------- Derived data ---------- */
 
@@ -703,6 +1071,19 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
     return allInterests.filter((i) => i.toLowerCase().includes(q));
   }, [allInterests, interestInput]);
 
+  /* ---------- Active advanced filter count ---------- */
+
+  const activeAdvancedCount = useMemo(
+    () =>
+      (selectedCity !== 'all' ? 1 : 0) +
+      (selectedRole !== 'all' ? 1 : 0) +
+      (selectedContactType !== 'all' ? 1 : 0) +
+      (sortBy !== 'newest' ? 1 : 0) +
+      selectedSkills.length +
+      selectedInterests.length,
+    [selectedCity, selectedRole, selectedContactType, sortBy, selectedSkills, selectedInterests],
+  );
+
   /* ---------- Active filter pills ---------- */
 
   const activeFilters = [
@@ -755,9 +1136,9 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
               <button
-                onClick={onOpenApplyModal}
+                onClick={handleOpenTeamProfile}
                 className="px-8 py-4 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white rounded-2xl text-sm font-medium shadow-xl shadow-[#bc4638]/25 hover:shadow-[#bc4638]/35 hover:scale-[1.01] transition-all flex items-center justify-center gap-2.5 cursor-pointer group"
-              >{t('ui.app.8c26059674')}<ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              >{authUser ? t('ui.findteampage.myProfile') : t('platform.auth.registerAction')}<ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </button>
               <button
                 onClick={() => {
@@ -780,18 +1161,37 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
       </section>
 
       {/* ======================== FILTERS & SEARCH ======================== */}
-      <section id="filters-section" className="relative z-10 py-8 md:py-12 max-w-7xl mx-auto px-[6%] md:px-[10%]">
+      <section id="filters-section" className="relative z-10 pt-8 md:pt-12 pb-0 max-w-7xl mx-auto px-[6%] md:px-[10%]">
         <motion.div {...fadeUp} className="space-y-6">
           {/* Search bar */}
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-slate/60" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t('ui.findteampage.0247c0a466')}
-              className={FIND_TEAM_SEARCH_CLASS}
-            />
+          <div className="flex items-stretch sm:items-center gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-slate/60" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t('ui.findteampage.0247c0a466')}
+                className={FIND_TEAM_SEARCH_CLASS}
+              />
+            </div>
+            <button
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className={`flex items-center gap-1.5 border rounded-xl px-3.5 py-3 sm:py-3 text-xs font-mono tracking-tight cursor-pointer transition-all whitespace-nowrap shrink-0 ${
+                activeAdvancedCount > 0
+                  ? 'bg-brand-terracotta/10 border-brand-terracotta/30 text-brand-terracotta hover:bg-brand-terracotta/15 hover:border-brand-terracotta/50'
+                  : 'bg-white/80 hover:bg-white border-[#d8d1cc] hover:border-brand-terracotta/40 text-brand-dark'
+              }`}
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5 shrink-0" />
+              <span>{t('ui.findteampage.c1d2e3f4a5b')}</span>
+              {activeAdvancedCount > 0 && (
+                <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-brand-terracotta text-white text-[9px] font-bold px-1 leading-none">
+                  {activeAdvancedCount}
+                </span>
+              )}
+              <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-transform duration-300 ${showAdvanced ? 'rotate-180' : ''}`} />
+            </button>
           </div>
 
           {/* Mobile filter toggle */}
@@ -802,15 +1202,7 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
             <Filter className="w-4 h-4" />{t('ui.findteampage.5412a9a9b7')}<ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${showFilters ? 'rotate-180' : ''}`} />
           </button>
 
-          {/* Advanced search toggle */}
-          <button
-            onClick={() => setShowAdvanced(!showAdvanced)}
-            className="flex items-center gap-2 bg-white/40 backdrop-blur-md border border-white/50 hover:border-brand-terracotta/40 rounded-xl px-4 py-2.5 text-xs font-mono text-brand-dark tracking-wider cursor-pointer transition-all self-start"
-          >
-            <SlidersHorizontal className="w-4 h-4" />
-            <span>{t('ui.findteampage.c1d2e3f4a5b')}</span>
-            <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${showAdvanced ? 'rotate-180' : ''}`} />
-          </button>
+
 
           {/* Filter controls */}
           <AnimatePresence>
@@ -1088,7 +1480,7 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
       </section>
 
       {/* ======================== PROFILES LIST ======================== */}
-      <section id="profiles-section" className="relative z-10 py-8 md:py-12 max-w-7xl mx-auto px-[6%] md:px-[10%]">
+      <section id="profiles-section" className="relative z-10 pt-2 md:pt-2 pb-8 md:pb-12 max-w-7xl mx-auto px-[6%] md:px-[10%]">
         {/* Results count */}
         <div className="mb-6 flex items-center justify-between">
           <span className="text-xs font-mono text-brand-slate">{t('ui.findteampage.b62712adf3')}<strong className="text-brand-dark">{filteredMembers.length}</strong>
@@ -1122,9 +1514,9 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
                     : t('ui.findteampage.53c15af005')}
                 </p>
                 <button
-                  onClick={onOpenApplyModal}
+                  onClick={handleOpenTeamProfile}
                   className="inline-flex items-center gap-2 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white px-6 py-3 rounded-xl text-xs font-medium shadow-lg shadow-[#bc4638]/20 transition-all cursor-pointer"
-                >{t('ui.app.8c26059674')}<ArrowUpRight className="w-4 h-4" />
+                >{authUser ? t('ui.findteampage.myProfile') : t('platform.auth.registerAction')}<ArrowUpRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -1234,6 +1626,14 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
           onClose={() => setSelectedProfile(null)}
           onOpenApplyModal={onOpenApplyModal}
           onContacted={markContacted}
+        />
+      )}
+
+      {showTeamProfileModal && (
+        <TeamProfileModal
+          authUser={authUser}
+          onClose={() => setShowTeamProfileModal(false)}
+          onOpenAuthModal={onOpenAuthModal}
         />
       )}
     </div>

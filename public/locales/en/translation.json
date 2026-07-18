@@ -482,6 +482,9 @@
       "97e139a69f": "Future leaders"
     },
     "findteampage": {
+      "myProfile": "My Profile",
+      "myProfileDesc": "Your team-finding profile",
+      "registerDesc": "Fill in your profile to find a team. Your data will be saved after registration.",
       "53a61877": "Didn't find a suitable participant?",
       "6954042f": "How to submit an application?",
       "291b48f0": "When will the questionnaire appear on the website?",

@@ -55,10 +55,11 @@ const PLATFORM_PATHS = [
   '/profile',
   '/participants',
   '/championships',
-  '/events',
-  '/opportunities',
   '/platform/admin',
 ] as const;
+
+const ACTIVITIES_EVENTS_PATH = '/activities/events';
+const ACTIVITIES_OPPORTUNITIES_PATH = '/activities/opportunities';
 
 const cardEase: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -140,7 +141,8 @@ const getPageFromPath = (): Page => {
   if (getIsPlatformRoute()) return 'home';
   const path = window.location.pathname.replace(/\/$/, '');
   if (!path) return 'home';
-  const page = path.slice(1);
+  // Extract first path segment to support sub-routes like /activities/events
+  const page = path.slice(1).split('/')[0];
   return isPagePath(page) ? page : 'not-found';
 };
 
@@ -432,7 +434,12 @@ export default function App() {
 
   const navigateToPage = (page: Page) => {
     setCurrentPage(page);
-    updatePath(page);
+    const nextPath = page === 'home' ? '/' : page === 'activities' ? ACTIVITIES_EVENTS_PATH : `/${page}`;
+    const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+    if (currentPath !== nextPath) {
+      window.history.pushState({}, '', nextPath);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }
     setIsMobileMenuOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -511,6 +518,27 @@ export default function App() {
           portfolio: data.portfolioLink,
         });
         sessionStorage.removeItem('navykus.pendingChampionshipProfile');
+      } catch {
+        // ignore profile update errors
+      }
+      return;
+    }
+    const pendingFindTeam = sessionStorage.getItem('navykus.pendingFindTeamProfile');
+    if (pendingFindTeam) {
+      try {
+        const data = JSON.parse(pendingFindTeam);
+        await platformApi.updateProfile({
+          firstName: data.name,
+          email: data.email,
+          ageGroup: data.age,
+          country: data.country,
+          city: data.city,
+          skills: data.skills,
+          interests: data.interests,
+          biography: data.whyLooking || data.shortBio || '',
+          socialLinks: [{ label: data.contactType, url: data.contact }],
+        });
+        sessionStorage.removeItem('navykus.pendingFindTeamProfile');
       } catch {
         // ignore profile update errors
       }
@@ -1208,6 +1236,8 @@ export default function App() {
           <FindTeamPage
             onNavigateToSection={scrollToSection}
             onOpenApplyModal={() => openApplyModal()}
+            authUser={authUser}
+            onOpenAuthModal={() => setIsAuthModalOpen(true)}
           />
         </div>
       ) : currentPage === 'blog' ? (

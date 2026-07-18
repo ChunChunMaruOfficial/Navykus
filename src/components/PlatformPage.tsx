@@ -144,7 +144,7 @@ function Shell({
 }) {
   const { t } = useTranslation();
   const isProfileRoute = currentPath().startsWith('/profile');
-  const isOpportunitiesRoute = currentPath() === '/opportunities' || currentPath().startsWith('/opportunities/');
+  const isOpportunitiesRoute = currentPath() === '/activities/opportunities' || currentPath().startsWith('/activities/opportunities/');
 
   return (
     <main className="relative z-10 min-h-screen px-4 pb-12 pt-28 sm:px-6 sm:pt-32 lg:px-10">
@@ -574,7 +574,7 @@ function DashboardHome({ user }: { user: PlatformUser }) {
 
           <div className="grid gap-3">
             <QuickAction title={t('platform.dashboardHome.actions.completeProfile')} text={t('platform.dashboardHome.actions.completeProfileText')} href="/profile/profile" />
-            <QuickAction title={t('platform.dashboardHome.actions.findOpportunity')} text={t('platform.dashboardHome.actions.findOpportunityText')} href="/opportunities" />
+            <QuickAction title={t('platform.dashboardHome.actions.findOpportunity')} text={t('platform.dashboardHome.actions.findOpportunityText')} href="/activities/opportunities" />
             <QuickAction title={t('platform.dashboardHome.actions.findTeam')} text={t('platform.dashboardHome.actions.findTeamText')} href="/participants" />
           </div>
         </div>
@@ -1663,7 +1663,7 @@ export default function PlatformPage({ onLogin }: { onLogin?: () => void }) {
 
   const content = useMemo(() => {
     // Public routes that don't need auth — render immediately
-    if (route.path === '/opportunities' || route.path.startsWith('/opportunities/')) return <OpportunitiesPage onBackToHome={() => navigate('/')} />;
+    if (route.path === '/activities/opportunities' || route.path.startsWith('/activities/opportunities/')) return <OpportunitiesPage onBackToHome={() => navigate('/')} />;
     if (route.path === '/forgot-password') return <AuthView mode="forgot" onAuth={setUser} />;
     if (route.path === '/reset-password') return <AuthView mode="reset" onAuth={setUser} />;
     if (user === undefined) return <StateBlock state="loading"><div /></StateBlock>;
