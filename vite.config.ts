@@ -17,8 +17,6 @@ export default defineConfig(() => {
           manualChunks: {
             vendor: ['react', 'react-dom', 'react-i18next', 'i18next'],
             ui: ['lucide-react', 'motion'],
-            payload: ['payload'],
-            admin: ['next'],
           },
         },
       },
