@@ -10,6 +10,17 @@ admin/.next/
 !.env.example
 payload.db
 payload.db-*
+payload.db.*
+*.db
+*.db-*
+*.db.*
+*.sqlite
+*.sqlite-*
+*.sqlite.*
+*.sqlite3
+*.sqlite3-*
+*.sqlite3.*
+db-backups/
 uploads/
 nul
 
