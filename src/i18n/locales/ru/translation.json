@@ -746,7 +746,7 @@
       "hidePassword": "Скрыть пароль",
       "codeTab": "Код",
       "codeTitle": "Вход по коду",
-      "codeSubtitle": "Введите email — мы отправим код подтверждения.",
+      "codeSubtitle": "Войдите или создайте аккаунт, чтобы использовать личные функции Navykus.",
       "codeInput": "Код",
       "sendCode": "Отправить код",
       "codeAction": "Войти",

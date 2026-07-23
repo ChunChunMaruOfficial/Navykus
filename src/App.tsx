@@ -1,16 +1,13 @@
-import React, { lazy, Suspense, useCallback, useState, useEffect, useRef } from 'react';
+import React, { lazy, Suspense, useCallback, useState, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import {
-  ArrowUp,
   ArrowUpRight,
   Clock,
   ChevronDown,
   CheckCircle2,
-  AlertCircle,
   Globe,
   Menu,
-  SearchX,
   X,
 } from 'lucide-react';
 import GlassCrystal from './components/GlassCrystal';
@@ -19,7 +16,15 @@ import AuthModal from './components/AuthModal';
 import BrandImage from './components/BrandImage';
 import PageSkeleton from './components/PageSkeletons';
 import StudyBackground from './components/StudyBackground';
-import { fetchContactSettings, platformApi, type ContactSettings, type PlatformUser } from './api';
+import Logo from './components/Logo';
+import GridBackground from './components/GridBackground';
+import AmbientLighting from './components/AmbientLighting';
+import NotFoundPage from './components/NotFoundPage';
+import AppFooter from './components/AppFooter';
+import ScrollToTop from './components/ScrollToTop';
+import useScrollBehavior from './hooks/useScrollBehavior';
+import usePageMeta from './hooks/usePageMeta';
+import { apiUrl, fetchContactSettings, platformApi, type ContactSettings, type PlatformUser } from './api';
 import {
   LANGUAGE_FLAGS,
   SUPPORTED_LANGUAGES,
@@ -31,6 +36,11 @@ import {
   type SupportedLanguage,
 } from './i18n/languages';
 import { useLocalizedData } from './i18n/useLocalizedData';
+import { useCmsTournaments } from './hooks/useCmsTournaments';
+import { useCmsPillars } from './hooks/useCmsPillars';
+import { useCmsExperts } from './hooks/useCmsExperts';
+import { useCmsTrustPoints } from './hooks/useCmsTrustPoints';
+import { useCmsStats } from './hooks/useCmsStats';
 import {
   fadeUp,
   fadeUpLarge,
@@ -62,35 +72,19 @@ const ACTIVITIES_EVENTS_PATH = '/activities/events';
 const ACTIVITIES_OPPORTUNITIES_PATH = '/activities/opportunities';
 
 const cardEase: [number, number, number, number] = [0.22, 1, 0.36, 1];
-
-const TITLE_KEYS: Record<Page, string> = {
-  home: 'meta.home.title',
-  about: 'meta.about.title',
-  championship: 'meta.championship.title',
-  activities: 'meta.activities.title',
-  'find-team': 'meta.findTeam.title',
-  blog: 'meta.blog.title',
-  'not-found': 'meta.notFound.title',
+type InlineFormErrors = {
+  name: boolean;
+  age: boolean;
+  location: boolean;
+  contact: boolean;
 };
 
-const DESCRIPTION_KEYS: Record<Page, string> = {
-  home: 'meta.home.description',
-  about: 'meta.home.description',
-  championship: 'meta.home.description',
-  activities: 'meta.home.description',
-  'find-team': 'meta.home.description',
-  blog: 'meta.blog.description',
-  'not-found': 'meta.notFound.description',
-};
-
-const upsertMeta = (selector: string, attributes: Record<string, string>) => {
-  let element = document.head.querySelector<HTMLMetaElement>(selector);
-  if (!element) {
-    element = document.createElement('meta');
-    document.head.appendChild(element);
-  }
-  Object.entries(attributes).forEach(([name, value]) => element?.setAttribute(name, value));
-};
+const createInlineFormErrors = (): InlineFormErrors => ({
+  name: false,
+  age: false,
+  location: false,
+  contact: false,
+});
 
 const cardStaggerContainer = {
   initial: 'hidden',
@@ -156,71 +150,41 @@ function PageFallback({ page }: { page: Page }) {
   return <PageSkeleton page={page} />;
 }
 
-function NotFoundPage({ onBackToHome }: { onBackToHome: () => void }) {
-  const { t } = useTranslation();
-
-  return (
-    <main className="relative z-10 min-h-[78vh] px-[6%] pb-20 pt-36 md:px-[10%] md:pb-28 md:pt-44">
-      <motion.section
-        {...heroFadeUpLarge}
-        className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-8 overflow-hidden rounded-[2rem] border border-white/[0.18] bg-white/[0.14] p-6 shadow-[0_28px_90px_rgba(91,100,114,0.14)] backdrop-blur-2xl sm:p-10 lg:grid-cols-12 lg:p-12"
-      >
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(188,70,56,0.13),transparent_28%),radial-gradient(circle_at_84%_18%,rgba(189,91,130,0.12),transparent_30%),linear-gradient(135deg,rgba(255,255,255,0.32),rgba(255,255,255,0.08))]" />
-        <div className="pointer-events-none absolute -bottom-28 -right-24 h-72 w-72 rounded-full bg-[#c9a96e]/18 blur-[78px]" />
-
-        <div className="relative lg:col-span-7">
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#bc4638]/15 bg-white/45 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#bc4638] shadow-[inset_0_1px_1px_rgba(255,255,255,0.52)]">
-            <SearchX className="h-3.5 w-3.5" strokeWidth={1.8} />
-            {t('ui.app.notFoundEyebrow')}
-          </div>
-
-          <h1 className="max-w-3xl text-4xl font-serif font-light leading-[1.02] tracking-tight text-brand-dark sm:text-5xl md:text-6xl">
-            {t('ui.app.notFoundTitle')}
-          </h1>
-
-          <p className="mt-5 max-w-xl text-sm font-normal leading-relaxed text-brand-slate sm:text-base md:font-light">
-            {t('ui.app.notFoundDescription')}
-          </p>
-
-
-        </div>
-
-        <div className="relative lg:col-span-5">
-          <div className="relative mx-auto flex aspect-square w-full max-w-[360px] items-center justify-center rounded-[2rem] border border-white/[0.22] bg-white/[0.16] shadow-[inset_0_1px_0_rgba(255,255,255,0.5),0_20px_70px_rgba(188,70,56,0.08)] backdrop-blur-xl">
-            <div className="absolute inset-5 rounded-[1.5rem] border border-[#d8d1cc]/35" />
-            <div className="absolute left-8 top-8 h-3 w-3 rounded-full bg-[#6b8f71]/70 shadow-[0_0_26px_rgba(107,143,113,0.38)]" />
-            <div className="absolute bottom-10 right-10 h-4 w-4 rounded-full bg-[#c9a96e]/75 shadow-[0_0_30px_rgba(201,169,110,0.38)]" />
-            <div className="relative text-center">
-              <div className="font-serif text-[5.5rem] font-semibold leading-none tracking-normal text-brand-dark sm:text-[7rem]">
-                404
-              </div>
-              <div className="mx-auto mt-4 h-px w-28 bg-gradient-to-r from-transparent via-[#bc4638]/45 to-transparent" />
-              <div className="mt-4 text-[10px] font-mono font-semibold uppercase tracking-[0.24em] text-brand-slate">
-                {t('ui.app.notFoundCodeLabel')}
-              </div>
-            </div>
-          </div>
-        </div>
-      </motion.section>
-    </main>
-  );
-}
-
 export default function App() {
   const { t } = useTranslation();
   const { i18n } = useTranslation();
   const {
     tournaments,
-    pillars,
-    experts,
-    trustPoints,
   } = useLocalizedData();
+  const cmsTournaments = useCmsTournaments();
+  const pillars = useCmsPillars();
+  const experts = useCmsExperts();
+  const trustPoints = useCmsTrustPoints();
+  const stats = useCmsStats();
+  const [featuredTournament, setFeaturedTournament] = useState<Record<string, unknown> | null>(null);
+  // Use CMS tournaments if available, fall back to translation data
+  const effectiveTournaments = cmsTournaments || tournaments;
+  const featuredTournamentPublicId = featuredTournament
+    ? String(featuredTournament.legacyId ?? featuredTournament.id ?? '')
+    : undefined;
+  const featuredExperts = useMemo(() => {
+    const tournamentIds = [
+      featuredTournamentPublicId,
+      featuredTournament?.id != null ? String(featuredTournament.id) : undefined,
+      cmsTournaments?.[0]?.id,
+      effectiveTournaments?.[0]?.id,
+    ].filter((id): id is string => Boolean(id));
+    if (tournamentIds.length === 0) return experts || [];
+    const tournamentIdSet = new Set(tournamentIds);
+    const scopedExperts = experts?.filter(e => e.tournamentId && tournamentIdSet.has(String(e.tournamentId))) || [];
+    if (scopedExperts.length > 0) return scopedExperts;
+    const unscopedExperts = experts?.filter(e => !e.tournamentId) || [];
+    return unscopedExperts.length > 0 ? unscopedExperts : (experts || []);
+  }, [experts, featuredTournament, featuredTournamentPublicId, cmsTournaments, effectiveTournaments]);
   const [currentPage, setCurrentPage] = useState<Page>(getPageFromPath);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [selectedTourney, setSelectedTourney] = useState<string | undefined>(undefined);
-  const [showHeader, setShowHeader] = useState(true);
-  const [showScrollTop, setShowScrollTop] = useState(false);
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isPlatformRoute, setIsPlatformRoute] = useState(getIsPlatformRoute);
@@ -228,7 +192,6 @@ export default function App() {
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
   const [authUser, setAuthUser] = useState<PlatformUser | null | undefined>(undefined);
   const [contactSettings, setContactSettings] = useState<ContactSettings | null>(null);
-  const [featuredTournament, setFeaturedTournament] = useState<Record<string, unknown> | null>(null);
   const displayedTrustPoints = trustPoints?.length === 5
     ? [
       ...trustPoints,
@@ -277,8 +240,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const apiBase = (import.meta as any).env?.VITE_API_URL || ((import.meta as any).env?.DEV ? 'http://localhost:4000' : '');
-    fetch(`${apiBase}/api/championships/featured`)
+    fetch(apiUrl('/api/championships/featured'))
       .then((res) => {
         if (!res.ok) throw new Error('No featured championship');
         return res.json();
@@ -292,39 +254,7 @@ export default function App() {
       });
   }, []);
 
-  useEffect(() => {
-    const title = t(TITLE_KEYS[currentPage]);
-    const description = t(DESCRIPTION_KEYS[currentPage]);
-    const canonicalHref = currentPage === 'not-found'
-      ? window.location.href
-      : `${window.location.origin}${currentPage === 'home' ? '/' : `/${currentPage}`}`;
-    document.title = title;
-    const metaDescription = document.querySelector<HTMLMetaElement>('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.content = description;
-    }
-    let canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
-    if (!canonical) {
-      canonical = document.createElement('link');
-      canonical.rel = 'canonical';
-      document.head.appendChild(canonical);
-    }
-    canonical.href = canonicalHref;
-    upsertMeta('meta[property="og:title"]', { property: 'og:title', content: title });
-    upsertMeta('meta[property="og:description"]', { property: 'og:description', content: description });
-    upsertMeta('meta[property="og:type"]', { property: 'og:type', content: 'website' });
-    upsertMeta('meta[property="og:url"]', { property: 'og:url', content: canonicalHref });
-    upsertMeta('meta[property="og:image"]', { property: 'og:image', content: `${window.location.origin}/images/home/navykus-hero-team.jpg` });
-    upsertMeta('meta[name="twitter:card"]', { name: 'twitter:card', content: 'summary_large_image' });
-    upsertMeta('meta[name="twitter:title"]', { name: 'twitter:title', content: title });
-    upsertMeta('meta[name="twitter:description"]', { name: 'twitter:description', content: description });
-
-    if (currentPage === 'not-found') {
-      upsertMeta('meta[name="robots"]', { name: 'robots', content: 'noindex' });
-    } else {
-      document.head.querySelector<HTMLMetaElement>('meta[name="robots"]')?.remove();
-    }
-  }, [currentPage, t, i18n.resolvedLanguage, i18n.language]);
+    usePageMeta(currentPage, t, i18n);
 
   const updatePath = (page: Page) => {
     const nextPath = page === 'home' ? '/' : `/${page}`;
@@ -335,7 +265,7 @@ export default function App() {
     }
   };
 
-  const tickingRef = useRef(false);
+    const { showScrollTop, showHeader, scrollToTop } = useScrollBehavior();
 
   const [formName, setFormName] = useState('');
   const [formAge, setFormAge] = useState('');
@@ -343,7 +273,7 @@ export default function App() {
   const [formContact, setFormContact] = useState('');
   const [formInterest, setFormInterest] = useState('projects');
   const [formSubmitStatus, setFormSubmitStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
-  const [formErrors, setFormErrors] = useState<string[]>([]);
+  const [formErrors, setFormErrors] = useState<InlineFormErrors>(createInlineFormErrors);
   const [pendingInlineProfile, setPendingInlineProfile] = useState<{ firstName?: string; age?: string; city?: string; contact?: string; interest?: string } | null>(null);
 
   useEffect(() => {
@@ -359,42 +289,6 @@ export default function App() {
       window.removeEventListener('click', handleOutsideClick);
     };
   }, [isLangDropdownOpen]);
-
-  const prevScrollYRef = useRef(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (tickingRef.current) return;
-
-      tickingRef.current = true;
-
-      window.requestAnimationFrame(() => {
-        const currentScrollY = window.scrollY;
-        setShowScrollTop(currentScrollY > 520);
-
-        if (currentScrollY <= 40) {
-          setShowHeader(true);
-        } else if (currentScrollY < prevScrollYRef.current) {
-          setShowHeader(true);
-        } else {
-          setShowHeader(false);
-        }
-
-        prevScrollYRef.current = currentScrollY;
-        tickingRef.current = false;
-      });
-    };
-
-    prevScrollYRef.current = window.scrollY;
-    setShowScrollTop(window.scrollY > 520);
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
 
   const openApplyModal = (tournamentId?: string) => {
     setSelectedTourney(tournamentId);
@@ -469,31 +363,31 @@ export default function App() {
   const handleInlineSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const errors: string[] = [];
+    const errors = createInlineFormErrors();
 
     if (!formName.trim()) {
-      errors.push(t('ui.app.02ce21d910'));
+      errors.name = true;
     }
 
     if (!formAge.trim() || isNaN(Number(formAge)) || Number(formAge) < 10 || Number(formAge) > 22) {
-      errors.push(t('ui.app.1c3299a85e'));
+      errors.age = true;
     }
 
     if (!formLocation.trim()) {
-      errors.push(t('ui.app.92ca287f55'));
+      errors.location = true;
     }
 
     if (!formContact.trim()) {
-      errors.push(t('ui.app.a4bae5e597'));
+      errors.contact = true;
     }
 
-    if (errors.length > 0) {
+    if (Object.values(errors).some(Boolean)) {
       setFormErrors(errors);
       setFormSubmitStatus('error');
       return;
     }
 
-    setFormErrors([]);
+    setFormErrors(createInlineFormErrors());
     setPendingInlineProfile({
       firstName: formName.trim(),
       age: formAge.trim(),
@@ -527,6 +421,7 @@ export default function App() {
     if (pendingFindTeam) {
       try {
         const data = JSON.parse(pendingFindTeam);
+        // Update user profile
         await platformApi.updateProfile({
           firstName: data.name,
           email: data.email,
@@ -538,6 +433,25 @@ export default function App() {
           biography: data.whyLooking || data.shortBio || '',
           socialLinks: [{ label: data.contactType, url: data.contact }],
         });
+        // Also create a TeamMembers entry in CMS so the participant appears on Find Team page
+        try {
+          await platformApi.createTeamMember({
+            name: data.name,
+            age: parseInt(data.age, 10) || 0,
+            country: data.country,
+            city: data.city || '',
+            shortBio: data.shortBio || data.whyLooking || '',
+            interests: data.interests || [],
+            skills: data.skills || [],
+            targetRoles: data.targetRoles || [],
+            whyLooking: data.whyLooking || '',
+            contact: data.contact,
+            contactType: data.contactType || 'telegram',
+            isApproved: true,
+          });
+        } catch {
+          // ignore team member creation errors (user profile update already succeeded)
+        }
         sessionStorage.removeItem('navykus.pendingFindTeamProfile');
       } catch {
         // ignore profile update errors
@@ -564,19 +478,19 @@ export default function App() {
 
   const nearestTournament = featuredTournament
     ? {
-        id: String(featuredTournament.id || 'cms-featured'),
-        title: String(featuredTournament.title || tournaments?.[0]?.title || 'Navykus Global Case Cup: Sustainable Cities'),
+        id: featuredTournamentPublicId || 'cms-featured',
+        title: String(featuredTournament.title || effectiveTournaments?.[0]?.title || 'Navykus Global Case Cup: Sustainable Cities'),
         type: String(featuredTournament.type || 'Кейс-чемпионат'),
         date: String(featuredTournament.date || '18–25 Сентября 2026'),
         registrationDeadline: String(featuredTournament.registrationDeadline || '15 Сентября 2026'),
         description: String(featuredTournament.description || 'Разработка инновационных решений для урбанистических проблем будущего.'),
-        skills: Array.isArray(featuredTournament.skills) ? featuredTournament.skills.map((s: unknown) => typeof s === 'string' ? s : String((s as { value?: string }).value || '')) : tournaments?.[0]?.skills || [],
-        mentors: Array.isArray(featuredTournament.mentors) ? featuredTournament.mentors.map((m: unknown) => typeof m === 'string' ? m : String((m as { value?: string }).value || '')) : tournaments?.[0]?.mentors || [],
-        maxParticipants: Number(featuredTournament.maxParticipants) || tournaments?.[0]?.maxParticipants || 120,
-        suitableFor: String(featuredTournament.suitableFor || tournaments?.[0]?.suitableFor || ''),
+        skills: Array.isArray(featuredTournament.skills) ? featuredTournament.skills.map((s: unknown) => typeof s === 'string' ? s : String((s as { value?: string }).value || '')) : effectiveTournaments?.[0]?.skills || [],
+        mentors: Array.isArray(featuredTournament.mentors) ? featuredTournament.mentors.map((m: unknown) => typeof m === 'string' ? m : String((m as { value?: string }).value || '')) : effectiveTournaments?.[0]?.mentors || [],
+        maxParticipants: Number(featuredTournament.maxParticipants) || effectiveTournaments?.[0]?.maxParticipants || 120,
+        suitableFor: String(featuredTournament.suitableFor || effectiveTournaments?.[0]?.suitableFor || ''),
         format: String(featuredTournament.format || ''),
       }
-    : tournaments?.[0] ?? {
+    : effectiveTournaments?.[0] ?? {
     id: 'fallback',
     title: 'Navykus Global Case Cup: Sustainable Cities',
     type: 'Кейс-чемпионат',
@@ -607,75 +521,24 @@ export default function App() {
   const heroBrand = t('ui.app.b1a2ec16fe');
   const heroLead = t('ui.app.b847f4a47a');
   const heroLeadRest = heroLead.startsWith(heroBrand) ? heroLead.slice(heroBrand.length).trimStart() : heroLead;
+  const inlineInputClass = (hasError: boolean) =>
+    `w-full bg-white hover:bg-white/90 focus:bg-white border rounded-xl px-4 py-2.5 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)] placeholder:text-brand-slate/40 ${
+      hasError
+        ? 'border-red-500/80 bg-red-50/40 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+        : 'border-[#c1b8b0] focus:border-[#8f99a8]'
+    }`;
+  const clearInlineFieldError = (field: keyof InlineFormErrors) => {
+    setFormErrors((current) => ({ ...current, [field]: false }));
+  };
 
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-[#fff8f5] via-[#fffaf7] to-[#fdf6f4] text-[#111111] font-sans overflow-x-hidden selection:bg-brand-pink-dust/30 selection:text-brand-dark">
 
       <div className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply z-0" style={{ backgroundImage: "radial-gradient(circle, #111 0.6px, transparent 0.8px)", backgroundSize: "18px 18px" }}></div>
 
-      <div id="grid-background-system" className="absolute inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 opacity-[0.25]" style={{ backgroundImage: "linear-gradient(#d8d1cc 1px, transparent 1px), linear-gradient(90deg, #d8d1cc 1px, transparent 1px)", backgroundSize: "120px 120px" }}></div>
-        <div className="absolute left-[8%] top-0 bottom-0 w-[1px] bg-[#d8d1cc] opacity-30"></div>
-        <div className="absolute right-[8%] top-0 bottom-0 w-[1px] bg-[#d8d1cc] opacity-30"></div>
-      </div>
+      <GridBackground />
 
-      <div id="ambient-lighting-engine" className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-[-12%] right-[-8%] w-[700px] h-[700px] rounded-full blur-[140px] opacity-20 animate-ambient-1" style={{ background: "radial-gradient(circle at 30% 20%, #f38b76, #bc4638 60%, #80261b)" }}></div>
-        <div className="absolute top-[15%] left-[-12%] w-[500px] h-[500px] rounded-full blur-[130px] opacity-15 animate-ambient-2" style={{ background: "radial-gradient(circle at 60% 40%, #e28fb1, #bd5b82 65%, transparent)" }}></div>
-        <div className="absolute top-[45%] right-[15%] w-[450px] h-[450px] rounded-full blur-[110px] opacity-12 animate-ambient-3" style={{ background: "radial-gradient(circle at 40% 50%, #f38b76, #d57e8c 50%, #e28fb1)" }}></div>
-        <div className="absolute bottom-[5%] right-[-5%] w-[550px] h-[550px] rounded-full blur-[120px] opacity-18 animate-ambient-4" style={{ background: "radial-gradient(circle at 50% 60%, #bd5b82, #803251 70%)" }}></div>
-        <div className="absolute bottom-[25%] left-[-8%] w-[400px] h-[400px] rounded-full blur-[100px] opacity-10 animate-ambient-3" style={{ animationDelay: "-11s", background: "radial-gradient(circle, #bc4638, #f38b76 60%, transparent)" }}></div>
-        <div className="absolute top-[5%] left-[calc(50%-300px)] w-[600px] h-[300px] rounded-full blur-[100px] opacity-8 animate-ambient-pulse" style={{ background: "radial-gradient(ellipse at center, #f38b76, #e28fb1 60%, transparent)" }}></div>
-        <div className="absolute top-[30%] left-[5%] w-[350px] h-[350px] rounded-full blur-[100px] opacity-10 animate-ambient-2" style={{ animationDelay: "-8s", background: "radial-gradient(circle at 40% 60%, #6b8f71, #4a7c5c 60%, transparent)" }}></div>
-        <div className="absolute bottom-[10%] left-[20%] w-[320px] h-[320px] rounded-full blur-[90px] opacity-12 animate-ambient-4" style={{ animationDelay: "-6s", background: "radial-gradient(circle at 30% 70%, #c9a96e, #b8914a 60%, transparent)" }}></div>
-        <div className="absolute top-[60%] left-[-5%] w-[280px] h-[280px] rounded-full blur-[80px] opacity-8 animate-ambient-1" style={{ animationDelay: "-15s", background: "radial-gradient(circle at 50% 30%, #9d6072, #6b4e62 70%, transparent)" }}></div>
-
-        {/* Radial vignette overlay for depth */}
-        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at center, transparent 50%, rgba(17,17,17,0.04) 100%)" }}></div>
-
-        {/* Subtle noise layer */}
-        <div className="absolute inset-0 pointer-events-none opacity-[0.015]" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 256 256%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22 opacity=%221%22/%3E%3C/svg%3E')" }}></div>
-
-        {/* Floating dots pattern */}
-        <div className="absolute inset-0 pointer-events-none opacity-[0.06] z-0" style={{ backgroundImage: "radial-gradient(circle, #bc4638 1px, transparent 1px)", backgroundSize: "48px 48px" }}></div>
-
-        {/* Diagonal accent lines */}
-        <div className="absolute top-0 right-0 w-[60%] h-full pointer-events-none z-0 overflow-hidden opacity-[0.04]">
-          <svg viewBox="0 0 400 1200" className="w-full h-full" preserveAspectRatio="none">
-            <line x1="0" y1="0" x2="400" y2="1200" stroke="#bd5b82" strokeWidth="1" />
-            <line x1="50" y1="0" x2="450" y2="1200" stroke="#bd5b82" strokeWidth="0.5" />
-            <line x1="100" y1="0" x2="500" y2="1200" stroke="#bd5b82" strokeWidth="0.5" />
-            <line x1="150" y1="0" x2="550" y2="1200" stroke="#f38b76" strokeWidth="0.5" />
-            <line x1="200" y1="0" x2="600" y2="1200" stroke="#f38b76" strokeWidth="0.5" />
-          </svg>
-        </div>
-
-        {/* Bottom left warm glow */}
-        <div className="absolute bottom-0 left-0 w-[800px] h-[800px] pointer-events-none z-0">
-          <svg viewBox="0 0 800 800" className="w-full h-full" preserveAspectRatio="none">
-            <defs>
-              <radialGradient id="bottomGlow" cx="0" cy="100%" r="100%">
-                <stop offset="0%" stopColor="#c9a96e" stopOpacity="0.12" />
-                <stop offset="100%" stopColor="#c9a96e" stopOpacity="0" />
-              </radialGradient>
-            </defs>
-            <rect width="800" height="800" fill="url(#bottomGlow)" />
-          </svg>
-        </div>
-
-        {/* Center subtle light wash */}
-        <div className="absolute top-[20%] left-[25%] w-[50%] h-[40%] pointer-events-none z-0">
-          <svg viewBox="0 0 500 400" className="w-full h-full" preserveAspectRatio="none">
-            <defs>
-              <radialGradient id="centerWash" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#fff" stopOpacity="0.5" />
-                <stop offset="100%" stopColor="#fff" stopOpacity="0" />
-              </radialGradient>
-            </defs>
-            <rect width="500" height="400" fill="url(#centerWash)" />
-          </svg>
-        </div>
-      </div>
+      <AmbientLighting />
 
       {currentPage !== 'find-team' && <StudyBackground />}
 
@@ -697,40 +560,9 @@ export default function App() {
             }}
             className="flex items-center gap-2 group cursor-pointer"
           >
-            <svg
-              viewBox="0 0 400 480"
+                        <Logo
               className="w-5 h-6 sm:w-6 sm:h-7 drop-shadow-[0_4px_12px_rgba(188,70,56,0.15)] transition-transform duration-500 ease-out group-hover:scale-110"
-            >
-              <defs>
-                <linearGradient id="header-logo-left-grad" x1="15%" y1="0%" x2="85%" y2="100%">
-                  <stop offset="0%" stopColor="#ffffff" stopOpacity="0.85" />
-                  <stop offset="25%" stopColor="#f38b76" stopOpacity="0.75" />
-                  <stop offset="65%" stopColor="#bc4638" stopOpacity="0.8" />
-                  <stop offset="100%" stopColor="#80261b" stopOpacity="0.9" />
-                </linearGradient>
-                <linearGradient id="header-logo-right-grad" x1="15%" y1="0%" x2="85%" y2="100%">
-                  <stop offset="0%" stopColor="#ffffff" stopOpacity="0.85" />
-                  <stop offset="25%" stopColor="#e28fb1" stopOpacity="0.75" />
-                  <stop offset="65%" stopColor="#bd5b82" stopOpacity="0.8" />
-                  <stop offset="100%" stopColor="#803251" stopOpacity="0.9" />
-                </linearGradient>
-                <linearGradient id="header-logo-h-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#bc4638" stopOpacity="0.85" />
-                  <stop offset="20%" stopColor="#f38b76" stopOpacity="0.8" />
-                  <stop offset="50%" stopColor="#d57e8c" stopOpacity="0.8" />
-                  <stop offset="80%" stopColor="#e28fb1" stopOpacity="0.8" />
-                  <stop offset="100%" stopColor="#bd5b82" stopOpacity="0.85" />
-                </linearGradient>
-              </defs>
-              <circle cx="102.5" cy="75" r="42.5" fill="url(#header-logo-left-grad)" />
-              <circle cx="297.5" cy="75" r="42.5" fill="url(#header-logo-right-grad)" />
-              <path
-                d="M 60,180 A 42.5,42.5 0 0,1 145,180 L 145,220 C 145,236.5 158.5,250 175,250 L 225,250 C 241.5,250 255,236.5 255,220 L 255,180 A 42.5,42.5 0 0,1 340,180 L 340,400 A 42.5,42.5 0 0,1 255,400 L 255,360 C 255,343.5 241.5,330 225,330 L 175,330 C 158.5,330 145,343.5 145,360 L 145,400 A 42.5,42.5 0 0,1 60,400 Z"
-                fill="url(#header-logo-h-grad)"
-                stroke="rgba(255,255,255,0.4)"
-                strokeWidth="1.5"
-              />
-            </svg>
+            />
             <span className="font-semibold tracking-tight text-sm sm:text-base text-[#111111]">{t('ui.app.b1a2ec16fe')}</span>
           </button>
 
@@ -920,10 +752,12 @@ export default function App() {
               </div>
 
               <div className="pt-2 flex flex-wrap items-center gap-x-8 gap-y-4 text-xs text-brand-slate/90">
-                <div className="flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-[#bc4638]" />
-                  <span><strong>15+</strong>{t('ui.app.ffecc101e5')}</span>
-                </div>
+                {(stats?.length > 0 ? stats : [{ value: '15+', label: t('ui.app.ffecc101e5') }]).map((stat, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-[#bc4638]" />
+                    <span><strong>{stat.value}</strong>{stat.label}</span>
+                  </div>
+                ))}
               </div>
 
             </motion.div>
@@ -1034,10 +868,10 @@ export default function App() {
                     </h4>
                   </div>
                   <div className="grid gap-3 md:grid-cols-3">
-                    {experts?.slice(0, 3).map((expert) => (
+                    {featuredExperts?.slice(0, 3).map((expert) => (
                       <div key={expert.id} className="rounded-xl border border-white/55 bg-white/45 p-3">
-                        <div className="font-serif text-base font-semibold leading-tight text-brand-dark">{expert.name}</div>
-                        <div className="mt-1 text-[11px] leading-relaxed text-brand-slate">{expert.role}</div>
+                        <div className="font-serif text-lg font-semibold leading-tight text-brand-dark">{expert.name}</div>
+                        <div className="mt-1.5 text-xs leading-relaxed text-brand-slate">{expert.role}</div>
                       </div>
                     ))}
                   </div>
@@ -1105,41 +939,25 @@ export default function App() {
                     </motion.div>
                   ) : (
                     <form onSubmit={handleInlineSubmit} className="space-y-4">
-                      {formSubmitStatus === 'error' && formErrors.length > 0 && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="bg-red-50/50 border border-red-200 rounded-xl p-3 flex items-start gap-2.5 text-left text-xs text-red-700"
-                        >
-                          <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                          <div className="space-y-0.5">
-                            <strong className="font-semibold">{t('ui.app.b61d6cbb37')}</strong>
-                            <ul className="list-disc list-inside space-y-0.5 opacity-90 font-light">
-                              {formErrors.map((err, errIdx) => <li key={`${err}-${errIdx}`}>{err}</li>)}
-                            </ul>
-                          </div>
-                        </motion.div>
-                      )}
-
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="text-left">
                           <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase font-semibold">{t('ui.app.8b4a2775bb')}</label>
-                          <input type="text" value={formName} onChange={(e) => setFormName(e.target.value)} placeholder={t('ui.app.c1830703d0')} className="w-full bg-white hover:bg-white/90 focus:bg-white border border-[#c1b8b0] focus:border-[#8f99a8] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)] placeholder:text-brand-slate/40" />
+                          <input type="text" value={formName} onChange={(e) => { setFormName(e.target.value); clearInlineFieldError('name'); }} placeholder={t('ui.app.c1830703d0')} aria-invalid={formErrors.name} className={inlineInputClass(formErrors.name)} />
                         </div>
                         <div className="text-left">
                           <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase font-semibold">{t('ui.app.b7cc349dbb')}</label>
-                          <input type="text" value={formAge} onChange={(e) => setFormAge(e.target.value)} placeholder="16" className="w-full bg-white hover:bg-white/90 focus:bg-white border border-[#c1b8b0] focus:border-[#8f99a8] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)] placeholder:text-brand-slate/40" />
+                          <input type="text" value={formAge} onChange={(e) => { setFormAge(e.target.value); clearInlineFieldError('age'); }} placeholder="16" aria-invalid={formErrors.age} className={inlineInputClass(formErrors.age)} />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="text-left">
                           <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase font-semibold">{t('ui.app.7acec174f3')}</label>
-                          <input type="text" value={formLocation} onChange={(e) => setFormLocation(e.target.value)} placeholder={t('ui.app.1734a8f063')} className="w-full bg-white hover:bg-white/90 focus:bg-white border border-[#c1b8b0] focus:border-[#8f99a8] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)] placeholder:text-brand-slate/40" />
+                          <input type="text" value={formLocation} onChange={(e) => { setFormLocation(e.target.value); clearInlineFieldError('location'); }} placeholder={t('ui.app.1734a8f063')} aria-invalid={formErrors.location} className={inlineInputClass(formErrors.location)} />
                         </div>
                         <div className="text-left">
                           <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase font-semibold">{t('ui.app.0751cc5d9c')}</label>
-                          <input type="text" value={formContact} onChange={(e) => setFormContact(e.target.value)} placeholder={t('ui.app.7d521595ce')} className="w-full bg-white hover:bg-white/90 focus:bg-white border border-[#c1b8b0] focus:border-[#8f99a8] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)] placeholder:text-brand-slate/40" />
+                          <input type="text" value={formContact} onChange={(e) => { setFormContact(e.target.value); clearInlineFieldError('contact'); }} placeholder={t('ui.app.7d521595ce')} aria-invalid={formErrors.contact} className={inlineInputClass(formErrors.contact)} />
                         </div>
                       </div>
 
@@ -1266,69 +1084,9 @@ export default function App() {
       )}
       </Suspense>
 
-      <footer id="footer-system" className="relative z-10 bg-white/20 backdrop-blur-sm py-16">
-        <div className="max-w-6xl mx-auto px-[6%] md:px-[10%] space-y-12">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 text-left">
-            <div className="md:col-span-5 space-y-4">
-              <div className="flex items-center gap-2">
-                <span className="font-serif font-bold text-lg text-brand-dark tracking-tight">{t('ui.app.b1a2ec16fe')}</span>
-              </div>
-              <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed max-w-xs">{t('ui.app.db07934f76')}</p>
-            </div>
+      <AppFooter contactSettings={contactSettings} onNavigate={(page) => { setCurrentPage(page as Page); updatePath(page as Page); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />
 
-            <div className="md:col-span-3 space-y-3">
-              <h4 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold">{t('ui.app.fc95125398')}</h4>
-              <ul className="space-y-1.5 text-xs text-brand-slate font-normal md:font-light">
-                <li><button onClick={() => { setCurrentPage('about'); updatePath('about'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#bc4638] transition-colors cursor-pointer">{t('ui.app.ffe3d3127f')}</button></li>
-                <li><button onClick={() => { setCurrentPage('championship'); updatePath('championship'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#bc4638] transition-colors cursor-pointer">{t('ui.app.2757f706cf')}</button></li>
-                <li><button onClick={() => { setCurrentPage('activities'); updatePath('activities'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#bc4638] transition-colors cursor-pointer">{t('ui.app.814b71a2da')}</button></li>
-                <li><button onClick={() => { setCurrentPage('find-team'); updatePath('find-team'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#bc4638] transition-colors cursor-pointer">{t('ui.app.d13f387e64')}</button></li>
-                <li><button onClick={() => { setCurrentPage('blog'); updatePath('blog'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#bc4638] transition-colors cursor-pointer">{t('ui.blogpage.nav.label')}</button></li>
-              </ul>
-            </div>
-
-            <div className="md:col-span-4 space-y-3">
-              <h4 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold">{t('ui.app.ce65e2cf6b')}</h4>
-              <ul className="space-y-1.5 text-xs text-brand-slate font-normal md:font-light">
-                <li>Email: <a href={`mailto:${contactSettings?.email || 'info@navykus.org'}`} className="hover:text-[#bc4638] transition-colors">{contactSettings?.email || 'info@navykus.org'}</a></li>
-                <li>Telegram: <a href={`https://t.me/${(contactSettings?.telegram || '@navykus_com').replace('@', '')}`} target="_blank" rel="noreferrer" className="hover:text-[#bc4638] transition-colors">{contactSettings?.telegram || '@navykus_com'}</a></li>
-                <li>{t('ui.app.ed16b5adfc')}<span className="text-brand-dark/80">{contactSettings?.phone || '+7 (999) 000-00-00'}</span></li>
-                {contactSettings?.address && (
-                  <li className="text-brand-dark/80">{contactSettings.address}</li>
-                )}
-              </ul>
-            </div>
-          </div>
-
-          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex flex-wrap gap-4 text-[11px] text-brand-slate/80 font-normal md:font-light">
-              <span>{t('ui.app.copyright')}</span>
-              <a href={t('ui.app.a5307558')} className="hover:text-[#bc4638] transition-colors">{t('ui.app.9e059272f1')}</a>
-              <a href={t('ui.app.4d9e7853')} className="hover:text-[#bc4638] transition-colors">{t('ui.app.3a86197ba3')}</a>
-            </div>
-            <a href="https://dioxoid.com" target="_blank" rel="noreferrer" className="text-[11px] font-mono tracking-[0.15em] text-[#5b6472] opacity-40 lowercase cursor-pointer">
-              {t('ui.app.madeBy')}
-            </a>
-          </div>
-        </div>
-      </footer>
-
-      <AnimatePresence>
-        {showScrollTop && (
-          <motion.button
-            type="button"
-            aria-label={t('ui.app.scrollTop')}
-            onClick={scrollToTop}
-            initial={{ opacity: 0, y: 18, scale: 0.92 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 14, scale: 0.94 }}
-            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed bottom-5 right-5 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-white/65 bg-white/45 text-[#bc4638] shadow-[0_16px_45px_rgba(27,24,22,0.12)] backdrop-blur-xl transition-[background-color,border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-[#bc4638]/35 hover:bg-white/70 hover:shadow-[0_18px_52px_rgba(188,70,56,0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#bc4638]/35 sm:bottom-6 sm:right-6 sm:h-12 sm:w-12"
-          >
-            <ArrowUp className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={1.8} />
-          </motion.button>
-        )}
-      </AnimatePresence>
+      <ScrollToTop show={showScrollTop} onClick={scrollToTop} />
 
       <ApplicationModal
         isOpen={isModalOpen}

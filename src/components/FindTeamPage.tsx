@@ -40,6 +40,7 @@ const heroFadeUpLarge = {
 };
 import { useLocalizedData } from '../i18n/useLocalizedData';
 import { useCmsFaqs } from '../hooks/useCmsFaqs';
+import { useCmsTeamMembers } from '../hooks/useCmsTeamMembers';
 import type { PlatformUser } from '../api';
 import type { FaqItem as CmsFaqItem, TeamMember, TeamRole, TeamIntent } from '../types';
 
@@ -436,17 +437,19 @@ function ProfileCard({
             <span className="text-[10px] text-brand-slate font-medium">+{member.skills.length - 3}</span>
           )}
         </div>
-      </div>          {/* Contacted badge */}
-          {isContacted && (
-            <div className="flex items-center gap-1.5">
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-700">
-                <CheckCircle className="w-3 h-3" />
-                {t('ui.status.contacted')}
-              </span>
-            </div>
-          )}
+      </div>
 
-          {/* CTA */}
+      {/* Contacted badge */}
+      {isContacted && (
+        <div className="mt-4 flex">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/70 bg-emerald-50/85 px-3 py-1 text-[10px] font-mono font-semibold uppercase tracking-[0.08em] text-emerald-700 shadow-sm shadow-emerald-900/5">
+            <CheckCircle className="h-3.5 w-3.5" strokeWidth={2.4} />
+            {t('platform.status.contacted')}
+          </span>
+        </div>
+      )}
+
+      {/* CTA */}
       <div className="pt-4 mt-2">
         <button
           onClick={() => onOpen(member)}
@@ -847,7 +850,8 @@ function TeamProfileModal({
 
 export default function FindTeamPage({ onOpenApplyModal, authUser, onOpenAuthModal }: FindTeamPageProps) {
   const { t, i18n } = useTranslation();
-  const { teamMembers, tournaments } = useLocalizedData();
+  const { tournaments } = useLocalizedData();
+  const teamMembers = useCmsTeamMembers();
   const faqItems = useCmsFaqs(
     'find-team',
     FIND_TEAM_FAQ_ITEMS.map<CmsFaqItem>((faq) => ({
@@ -1140,13 +1144,15 @@ export default function FindTeamPage({ onOpenApplyModal, authUser, onOpenAuthMod
                 className="px-8 py-4 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white rounded-2xl text-sm font-medium shadow-xl shadow-[#bc4638]/25 hover:shadow-[#bc4638]/35 hover:scale-[1.01] transition-all flex items-center justify-center gap-2.5 cursor-pointer group"
               >{authUser ? t('ui.findteampage.myProfile') : t('platform.auth.registerAction')}<ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </button>
-              <button
-                onClick={() => {
-                  const el = document.getElementById('profiles-section');
-                  el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }}
-                className="px-8 py-4 bg-white/40 backdrop-blur-md border border-[#d8d1cc] hover:border-[#bc4638]/60 rounded-2xl text-sm font-medium text-[#5b6472] hover:text-[#bc4638] transition-all text-center cursor-pointer"
-              >{t('ui.findteampage.83874460f8')}</button>
+              {teamMembers.length > 0 && (
+                <button
+                  onClick={() => {
+                    const el = document.getElementById('profiles-section');
+                    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }}
+                  className="px-8 py-4 bg-white/40 backdrop-blur-md border border-[#d8d1cc] hover:border-[#bc4638]/60 rounded-2xl text-sm font-medium text-[#5b6472] hover:text-[#bc4638] transition-all text-center cursor-pointer"
+                >{t('ui.findteampage.83874460f8')}</button>
+              )}
             </div>
           </div>
           <BrandImage
@@ -1161,8 +1167,9 @@ export default function FindTeamPage({ onOpenApplyModal, authUser, onOpenAuthMod
       </section>
 
       {/* ======================== FILTERS & SEARCH ======================== */}
-      <section id="filters-section" className="relative z-10 pt-8 md:pt-12 pb-0 max-w-7xl mx-auto px-[6%] md:px-[10%]">
-        <motion.div {...fadeUp} className="space-y-6">
+      {teamMembers.length > 0 && (
+        <section id="filters-section" className="relative z-10 pt-8 md:pt-12 pb-0 max-w-7xl mx-auto px-[6%] md:px-[10%]">
+          <motion.div {...fadeUp} className="space-y-6">
           {/* Search bar */}
           <div className="flex items-stretch sm:items-center gap-3">
             <div className="relative flex-1">
@@ -1478,65 +1485,47 @@ export default function FindTeamPage({ onOpenApplyModal, authUser, onOpenAuthMod
           </AnimatePresence>
         </motion.div>
       </section>
+      )}
 
       {/* ======================== PROFILES LIST ======================== */}
-      <section id="profiles-section" className="relative z-10 pt-2 md:pt-2 pb-8 md:pb-12 max-w-7xl mx-auto px-[6%] md:px-[10%]">
-        {/* Results count */}
-        <div className="mb-6 flex items-center justify-between">
-          <span className="text-xs font-mono text-brand-slate">{t('ui.findteampage.b62712adf3')}<strong className="text-brand-dark">{filteredMembers.length}</strong>
-            {filteredMembers.length === 1 && t('ui.findteampage.762a11aca5')}
-            {filteredMembers.length >= 2 && filteredMembers.length <= 4 && t('ui.findteampage.1e5680932c')}
-            {filteredMembers.length >= 5 && t('ui.findteampage.eef8a6796e')}
-          </span>
-        </div>
+      {teamMembers.length > 0 && (
+        <section id="profiles-section" className="relative z-10 pt-2 md:pt-2 pb-8 md:pb-12 max-w-7xl mx-auto px-[6%] md:px-[10%]">
+          {/* Results count */}
+          <div className="mb-6 flex items-center justify-between">
+            <span className="text-xs font-mono text-brand-slate">{t('ui.findteampage.b62712adf3')}<strong className="text-brand-dark">{filteredMembers.length}</strong>
+              {filteredMembers.length === 1 && t('ui.findteampage.762a11aca5')}
+              {filteredMembers.length >= 2 && filteredMembers.length <= 4 && t('ui.findteampage.1e5680932c')}
+              {filteredMembers.length >= 5 && t('ui.findteampage.eef8a6796e')}
+            </span>
+          </div>
 
-        {filteredMembers.length === 0 ? (
-          /* EMPTY STATE: no results or no members */
-          <motion.div
-            {...fadeInScale}
-            className="py-20"
-          >
-            <div className="mx-auto flex max-w-xl items-start gap-4">
-              <div className="w-12 h-12 bg-brand-bg-2 rounded-full flex items-center justify-center border border-white/60 shrink-0">
-                {teamMembers.length === 0 ? (
-                  <Users className="w-5 h-5 text-brand-slate/40" />
-                ) : (
-                  <Search className="w-5 h-5 text-brand-slate/40" />
-                )}
-              </div>
-              <div className="space-y-3 text-left">
-                <h3 className="text-base font-serif text-brand-dark">
-                  {teamMembers.length === 0 ? t('ui.findteampage.fa13f19799') : t('ui.findteampage.13cae99e23')}
-                </h3>
-                <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light">
-                  {teamMembers.length === 0
-                    ? t('ui.findteampage.4be1a48ecd')
-                    : t('ui.findteampage.53c15af005')}
-                </p>
-                <button
-                  onClick={handleOpenTeamProfile}
-                  className="inline-flex items-center gap-2 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white px-6 py-3 rounded-xl text-xs font-medium shadow-lg shadow-[#bc4638]/20 transition-all cursor-pointer"
-                >{authUser ? t('ui.findteampage.myProfile') : t('platform.auth.registerAction')}<ArrowUpRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            {...cardStaggerContainer}
-            className="grid grid-cols-1 md:grid-cols-2 gap-6"
-          >
-            {filteredMembers.map((member) => (
-              <ProfileCard
-                key={member.id}
-                member={member}
-                onOpen={setSelectedProfile}
-                contactedIds={contactedIds}
-              />
-            ))}
-          </motion.div>
-        )}
-      </section>
+          {filteredMembers.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="py-24 text-center"
+            >
+              <p className="text-3xl font-serif font-semibold tracking-tight text-brand-dark/40 sm:text-4xl md:text-5xl">
+                {t('ui.findteampage.13cae99e23')}
+              </p>
+            </motion.div>
+          ) : (
+            <motion.div
+              {...cardStaggerContainer}
+              className="grid grid-cols-1 md:grid-cols-2 gap-6"
+            >
+              {filteredMembers.map((member) => (
+                <ProfileCard
+                  key={member.id}
+                  member={member}
+                  onOpen={setSelectedProfile}
+                  contactedIds={contactedIds}
+                />
+              ))}
+            </motion.div>
+          )}
+        </section>
+      )}
 
       {/* ======================== SAFETY & TRUST ======================== */}
       <section className="relative z-10 py-12 md:py-16 max-w-7xl mx-auto px-[6%] md:px-[10%]">
@@ -1587,23 +1576,6 @@ export default function FindTeamPage({ onOpenApplyModal, authUser, onOpenAuthMod
               </div>
             </motion.div>
           ))}
-        </motion.div>
-      </section>
-
-      {/* ======================== CTA ======================== */}
-      <section className="relative z-10 py-12 md:py-16 max-w-7xl mx-auto px-[6%] md:px-[10%]">
-        <motion.div
-          {...fadeInScale}
-          className="bg-gradient-to-br from-[#bc4638]/5 via-white/[0.12] to-[#bd5b82]/8 glass-xl surface-elevated border border-white/[0.15] rounded-3xl p-8 sm:p-12 text-center space-y-6"
-        >
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif text-brand-dark tracking-tight">
-            {t('ui.findteampage.53a61877')}</h2>
-          <p className="text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed max-w-md mx-auto">{t('ui.findteampage.44b960a4ba')}</p>
-          <button
-            onClick={onOpenApplyModal}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white px-8 py-3.5 rounded-xl text-xs font-medium shadow-lg shadow-[#bc4638]/20 transition-all cursor-pointer"
-          >{t('ui.app.8c26059674')}<ArrowUpRight className="w-4 h-4" />
-          </button>
         </motion.div>
       </section>
 

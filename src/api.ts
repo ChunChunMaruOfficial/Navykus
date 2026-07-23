@@ -1,14 +1,47 @@
 import type { ApplicationForm, FaqItem, PageKey } from './types';
 
 const env = (import.meta as any).env || {};
-const API_BASE_URL = env.VITE_API_URL || (env.DEV ? 'http://localhost:4000' : '');
 
-const apiUrl = (path: string) => `${API_BASE_URL}${path}`;
+const normalizeApiBaseUrl = (value?: string) => {
+  return typeof value === 'string' ? value.trim().replace(/\/+$/, '') : '';
+};
+
+const isLocalHostname = (hostname: string) => {
+  return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
+};
+
+const getUrlHostname = (value: string) => {
+  try {
+    return new URL(value, typeof window === 'undefined' ? 'http://localhost' : window.location.origin).hostname;
+  } catch {
+    return '';
+  }
+};
+
+export const getApiBaseUrl = () => {
+  const configuredApiUrl = normalizeApiBaseUrl(env.VITE_API_URL);
+  const configuredDevApiUrl = normalizeApiBaseUrl(env.VITE_DEV_API_URL);
+  const isLocalBrowser = typeof window !== 'undefined' && isLocalHostname(window.location.hostname);
+
+  if (env.DEV && isLocalBrowser) {
+    if (configuredDevApiUrl) return configuredDevApiUrl;
+    if (configuredApiUrl && isLocalHostname(getUrlHostname(configuredApiUrl))) return configuredApiUrl;
+    return '';
+  }
+
+  return configuredApiUrl;
+};
+
+export const apiUrl = (path: string) => {
+  if (/^https?:\/\//i.test(path)) return path;
+  const apiBaseUrl = getApiBaseUrl();
+  return `${apiBaseUrl}${path.startsWith('/') ? path : `/${path}`}`;
+};
 
 export const apiAssetUrl = (path?: string) => {
   if (!path) return undefined;
   if (/^https?:\/\//i.test(path) || path.startsWith('data:') || path.startsWith('blob:')) return path;
-  return `${API_BASE_URL}${path}`;
+  return apiUrl(path);
 };
 
 const requestJson = async <T>(path: string, init: RequestInit = {}): Promise<T> => {
@@ -393,6 +426,32 @@ export const platformApi = {
   adminApplications: () => requestJson<{ docs: PlatformApplication[] }>('/api/admin/applications'),
   adminUpdateApplication: (id: string | number, payload: Record<string, unknown>) =>
     requestJson<{ application: PlatformApplication }>(`/api/admin/applications/${id}/status`, { method: 'PATCH', body: JSON.stringify(payload) }),
+  createTeamMember: (payload: Record<string, unknown>) =>
+    requestJson<{ doc: Record<string, unknown> }>('/api/team-members', { method: 'POST', body: JSON.stringify(payload) }),
+};
+
+export type OperatorSettingsData = {
+  operatorName?: string;
+  operatorInn?: string;
+  operatorOgrn?: string;
+  operatorAddress?: string;
+  operatorRegistryNumber?: string;
+  operatorRegistryDate?: string;
+  contactsEmail?: string;
+  contactsPostalAddress?: string;
+};
+
+export const fetchOperatorSettings = async (): Promise<OperatorSettingsData | null> => {
+  try {
+    const response = await fetch(apiUrl('/api/operator-settings?limit=1&depth=1'), {
+      credentials: 'include',
+    });
+    if (!response.ok) return null;
+    const data = await response.json() as { docs: OperatorSettingsData[] };
+    return data.docs?.[0] ?? null;
+  } catch {
+    return null;
+  }
 };
 
 export const fetchContactSettings = async (): Promise<ContactSettings | null> => {

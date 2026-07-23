@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { apiUrl } from '../api';
+import { useLocalizedData } from '../i18n/useLocalizedData';
 
 export type CmsTournamentDoc = {
   id: string | number;
@@ -52,21 +55,22 @@ const mapCmsDoc = (doc: CmsTournamentDoc): CmsMappedTournament => ({
 });
 
 export const useCmsTournaments = () => {
+  const { t } = useTranslation();
+  const { tournaments: fallbackTournaments } = useLocalizedData();
   const [tournaments, setTournaments] = useState<CmsMappedTournament[] | null>(null);
 
   useEffect(() => {
     let isMounted = true;
 
-    const apiBase = (import.meta as any).env?.VITE_API_URL || ((import.meta as any).env?.DEV ? 'http://localhost:4000' : '');
-
-    fetch(`${apiBase}/api/championships?limit=50`)
+    fetch(apiUrl('/api/tournaments?limit=50'))
       .then((res) => {
         if (!res.ok) throw new Error('Failed to fetch tournaments');
         return res.json();
       })
-      .then((data: { docs: CmsTournamentDoc[] }) => {
+      .then((data: { docs?: CmsTournamentDoc[] } | CmsTournamentDoc[]) => {
         if (!isMounted) return;
-        setTournaments(data.docs.map(mapCmsDoc));
+        const docs = Array.isArray(data) ? data : (data.docs || []);
+        setTournaments(docs.map(mapCmsDoc));
       })
       .catch(() => {
         if (isMounted) setTournaments([]);
@@ -75,7 +79,10 @@ export const useCmsTournaments = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [t]);
 
-  return tournaments;
+  return useMemo(() => {
+    if (!tournaments?.length) return fallbackTournaments;
+    return tournaments;
+  }, [tournaments, fallbackTournaments]);
 };

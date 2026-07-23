@@ -27,9 +27,10 @@ import {
   fadeUp,
 } from '../motion-animations';
 import BrandImage from './BrandImage';
-import { ActivityCategory, ActivityItem, ActivityStatus } from '../types';
+import { ActivityCategory, ActivityItem, ActivityStatus, ParticipationScenario } from '../types';
 import { useCmsActivities } from '../hooks/useCmsActivities';
-import { OPPORTUNITIES } from './OpportunitiesPage';
+import { useCmsScenarios } from '../hooks/useCmsScenarios';
+
 
 type CategoryFilter = ActivityCategory | 'all';
 type ActivityView = 'events' | 'opportunities';
@@ -144,12 +145,24 @@ export default function ActivitiesPage({
   onOpenApplyModal,
 }: ActivitiesPageProps) {
   const { t } = useTranslation();
-  const activities = useCmsActivities();
+  const { activities, isLoading: activitiesLoading } = useCmsActivities();
+  const scenarios = useCmsScenarios();
   const [activeView, setActiveView] = useState<ActivityView>(getInitialActivityView);
   const [routePath, setRoutePath] = useState(getCurrentPath);
   const [selectedCategory, setSelectedCategory] = useState<CategoryFilter>('all');
   const [activitySearch, setActivitySearch] = useState('');
   const [selectedActivity, setSelectedActivity] = useState<ActivityItem | null>(null);
+  const [opportunitiesCount, setOpportunitiesCount] = useState<number>(0);
+
+  useEffect(() => {
+    let mounted = true;
+    import('./OpportunitiesPage').then(mod => {
+      if (mounted) setOpportunitiesCount(mod.OPPORTUNITIES.length);
+    }).catch(() => {
+      if (mounted) setOpportunitiesCount(0);
+    });
+    return () => { mounted = false; };
+  }, []);
 
   useEffect(() => {
     const syncViewWithPath = () => {
@@ -232,7 +245,7 @@ export default function ActivitiesPage({
               <div className="inline-flex w-full rounded-2xl border border-white/60 bg-white/35 p-1.5 surface-elevated-soft backdrop-blur-xl sm:w-auto">
                 {([
                   ['events', t('ui.activitiespage.9bd00b51c2'), activities.length],
-                  ['opportunities', t('ui.activitiespage.d4bd169801'), OPPORTUNITIES.length],
+                  ['opportunities', t('ui.activitiespage.d4bd169801'), opportunitiesCount],
                 ] as const).map(([view, label, count]) => {
                   const isActive = activeView === view;
                   return (
@@ -323,7 +336,11 @@ export default function ActivitiesPage({
         </section>
 
         <section id="activities-feed" className="py-6 md:py-10">
-          {filteredActivities.length > 0 ? (
+          {activitiesLoading ? (
+            <div className="rounded-[1.5rem] border border-white/60 bg-white/42 p-8 text-sm text-brand-slate surface-elevated-soft backdrop-blur-xl">
+              {t('common.loading')}
+            </div>
+          ) : filteredActivities.length > 0 ? (
             <motion.div {...feedStaggerContainer} className="grid grid-cols-1 gap-5 lg:grid-cols-2">
               {filteredActivities.map((activity) => (
                 <ActivityCard
@@ -334,14 +351,15 @@ export default function ActivitiesPage({
               ))}
             </motion.div>
           ) : (
-            <EmptyState
-              message={selectedCategory !== 'all' ? t('ui.activitiespage.08c342896d') : t('ui.activitiespage.e3f0e11656')}
-              primaryAction={{
-                label: t('ui.aboutprojectpage.0a09c52fdd'),
-                onClick: () => onNavigateToSection('nearest-championship'),
-              }}
-              secondaryAction={{ label: t('ui.app.d13f387e64'), onClick: () => onNavigateToSection('scenarios') }}
-            />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="py-24 text-center"
+            >
+              <p className="text-3xl font-serif font-semibold tracking-tight text-brand-dark/40 sm:text-4xl md:text-5xl">
+                {t('ui.activitiespage.e3f0e11656')}
+              </p>
+            </motion.div>
           )}
         </section>
 
@@ -358,32 +376,62 @@ export default function ActivitiesPage({
           </motion.div>
 
           <motion.div {...cardStaggerContainer} className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            {[
-              {
-                icon: <Target className="h-5 w-5" />,
-                tone: 'text-[#bc4638] bg-[#bc4638]/10',
-                title: t('ui.activitiespage.af25d20b95'),
-                desc: t('ui.activitiespage.4eb7854fc8'),
-                cta: t('ui.activitiespage.cbce0b8085'),
-                action: () => setSelectedCategory('workshop'),
-              },
-              {
-                icon: <Users className="h-5 w-5" />,
-                tone: 'text-[#bd5b82] bg-[#bd5b82]/10',
-                title: t('ui.activitiespage.d5c86819d5'),
-                desc: t('ui.activitiespage.0ef507d3b1'),
-                cta: t('ui.app.d13f387e64'),
-                action: () => onNavigateToSection('scenarios'),
-              },
-              {
-                icon: <Trophy className="h-5 w-5" />,
-                tone: 'text-[#7a5c21] bg-[#c9a96e]/16',
-                title: t('ui.activitiespage.5c6f9ac901'),
-                desc: t('ui.activitiespage.27354a5dbf'),
-                cta: t('ui.activitiespage.4c788137bc'),
-                action: () => onNavigateToSection('nearest-championship'),
-              },
-            ].map((card) => (
+            {(scenarios.length > 0
+              ? scenarios.map((s) => {
+                  const iconMap: Record<string, React.ReactNode> = {
+                    apply: <Target className="h-5 w-5" />,
+                    team: <Users className="h-5 w-5" />,
+                    activity: <Zap className="h-5 w-5" />,
+                    general: <Trophy className="h-5 w-5" />,
+                  };
+                  const toneMap: Record<string, string> = {
+                    apply: 'text-[#bc4638] bg-[#bc4638]/10',
+                    team: 'text-[#bd5b82] bg-[#bd5b82]/10',
+                    activity: 'text-[#c9a96e] bg-[#c9a96e]/16',
+                    general: 'text-[#7a5c21] bg-[#c9a96e]/16',
+                  };
+                  const actionMap: Record<string, () => void> = {
+                    apply: () => onOpenApplyModal(),
+                    team: () => onNavigateToSection('scenarios'),
+                    activity: () => setSelectedCategory('workshop'),
+                    general: () => onNavigateToSection('nearest-championship'),
+                  };
+                  return {
+                    icon: iconMap[s.actionType] || iconMap.general,
+                    tone: toneMap[s.actionType] || toneMap.general,
+                    title: s.title,
+                    desc: s.who,
+                    cta: s.ctaText,
+                    action: actionMap[s.actionType] || actionMap.general,
+                  };
+                })
+              : [
+                  {
+                    icon: <Target className="h-5 w-5" />,
+                    tone: 'text-[#bc4638] bg-[#bc4638]/10',
+                    title: t('ui.activitiespage.af25d20b95'),
+                    desc: t('ui.activitiespage.4eb7854fc8'),
+                    cta: t('ui.activitiespage.cbce0b8085'),
+                    action: () => setSelectedCategory('workshop'),
+                  },
+                  {
+                    icon: <Users className="h-5 w-5" />,
+                    tone: 'text-[#bd5b82] bg-[#bd5b82]/10',
+                    title: t('ui.activitiespage.d5c86819d5'),
+                    desc: t('ui.activitiespage.0ef507d3b1'),
+                    cta: t('ui.app.d13f387e64'),
+                    action: () => onNavigateToSection('scenarios'),
+                  },
+                  {
+                    icon: <Trophy className="h-5 w-5" />,
+                    tone: 'text-[#7a5c21] bg-[#c9a96e]/16',
+                    title: t('ui.activitiespage.5c6f9ac901'),
+                    desc: t('ui.activitiespage.27354a5dbf'),
+                    cta: t('ui.activitiespage.4c788137bc'),
+                    action: () => onNavigateToSection('nearest-championship'),
+                  },
+                ]
+            ).map((card) => (
               <motion.div
                 key={card.title}
                 variants={cardItemFadeUp.variants}
@@ -394,7 +442,7 @@ export default function ActivitiesPage({
                     <div className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${card.tone}`}>
                       {card.icon}
                     </div>
-                    <h3 className="text-sm font-serif font-semibold leading-tight text-brand-dark">{card.title}</h3>
+                    <h3 className="text-lg font-serif font-semibold leading-tight text-brand-dark sm:text-xl">{card.title}</h3>
                   </div>
                   <p className="mt-3 text-xs leading-relaxed text-brand-slate">{card.desc}</p>
                 </div>
@@ -707,46 +755,5 @@ function DetailBlock({ title, children }: { title: string; children: React.React
       <h4 className="mb-2 text-[10px] font-bold uppercase tracking-widest text-brand-dark/70">{title}</h4>
       <div className="text-xs leading-relaxed text-brand-slate">{children}</div>
     </div>
-  );
-}
-
-function EmptyState({
-  message,
-  primaryAction,
-  secondaryAction,
-}: {
-  message: string;
-  primaryAction: { label: string; onClick: () => void };
-  secondaryAction?: { label: string; onClick: () => void };
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="rounded-[1.5rem] border border-white/60 bg-white/48 px-5 py-14 surface-elevated-soft backdrop-blur-sm"
-    >
-      <div className="mx-auto flex max-w-md items-start gap-4">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-dark/5 text-brand-slate">
-          <Search className="h-6 w-6" />
-        </div>
-        <p className="text-sm leading-relaxed text-brand-slate">{message}</p>
-      </div>
-      <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
-        <button
-          onClick={primaryAction.onClick}
-          className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-[#bc4638] px-6 py-2.5 text-[11px] font-bold uppercase tracking-wide text-white transition-all hover:bg-[#a83c31] sm:w-auto"
-        >
-          {primaryAction.label}
-        </button>
-        {secondaryAction && (
-          <button
-            onClick={secondaryAction.onClick}
-            className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-[#d8d1cc] bg-white/58 px-6 py-2.5 text-[11px] font-bold uppercase tracking-wide text-brand-slate transition-all hover:bg-white hover:text-brand-dark sm:w-auto"
-          >
-            {secondaryAction.label}
-          </button>
-        )}
-      </div>
-    </motion.div>
   );
 }

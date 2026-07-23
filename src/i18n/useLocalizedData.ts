@@ -21,11 +21,26 @@ type LocalizedData = {
   teamMembers: TeamMember[];
 };
 
+const DEFAULTS: LocalizedData = {
+  tournaments: [],
+  pillars: [],
+  experts: [],
+  scenarios: [],
+  trustPoints: [],
+  stats: [],
+  activities: [],
+  teamMembers: [],
+};
+
 export const useLocalizedData = () => {
   const { t, i18n } = useTranslation();
 
-  return useMemo(
-    () => t('data', { returnObjects: true }) as LocalizedData,
-    [i18n.resolvedLanguage, i18n.language, t],
-  );
+  return useMemo(() => {
+    const raw = t('data', { returnObjects: true });
+    if (!raw || typeof raw !== 'object') return DEFAULTS;
+    return {
+      ...DEFAULTS,
+      ...(raw as Partial<LocalizedData>),
+    };
+  }, [i18n.resolvedLanguage, i18n.language, t]);
 };

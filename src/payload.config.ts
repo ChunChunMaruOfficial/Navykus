@@ -21,6 +21,7 @@ import { Media } from './payload/collections/Media';
 import { Notifications } from './payload/collections/Notifications';
 import { Opportunities } from './payload/collections/Opportunities';
 import { Pillars } from './payload/collections/Pillars';
+import { Scenarios } from './payload/collections/Scenarios';
 import { Stats } from './payload/collections/Stats';
 import { TeamPosts } from './payload/collections/TeamPosts';
 import { TeamResponses } from './payload/collections/TeamResponses';
@@ -84,6 +85,7 @@ export default buildConfig({
     TeamResponses,
     TrustPoints,
     Pillars,
+    Scenarios,
     Stats,
     Applications,
     ApplicationStatusHistory,

@@ -696,11 +696,18 @@
       "hidePassword": "Hide password",
       "codeTab": "Code",
       "codeTitle": "Log in by code",
-      "codeSubtitle": "Temporary UI for email code login. The sending flow will be connected later.",
+      "codeSubtitle": "Inicia sesión o crea una cuenta para usar las funciones personales de Navykus.",
       "codeInput": "Code",
       "sendCode": "Send",
       "codeAction": "Continue by code",
-      "codeComingSoon": "Code login UI is ready. Sending and verification will be connected later."
+            "codeSent": "Código enviado a tu correo. Revisa tu bandeja de entrada.",
+      "verifyEmailTitle": "Verifica tu correo",
+      "verifyEmailText": "Enviamos un código a {{email}}. Introdúcelo para completar el registro.",
+      "verifyEmailPrompt": "Verifica tu correo para acceder a la plataforma.",
+      "verifyAction": "Verificar",
+      "resendCode": "Reenviar código",
+      "codeResent": "Código reenviado.",
+      "emailVerified": "Correo verificado. ¡Bienvenido!"
     },
     "blogeditor": {
       "title": "Editor de blog",

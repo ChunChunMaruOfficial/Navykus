@@ -40,9 +40,12 @@ export interface Pillar {
 export interface Expert {
   id: string;
   name: string;
+  type: 'jury' | 'mentor' | 'expert';
   role: string;
   expertise: string;
   description: string;
+  photo?: string;
+  tournamentId?: string;
   isCmsPlaceholder?: boolean;
 }
 

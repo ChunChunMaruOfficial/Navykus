@@ -8,6 +8,7 @@ export const Stats: CollectionConfig = {
   admin: {
     useAsTitle: 'label',
     group: 'Content',
+    defaultColumns: ['label', 'value', 'sortOrder'],
   },
   access: {
     read: anyone,
@@ -19,7 +20,7 @@ export const Stats: CollectionConfig = {
     legacyIdField,
     sortOrderField,
     publishedField,
-    { name: 'value', type: 'text', required: true },
-    { name: 'label', type: 'text', required: true },
+    { name: 'value', type: 'text', required: true, admin: { description: 'e.g. "15+", "1000+"' } },
+    { name: 'label', type: 'text', required: true, admin: { description: 'e.g. "стран", "участников"' } },
   ],
 };

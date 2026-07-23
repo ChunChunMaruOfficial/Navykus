@@ -474,7 +474,7 @@ export const registerPlatformRoutes = (app: Express) => {
         accountStatus: 'pending',
         emailVerified: false,
         verificationCode: generateCode(),
-        verificationCodeExpired: new Date(Date.now() + CODE_TTL_MINUTES * 60 * 1000).toISOString(),
+        verificationCodeExpires: new Date(Date.now() + CODE_TTL_MINUTES * 60 * 1000).toISOString(),
         ...pickProfileUpdate(body),
       } as any;
 
@@ -673,7 +673,7 @@ export const registerPlatformRoutes = (app: Express) => {
       await payload.update({
         collection: USER_COLLECTION,
         id: userDoc.id,
-        data: { verificationCode: code, verificationCodeExpired: expired },
+        data: { verificationCode: code, verificationCodeExpires: expired } as any,
         overrideAccess: true,
       });
 
@@ -710,7 +710,7 @@ export const registerPlatformRoutes = (app: Express) => {
 
       const userDoc = result.docs[0] as any;
       const storedCode = userDoc.verificationCode;
-      const expiredAt = userDoc.verificationCodeExpired ? new Date(userDoc.verificationCodeExpired) : null;
+      const expiredAt = userDoc.verificationCodeExpires ? new Date(userDoc.verificationCodeExpires) : null;
 
       if (!storedCode || storedCode !== code) {
         res.status(400).json({ code: 'AUTH_CODE_INVALID' });
@@ -744,7 +744,7 @@ export const registerPlatformRoutes = (app: Express) => {
       await payload.update({
         collection: USER_COLLECTION,
         id: userDoc.id,
-        data: { verificationCode: '', verificationCodeExpired: '', emailVerified: true, accountStatus: 'active' },
+        data: { verificationCode: '', verificationCodeExpires: '', emailVerified: true, accountStatus: 'active' } as any,
         overrideAccess: true,
       });
 
@@ -769,7 +769,7 @@ export const registerPlatformRoutes = (app: Express) => {
 
       const code = String(req.body?.code || '').trim();
       const storedCode = userDoc.verificationCode;
-      const expiredAt = userDoc.verificationCodeExpired ? new Date(userDoc.verificationCodeExpired) : null;
+      const expiredAt = userDoc.verificationCodeExpires ? new Date(userDoc.verificationCodeExpires) : null;
 
       if (!storedCode || storedCode !== code) {
         res.status(400).json({ code: 'AUTH_CODE_INVALID' });
@@ -786,9 +786,9 @@ export const registerPlatformRoutes = (app: Express) => {
         data: {
           emailVerified: true,
           verificationCode: '',
-          verificationCodeExpired: '',
+          verificationCodeExpires: '',
           accountStatus: 'active',
-        },
+        } as any,
         overrideAccess: true,
       });
 
@@ -810,7 +810,7 @@ export const registerPlatformRoutes = (app: Express) => {
       await payload.update({
         collection: USER_COLLECTION,
         id: user.id,
-        data: { verificationCode: code, verificationCodeExpired: expired },
+        data: { verificationCode: code, verificationCodeExpires: expired } as any,
         overrideAccess: true,
       });
 

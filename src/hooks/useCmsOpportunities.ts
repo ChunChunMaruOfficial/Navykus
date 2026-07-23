@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { apiUrl } from '../api';
 
 export type CmsOpportunityDoc = {
   id: string | number;
@@ -90,9 +91,7 @@ export const useCmsOpportunities = () => {
   useEffect(() => {
     let isMounted = true;
 
-    const apiBase = (import.meta as any).env?.VITE_API_URL || ((import.meta as any).env?.DEV ? 'http://localhost:4000' : '');
-
-    fetch(`${apiBase}/api/opportunities?limit=50`)
+    fetch(apiUrl('/api/opportunities?limit=50'))
       .then((res) => {
         if (!res.ok) throw new Error('Failed to fetch opportunities');
         return res.json();

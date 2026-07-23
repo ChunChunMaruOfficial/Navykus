@@ -2,6 +2,7 @@ import type {
   ActivityItem,
   Expert,
   FaqItem,
+  ParticipationScenario,
   Pillar,
   TeamMember,
   Tournament,
@@ -56,9 +57,14 @@ export const normalizeActivity = (doc: any): ActivityItem => ({
 export const normalizeExpert = (doc: any): Expert => ({
   id: publicId(doc),
   name: doc.name,
+  type: doc.type || 'expert',
   role: doc.role,
   expertise: doc.expertise,
   description: doc.description,
+  photo: typeof doc.photo === 'object' && doc.photo ? doc.photo.url : doc.photo,
+  tournamentId: typeof doc.tournamentId === 'object' && doc.tournamentId
+    ? publicId(doc.tournamentId)
+    : doc.tournamentId || undefined,
 });
 
 export const normalizeTeamMember = (doc: any): TeamMember => ({
@@ -91,14 +97,23 @@ export const normalizePillar = (doc: any): Pillar => ({
   description: doc.description,
 });
 
-export const normalizeStat = (doc: any) => ({
-  value: doc.value,
-  label: doc.label,
-});
-
 export const normalizeFaq = (doc: any): FaqItem => ({
   id: publicId(doc),
   page: doc.page,
   question: doc.question,
   answer: doc.answer,
+});
+
+export const normalizeStat = (doc: any) => ({
+  value: doc.value,
+  label: doc.label,
+});
+
+export const normalizeScenario = (doc: any): ParticipationScenario => ({
+  id: publicId(doc),
+  title: doc.title,
+  who: doc.who,
+  why: doc.why,
+  ctaText: doc.ctaText,
+  actionType: doc.actionType || 'general',
 });

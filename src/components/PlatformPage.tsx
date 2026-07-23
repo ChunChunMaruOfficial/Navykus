@@ -1663,7 +1663,7 @@ export default function PlatformPage({ onLogin }: { onLogin?: () => void }) {
 
   const content = useMemo(() => {
     // Public routes that don't need auth — render immediately
-    if (route.path === '/activities/opportunities' || route.path.startsWith('/activities/opportunities/')) return <OpportunitiesPage onBackToHome={() => navigate('/')} />;
+    if (route.path === '/activities/opportunities' || route.path.startsWith('/activities/opportunities/')) return <OpportunitiesPage embedded />;
     if (route.path === '/forgot-password') return <AuthView mode="forgot" onAuth={setUser} />;
     if (route.path === '/reset-password') return <AuthView mode="reset" onAuth={setUser} />;
     if (user === undefined) return <StateBlock state="loading"><div /></StateBlock>;

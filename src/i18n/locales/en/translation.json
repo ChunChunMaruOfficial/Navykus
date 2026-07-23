@@ -699,7 +699,7 @@
       "hidePassword": "Hide password",
       "codeTab": "Code",
       "codeTitle": "Log in by code",
-      "codeSubtitle": "Temporary UI for email code login. The sending flow will be connected later.",
+      "codeSubtitle": "Log in or create an account to use Navykus's personal features.",
       "codeInput": "Code",
       "sendCode": "Send",
       "codeAction": "Continue by code",

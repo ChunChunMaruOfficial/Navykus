@@ -186,6 +186,10 @@ const ensureByLegacyId = async (
 
 const seed = async () => {
   const payload = await getPayloadClient();
+
+  // Wait a bit for schema push to complete
+  await new Promise(r => setTimeout(r, 1000));
+
   const adminEmail = process.env.ADMIN_EMAIL || 'admin@navykus.local';
   const adminPassword = process.env.ADMIN_PASSWORD;
 
@@ -237,6 +241,15 @@ const seed = async () => {
     });
   }
 
+  // Get the featured tournament ID (first tournament) to link experts
+  const featuredTournament = await payload.find({
+    collection: 'tournaments' as any,
+    where: { isFeatured: { equals: true } },
+    limit: 1,
+    overrideAccess: true,
+  });
+  const featuredTournamentId = featuredTournament.docs[0]?.id;
+
   for (const [index, item] of ACTIVITIES.entries()) {
     await ensureByLegacyId('activities', item.id, {
       ...item,
@@ -251,6 +264,7 @@ const seed = async () => {
       ...item,
       sortOrder: index,
       isPublished: true,
+      tournamentId: featuredTournamentId, // Link experts to featured tournament
     });
   }
 

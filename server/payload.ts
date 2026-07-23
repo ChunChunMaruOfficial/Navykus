@@ -35,6 +35,7 @@ const ensureDevelopmentSchema = async () => {
     // In production, run schema push once to add new columns
   }
 
+  await ensureColumn('users', 'avatar_id', 'text');
   await ensureColumn('users', 'avatar_url', 'text');
   await ensureColumn('users', 'avatar_alt', 'text');
   await ensureColumn('users', 'avatar_position_x', 'numeric DEFAULT 50');
@@ -43,6 +44,27 @@ const ensureDevelopmentSchema = async () => {
   await ensureColumn('users', 'email_verified', 'boolean DEFAULT FALSE');
   await ensureColumn('users', 'verification_code', 'text');
   await ensureColumn('users', 'verification_code_expired', 'text');
+  await ensureColumn('users', 'verification_code_expires', 'text');
+  await ensureColumn('users', 'first_name', 'text');
+  await ensureColumn('users', 'last_name', 'text');
+  await ensureColumn('users', 'date_of_birth', 'text');
+  await ensureColumn('users', 'age_group', 'text');
+  await ensureColumn('users', 'school', 'text');
+  await ensureColumn('users', 'school_grade', 'text');
+  await ensureColumn('users', 'preferred_language', 'text');
+  await ensureColumn('users', 'preferred_language_mode', 'text');
+  await ensureColumn('users', 'team_search_available', 'boolean DEFAULT FALSE');
+  await ensureColumn('users', 'public_profile', 'boolean DEFAULT FALSE');
+  await ensureColumn('users', 'privacy_show_city', 'boolean DEFAULT FALSE');
+  await ensureColumn('users', 'privacy_show_school', 'boolean DEFAULT FALSE');
+  await ensureColumn('users', 'privacy_show_age', 'boolean DEFAULT FALSE');
+  await ensureColumn('users', 'privacy_show_email', 'boolean DEFAULT FALSE');
+  await ensureColumn('users', 'privacy_show_social_links', 'boolean DEFAULT FALSE');
+  await ensureColumn('users', 'account_status', 'text');
+  await ensureColumn('users', 'biography', 'text');
+  await ensureColumn('users', 'portfolio', 'text');
+  await ensureColumn('users', 'country', 'text');
+  await ensureColumn('users', 'city', 'text');
 };
 
 export const getPayloadClient = () => {

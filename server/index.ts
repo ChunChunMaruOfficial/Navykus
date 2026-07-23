@@ -36,6 +36,7 @@ import {
   ACTIVITIES,
   EXPERTS,
   PILLARS,
+  SCENARIOS,
   STATS,
   TEAM_MEMBERS,
   TOURNAMENTS,
@@ -50,6 +51,7 @@ import {
   normalizeExpert,
   normalizeFaq,
   normalizePillar,
+  normalizeScenario,
   normalizeStat,
   normalizeTeamMember,
   normalizeTournament,
@@ -60,6 +62,30 @@ const app = express();
 app.set('trust proxy', 1);
 const port = Number(process.env.API_PORT || process.env.PORT || 4000);
 const uploadDir = path.resolve(process.cwd(), 'uploads', 'incoming');
+const publicReadOnlyApiPrefixes = [
+  '/api/content/home',
+  '/api/tournaments',
+  '/api/championships',
+  '/api/events',
+  '/api/activities',
+  '/api/opportunities',
+  '/api/faqs',
+  '/api/pillars',
+  '/api/scenarios',
+  '/api/experts',
+  '/api/trust-points',
+  '/api/team-members',
+  '/api/stats',
+  '/api/contact-settings',
+  '/api/operator-settings',
+  '/api/blog/posts',
+];
+
+const isPublicReadOnlyApiRequest = (req: Request) => {
+  if (req.method !== 'GET') return false;
+  const requestPath = req.originalUrl.split('?')[0] || '';
+  return publicReadOnlyApiPrefixes.some((prefix) => requestPath === prefix || requestPath.startsWith(`${prefix}/`));
+};
 
 fs.mkdirSync(uploadDir, { recursive: true });
 
@@ -155,6 +181,7 @@ app.use((req, res, next) => {
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 300,
+  skip: isPublicReadOnlyApiRequest,
   standardHeaders: true,
   legacyHeaders: false,
   message: { code: 'RATE_LIMIT_EXCEEDED' },
@@ -273,6 +300,37 @@ app.get('/api/faqs', asyncRoute(async (req, res) => {
       return acc;
     }, {} as Record<PageKey, typeof faqs>),
   );
+}));
+
+app.get('/api/pillars', asyncRoute(async (_req, res) => {
+  const docs = await findPublished('pillars');
+  res.json(docs.length ? docs.map(normalizePillar) : PILLARS);
+}));
+
+app.get('/api/scenarios', asyncRoute(async (_req, res) => {
+  const docs = await findPublished('scenarios');
+  res.json(docs.length ? docs.map(normalizeScenario) : SCENARIOS);
+}));
+
+app.get('/api/experts', asyncRoute(async (req, res) => {
+  const tournamentId = typeof req.query.tournamentId === 'string' ? req.query.tournamentId.trim() : '';
+  const docs = await findPublished('experts');
+  const normalized = docs.map(normalizeExpert);
+  const fallback = tournamentId
+    ? EXPERTS.filter((expert) => expert.tournamentId === tournamentId)
+    : EXPERTS;
+  const filtered = tournamentId ? normalized.filter((expert) => expert.tournamentId === tournamentId) : normalized;
+  res.json(filtered.length ? filtered : fallback);
+}));
+
+app.get('/api/trust-points', asyncRoute(async (_req, res) => {
+  const docs = await findPublished('trust-points');
+  res.json(docs.length ? docs.map(normalizeTrustPoint) : TRUST_POINTS);
+}));
+
+app.get('/api/stats', asyncRoute(async (_req, res) => {
+  const docs = await findPublished('stats');
+  res.json(docs.length ? docs.map(normalizeStat) : STATS);
 }));
 
 app.get('/api/team-members', asyncRoute(async (_req, res) => {

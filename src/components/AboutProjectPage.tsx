@@ -30,6 +30,7 @@ import {
 import { useCmsFaqs } from '../hooks/useCmsFaqs';
 import type { FaqItem } from '../types';
 import BrandImage from './BrandImage';
+import Logo from './Logo';
 
 interface Segment {
   id: string;
@@ -66,19 +67,6 @@ const AUDIENCE_SEGMENTS: Segment[] = [
     ],
     ctaText: 'ui.aboutprojectpage.0d298390c0',
     targetRole: "championships"
-  },
-  {
-    id: "seg-3",
-    title: 'ui.aboutprojectpage.6727fa0866',
-    subtitle: 'ui.aboutprojectpage.78fe050899',
-    benefits: [
-      'ui.aboutprojectpage.41a41cd402',
-      'ui.aboutprojectpage.b723cb5ddd',
-      'ui.aboutprojectpage.3f8c8b54eb',
-      'ui.aboutprojectpage.78fbe57f44'
-    ],
-    ctaText: 'ui.findteampage.3765795ef8',
-    targetRole: "contact"
   },
   {
     id: "seg-4",
@@ -255,40 +243,7 @@ export default function AboutProjectPage({
         >
           {/* Faint watermark logo */}
           <div className="absolute inset-0 flex items-center justify-center opacity-[0.06] pointer-events-none select-none z-0 -translate-y-12">
-            <svg 
-              viewBox="0 0 400 480" 
-              className="w-72 h-80 sm:w-80 sm:h-96"
-            >
-              <defs>
-                <linearGradient id="mission-logo-left-grad" x1="15%" y1="0%" x2="85%" y2="100%">
-                  <stop offset="0%" stopColor="#ffffff" stopOpacity="0.85" />
-                  <stop offset="25%" stopColor="#f38b76" stopOpacity="0.75" />
-                  <stop offset="65%" stopColor="#bc4638" stopOpacity="0.8" />
-                  <stop offset="100%" stopColor="#80261b" stopOpacity="0.9" />
-                </linearGradient>
-                <linearGradient id="mission-logo-right-grad" x1="15%" y1="0%" x2="85%" y2="100%">
-                  <stop offset="0%" stopColor="#ffffff" stopOpacity="0.85" />
-                  <stop offset="25%" stopColor="#e28fb1" stopOpacity="0.75" />
-                  <stop offset="65%" stopColor="#bd5b82" stopOpacity="0.8" />
-                  <stop offset="100%" stopColor="#803251" stopOpacity="0.9" />
-                </linearGradient>
-                <linearGradient id="mission-logo-h-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#bc4638" stopOpacity="0.85" />
-                  <stop offset="20%" stopColor="#f38b76" stopOpacity="0.8" />
-                  <stop offset="50%" stopColor="#d57e8c" stopOpacity="0.8" />
-                  <stop offset="80%" stopColor="#e28fb1" stopOpacity="0.8" />
-                  <stop offset="100%" stopColor="#bd5b82" stopOpacity="0.85" />
-                </linearGradient>
-              </defs>
-              <circle cx="102.5" cy="75" r="42.5" fill="url(#mission-logo-left-grad)" />
-              <circle cx="297.5" cy="75" r="42.5" fill="url(#mission-logo-right-grad)" />
-              <path 
-                d="M 60,180 A 42.5,42.5 0 0,1 145,180 L 145,220 C 145,236.5 158.5,250 175,250 L 225,250 C 241.5,250 255,236.5 255,220 L 255,180 A 42.5,42.5 0 0,1 340,180 L 340,400 A 42.5,42.5 0 0,1 255,400 L 255,360 C 255,343.5 241.5,330 225,330 L 175,330 C 158.5,330 145,343.5 145,360 L 145,400 A 42.5,42.5 0 0,1 60,400 Z" 
-                fill="url(#mission-logo-h-grad)" 
-                stroke="rgba(255,255,255,0.4)"
-                strokeWidth="1.5"
-              />
-            </svg>
+                        <Logo variant="mission" gradientId="mission-logo" />
           </div>
 
           <div className="relative z-10 mx-auto max-w-6xl space-y-8 text-left">

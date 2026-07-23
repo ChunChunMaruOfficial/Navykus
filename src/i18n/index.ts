@@ -30,7 +30,6 @@ i18n
   .init({
     supportedLngs: SUPPORTED_LANGUAGES,
     fallbackLng: DEFAULT_LANGUAGE,
-    defaultNS: 'translation',
     interpolation: {
       escapeValue: false,
     },

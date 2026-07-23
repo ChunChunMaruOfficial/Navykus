@@ -643,6 +643,30 @@
       "findTeamHeroAlt": "Participants discussing a team project"
     }
   },
+  "authmodal": {
+    "headerButton": "Authorization",
+    "subtitle": "Log in or create an account to use personal Navykus features.",
+    "success": "Done. You are authorized.",
+    "authorizedTitle": "You are authorized",
+    "authorizedText": "Account {{name}} is connected to the Navykus platform.",
+    "profile": "Open profile",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "codeTab": "Code",
+    "codeTitle": "Log in by code",
+    "codeSubtitle": "Log in or create an account to use Navykus's personal features.",
+    "codeInput": "Code",
+    "sendCode": "Send",
+    "codeAction": "Continue by code",
+    "codeSent": "Code has been sent to your email. Check your inbox.",
+    "verifyEmailTitle": "Verify your email",
+    "verifyEmailText": "We sent a code to {{email}}. Enter it to complete registration.",
+    "verifyEmailPrompt": "Please verify your email to access the platform.",
+    "verifyAction": "Verify",
+    "resendCode": "Resend code",
+    "codeResent": "Code has been resent.",
+    "emailVerified": "Email verified. Welcome!"
+  },
   "data": {
     "tournaments": [
       {
@@ -1260,6 +1284,217 @@
       "API_ERROR": "Сұрау орындалмады",
       "INTERNAL_SERVER_ERROR": "Ішкі сервер қатесі",
       "AUTH_EMAIL_EXISTS": "Бұл электрондық пошта тіркелген"
+    },
+    "nav": {
+      "home": "Home",
+      "championships": "Championships",
+      "events": "Events",
+      "opportunities": "Opportunities",
+      "participants": "Participants",
+      "profile": "Profile",
+      "admin": "Admin",
+      "login": "Log in"
+    },
+    "team": {
+      "myPost": "My post",
+      "response": "Response"
+    },
+    "status": {
+      "draft": "Draft",
+      "submitted": "Submitted",
+      "under_review": "Under review",
+      "clarification_required": "Clarification required",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "cancelled": "Cancelled",
+      "new": "New",
+      "confirmed": "Confirmed",
+      "contacted": "Contacted",
+      "pending_review": "Pending review",
+      "published": "Published",
+      "needs_revision": "Needs revision",
+      "archived": "Archived"
+    },
+    "avatar": {
+      "title": "Avatar",
+      "upload": "Upload photo",
+      "uploading": "Uploading...",
+      "uploaded": "Avatar saved",
+      "positionX": "Horizontal",
+      "positionY": "Vertical",
+      "scale": "Zoom",
+      "help": "Choose an image from your device, then refine the crop before saving.",
+      "uploadError": "Failed to upload avatar",
+      "cropHint": "Drag the image inside the circle. Use the buttons to zoom or rotate.",
+      "cropTitle": "Edit profile photo",
+      "cropText": "Place your face inside the circle and save the final version as your avatar.",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "rotate": "Rotate",
+      "reset": "Reset",
+      "saveCrop": "Save photo"
+    },
+    "dashboardHome": {
+      "eyebrow": "Personal workspace",
+      "title": "{{name}}, your Navykus dashboard",
+      "description": "Track applications, favorites, notifications, team search activity, and profile readiness in one place.",
+      "profileCompletion": "Profile completion",
+      "activity": "Recent activity",
+      "activeApplications": "{{count}} active applications",
+      "emptyActivity": "No activity yet. Start by exploring championships or saving an opportunity.",
+      "explore": "Explore championships",
+      "stats": {
+        "applications": "Applications",
+        "favorites": "Favorites",
+        "notifications": "Unread",
+        "team": "Team activity"
+      },
+      "actions": {
+        "completeProfile": "Complete profile",
+        "completeProfileText": "Add skills, interests, school, portfolio, and visibility settings.",
+        "findOpportunity": "Find an opportunity",
+        "findOpportunityText": "Save events, opportunities, and championships to your favorites.",
+        "findTeam": "Find teammates",
+        "findTeamText": "Open public participants and build your team-search flow."
+      }
+    },
+    "auth": {
+      "eyebrow": "Account",
+      "loginTitle": "Log in",
+      "registerTitle": "Create account",
+      "forgotTitle": "Recover password",
+      "resetTitle": "Reset password",
+      "loginAction": "Log in",
+      "registerAction": "Register",
+      "forgotAction": "Send reset link",
+      "resetAction": "Reset password",
+      "privacyAccepted": "I accept the privacy policy",
+      "termsAccepted": "I accept the platform terms",
+      "forgotSuccess": "If this email exists, reset instructions were sent.",
+      "resetSuccess": "Password has been reset.",
+      "devResetToken": "Development reset token:",
+      "quickLoginTitle": "Quick login",
+      "quickLoginAction": "Use",
+      "quickLoginHint": "Continue as {{name}}. Your browser can fill the password."
+    },
+    "dashboard": {
+      "profile": "Profile",
+      "applications": "Applications",
+      "favorites": "Favorites",
+      "notifications": "Notifications",
+      "team": "Team search",
+      "settings": "Settings",
+      "overview": "Dashboard",
+      "blog": "My articles"
+    },
+    "admin": {
+      "users": "Users",
+      "applications": "Applications",
+      "activeChampionships": "Active championships",
+      "upcomingEvents": "Upcoming events",
+      "publishedOpportunities": "Published opportunities",
+      "teamPosts": "Team posts",
+      "role": "Role",
+      "accountStatus": "Account status",
+      "adminOnly": "Only administrators can change user roles and account status."
+    },
+    "privacy": {
+      "publicProfile": "Show my public profile",
+      "teamSearchAvailable": "Available for team search",
+      "showCity": "Show city",
+      "showSchool": "Show school",
+      "showAge": "Show age",
+      "showEmail": "Show email",
+      "showSocialLinks": "Show social links"
+    },
+    "placeholders": {
+      "search": "Search..."
+    },
+    "actions": {
+      "logout": "Log out",
+      "save": "Save changes",
+      "saveDraft": "Save draft",
+      "submit": "Submit",
+      "markAllRead": "Mark all as read",
+      "publish": "Publish",
+      "open": "Open",
+      "favorite": "Favorite",
+      "apply": "Apply",
+      "remove": "Remove"
+    },
+    "fields": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "country": "Country",
+      "city": "City",
+      "dateOfBirth": "Date of birth",
+      "schoolGrade": "School grade",
+      "email": "Email",
+      "password": "Password",
+      "passwordConfirmation": "Password confirmation",
+      "resetToken": "Reset token",
+      "school": "School",
+      "ageGroup": "Age group",
+      "portfolio": "Portfolio",
+      "interests": "Interests",
+      "skills": "Skills",
+      "languages": "Languages",
+      "biography": "Biography",
+      "itemId": "Object ID",
+      "itemTitle": "Object title",
+      "motivation": "Motivation",
+      "title": "Title",
+      "description": "Description",
+      "requiredSkills": "Required skills"
+    },
+    "notifications": {
+      "application_submitted": "Application submitted",
+      "application_status_changed": "Application status changed",
+      "clarification_requested": "Clarification requested",
+      "team_response_received": "Team response received",
+      "team_response_accepted": "Team response accepted",
+      "team_response_rejected": "Team response rejected",
+      "team_invitation_received": "Team invitation received",
+      "upcoming_deadline": "Upcoming deadline",
+      "upcoming_event": "Upcoming event",
+      "announcement": "Announcement"
+    },
+    "settings": {
+      "accountTitle": "Account",
+      "accountText": "Log out of this session or delete the account together with profile data.",
+      "deleteAccount": "Delete account",
+      "deleteConfirm": "Delete account? This action cannot be undone.",
+      "deleteError": "Failed to delete account.",
+      "languageTitle": "Interface language",
+      "languageText": "Choose the language used across the site and your profile."
+    },
+    "details": {
+      "history": "History"
+    },
+    "states": {
+      "loading": "Loading data...",
+      "error": "Something went wrong. Try again.",
+      "empty": "No records yet.",
+      "saving": "Saving...",
+      "saved": "Saved"
+    },
+    "itemTypes": {
+      "all": "All",
+      "championship": "Championship",
+      "event": "Event",
+      "opportunity": "Opportunity",
+      "participant": "Participant",
+      "team-post": "Team post"
+    },
+    "roles": {
+      "user": "User",
+      "moderator": "Moderator",
+      "admin": "Admin"
+    },
+    "accountStatus": {
+      "active": "Active",
+      "pending": "Pending",
+      "blocked": "Blocked"
     }
   }
 }
