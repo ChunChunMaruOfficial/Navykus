@@ -22,16 +22,6 @@ for (const key of requiredEnv) {
   }
 }
 
-if (process.env.NODE_ENV === 'production') {
-  const prodRequired = ['SMTP_HOST', 'SMTP_USER', 'SMTP_PASS'];
-  for (const key of prodRequired) {
-    if (!process.env[key]) {
-      console.error(`Missing required production environment variable: ${key}`);
-      process.exit(1);
-    }
-  }
-}
-
 import {
   ACTIVITIES,
   EXPERTS,

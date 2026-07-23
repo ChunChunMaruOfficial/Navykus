@@ -1,0 +1,94 @@
+name: Deploy production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy navykus.online
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Deploy over SSH
+        env:
+          SSH_HOST: ${{ secrets.NAVYKUS_SSH_HOST }}
+          SSH_USER: ${{ secrets.NAVYKUS_SSH_USER }}
+          SSH_PASSWORD: ${{ secrets.NAVYKUS_SSH_PASSWORD }}
+          SSH_HOST_KEY: ${{ secrets.NAVYKUS_SSH_HOST_KEY }}
+          APP_DIR: ${{ secrets.NAVYKUS_APP_DIR }}
+          PUBLIC_URL: ${{ secrets.NAVYKUS_PUBLIC_URL }}
+        run: |
+          set -euo pipefail
+
+          : "${SSH_HOST:?Missing NAVYKUS_SSH_HOST secret}"
+          : "${SSH_USER:?Missing NAVYKUS_SSH_USER secret}"
+          : "${SSH_PASSWORD:?Missing NAVYKUS_SSH_PASSWORD secret}"
+
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq sshpass
+
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          if [ -n "${SSH_HOST_KEY}" ]; then
+            printf '%s\n' "${SSH_HOST_KEY}" >> ~/.ssh/known_hosts
+          else
+            ssh-keyscan -H "${SSH_HOST}" >> ~/.ssh/known_hosts
+          fi
+          chmod 600 ~/.ssh/known_hosts
+
+          export SSHPASS="${SSH_PASSWORD}"
+          sshpass -e ssh \
+            -o StrictHostKeyChecking=yes \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=4 \
+            "${SSH_USER}@${SSH_HOST}" \
+            "APP_DIR='${APP_DIR:-/root/Navykus}' PUBLIC_URL='${PUBLIC_URL:-https://navykus.online}' bash -se" <<'REMOTE'
+          set -euo pipefail
+
+          cd "${APP_DIR}"
+
+          git fetch origin main
+          git clean -fd \
+            -e .env \
+            -e payload.db \
+            -e 'payload.db*' \
+            -e uploads/ \
+            -e db-backups/
+          git reset --hard origin/main
+
+          export NODE_OPTIONS="--max-old-space-size=3072"
+
+          npm install
+          npm run lint
+          npm run build
+          npm run build:admin
+
+          pm2 restart navykus-api --update-env || pm2 start npm --name navykus-api -- run start:api
+          pm2 restart navykus-admin --update-env || pm2 start npm --name navykus-admin -- run start:admin
+
+          for attempt in $(seq 1 24); do
+            if curl -fsS http://127.0.0.1:4000/api/health >/tmp/navykus-health.json; then
+              cat /tmp/navykus-health.json
+              break
+            fi
+            if [ "${attempt}" = "24" ]; then
+              pm2 logs navykus-api --lines 100 --nostream || true
+              exit 1
+            fi
+            sleep 5
+          done
+
+          curl -fsSI "${PUBLIC_URL}/" >/dev/null
+          curl -fsS "${PUBLIC_URL}/api/health" >/dev/null
+          curl -fsS "${PUBLIC_URL}/api/experts?limit=3" >/dev/null
+
+          pm2 list
+REMOTE
