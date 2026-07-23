@@ -205,22 +205,28 @@ registerPlatformRoutes(app);
 registerBlogRoutes(app);
 
 const findPublished = async (collection: string, where: Record<string, unknown> = {}) => {
-  const payload = await getPayloadClient();
-  const result = await payload.find({
-    collection: collection as any,
-    depth: 1,
-    limit: 200,
-    sort: 'sortOrder',
-    where: {
-      isPublished: {
-        equals: true,
+  try {
+    const payload = await getPayloadClient();
+    const result = await payload.find({
+      collection: collection as any,
+      depth: 1,
+      limit: 200,
+      sort: 'sortOrder',
+      where: {
+        isPublished: {
+          equals: true,
+        },
+        ...where,
       },
-      ...where,
-    },
-    overrideAccess: true,
-  });
+      overrideAccess: true,
+    });
 
-  return result.docs;
+    return result.docs;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn(`CMS read failed for ${collection}; using fallback data: ${message}`);
+    return [];
+  }
 };
 
 const findApprovedTeamMembers = async () => {
