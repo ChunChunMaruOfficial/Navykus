@@ -14,7 +14,7 @@ import { applyLocalizations, languageFromRequest } from './content-localizations
 import { evaluatePassword } from './password-policy';
 import { processPendingContentLocalizations, retryContentLocalization, SUPPORTED_CONTENT_COLLECTIONS } from '../src/payload/localization';
 import { syncBlogPublicationData, syncPublishedDraftData, syncTeamMemberPublicationData } from '../src/payload/fields';
-import { adminVerificationRecipient, isAllowedAdminEmail, normalizeEmail } from '../src/security/admin-auth';
+import { adminVerificationRecipient, normalizeEmail } from '../src/security/admin-auth';
 import {
   ADMIN_CONTENT_TYPES,
   getAdminContentType,
@@ -367,7 +367,6 @@ const getAuthenticatedUser = async (req: Request) => {
 
   if (!result?.user) return undefined;
   const user = normalizeUser(result.user as unknown as Record<string, unknown>);
-  if (!isAllowedAdminEmail(user.email)) return undefined;
   return user.accountStatus === 'blocked' ? undefined : user;
 };
 
@@ -736,10 +735,6 @@ export const registerPlatformRoutes = (app: Express) => {
         res.status(400).json({ code: 'AUTH_INVALID_REGISTRATION' });
         return;
       }
-      if (!isAllowedAdminEmail(email)) {
-        res.status(403).json({ code: 'AUTH_REGISTRATION_RESTRICTED' });
-        return;
-      }
       if (!body.privacyAccepted || !body.termsAccepted) {
         res.status(400).json({ code: 'AUTH_AGREEMENT_REQUIRED' });
         return;
@@ -763,7 +758,7 @@ export const registerPlatformRoutes = (app: Express) => {
       const userData: UserWriteData = {
         email,
         password,
-        role: 'admin',
+        role: 'user',
         accountStatus: 'active',
         emailVerified: true,
         verificationCode: generateCode(),
@@ -811,11 +806,6 @@ export const registerPlatformRoutes = (app: Express) => {
         res.status(400).json({ code: 'AUTH_CREDENTIALS_REQUIRED' });
         return;
       }
-      if (!isAllowedAdminEmail(email)) {
-        res.status(403).json({ code: 'AUTH_LOGIN_RESTRICTED' });
-        return;
-      }
-
       const login = await payload.login({
         collection: USER_COLLECTION,
         data: { email, password },
@@ -901,10 +891,6 @@ export const registerPlatformRoutes = (app: Express) => {
         res.status(400).json({ code: 'AUTH_EMAIL_REQUIRED' });
         return;
       }
-      if (!isAllowedAdminEmail(email)) {
-        res.json({ status: 'sent' });
-        return;
-      }
       let token: string | undefined;
       try {
         const fpResult = await payload.forgotPassword({
@@ -955,11 +941,6 @@ export const registerPlatformRoutes = (app: Express) => {
         res.status(400).json({ code: 'AUTH_EMAIL_REQUIRED' });
         return;
       }
-      if (!isAllowedAdminEmail(email)) {
-        res.status(403).json({ code: 'AUTH_LOGIN_RESTRICTED' });
-        return;
-      }
-
       const result = await payload.find({
         collection: USER_COLLECTION,
         where: { email: { equals: email } },
@@ -1011,11 +992,6 @@ export const registerPlatformRoutes = (app: Express) => {
         res.status(400).json({ code: 'AUTH_CODE_REQUIRED' });
         return;
       }
-      if (!isAllowedAdminEmail(email)) {
-        res.status(403).json({ code: 'AUTH_LOGIN_RESTRICTED' });
-        return;
-      }
-
       const result = await payload.find({
         collection: USER_COLLECTION,
         where: { email: { equals: email } },

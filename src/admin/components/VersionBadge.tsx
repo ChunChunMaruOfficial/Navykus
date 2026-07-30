@@ -10,7 +10,7 @@ type HealthResponse = {
   deployedAt?: string;
 };
 
-const VersionBadge = () => {
+export const VersionBadge = () => {
   const [version, setVersion] = useState<string | null>(null);
 
   useEffect(() => {

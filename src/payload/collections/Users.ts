@@ -35,11 +35,8 @@ export const Users: CollectionConfig = {
       },
     ],
     beforeChange: [
-      ({ data, operation, req }) => {
+      ({ data }) => {
         const email = normalizeEmail(data?.email);
-        if (operation === 'create' && !isAdmin(req.user)) {
-          throw new APIError('User creation is restricted.', 403);
-        }
 
         if (email === ADMIN_EMAIL) {
           return {
@@ -49,10 +46,6 @@ export const Users: CollectionConfig = {
             accountStatus: 'active',
             emailVerified: true,
           };
-        }
-
-        if (operation === 'create') {
-          throw new APIError('Only the primary Navykus admin account can be created.', 403);
         }
 
         return data;

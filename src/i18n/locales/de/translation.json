@@ -1262,6 +1262,10 @@
       "AUTH_EMAIL_EXISTS": "Diese E-Mail ist bereits registriert",
       "API_REQUEST_FAILED": "Der Server ist nicht erreichbar. Pruefe die Website-Adresse und versuche es erneut.",
       "AUTH_EMAIL_SEND_FAILED": "Der E-Mail-Code konnte nicht gesendet werden. SMTP ist voruebergehend nicht verfuegbar."
+    },
+    "auth": {
+      "privacyAccepted": "Ich akzeptiere die Datenschutzrichtlinie",
+      "termsAccepted": "Ich akzeptiere die Plattformbedingungen"
     }
   }
 }

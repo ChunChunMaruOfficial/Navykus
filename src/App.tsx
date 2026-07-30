@@ -20,8 +20,10 @@ import Logo from './components/Logo';
 import GridBackground from './components/GridBackground';
 import AmbientLighting from './components/AmbientLighting';
 import NotFoundPage from './components/NotFoundPage';
+import LegalPage from './components/LegalPage';
 import AppFooter from './components/AppFooter';
 import ScrollToTop from './components/ScrollToTop';
+import { I18nGate } from './components/I18nGate';
 import useScrollBehavior from './hooks/useScrollBehavior';
 import usePageMeta from './hooks/usePageMeta';
 import { apiUrl, fetchContactSettings, platformApi, type ContactSettings, type PlatformUser } from './api';
@@ -55,7 +57,7 @@ const BlogPage = lazy(() => import('./components/BlogPage'));
 import PlatformPage from './components/PlatformPage';
 
 const PAGE_PATHS = ['about', 'championship', 'activities', 'find-team', 'blog'] as const;
-type Page = 'home' | 'not-found' | typeof PAGE_PATHS[number];
+type Page = 'home' | 'not-found' | 'legal' | typeof PAGE_PATHS[number];
 const PLATFORM_PATHS = [
   '/login',
   '/register',
@@ -136,7 +138,18 @@ const getPageFromPath = (): Page => {
   if (!path) return 'home';
   // Extract first path segment to support sub-routes like /activities/events
   const page = path.slice(1).split('/')[0];
-  return isPagePath(page) ? page : 'not-found';
+  if (isPagePath(page)) return page;
+  if (page === 'legal') return 'legal';
+  return 'not-found';
+};
+
+const legalSubpageFromPath = (): 'privacy' | 'terms' | null => {
+  if (typeof window === 'undefined') return null;
+  const segments = window.location.pathname.replace(/\/$/, '').split('/').filter(Boolean);
+  if (segments[0] === 'legal' && (segments[1] === 'privacy' || segments[1] === 'terms')) {
+    return segments[1];
+  }
+  return null;
 };
 
 const getIsPlatformRoute = () => {
@@ -146,6 +159,7 @@ const getIsPlatformRoute = () => {
 };
 
 function PageFallback({ page }: { page: Page }) {
+  if (page === 'legal') return <PageSkeleton page="about" />;
   return <PageSkeleton page={page} />;
 }
 
@@ -180,6 +194,7 @@ export default function App() {
   const [selectedTourney, setSelectedTourney] = useState<string | undefined>(undefined);
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [legalPage, setLegalPage] = useState<'privacy' | 'terms' | null>(legalSubpageFromPath);
   const [isPlatformRoute, setIsPlatformRoute] = useState(getIsPlatformRoute);
   const navRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
@@ -192,6 +207,7 @@ export default function App() {
       const page = getPageFromPath();
       setCurrentPage(page);
       setIsPlatformRoute(getIsPlatformRoute());
+      setLegalPage(page === 'legal' ? legalSubpageFromPath() : null);
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
@@ -532,6 +548,7 @@ export default function App() {
 
       {currentPage !== 'find-team' && <StudyBackground />}
 
+      <I18nGate>
       <motion.header
         id="navbar-system"
         initial={false}
@@ -1068,6 +1085,8 @@ export default function App() {
             }}
           />
         </div>
+      ) : legalPage ? (
+        <LegalPage page={legalPage} onBackToHome={() => { setLegalPage(null); navigateToPage('home'); }} />
       ) : (
         <div className="w-full">
           <ActivitiesPage
@@ -1091,7 +1110,9 @@ export default function App() {
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         onAuthChange={(user) => { setAuthUser(user); void applyPendingInlineProfile(user); }}
+        onNavigateLegal={(page) => { setIsAuthModalOpen(false); setLegalPage(page); setCurrentPage('legal'); window.history.pushState({}, '', `/legal/${page}`); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
       />
+      </I18nGate>
     </div>
   );
 }

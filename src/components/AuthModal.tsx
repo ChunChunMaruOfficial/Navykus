@@ -16,6 +16,7 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAuthChange?: (user: PlatformUser | null) => void;
+  onNavigateLegal?: (page: 'privacy' | 'terms') => void;
 }
 
 type AuthMode = 'login' | 'register';
@@ -79,7 +80,7 @@ function PasswordField({
   );
 }
 
-export default function AuthModal({ isOpen, onClose, onAuthChange }: AuthModalProps) {
+export default function AuthModal({ isOpen, onClose, onAuthChange, onNavigateLegal }: AuthModalProps) {
   const { t } = useTranslation();
   const modalRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -554,11 +555,11 @@ export default function AuthModal({ isOpen, onClose, onAuthChange }: AuthModalPr
                         <div className="space-y-2 rounded-2xl border border-white/60 bg-white/20 p-3 text-xs text-brand-slate">
                           <label className="flex items-center gap-2">
                             <input type="checkbox" checked={form.privacyAccepted} onChange={(event) => update('privacyAccepted', event.target.checked)} className="h-4 w-4 accent-[#bc4638]" />
-                            <span>{t('platform.auth.privacyAccepted')}</span>
+                            <button type="button" onClick={() => onNavigateLegal?.('privacy')} className="text-left underline underline-offset-2 decoration-brand-terracotta/40 hover:decoration-brand-terracotta transition-colors cursor-pointer">{t('platform.auth.privacyAccepted')}</button>
                           </label>
                           <label className="flex items-center gap-2">
                             <input type="checkbox" checked={form.termsAccepted} onChange={(event) => update('termsAccepted', event.target.checked)} className="h-4 w-4 accent-[#bc4638]" />
-                            <span>{t('platform.auth.termsAccepted')}</span>
+                            <button type="button" onClick={() => onNavigateLegal?.('terms')} className="text-left underline underline-offset-2 decoration-brand-terracotta/40 hover:decoration-brand-terracotta transition-colors cursor-pointer">{t('platform.auth.termsAccepted')}</button>
                           </label>
                         </div>
                       )}

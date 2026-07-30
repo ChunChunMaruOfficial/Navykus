@@ -1262,6 +1262,10 @@
       "AUTH_EMAIL_EXISTS": "Bu elektron pochta allaqachon ro'yxatdan o'tgan",
       "API_REQUEST_FAILED": "Serverga ulanib bo‘lmadi. Sayt manzilini tekshiring va qayta urinib ko‘ring.",
       "AUTH_EMAIL_SEND_FAILED": "Kodni email orqali yuborib bo‘lmadi. SMTP vaqtincha ishlamayapti."
+    },
+    "auth": {
+      "privacyAccepted": "Men shaxsiy ma'lumotlar siyosatini qabul qilaman",
+      "termsAccepted": "Men platforma shartlarini qabul qilaman"
     }
   }
 }

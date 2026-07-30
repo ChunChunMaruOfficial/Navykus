@@ -23,7 +23,7 @@ languageDetector.addDetector({
   lookup: () => detectSupportedLanguageFromBrowser(),
 });
 
-i18n
+export const i18nReady = i18n
   .use(languageDetector)
   .use(HttpBackend)
   .use(initReactI18next)
