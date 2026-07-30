@@ -38,11 +38,11 @@ const heroFadeUpLarge = {
     ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
   },
 };
-import { useLocalizedData } from '../i18n/useLocalizedData';
 import { useCmsFaqs } from '../hooks/useCmsFaqs';
 import { useCmsTeamMembers } from '../hooks/useCmsTeamMembers';
+import { useCmsTournaments } from '../hooks/useCmsTournaments';
 import type { PlatformUser } from '../api';
-import type { FaqItem as CmsFaqItem, TeamMember, TeamRole, TeamIntent } from '../types';
+import type { TeamMember, TeamRole, TeamIntent } from '../types';
 
 const FIND_TEAM_SEARCH_CLASS =
   'w-full rounded-xl border border-[#d8d1cc] bg-white/70 py-3 pl-11 pr-4 text-xs text-brand-dark outline-none transition-colors placeholder:text-brand-slate/40 focus:border-brand-dark/45 focus:bg-white sm:text-sm';
@@ -68,34 +68,6 @@ const CONTACT_LABELS: Record<string, string> = {
   email: 'Email',
   discord: 'Discord',
 };
-
-const FIND_TEAM_FAQ_ITEMS = [
-  {
-    id: 'find-team-faq-1',
-    question: 'ui.findteampage.6954042f',
-    answer: 'ui.findteampage.a264de7b48',
-  },
-  {
-    id: 'find-team-faq-2',
-    question: 'ui.findteampage.291b48f0',
-    answer: 'ui.findteampage.c4adff98dd',
-  },
-  {
-    id: 'find-team-faq-3',
-    question: 'ui.findteampage.32c49e31',
-    answer: 'ui.findteampage.bb017e0e8a',
-  },
-  {
-    id: 'find-team-faq-4',
-    question: 'ui.findteampage.5167e97a',
-    answer: 'ui.findteampage.b734b04eb7',
-  },
-  {
-    id: 'find-team-faq-5',
-    question: 'ui.findteampage.27f20eac',
-    answer: 'ui.findteampage.a80b8b09d5',
-  },
-] as const;
 
 const COUNTRY_FLAGS: Record<string, string> = {
   '\u0420\u043e\u0441\u0441\u0438\u044f': '🇷🇺',
@@ -377,6 +349,7 @@ function ProfileCard({
   return (
     <motion.div
       variants={cardItemFadeUp.variants}
+      data-preview-id={member.id}
       className={`bg-white/[0.12] glass-card surface-elevated-soft border border-white/[0.15] rounded-2xl p-5 flex flex-col justify-between transition-[background-color,border-color,box-shadow] duration-300 ${isDimmed ? 'opacity-40 grayscale' : 'hover:bg-white/[0.2] hover:border-brand-terracotta/20'}`}
     >
       <div className="space-y-3">
@@ -509,7 +482,7 @@ function TeamProfileModal({
   onOpenAuthModal?: () => void;
 }) {
   const { t } = useTranslation();
-  const { teamMembers } = useLocalizedData();
+  const teamMembers = useCmsTeamMembers();
   const [formName, setFormName] = useState('');
   const [formEmail, setFormEmail] = useState('');
   const [formAge, setFormAge] = useState('');
@@ -850,17 +823,9 @@ function TeamProfileModal({
 
 export default function FindTeamPage({ onOpenApplyModal, authUser, onOpenAuthModal }: FindTeamPageProps) {
   const { t, i18n } = useTranslation();
-  const { tournaments } = useLocalizedData();
+  const tournaments = useCmsTournaments();
   const teamMembers = useCmsTeamMembers();
-  const faqItems = useCmsFaqs(
-    'find-team',
-    FIND_TEAM_FAQ_ITEMS.map<CmsFaqItem>((faq) => ({
-      id: faq.id,
-      page: 'find-team',
-      question: t(faq.question),
-      answer: t(faq.answer),
-    })),
-  );
+  const faqItems = useCmsFaqs('find-team');
   // Filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('all');

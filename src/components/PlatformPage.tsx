@@ -8,8 +8,12 @@ import {
   Check,
   CheckCircle2,
   ChevronLeft,
+  Edit3,
+  ExternalLink,
   LogOut,
+  Plus,
   RotateCcw,
+  Save,
   Search,
   ShieldCheck,
   Trash2,
@@ -24,8 +28,12 @@ import {
 import {
    apiAssetUrl,
    blogApi,
+   forgetRememberedPlatformAccount,
    getRememberedPlatformAccount,
    platformApi,
+   type AdminAuditLogRecord,
+   type AdminContentDoc,
+   type AdminHealth,
    rememberPlatformAccount,
    type BlogPostDoc,
    type CatalogDoc,
@@ -33,9 +41,16 @@ import {
    type NotificationItem,
    type Participant,
    type PlatformApplication,
+   type TeamMemberModerationDoc,
+   type TranslationQueueRecord,
    type PlatformUser,
    type RememberedPlatformAccount,
 } from '../api';
+import {
+  ADMIN_CONTENT_TYPES,
+  type AdminContentField,
+  type AdminContentType,
+} from '../content-admin-registry';
 import BlogEditor from './BlogEditor';
 import BlogModerationPanel from './BlogModerationPanel';
 import MyBlogPosts from './MyBlogPosts';
@@ -430,8 +445,8 @@ function BlogEditorWithLoader({ user, postId, onDone }: { user: PlatformUser; po
 
   useEffect(() => {
     setState('loading');
-    blogApi.list({ id: postId }).then((result) => {
-      setPost(result.docs.find((doc) => doc.id === postId));
+    blogApi.getById(postId).then((result) => {
+      setPost(result.post);
       setState('success');
     }).catch(() => setState('error'));
   }, [postId]);
@@ -954,6 +969,7 @@ function ProfileEditor({ user, onUser, settingsOnly = false }: { user: PlatformU
   }, [form]);
 
   const syncLogout = () => {
+    forgetRememberedPlatformAccount();
     onUser(null);
     window.dispatchEvent(new CustomEvent('platform-auth-change', { detail: { user: null } }));
     navigate('/');
@@ -1353,23 +1369,24 @@ function CardList({ items }: { items: Array<{ id: string; title?: string; meta?:
 }
 
 function ParticipantsView({ user }: { user?: PlatformUser | null }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [query, setQuery] = useState(new URLSearchParams(window.location.search).get('q') || '');
   const [docs, setDocs] = useState<Participant[]>([]);
   const [state, setState] = useState<LoadState>('loading');
+  const language = (i18n.resolvedLanguage || i18n.language || 'ru').split('-')[0];
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
       const params = query ? `?q=${encodeURIComponent(query)}` : '';
       window.history.replaceState({}, '', `/participants${params}`);
       setState('loading');
-      platformApi.participants(params).then((result) => {
+      platformApi.participants(params, language).then((result) => {
         setDocs(result.docs);
         setState('success');
       }).catch(() => setState('error'));
     }, 250);
     return () => window.clearTimeout(timer);
-  }, [query]);
+  }, [query, language]);
 
   return (
     <section className="grid gap-5">
@@ -1434,23 +1451,24 @@ function FavoriteButton({ user, itemType, itemId, itemTitle, href }: { user?: Pl
 }
 
 function CatalogView({ type, user }: { type: CatalogType; user?: PlatformUser | null }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [query, setQuery] = useState(new URLSearchParams(window.location.search).get('q') || '');
   const [docs, setDocs] = useState<CatalogDoc[]>([]);
   const [state, setState] = useState<LoadState>('loading');
+  const language = (i18n.resolvedLanguage || i18n.language || 'ru').split('-')[0];
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
       const params = query ? `?q=${encodeURIComponent(query)}` : '';
       window.history.replaceState({}, '', `/${type}${params}`);
       setState('loading');
-      platformApi.catalog(type, params).then((result) => {
+      platformApi.catalog(type, params, language).then((result) => {
         setDocs(result.docs);
         setState('success');
       }).catch(() => setState('error'));
     }, 250);
     return () => window.clearTimeout(timer);
-  }, [query, type]);
+  }, [query, type, language]);
 
   return (
     <section className="grid gap-5">
@@ -1462,7 +1480,7 @@ function CatalogView({ type, user }: { type: CatalogType; user?: PlatformUser | 
             const itemTitle = doc.title || doc.organization || String(doc.id);
             const itemType = type === 'championships' ? 'championship' : type.slice(0, -1);
             return (
-              <article key={String(doc.id)} className="rounded-2xl border border-white/60 bg-white/45 p-4">
+              <article key={String(doc.id)} data-preview-id={String(doc.id)} className="rounded-2xl border border-white/60 bg-white/45 p-4">
                 <div className="text-xs font-semibold uppercase tracking-wider text-[#bc4638]">{doc.format || doc.eventType || doc.opportunityType || doc.type}</div>
                 <h3 className="mt-1 font-serif text-xl text-brand-dark">{itemTitle}</h3>
                 <p className="mt-2 text-sm text-brand-slate">{doc.shortDescription || doc.description || doc.fullDescription}</p>
@@ -1481,8 +1499,619 @@ function CatalogView({ type, user }: { type: CatalogType; user?: PlatformUser | 
   );
 }
 
+const adminRouteKey = () => {
+  const path = currentPath();
+  const contentMatch = path.match(/^\/platform\/admin\/content\/([^/]+)$/);
+  if (contentMatch && ADMIN_CONTENT_TYPES.some((type) => type.key === contentMatch[1])) return `content:${contentMatch[1]}`;
+  if (path === '/platform/admin/team-members') return 'teamMembers';
+  if (path === '/platform/admin/translations') return 'translations';
+  if (path === '/platform/admin/health') return 'health';
+  if (path === '/platform/admin/blog') return 'blog';
+  if (path === '/platform/admin/audit') return 'audit';
+  return 'overview';
+};
+
+const adminContentRouteKey = (type: AdminContentType) => `content:${type.key}`;
+
+const valueToListText = (value: unknown) => {
+  if (typeof value === 'string') return value;
+  if (!Array.isArray(value)) return '';
+  return value
+    .map((item) => {
+      if (typeof item === 'string') return item;
+      if (item && typeof item === 'object' && 'value' in item) return String((item as Record<string, unknown>).value || '');
+      return '';
+    })
+    .filter(Boolean)
+    .join('\n');
+};
+
+const valueToMultiSelect = (value: unknown) => {
+  if (Array.isArray(value)) return value.map(String);
+  if (typeof value === 'string') return value.split(',').map((item) => item.trim()).filter(Boolean);
+  return [];
+};
+
+const valueToDateInput = (value: unknown) => {
+  if (typeof value !== 'string') return '';
+  return value.slice(0, 10);
+};
+
+const valueToText = (value: unknown) => {
+  if (value === null || value === undefined) return '';
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (typeof value === 'object' && 'id' in value) return String((value as Record<string, unknown>).id || '');
+  return '';
+};
+
+const adminFieldInitialValue = (field: AdminContentField, doc?: AdminContentDoc) => {
+  const value = doc ? doc[field.name] : field.defaultValue;
+  if (field.type === 'checkbox') return Boolean(value);
+  if (field.type === 'list') return valueToListText(value);
+  if (field.type === 'multiselect') return valueToMultiSelect(value);
+  if (field.type === 'date') return valueToDateInput(value);
+  return valueToText(value);
+};
+
+const adminInitialForm = (type: AdminContentType, doc?: AdminContentDoc) => (
+  Object.fromEntries(type.fields.map((field) => [field.name, adminFieldInitialValue(field, doc)])) as Record<string, unknown>
+);
+
+const adminPayloadFromForm = (type: AdminContentType, form: Record<string, unknown>) => {
+  const payload: Record<string, unknown> = {};
+  for (const field of type.fields) {
+    const value = form[field.name];
+    if (field.type === 'checkbox') {
+      payload[field.name] = Boolean(value);
+    } else if (field.type === 'number') {
+      const text = String(value ?? '').trim();
+      payload[field.name] = text ? Number(text) : null;
+    } else if (field.type === 'list') {
+      payload[field.name] = String(value ?? '').split(/\r?\n|,/).map((item) => item.trim()).filter(Boolean);
+    } else if (field.type === 'multiselect') {
+      payload[field.name] = Array.isArray(value) ? value.map(String).filter(Boolean) : [];
+    } else {
+      payload[field.name] = value ?? '';
+    }
+  }
+  return payload;
+};
+
+function AdminContentFieldInput({
+  field,
+  value,
+  onChange,
+}: {
+  field: AdminContentField;
+  value: unknown;
+  onChange: (value: unknown) => void;
+}) {
+  if (field.type === 'checkbox') {
+    return (
+      <label className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-brand-dark/80">
+        <input type="checkbox" checked={Boolean(value)} onChange={(event) => onChange(event.target.checked)} className="h-4 w-4 accent-[#bc4638]" />
+        <span>{field.label}</span>
+      </label>
+    );
+  }
+
+  if (field.type === 'textarea' || field.type === 'list') {
+    return (
+      <label className="grid gap-1 text-xs font-semibold uppercase tracking-wider text-brand-dark/70">
+        <span>{field.label}{field.required ? ' *' : ''}</span>
+        <textarea
+          value={String(value ?? '')}
+          onChange={(event) => onChange(event.target.value)}
+          rows={field.type === 'list' ? 3 : 5}
+          className="rounded-xl border border-[#d8d1cc] bg-white/70 px-3 py-2 text-sm normal-case tracking-normal text-brand-dark outline-none focus:border-[#bc4638]"
+        />
+      </label>
+    );
+  }
+
+  if (field.type === 'select') {
+    return (
+      <label className="grid gap-1 text-xs font-semibold uppercase tracking-wider text-brand-dark/70">
+        <span>{field.label}{field.required ? ' *' : ''}</span>
+        <select
+          value={String(value ?? '')}
+          onChange={(event) => onChange(event.target.value)}
+          className="min-h-11 rounded-xl border border-[#d8d1cc] bg-white/70 px-3 text-sm normal-case tracking-normal text-brand-dark outline-none focus:border-[#bc4638]"
+        >
+          {!field.required && <option value="">empty</option>}
+          {(field.options || []).map((option) => <option key={option} value={option}>{option}</option>)}
+        </select>
+      </label>
+    );
+  }
+
+  if (field.type === 'multiselect') {
+    const selected = Array.isArray(value) ? value.map(String) : [];
+    return (
+      <label className="grid gap-1 text-xs font-semibold uppercase tracking-wider text-brand-dark/70">
+        <span>{field.label}{field.required ? ' *' : ''}</span>
+        <select
+          multiple
+          value={selected}
+          onChange={(event) => onChange(Array.from(event.target.selectedOptions).map((option) => option.value))}
+          className="min-h-28 rounded-xl border border-[#d8d1cc] bg-white/70 px-3 py-2 text-sm normal-case tracking-normal text-brand-dark outline-none focus:border-[#bc4638]"
+        >
+          {(field.options || []).map((option) => <option key={option} value={option}>{option}</option>)}
+        </select>
+      </label>
+    );
+  }
+
+  return (
+    <Input
+      type={field.type === 'number' ? 'number' : field.type === 'date' ? 'date' : 'text'}
+      label={`${field.label}${field.required ? ' *' : ''}`}
+      value={String(value ?? '')}
+      onChange={onChange}
+    />
+  );
+}
+
+function AdminContentPanel({ type }: { type: AdminContentType }) {
+  const { t } = useTranslation();
+  const [docs, setDocs] = useState<AdminContentDoc[]>([]);
+  const [query, setQuery] = useState('');
+  const [state, setState] = useState<LoadState>('loading');
+  const [form, setForm] = useState<Record<string, unknown>>(() => adminInitialForm(type));
+  const [editing, setEditing] = useState<AdminContentDoc | null>(null);
+  const [message, setMessage] = useState('');
+
+  const load = () => {
+    setState('loading');
+    const params = new URLSearchParams();
+    if (query.trim()) params.set('q', query.trim());
+    params.set('limit', '50');
+    platformApi.adminContentList(type.key, `?${params.toString()}`).then((result) => {
+      setDocs(result.docs);
+      setState('success');
+    }).catch(() => setState('error'));
+  };
+
+  useEffect(() => {
+    const timer = window.setTimeout(load, 250);
+    return () => window.clearTimeout(timer);
+  }, [type.key, query]);
+
+  useEffect(() => {
+    setEditing(null);
+    setForm(adminInitialForm(type));
+    setQuery('');
+  }, [type.key]);
+
+  const updateField = (fieldName: string, value: unknown) => {
+    setForm((current) => ({ ...current, [fieldName]: value }));
+  };
+
+  const editDoc = (doc: AdminContentDoc) => {
+    setEditing(doc);
+    setForm(adminInitialForm(type, doc));
+    setMessage('');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const createNew = () => {
+    setEditing(null);
+    setForm(adminInitialForm(type));
+    setMessage('');
+  };
+
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setMessage('');
+    setState('loading');
+    try {
+      const data = adminPayloadFromForm(type, form);
+      const result = editing
+        ? await platformApi.adminContentUpdate(type.key, editing.id, data)
+        : await platformApi.adminContentCreate(type.key, data);
+      setEditing(result.doc);
+      setForm(adminInitialForm(type, result.doc));
+      await platformApi.adminContentList(type.key, '?limit=50').then((response) => setDocs(response.docs));
+      setState('success');
+      setMessage(t('platform.states.saved'));
+    } catch (error) {
+      setState('error');
+      setMessage(t(`platform.errors.${(error as Error).name}`, { defaultValue: t('platform.errors.API_ERROR') }));
+    }
+  };
+
+  const remove = async (doc: AdminContentDoc) => {
+    const title = valueToText(doc[type.titleField]) || String(doc.id);
+    if (!window.confirm(`Delete ${title}?`)) return;
+    setMessage('');
+    setState('loading');
+    try {
+      await platformApi.adminContentDelete(type.key, doc.id);
+      setDocs((current) => current.filter((item) => item.id !== doc.id));
+      if (editing?.id === doc.id) createNew();
+      setState('success');
+      setMessage(t('platform.states.saved'));
+    } catch (error) {
+      setState('error');
+      setMessage(t(`platform.errors.${(error as Error).name}`, { defaultValue: t('platform.errors.API_ERROR') }));
+    }
+  };
+
+  return (
+    <div className="grid gap-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="font-serif text-2xl text-brand-dark">{type.label}</h2>
+          <p className="mt-1 text-xs uppercase tracking-wider text-brand-slate">{type.collection}</p>
+        </div>
+        <button type="button" onClick={createNew} className="inline-flex items-center gap-2 rounded-xl bg-brand-dark px-4 py-3 text-xs font-semibold uppercase tracking-wider text-white">
+          <Plus className="h-4 w-4" />
+          New
+        </button>
+      </div>
+      {message && <Result ok={message === t('platform.states.saved')} text={message} />}
+      <form onSubmit={submit} className="grid gap-4 rounded-2xl border border-white/60 bg-white/45 p-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-brand-slate">{editing ? `Edit #${String(editing.id)}` : 'Create'}</h3>
+          {editing?.publicPreviewUrl && (
+            <a href={editing.publicPreviewUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-[#d8d1cc] px-3 py-2 text-xs font-semibold text-brand-slate">
+              <ExternalLink className="h-4 w-4" />
+              Preview
+            </a>
+          )}
+        </div>
+        <div className="grid gap-3 md:grid-cols-2">
+          {type.fields.map((field) => (
+            <AdminContentFieldInput
+              key={field.name}
+              field={field}
+              value={form[field.name]}
+              onChange={(value) => updateField(field.name, value)}
+            />
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button type="submit" disabled={state === 'loading'} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-brand-dark px-5 text-xs font-semibold uppercase tracking-wider text-white disabled:opacity-60">
+            <Save className="h-4 w-4" />
+            {state === 'loading' ? t('platform.states.saving') : t('platform.actions.save', { defaultValue: 'Save' })}
+          </button>
+          {editing && (
+            <button type="button" onClick={() => remove(editing)} disabled={state === 'loading'} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-5 text-xs font-semibold uppercase tracking-wider text-red-700 disabled:opacity-60">
+              <Trash2 className="h-4 w-4" />
+              Delete
+            </button>
+          )}
+        </div>
+      </form>
+      <div className="grid gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-brand-slate">Records</h3>
+          <SearchBox value={query} onChange={setQuery} />
+        </div>
+        <StateBlock state={state} empty={docs.length === 0}>
+          <div className="grid gap-3 md:grid-cols-2">
+            {docs.map((doc) => {
+              const title = valueToText(doc[type.titleField]) || String(doc.id);
+              return (
+                <article key={String(doc.id)} className="rounded-2xl border border-white/60 bg-white/45 p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <h4 className="font-serif text-xl text-brand-dark">{title}</h4>
+                      <div className="mt-1 text-xs uppercase tracking-wider text-brand-slate">#{String(doc.id)}</div>
+                    </div>
+                    {valueToText(doc._status || doc.status || doc.moderationStatus) && <StatusPill status={valueToText(doc._status || doc.status || doc.moderationStatus)} />}
+                  </div>
+                  <div className="mt-3 grid gap-1 text-sm text-brand-slate">
+                    {type.listFields.map((field) => (
+                      <div key={field} className="break-words">
+                        <span className="font-semibold text-brand-dark/75">{field}: </span>
+                        {Array.isArray(doc[field]) ? valueToListText(doc[field]) : valueToText(doc[field])}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <button type="button" onClick={() => editDoc(doc)} className="inline-flex items-center gap-2 rounded-xl bg-brand-dark px-3 py-2 text-xs font-semibold text-white">
+                      <Edit3 className="h-4 w-4" />
+                      Edit
+                    </button>
+                    {doc.publicPreviewUrl && (
+                      <a href={doc.publicPreviewUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-[#d8d1cc] px-3 py-2 text-xs font-semibold text-brand-slate">
+                        <ExternalLink className="h-4 w-4" />
+                        Preview
+                      </a>
+                    )}
+                    <button type="button" onClick={() => remove(doc)} className="inline-flex items-center gap-2 rounded-xl border border-red-200 px-3 py-2 text-xs font-semibold text-red-700">
+                      <Trash2 className="h-4 w-4" />
+                      Delete
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </StateBlock>
+      </div>
+    </div>
+  );
+}
+
+function AuditLogPanel() {
+  const [docs, setDocs] = useState<AdminAuditLogRecord[]>([]);
+  const [query, setQuery] = useState('');
+  const [state, setState] = useState<LoadState>('loading');
+
+  const load = () => {
+    setState('loading');
+    const params = new URLSearchParams();
+    if (query.trim()) params.set('q', query.trim());
+    params.set('limit', '50');
+    platformApi.adminAuditLogs(`?${params.toString()}`).then((result) => {
+      setDocs(result.docs);
+      setState('success');
+    }).catch(() => setState('error'));
+  };
+
+  useEffect(() => {
+    const timer = window.setTimeout(load, 250);
+    return () => window.clearTimeout(timer);
+  }, [query]);
+
+  return (
+    <div className="grid gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="font-serif text-2xl text-brand-dark">Audit logs</h2>
+        <SearchBox value={query} onChange={setQuery} />
+      </div>
+      <StateBlock state={state} empty={docs.length === 0}>
+        <div className="grid gap-3">
+          {docs.map((doc) => (
+            <article key={String(doc.id)} className="rounded-2xl border border-white/60 bg-white/45 p-4">
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div>
+                  <h3 className="font-serif text-xl text-brand-dark">{doc.action} {doc.collection}</h3>
+                  <p className="text-sm text-brand-slate">#{doc.documentId} - {doc.actorEmail || 'system'}</p>
+                </div>
+                {doc.createdAt && <span className="text-xs text-brand-slate">{new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(doc.createdAt))}</span>}
+              </div>
+              {doc.summary && <p className="mt-2 text-sm text-brand-slate">{doc.summary}</p>}
+              {doc.changedFields?.length ? <TagRow items={doc.changedFields.map((item) => item.value).slice(0, 12)} /> : null}
+            </article>
+          ))}
+        </div>
+      </StateBlock>
+    </div>
+  );
+}
+
+function statusTone(status: string) {
+  if (['approved', 'ready', 'connected', 'configured', 'online', 'ok'].includes(status)) return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+  if (['pending', 'in_progress', 'needs_edit', 'low_space'].includes(status)) return 'bg-amber-50 text-amber-700 border-amber-200';
+  if (['failed', 'rejected', 'missing_key', 'missing_config'].includes(status) || status.startsWith('http_')) return 'bg-red-50 text-red-700 border-red-200';
+  return 'bg-white/60 text-brand-slate border-white/60';
+}
+
+function StatusPill({ status }: { status: string }) {
+  return <span className={`inline-flex rounded-full border px-2 py-1 text-[11px] font-semibold uppercase tracking-wider ${statusTone(status)}`}>{status}</span>;
+}
+
+function TeamMemberModerationPanel() {
+  const { t } = useTranslation();
+  const [docs, setDocs] = useState<TeamMemberModerationDoc[]>([]);
+  const [status, setStatus] = useState('pending');
+  const [state, setState] = useState<LoadState>('loading');
+  const [message, setMessage] = useState('');
+
+  const load = () => {
+    setState('loading');
+    const params = status ? `?status=${encodeURIComponent(status)}` : '';
+    platformApi.adminTeamMembers(params).then((result) => {
+      setDocs(result.docs);
+      setState('success');
+    }).catch(() => setState('error'));
+  };
+
+  useEffect(load, [status]);
+
+  const update = async (id: string, moderationStatus: string, moderationComment = '') => {
+    setMessage('');
+    try {
+      const result = await platformApi.adminUpdateTeamMemberModeration(id, { moderationStatus, moderationComment });
+      setDocs((current) => current.map((doc) => (doc.id === id ? result.doc : doc)).filter((doc) => !status || doc.moderationStatus === status));
+      setMessage(t('platform.states.saved'));
+    } catch (error) {
+      setMessage(t(`platform.errors.${(error as Error).name}`, { defaultValue: t('platform.errors.API_ERROR') }));
+    }
+  };
+
+  return (
+    <div className="grid gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-brand-slate">{t('platform.admin.teamMemberModeration', { defaultValue: 'Participant moderation' })}</h2>
+        <select value={status} onChange={(event) => setStatus(event.target.value)} className="min-h-11 rounded-xl border border-[#d8d1cc] bg-white/70 px-3 text-sm text-brand-dark">
+          {['pending', 'approved', 'rejected', 'needs_edit', ''].map((item) => (
+            <option key={item || 'all'} value={item}>{item || 'all'}</option>
+          ))}
+        </select>
+      </div>
+      {message && <Result ok={message === t('platform.states.saved')} text={message} />}
+      <StateBlock state={state} empty={docs.length === 0}>
+        <div className="grid gap-3 md:grid-cols-2">
+          {docs.map((doc) => (
+            <article key={doc.id} className="rounded-2xl border border-white/60 bg-white/45 p-4">
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div>
+                  <h3 className="font-serif text-xl text-brand-dark">{doc.name}</h3>
+                  <p className="text-sm text-brand-slate">{doc.age} · {[doc.country, doc.city].filter(Boolean).join(', ')}</p>
+                </div>
+                <StatusPill status={doc.moderationStatus} />
+              </div>
+              <p className="mt-3 text-sm text-brand-slate">{doc.shortBio}</p>
+              <TagRow items={[...doc.skills, ...doc.interests].slice(0, 8)} />
+              <div className="mt-3 break-all text-xs text-brand-slate">{doc.contactType}: {doc.contact}</div>
+              {doc.whyLooking && <p className="mt-2 text-xs text-brand-slate">{doc.whyLooking}</p>}
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button type="button" onClick={() => update(doc.id, 'approved')} className="rounded-xl bg-brand-dark px-3 py-2 text-xs font-semibold text-white">{t('platform.actions.approve', { defaultValue: 'Approve' })}</button>
+                <button type="button" onClick={() => update(doc.id, 'needs_edit')} className="rounded-xl border border-[#d8d1cc] px-3 py-2 text-xs font-semibold text-brand-slate">{t('platform.actions.needsEdit', { defaultValue: 'Needs edit' })}</button>
+                <button type="button" onClick={() => update(doc.id, 'rejected')} className="rounded-xl border border-red-200 px-3 py-2 text-xs font-semibold text-red-700">{t('platform.actions.reject', { defaultValue: 'Reject' })}</button>
+              </div>
+            </article>
+          ))}
+        </div>
+      </StateBlock>
+    </div>
+  );
+}
+
+function TranslationQueuePanel() {
+  const { t } = useTranslation();
+  const [docs, setDocs] = useState<TranslationQueueRecord[]>([]);
+  const [counts, setCounts] = useState<Record<string, number>>({});
+  const [status, setStatus] = useState('failed');
+  const [collection, setCollection] = useState('');
+  const [language, setLanguage] = useState('');
+  const [state, setState] = useState<LoadState>('loading');
+  const [message, setMessage] = useState('');
+
+  const load = () => {
+    setState('loading');
+    const params = new URLSearchParams();
+    if (status) params.set('status', status);
+    if (collection) params.set('collection', collection);
+    if (language) params.set('language', language);
+    platformApi.adminTranslations(`?${params.toString()}`).then((result) => {
+      setDocs(result.docs);
+      setCounts(result.counts);
+      setState('success');
+    }).catch(() => setState('error'));
+  };
+
+  useEffect(load, [status, collection, language]);
+
+  const retry = async (id: string) => {
+    setMessage('');
+    try {
+      const result = await platformApi.adminRetryTranslation(id);
+      setDocs((current) => current.map((doc) => (doc.id === id ? result.doc : doc)));
+      setMessage(t('platform.states.saved'));
+    } catch (error) {
+      setMessage(t(`platform.errors.${(error as Error).name}`, { defaultValue: t('platform.errors.API_ERROR') }));
+    }
+  };
+
+  const retryFailed = async () => {
+    setMessage('');
+    try {
+      const result = await platformApi.adminRetryFailedTranslations({ collection: collection || undefined, language: language || undefined });
+      setMessage(`${t('platform.states.saved')} (${result.queued})`);
+      load();
+    } catch (error) {
+      setMessage(t(`platform.errors.${(error as Error).name}`, { defaultValue: t('platform.errors.API_ERROR') }));
+    }
+  };
+
+  return (
+    <div className="grid gap-4">
+      <div className="grid gap-3 sm:grid-cols-4">
+        {['pending', 'in_progress', 'ready', 'failed'].map((key) => (
+          <button key={key} type="button" onClick={() => setStatus(key)} className={`rounded-2xl border p-4 text-left ${status === key ? 'border-brand-dark bg-brand-dark text-white' : 'border-white/60 bg-white/45 text-brand-dark'}`}>
+            <div className="text-2xl font-semibold">{counts[key] || 0}</div>
+            <div className="text-xs uppercase tracking-wider">{key}</div>
+          </button>
+        ))}
+      </div>
+      <div className="flex flex-wrap items-center gap-3">
+        <select value={status} onChange={(event) => setStatus(event.target.value)} className="min-h-11 rounded-xl border border-[#d8d1cc] bg-white/70 px-3 text-sm text-brand-dark">
+          {['failed', 'pending', 'in_progress', 'ready', ''].map((item) => <option key={item || 'all'} value={item}>{item || 'all statuses'}</option>)}
+        </select>
+        <select value={collection} onChange={(event) => setCollection(event.target.value)} className="min-h-11 rounded-xl border border-[#d8d1cc] bg-white/70 px-3 text-sm text-brand-dark">
+          {['', 'users', 'team-members', 'blog-posts', 'events', 'experts', 'faqs', 'opportunities', 'tournaments', 'activities', 'pillars', 'scenarios', 'stats', 'trust-points'].map((item) => <option key={item || 'all'} value={item}>{item || 'all collections'}</option>)}
+        </select>
+        <select value={language} onChange={(event) => setLanguage(event.target.value)} className="min-h-11 rounded-xl border border-[#d8d1cc] bg-white/70 px-3 text-sm text-brand-dark">
+          {['', 'ru', 'en', 'kk', 'uz', 'ar', 'de', 'es', 'tr'].map((item) => <option key={item || 'all'} value={item}>{item || 'all languages'}</option>)}
+        </select>
+        <button type="button" onClick={retryFailed} className="rounded-xl bg-brand-dark px-3 py-2 text-xs font-semibold text-white">
+          {t('platform.actions.retry', { defaultValue: 'Retry' })} failed
+        </button>
+        <button type="button" onClick={load} className="rounded-xl border border-[#d8d1cc] px-3 py-2 text-xs font-semibold text-brand-slate">
+          <RotateCcw className="inline h-4 w-4" />
+        </button>
+      </div>
+      {message && <Result ok={message === t('platform.states.saved')} text={message} />}
+      <StateBlock state={state} empty={docs.length === 0}>
+        <div className="grid gap-3">
+          {docs.map((doc) => (
+            <article key={doc.id} className="rounded-2xl border border-white/60 bg-white/45 p-4">
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div>
+                  <h3 className="font-serif text-xl text-brand-dark">{doc.sourceCollection} #{doc.sourceId}</h3>
+                  <p className="text-sm text-brand-slate">{doc.language} · attempts: {doc.attempts}</p>
+                </div>
+                <StatusPill status={doc.translationStatus} />
+              </div>
+              {doc.errorMessage && <p className="mt-3 rounded-xl bg-red-50 p-3 text-xs text-red-700">{doc.errorMessage}</p>}
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button type="button" onClick={() => retry(doc.id)} disabled={doc.translationStatus === 'in_progress'} className="rounded-xl bg-brand-dark px-3 py-2 text-xs font-semibold text-white disabled:opacity-60">{t('platform.actions.retry', { defaultValue: 'Retry' })}</button>
+              </div>
+            </article>
+          ))}
+        </div>
+      </StateBlock>
+    </div>
+  );
+}
+
+function HealthPanel() {
+  const { t } = useTranslation();
+  const [health, setHealth] = useState<AdminHealth | undefined>();
+  const [state, setState] = useState<LoadState>('loading');
+
+  const load = () => {
+    setState('loading');
+    platformApi.adminHealth().then((result) => {
+      setHealth(result);
+      setState('success');
+    }).catch(() => setState('error'));
+  };
+
+  useEffect(load, []);
+
+  const items = health ? [
+    ['API', health.service.status, `${health.service.uptimeSeconds || 0}s`],
+    ['DB', health.db.status, health.db.message],
+    ['Translation', health.translation.status, health.translation.provider || health.translation.message],
+    ['SMTP', health.smtp.status, undefined],
+    ['Disk', health.disk.status, health.disk.usedPercent !== undefined ? `${health.disk.usedPercent}% used` : health.disk.message],
+  ] : [];
+
+  return (
+    <div className="grid gap-4">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-brand-slate">{t('platform.admin.health', { defaultValue: 'System health' })}</h2>
+        <button type="button" onClick={load} className="rounded-xl border border-[#d8d1cc] px-3 py-2 text-xs font-semibold text-brand-slate">
+          <RotateCcw className="inline h-4 w-4" />
+        </button>
+      </div>
+      <StateBlock state={state} empty={!health}>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map(([label, status, detail]) => (
+            <div key={label} className="rounded-2xl border border-white/60 bg-white/45 p-4">
+              <div className="flex items-center justify-between gap-2">
+                <div className="font-serif text-xl text-brand-dark">{label}</div>
+                <StatusPill status={String(status)} />
+              </div>
+              {detail && <div className="mt-2 text-sm text-brand-slate">{detail}</div>}
+            </div>
+          ))}
+        </div>
+      </StateBlock>
+    </div>
+  );
+}
+
 function AdminView({ user }: { user?: PlatformUser | null }) {
   const { t } = useTranslation();
+  const activeAdmin = adminRouteKey();
+  const activeContentType = ADMIN_CONTENT_TYPES.find((type) => activeAdmin === adminContentRouteKey(type));
   const [summary, setSummary] = useState<Record<string, number>>({});
   const [applications, setApplications] = useState<PlatformApplication[]>([]);
   const [users, setUsers] = useState<PlatformUser[]>([]);
@@ -1540,9 +2169,15 @@ function AdminView({ user }: { user?: PlatformUser | null }) {
     <section className="grid gap-5">
       <SectionTitle icon={<ShieldCheck className="h-5 w-5" />} title={t('platform.nav.admin')} />
       <div className="flex flex-wrap gap-1.5 rounded-2xl border border-white/60 bg-white/45 p-1.5">
-        {(['overview', 'blog'] as const).map((key) => {
-          const path = key === 'overview' ? '/platform/admin' : '/platform/admin/blog';
-          const isActive = key === 'overview' ? currentPath() === '/platform/admin' : currentPath() === '/platform/admin/blog';
+        {([
+          ['overview', '/platform/admin'],
+          ['teamMembers', '/platform/admin/team-members'],
+          ['translations', '/platform/admin/translations'],
+          ['health', '/platform/admin/health'],
+          ['blog', '/platform/admin/blog'],
+          ['audit', '/platform/admin/audit'],
+        ] as const).map(([key, path]) => {
+          const isActive = activeAdmin === key;
           return (
             <button
               key={key}
@@ -1550,67 +2185,93 @@ function AdminView({ user }: { user?: PlatformUser | null }) {
               onClick={() => navigate(path)}
               className={`relative flex min-h-11 flex-1 items-center justify-center rounded-xl px-3 text-xs font-semibold uppercase tracking-wider transition-colors ${isActive ? 'bg-brand-dark text-white' : 'text-brand-slate hover:bg-white/60'}`}
             >
-              {t(`ui.blogmoderation.adminTabs.${key}`, { defaultValue: key === 'overview' ? 'Overview' : 'Blog' })}
+              {t(`platform.admin.tabs.${key}`, { defaultValue: key })}
+            </button>
+          );
+        })}
+      </div>
+      <div className="flex flex-wrap gap-1.5 rounded-2xl border border-white/60 bg-white/35 p-1.5">
+        {ADMIN_CONTENT_TYPES.map((type) => {
+          const key = adminContentRouteKey(type);
+          const isActive = activeAdmin === key;
+          return (
+            <button
+              key={type.key}
+              type="button"
+              onClick={() => navigate(`/platform/admin/content/${type.key}`)}
+              className={`min-h-10 rounded-xl px-3 text-xs font-semibold transition-colors ${isActive ? 'bg-brand-dark text-white' : 'text-brand-slate hover:bg-white/60'}`}
+            >
+              {type.label}
             </button>
           );
         })}
       </div>
       {message && <Result ok={message === t('platform.states.saved')} text={message} />}
-      <StateBlock state={state}>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {Object.entries(summary).map(([key, value]) => (
-            <div key={key} className="rounded-2xl border border-white/60 bg-white/45 p-4">
-              <div className="text-2xl font-semibold text-brand-dark">{value}</div>
-              <div className="text-xs uppercase tracking-wider text-brand-slate">{t(`platform.admin.${key}`)}</div>
+      {activeAdmin === 'overview' && (
+        <>
+          <StateBlock state={state}>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {Object.entries(summary).map(([key, value]) => (
+                <div key={key} className="rounded-2xl border border-white/60 bg-white/45 p-4">
+                  <div className="text-2xl font-semibold text-brand-dark">{value}</div>
+                  <div className="text-xs uppercase tracking-wider text-brand-slate">{t(`platform.admin.${key}`, { defaultValue: key })}</div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <div className="mt-5 grid gap-3">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-brand-slate">{t('platform.admin.applications')}</h2>
-          {applications.map((app) => (
-            <article key={String(app.id)} className="rounded-2xl border border-white/60 bg-white/45 p-4">
-              <div className="font-serif text-xl text-brand-dark">{app.itemTitle || app.ticketId}</div>
-              <div className="text-sm text-brand-slate">{t(statusKey(app.status))}</div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {['under_review', 'clarification_required', 'approved', 'rejected'].map((status) => (
-                  <button key={status} type="button" onClick={() => updateApplicationStatus(app.id, status)} className="rounded-xl border border-[#d8d1cc] px-3 py-2 text-xs font-semibold text-brand-slate">{t(statusKey(status))}</button>
+            <div className="mt-5 grid gap-3">
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-brand-slate">{t('platform.admin.applications')}</h2>
+              {applications.map((app) => (
+                <article key={String(app.id)} className="rounded-2xl border border-white/60 bg-white/45 p-4">
+                  <div className="font-serif text-xl text-brand-dark">{app.itemTitle || app.ticketId}</div>
+                  <div className="text-sm text-brand-slate">{t(statusKey(app.status))}</div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {['under_review', 'clarification_required', 'approved', 'rejected'].map((status) => (
+                      <button key={status} type="button" onClick={() => updateApplicationStatus(app.id, status)} className="rounded-xl border border-[#d8d1cc] px-3 py-2 text-xs font-semibold text-brand-slate">{t(statusKey(status))}</button>
+                    ))}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </StateBlock>
+          <div className="grid gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-brand-slate">{t('platform.admin.users')}</h2>
+              <SearchBox value={userQuery} onChange={setUserQuery} />
+            </div>
+            {user.role !== 'admin' && <Result text={t('platform.admin.adminOnly')} />}
+            <StateBlock state={usersState} empty={users.length === 0}>
+              <div className="grid gap-3 md:grid-cols-2">
+                {users.map((item) => (
+                  <article key={item.id} className="rounded-2xl border border-white/60 bg-white/45 p-4">
+                    <div className="font-serif text-xl text-brand-dark">{[item.firstName, item.lastName].filter(Boolean).join(' ') || item.email}</div>
+                    <div className="break-all text-sm text-brand-slate">{item.email}</div>
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                      <label className="grid gap-1 text-xs font-semibold uppercase tracking-wider text-brand-dark/70">
+                        <span>{t('platform.admin.role')}</span>
+                        <select value={item.role} disabled={user.role !== 'admin'} onChange={(event) => updateUser(item.id, { role: event.target.value })} className="min-h-11 rounded-xl border border-[#d8d1cc] bg-white/70 px-3 text-sm normal-case tracking-normal text-brand-dark disabled:opacity-60">
+                          {(['user', 'moderator', 'admin'] as const).map((role) => <option key={role} value={role}>{t(`platform.roles.${role}`)}</option>)}
+                        </select>
+                      </label>
+                      <label className="grid gap-1 text-xs font-semibold uppercase tracking-wider text-brand-dark/70">
+                        <span>{t('platform.admin.accountStatus')}</span>
+                        <select value={item.accountStatus} disabled={user.role !== 'admin'} onChange={(event) => updateUser(item.id, { accountStatus: event.target.value })} className="min-h-11 rounded-xl border border-[#d8d1cc] bg-white/70 px-3 text-sm normal-case tracking-normal text-brand-dark disabled:opacity-60">
+                          {(['active', 'pending', 'blocked'] as const).map((status) => <option key={status} value={status}>{t(`platform.accountStatus.${status}`)}</option>)}
+                        </select>
+                      </label>
+                    </div>
+                  </article>
                 ))}
               </div>
-            </article>
-          ))}
-        </div>
-      </StateBlock>
-      <div className="grid gap-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-brand-slate">{t('platform.admin.users')}</h2>
-          <SearchBox value={userQuery} onChange={setUserQuery} />
-        </div>
-        {user.role !== 'admin' && <Result text={t('platform.admin.adminOnly')} />}
-        <StateBlock state={usersState} empty={users.length === 0}>
-          <div className="grid gap-3 md:grid-cols-2">
-            {users.map((item) => (
-              <article key={item.id} className="rounded-2xl border border-white/60 bg-white/45 p-4">
-                <div className="font-serif text-xl text-brand-dark">{[item.firstName, item.lastName].filter(Boolean).join(' ') || item.email}</div>
-                <div className="break-all text-sm text-brand-slate">{item.email}</div>
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <label className="grid gap-1 text-xs font-semibold uppercase tracking-wider text-brand-dark/70">
-                    <span>{t('platform.admin.role')}</span>
-                    <select value={item.role} disabled={user.role !== 'admin'} onChange={(event) => updateUser(item.id, { role: event.target.value })} className="min-h-11 rounded-xl border border-[#d8d1cc] bg-white/70 px-3 text-sm normal-case tracking-normal text-brand-dark disabled:opacity-60">
-                      {(['user', 'moderator', 'admin'] as const).map((role) => <option key={role} value={role}>{t(`platform.roles.${role}`)}</option>)}
-                    </select>
-                  </label>
-                  <label className="grid gap-1 text-xs font-semibold uppercase tracking-wider text-brand-dark/70">
-                    <span>{t('platform.admin.accountStatus')}</span>
-                    <select value={item.accountStatus} disabled={user.role !== 'admin'} onChange={(event) => updateUser(item.id, { accountStatus: event.target.value })} className="min-h-11 rounded-xl border border-[#d8d1cc] bg-white/70 px-3 text-sm normal-case tracking-normal text-brand-dark disabled:opacity-60">
-                      {(['active', 'pending', 'blocked'] as const).map((status) => <option key={status} value={status}>{t(`platform.accountStatus.${status}`)}</option>)}
-                    </select>
-                  </label>
-                </div>
-              </article>
-            ))}
+            </StateBlock>
           </div>
-        </StateBlock>
-      </div>
+        </>
+      )}
+      {activeAdmin === 'teamMembers' && <TeamMemberModerationPanel />}
+      {activeAdmin === 'translations' && <TranslationQueuePanel />}
+      {activeAdmin === 'health' && <HealthPanel />}
+      {activeAdmin === 'blog' && <BlogModerationPanel user={user} />}
+      {activeAdmin === 'audit' && <AuditLogPanel />}
+      {activeContentType && <AdminContentPanel type={activeContentType} />}
     </section>
   );
 }
@@ -1640,6 +2301,7 @@ export default function PlatformPage({ onLogin }: { onLogin?: () => void }) {
 
   const logout = async () => {
     await platformApi.logout().catch(() => undefined);
+    forgetRememberedPlatformAccount();
     setUser(null);
     window.dispatchEvent(new CustomEvent('platform-auth-change', { detail: { user: null } }));
     navigate('/');
@@ -1670,8 +2332,7 @@ export default function PlatformPage({ onLogin }: { onLogin?: () => void }) {
     if (route.path === '/login' || route.path === '/register') return null;
     if (route.path.startsWith('/profile')) return user ? <Dashboard user={user} onUser={setUser} /> : null;
     if (route.path.startsWith('/participants')) return <ParticipantsView user={user} />;
-    if (route.path === '/platform/admin') return <AdminView user={user} />;
-    if (route.path === '/platform/admin/blog') return <BlogModerationPanel user={user} />;
+    if (route.path.startsWith('/platform/admin')) return <AdminView user={user} />;
     const catalog = CATALOGS.find((item) => route.path === `/${item}` || route.path.startsWith(`/${item}/`));
     if (catalog) return <CatalogView type={catalog} user={user} />;
     return <CatalogView type="championships" user={user} />;

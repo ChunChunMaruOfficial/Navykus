@@ -1,14 +1,18 @@
 import type { CollectionConfig } from 'payload';
 
 import { adminOrModerator, anyone } from '../access';
-import { legacyIdField, publishedField, sortOrderField } from '../fields';
+import { auditAfterChange, auditAfterDelete } from '../audit';
+import { legacyIdField, publishedField, seoFields, sortOrderField } from '../fields';
+import { localizedAfterChange, localizedAfterDelete, originalLanguageField } from '../localization';
+import { publicPreview } from '../preview';
 
 export const Stats: CollectionConfig = {
   slug: 'stats',
   admin: {
     useAsTitle: 'label',
     group: 'Content',
-    defaultColumns: ['label', 'value', 'sortOrder'],
+    defaultColumns: ['label', 'value', 'sortOrder', 'isPublished'],
+    preview: publicPreview('stats'),
   },
   access: {
     read: anyone,
@@ -16,11 +20,17 @@ export const Stats: CollectionConfig = {
     update: adminOrModerator,
     delete: adminOrModerator,
   },
+  hooks: {
+    afterChange: [localizedAfterChange('stats'), auditAfterChange('stats')],
+    afterDelete: [localizedAfterDelete('stats'), auditAfterDelete('stats')],
+  },
   fields: [
     legacyIdField,
     sortOrderField,
     publishedField,
+    originalLanguageField,
     { name: 'value', type: 'text', required: true, admin: { description: 'e.g. "15+", "1000+"' } },
-    { name: 'label', type: 'text', required: true, admin: { description: 'e.g. "стран", "участников"' } },
+    { name: 'label', type: 'text', required: true, admin: { description: 'e.g. "countries", "participants"' } },
+    ...seoFields,
   ],
 };

@@ -1,7 +1,10 @@
 import type { CollectionConfig } from 'payload';
 
 import { adminOrModerator, anyone } from '../access';
-import { legacyIdField, publishedField, sortOrderField } from '../fields';
+import { legacyIdField, publicContentVersions, publishedField, seoFields, sortOrderField, syncPublishedDraftBeforeChange } from '../fields';
+import { auditAfterChange, auditAfterDelete } from '../audit';
+import { localizedAfterChange, localizedAfterDelete, originalLanguageField } from '../localization';
+import { publicPreview } from '../preview';
 
 export const Faqs: CollectionConfig = {
   slug: 'faqs',
@@ -9,17 +12,25 @@ export const Faqs: CollectionConfig = {
     useAsTitle: 'question',
     group: 'Content',
     defaultColumns: ['question', 'page', 'isPublished', 'sortOrder'],
+    preview: publicPreview('faqs'),
   },
+  versions: publicContentVersions,
   access: {
     read: anyone,
     create: adminOrModerator,
     update: adminOrModerator,
     delete: adminOrModerator,
   },
+  hooks: {
+    beforeChange: [syncPublishedDraftBeforeChange],
+    afterChange: [localizedAfterChange('faqs'), auditAfterChange('faqs')],
+    afterDelete: [localizedAfterDelete('faqs'), auditAfterDelete('faqs')],
+  },
   fields: [
     legacyIdField,
     sortOrderField,
     publishedField,
+    originalLanguageField,
     {
       name: 'page',
       type: 'select',
@@ -36,5 +47,6 @@ export const Faqs: CollectionConfig = {
     },
     { name: 'question', type: 'text', required: true },
     { name: 'answer', type: 'textarea', required: true },
+    ...seoFields,
   ],
 };

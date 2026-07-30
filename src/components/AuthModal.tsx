@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { Check, Eye, EyeOff, LogOut, UserRound, X } from 'lucide-react';
 
 import {
+  forgetRememberedPlatformAccount,
   getRememberedPlatformAccount,
   platformApi,
   rememberPlatformAccount,
@@ -190,6 +191,8 @@ export default function AuthModal({ isOpen, onClose, onAuthChange }: AuthModalPr
       openProfile();
     } catch {
       // Token expired, fall back to password login
+      forgetRememberedPlatformAccount();
+      setRememberedAccount(undefined);
       useRememberedAccount();
     }
   };
@@ -313,6 +316,8 @@ export default function AuthModal({ isOpen, onClose, onAuthChange }: AuthModalPr
   const logout = async () => {
     setState('loading');
     await platformApi.logout().catch(() => undefined);
+    forgetRememberedPlatformAccount();
+    setRememberedAccount(undefined);
     setUser(null);
     onAuthChangeRef.current?.(null);
     setState('idle');

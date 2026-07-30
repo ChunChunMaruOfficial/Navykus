@@ -1,7 +1,11 @@
 import type { CollectionConfig } from 'payload';
 
-import { adminOrModerator, ownUserOrAdmin } from '../access';
-import { legacyIdField, sortOrderField, textListField } from '../fields';
+import { ownerOrStaff } from '../access';
+import { legacyIdField, publicContentVersions, sortOrderField, syncBlogPublicationBeforeChange, textListField } from '../fields';
+import { auditAfterChange, auditAfterDelete } from '../audit';
+import { localizedAfterChange, localizedAfterDelete } from '../localization';
+import { publicPreview } from '../preview';
+import { slugBeforeValidate } from '../slug';
 
 export const BLOG_STATUSES = [
   'draft',
@@ -33,7 +37,9 @@ export const BlogPosts: CollectionConfig = {
     useAsTitle: 'title',
     group: 'Blog',
     defaultColumns: ['title', 'author', 'category', 'status', 'originalLanguage', 'createdAt'],
+    preview: publicPreview('blog-posts'),
   },
+  versions: publicContentVersions,
   access: {
     // Author sees own posts; staff sees all. Public reads only published.
     read: ({ req: { user } }) => {
@@ -42,8 +48,14 @@ export const BlogPosts: CollectionConfig = {
       return { or: [{ status: { equals: 'published' } }, { author: { equals: user.id } }] };
     },
     create: ({ req: { user } }) => Boolean(user),
-    update: ownUserOrAdmin,
-    delete: ownUserOrAdmin,
+    update: ownerOrStaff('author'),
+    delete: ownerOrStaff('author'),
+  },
+  hooks: {
+    beforeValidate: [slugBeforeValidate('blog-posts')],
+    beforeChange: [syncBlogPublicationBeforeChange],
+    afterChange: [localizedAfterChange('blog-posts'), auditAfterChange('blog-posts')],
+    afterDelete: [localizedAfterDelete('blog-posts'), auditAfterDelete('blog-posts')],
   },
   fields: [
     legacyIdField,
@@ -80,7 +92,7 @@ export const BlogPosts: CollectionConfig = {
     },
     { name: 'author', type: 'relationship', relationTo: 'users' as any, required: true, index: true },
     { name: 'originalLanguage', type: 'select', required: true, defaultValue: 'ru', options: ['ru', 'en', 'kk', 'uz', 'ar', 'de', 'es', 'tr'], index: true },
-    { name: 'slug', type: 'text', required: true, index: true, unique: true, admin: { description: 'URL slug' } },
+    { name: 'slug', type: 'text', index: true, unique: true, admin: { description: 'Auto-generated URL slug when empty.' } },
     { name: 'seoTitle', type: 'text' },
     { name: 'seoDescription', type: 'textarea' },
     { name: 'readingTime', type: 'number', admin: { description: 'In minutes. Auto-calculated if not set.' } },

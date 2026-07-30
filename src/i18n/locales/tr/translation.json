@@ -1259,7 +1259,9 @@
     "errors": {
       "API_ERROR": "İstek başarısız oldu",
       "INTERNAL_SERVER_ERROR": "Sunucu hatası",
-      "AUTH_EMAIL_EXISTS": "Bu e-posta zaten kayıtlı"
+      "AUTH_EMAIL_EXISTS": "Bu e-posta zaten kayıtlı",
+      "API_REQUEST_FAILED": "Sunucuya ulasilamadi. Site adresini kontrol edip tekrar deneyin.",
+      "AUTH_EMAIL_SEND_FAILED": "E-posta kodu gonderilemedi. SMTP gecici olarak kullanilamiyor."
     }
   }
 }

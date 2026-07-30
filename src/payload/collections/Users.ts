@@ -1,11 +1,18 @@
 import type { CollectionConfig } from 'payload';
+import { APIError } from 'payload';
 
 import { adminOnly, isAdmin, ownUserOrAdmin } from '../access';
 import { textListField } from '../fields';
+import { localizedAfterChange, localizedAfterDelete } from '../localization';
+import { ADMIN_EMAIL, isAllowedAdminEmail, normalizeEmail } from '../../security/admin-auth';
 
 export const Users: CollectionConfig = {
   slug: 'users',
-  auth: true,
+  auth: {
+    tokenExpiration: Number(process.env.PAYLOAD_TOKEN_EXPIRATION_SECONDS || 60 * 60 * 4),
+    maxLoginAttempts: 5,
+    lockTime: 15 * 60 * 1000,
+  },
   admin: {
     useAsTitle: 'email',
     group: 'System',
@@ -15,9 +22,44 @@ export const Users: CollectionConfig = {
   },
   access: {
     read: ownUserOrAdmin,
-    create: () => true,
+    create: ({ req: { user } }) => isAdmin(user),
     update: ownUserOrAdmin,
     delete: adminOnly,
+  },
+  hooks: {
+    beforeLogin: [
+      ({ user }) => {
+        if (!isAllowedAdminEmail((user as { email?: unknown })?.email)) {
+          throw new APIError('Only the primary Navykus admin account can sign in.', 403);
+        }
+      },
+    ],
+    beforeChange: [
+      ({ data, operation, req }) => {
+        const email = normalizeEmail(data?.email);
+        if (operation === 'create' && !isAdmin(req.user)) {
+          throw new APIError('User creation is restricted.', 403);
+        }
+
+        if (email === ADMIN_EMAIL) {
+          return {
+            ...data,
+            email: ADMIN_EMAIL,
+            role: 'admin',
+            accountStatus: 'active',
+            emailVerified: true,
+          };
+        }
+
+        if (operation === 'create') {
+          throw new APIError('Only the primary Navykus admin account can be created.', 403);
+        }
+
+        return data;
+      },
+    ],
+    afterChange: [localizedAfterChange('users')],
+    afterDelete: [localizedAfterDelete('users')],
   },
   fields: [
     {

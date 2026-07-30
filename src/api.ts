@@ -1,3 +1,4 @@
+import type { AdminContentType } from './content-admin-registry';
 import type { ApplicationForm, FaqItem, PageKey } from './types';
 
 const env = (import.meta as any).env || {};
@@ -18,6 +19,11 @@ const getUrlHostname = (value: string) => {
   }
 };
 
+const sameSiteHostname = (left: string, right: string) => {
+  const normalize = (value: string) => value.toLowerCase().replace(/^www\./, '');
+  return Boolean(left && right && normalize(left) === normalize(right));
+};
+
 export const getApiBaseUrl = () => {
   const configuredApiUrl = normalizeApiBaseUrl(env.VITE_API_URL);
   const configuredDevApiUrl = normalizeApiBaseUrl(env.VITE_DEV_API_URL);
@@ -27,6 +33,11 @@ export const getApiBaseUrl = () => {
     if (configuredDevApiUrl) return configuredDevApiUrl;
     if (configuredApiUrl && isLocalHostname(getUrlHostname(configuredApiUrl))) return configuredApiUrl;
     return '';
+  }
+
+  if (typeof window !== 'undefined' && configuredApiUrl) {
+    const configuredHostname = getUrlHostname(configuredApiUrl);
+    if (configuredHostname && sameSiteHostname(configuredHostname, window.location.hostname)) return '';
   }
 
   return configuredApiUrl;
@@ -44,15 +55,30 @@ export const apiAssetUrl = (path?: string) => {
   return apiUrl(path);
 };
 
+const withLang = (query: string, language?: string) => {
+  if (!language) return query;
+  const params = new URLSearchParams(query.startsWith('?') ? query.slice(1) : query);
+  params.set('lang', language);
+  const value = params.toString();
+  return value ? `?${value}` : '';
+};
+
 const requestJson = async <T>(path: string, init: RequestInit = {}): Promise<T> => {
-  const response = await fetch(apiUrl(path), {
-    credentials: 'include',
-    ...init,
-    headers: {
-      ...(init.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
-      ...(init.headers || {}),
-    },
-  });
+  let response: Response;
+  try {
+    response = await fetch(apiUrl(path), {
+      credentials: 'include',
+      ...init,
+      headers: {
+        ...(init.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
+        ...(init.headers || {}),
+      },
+    });
+  } catch {
+    const error = new Error('API_REQUEST_FAILED');
+    error.name = 'API_REQUEST_FAILED';
+    throw error;
+  }
 
   const payload = await response.json().catch(() => ({}));
 
@@ -242,6 +268,17 @@ export const rememberPlatformAccount = (
   }
 };
 
+export const forgetRememberedPlatformAccount = () => {
+  const storage = browserStorage();
+  if (!storage) return;
+
+  try {
+    storage.removeItem(REMEMBERED_PLATFORM_ACCOUNT_KEY);
+  } catch {
+    // Browser privacy settings can disable localStorage.
+  }
+};
+
 export type FavoriteItem = {
   id: string | number;
   itemType: string;
@@ -350,6 +387,73 @@ export type BlogLocalizationSummary = {
   translationStatus: string;
 };
 
+export type AdminHealth = {
+  generatedAt: string;
+  service: { ok: boolean; status: string; uptimeSeconds?: number };
+  db: { ok: boolean; status: string; message?: string };
+  translation: { ok: boolean; status: string; provider?: string; message?: string };
+  smtp: { ok: boolean; status: string };
+  disk: { ok: boolean; status: string; freeBytes?: number; totalBytes?: number; usedPercent?: number; message?: string };
+};
+
+export type TeamMemberModerationDoc = {
+  id: string;
+  name: string;
+  age: number;
+  country: string;
+  city?: string;
+  shortBio: string;
+  interests: string[];
+  skills: string[];
+  targetRoles: string[];
+  targetProject?: string;
+  whyLooking: string;
+  contact: string;
+  contactType: string;
+  moderationStatus: string;
+  moderationComment?: string;
+  isApproved: boolean;
+  reviewedAt?: string;
+  createdAt?: string;
+};
+
+export type TranslationQueueRecord = {
+  id: string;
+  sourceCollection: string;
+  sourceId: string;
+  language: string;
+  translationStatus: string;
+  attempts: number;
+  errorMessage?: string;
+  generatedAt?: string;
+  updatedAt?: string;
+  createdAt?: string;
+};
+
+export type AdminContentDoc = Record<string, unknown> & {
+  id: string | number;
+  publicPreviewUrl?: string;
+};
+
+export type AdminContentListResponse = {
+  type: AdminContentType;
+  docs: AdminContentDoc[];
+  totalDocs: number;
+  totalPages: number;
+  page?: number;
+};
+
+export type AdminAuditLogRecord = {
+  id: string | number;
+  action: string;
+  collection: string;
+  documentId: string;
+  actorEmail?: string;
+  summary?: string;
+  changedFields?: Array<{ value: string }>;
+  createdAt?: string;
+};
+
 export type ContactSettings = {
   id: string | number;
   email?: string | null;
@@ -396,9 +500,9 @@ export const platformApi = {
     data.append('avatar', file);
     return requestJson<{ user: PlatformUser }>('/api/profile/avatar', { method: 'POST', body: data });
   },
-  participants: (query = '') =>
-    requestJson<{ docs: Participant[]; totalDocs: number; totalPages: number }>(`/api/participants${query}`),
-  participant: (id: string) => requestJson<{ participant: Participant }>(`/api/participants/${encodeURIComponent(id)}`),
+  participants: (query = '', language?: string) =>
+    requestJson<{ docs: Participant[]; totalDocs: number; totalPages: number }>(`/api/participants${withLang(query, language)}`),
+  participant: (id: string, language?: string) => requestJson<{ participant: Participant }>(`/api/participants/${encodeURIComponent(id)}${withLang('', language)}`),
   favorites: (type = 'all') => requestJson<{ docs: FavoriteItem[] }>(`/api/profile/favorites?type=${encodeURIComponent(type)}`),
   addFavorite: (payload: Omit<FavoriteItem, 'id' | 'createdAt'>) =>
     requestJson<{ favorite: FavoriteItem }>('/api/profile/favorites', { method: 'POST', body: JSON.stringify(payload) }),
@@ -417,8 +521,8 @@ export const platformApi = {
     requestJson<{ post: CatalogDoc }>('/api/profile/team-posts', { method: 'POST', body: JSON.stringify(payload) }),
   respondToTeamPost: (id: string | number, payload: Record<string, unknown>) =>
     requestJson<{ response: CatalogDoc }>(`/api/team-posts/${id}/responses`, { method: 'POST', body: JSON.stringify(payload) }),
-  catalog: (type: 'championships' | 'events' | 'opportunities' | 'activities', query = '') =>
-    requestJson<{ docs: CatalogDoc[]; totalDocs: number; totalPages: number }>(`/api/${type}${query}`),
+  catalog: (type: 'championships' | 'events' | 'opportunities' | 'activities', query = '', language?: string) =>
+    requestJson<{ docs: CatalogDoc[]; totalDocs: number; totalPages: number }>(`/api/${type}${withLang(query, language)}`),
   adminSummary: () => requestJson<Record<string, number>>('/api/admin/summary'),
   adminUsers: (query = '') => requestJson<{ docs: PlatformUser[] }>(`/api/admin/users${query}`),
   adminUpdateUser: (id: string, payload: Record<string, unknown>) =>
@@ -426,6 +530,27 @@ export const platformApi = {
   adminApplications: () => requestJson<{ docs: PlatformApplication[] }>('/api/admin/applications'),
   adminUpdateApplication: (id: string | number, payload: Record<string, unknown>) =>
     requestJson<{ application: PlatformApplication }>(`/api/admin/applications/${id}/status`, { method: 'PATCH', body: JSON.stringify(payload) }),
+  adminHealth: () => requestJson<AdminHealth>('/api/admin/health'),
+  adminTeamMembers: (query = '') => requestJson<{ docs: TeamMemberModerationDoc[] }>(`/api/admin/team-members${query}`),
+  adminUpdateTeamMemberModeration: (id: string, payload: Record<string, unknown>) =>
+    requestJson<{ doc: TeamMemberModerationDoc }>(`/api/admin/team-members/${id}/moderation`, { method: 'PATCH', body: JSON.stringify(payload) }),
+  adminTranslations: (query = '') =>
+    requestJson<{ docs: TranslationQueueRecord[]; counts: Record<string, number>; totalDocs: number; totalPages: number }>(`/api/admin/translations${query}`),
+  adminRetryTranslation: (id: string) =>
+    requestJson<{ doc: TranslationQueueRecord }>(`/api/admin/translations/${id}/retry`, { method: 'POST' }),
+  adminRetryFailedTranslations: (payload: { collection?: string; language?: string } = {}) =>
+    requestJson<{ queued: number; processed: { processed: number; remaining: number } }>('/api/admin/translations/retry-failed', { method: 'POST', body: JSON.stringify(payload) }),
+  adminContentTypes: () => requestJson<{ types: readonly AdminContentType[] }>('/api/admin/content-types'),
+  adminContentList: (type: string, query = '') =>
+    requestJson<AdminContentListResponse>(`/api/admin/content/${encodeURIComponent(type)}${query}`),
+  adminContentCreate: (type: string, payload: Record<string, unknown>) =>
+    requestJson<{ doc: AdminContentDoc }>(`/api/admin/content/${encodeURIComponent(type)}`, { method: 'POST', body: JSON.stringify(payload) }),
+  adminContentUpdate: (type: string, id: string | number, payload: Record<string, unknown>) =>
+    requestJson<{ doc: AdminContentDoc }>(`/api/admin/content/${encodeURIComponent(type)}/${encodeURIComponent(String(id))}`, { method: 'PATCH', body: JSON.stringify(payload) }),
+  adminContentDelete: (type: string, id: string | number) =>
+    requestJson<{ ok: boolean }>(`/api/admin/content/${encodeURIComponent(type)}/${encodeURIComponent(String(id))}`, { method: 'DELETE' }),
+  adminAuditLogs: (query = '') =>
+    requestJson<{ docs: AdminAuditLogRecord[]; totalDocs: number; totalPages: number }>(`/api/admin/audit-logs${query}`),
   createTeamMember: (payload: Record<string, unknown>) =>
     requestJson<{ doc: Record<string, unknown> }>('/api/team-members', { method: 'POST', body: JSON.stringify(payload) }),
 };
@@ -472,6 +597,8 @@ export const blogApi = {
     requestJson<{ docs: BlogPostDoc[]; totalDocs: number; totalPages: number; page: number; language: string }>(`/api/blog/posts?${new URLSearchParams(params)}`),
   get: (slug: string, lang = 'ru') =>
     requestJson<{ post: BlogPostDoc }>(`/api/blog/posts/${encodeURIComponent(slug)}?lang=${lang}`),
+  getById: (id: string) =>
+    requestJson<{ post: BlogPostDoc }>(`/api/blog/posts/by-id/${encodeURIComponent(id)}`),
   create: (payload: Record<string, unknown>) =>
     requestJson<{ post: BlogPostDoc }>('/api/blog/posts', { method: 'POST', body: JSON.stringify(payload) }),
   update: (id: string, payload: Record<string, unknown>) =>

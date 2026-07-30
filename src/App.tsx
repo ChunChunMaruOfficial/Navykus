@@ -35,7 +35,6 @@ import {
   savePreferredLanguage,
   type SupportedLanguage,
 } from './i18n/languages';
-import { useLocalizedData } from './i18n/useLocalizedData';
 import { useCmsTournaments } from './hooks/useCmsTournaments';
 import { useCmsPillars } from './hooks/useCmsPillars';
 import { useCmsExperts } from './hooks/useCmsExperts';
@@ -153,17 +152,12 @@ function PageFallback({ page }: { page: Page }) {
 export default function App() {
   const { t } = useTranslation();
   const { i18n } = useTranslation();
-  const {
-    tournaments,
-  } = useLocalizedData();
   const cmsTournaments = useCmsTournaments();
   const pillars = useCmsPillars();
   const experts = useCmsExperts();
   const trustPoints = useCmsTrustPoints();
   const stats = useCmsStats();
   const [featuredTournament, setFeaturedTournament] = useState<Record<string, unknown> | null>(null);
-  // Use CMS tournaments if available, fall back to translation data
-  const effectiveTournaments = cmsTournaments || tournaments;
   const featuredTournamentPublicId = featuredTournament
     ? String(featuredTournament.legacyId ?? featuredTournament.id ?? '')
     : undefined;
@@ -172,7 +166,6 @@ export default function App() {
       featuredTournamentPublicId,
       featuredTournament?.id != null ? String(featuredTournament.id) : undefined,
       cmsTournaments?.[0]?.id,
-      effectiveTournaments?.[0]?.id,
     ].filter((id): id is string => Boolean(id));
     if (tournamentIds.length === 0) return experts || [];
     const tournamentIdSet = new Set(tournamentIds);
@@ -180,7 +173,7 @@ export default function App() {
     if (scopedExperts.length > 0) return scopedExperts;
     const unscopedExperts = experts?.filter(e => !e.tournamentId) || [];
     return unscopedExperts.length > 0 ? unscopedExperts : (experts || []);
-  }, [experts, featuredTournament, featuredTournamentPublicId, cmsTournaments, effectiveTournaments]);
+  }, [experts, featuredTournament, featuredTournamentPublicId, cmsTournaments]);
   const [currentPage, setCurrentPage] = useState<Page>(getPageFromPath);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -192,16 +185,7 @@ export default function App() {
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
   const [authUser, setAuthUser] = useState<PlatformUser | null | undefined>(undefined);
   const [contactSettings, setContactSettings] = useState<ContactSettings | null>(null);
-  const displayedTrustPoints = trustPoints?.length === 5
-    ? [
-      ...trustPoints,
-      {
-        id: 'tr-6',
-        title: t('ui.app.trustGrowthTitle'),
-        description: t('ui.app.trustGrowthDescription'),
-      },
-    ]
-    : trustPoints || [];
+  const displayedTrustPoints = trustPoints || [];
 
   useEffect(() => {
     const handlePopState = () => {
@@ -212,6 +196,18 @@ export default function App() {
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
+
+  useEffect(() => {
+    const previewId = new URLSearchParams(window.location.search).get('previewId');
+    if (!previewId) return;
+    const timer = window.setTimeout(() => {
+      const target = document.querySelector<HTMLElement>(`[data-preview-id="${CSS.escape(previewId)}"]`);
+      if (!target) return;
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      target.classList.add('ring-2', 'ring-[#bc4638]', 'ring-offset-2', 'ring-offset-white');
+    }, 500);
+    return () => window.clearTimeout(timer);
+  }, [currentPage, isPlatformRoute]);
 
   useEffect(() => {
     let cancelled = false;
@@ -240,7 +236,8 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    fetch(apiUrl('/api/championships/featured'))
+    const language = (i18n.resolvedLanguage || i18n.language || 'ru').split('-')[0];
+    fetch(apiUrl(`/api/championships/featured?lang=${encodeURIComponent(language)}`))
       .then((res) => {
         if (!res.ok) throw new Error('No featured championship');
         return res.json();
@@ -249,10 +246,9 @@ export default function App() {
         setFeaturedTournament(data.doc);
       })
       .catch(() => {
-        // No featured championship set in CMS, use i18n fallback
         setFeaturedTournament(null);
       });
-  }, []);
+  }, [i18n.resolvedLanguage, i18n.language]);
 
     usePageMeta(currentPage, t, i18n);
 
@@ -400,6 +396,7 @@ export default function App() {
 
   const applyPendingInlineProfile = async (user: PlatformUser | null) => {
     if (!user) return;
+    const sourceLanguage = (i18n.resolvedLanguage || i18n.language || 'ru').split('-')[0];
     const pendingChampionship = sessionStorage.getItem('navykus.pendingChampionshipProfile');
     if (pendingChampionship) {
       try {
@@ -431,6 +428,9 @@ export default function App() {
           skills: data.skills,
           interests: data.interests,
           biography: data.whyLooking || data.shortBio || '',
+          preferredLanguage: sourceLanguage,
+          preferredLanguageMode: 'manual',
+          publicProfile: true,
           socialLinks: [{ label: data.contactType, url: data.contact }],
         });
         // Also create a TeamMembers entry in CMS so the participant appears on Find Team page
@@ -447,6 +447,7 @@ export default function App() {
             whyLooking: data.whyLooking || '',
             contact: data.contact,
             contactType: data.contactType || 'telegram',
+            originalLanguage: sourceLanguage,
             isApproved: true,
           });
         } catch {
@@ -476,33 +477,22 @@ export default function App() {
     setFormContact('');
   };
 
+  const firstCmsTournament = cmsTournaments[0];
   const nearestTournament = featuredTournament
     ? {
-        id: featuredTournamentPublicId || 'cms-featured',
-        title: String(featuredTournament.title || effectiveTournaments?.[0]?.title || 'Navykus Global Case Cup: Sustainable Cities'),
-        type: String(featuredTournament.type || 'Кейс-чемпионат'),
-        date: String(featuredTournament.date || '18–25 Сентября 2026'),
-        registrationDeadline: String(featuredTournament.registrationDeadline || '15 Сентября 2026'),
-        description: String(featuredTournament.description || 'Разработка инновационных решений для урбанистических проблем будущего.'),
-        skills: Array.isArray(featuredTournament.skills) ? featuredTournament.skills.map((s: unknown) => typeof s === 'string' ? s : String((s as { value?: string }).value || '')) : effectiveTournaments?.[0]?.skills || [],
-        mentors: Array.isArray(featuredTournament.mentors) ? featuredTournament.mentors.map((m: unknown) => typeof m === 'string' ? m : String((m as { value?: string }).value || '')) : effectiveTournaments?.[0]?.mentors || [],
-        maxParticipants: Number(featuredTournament.maxParticipants) || effectiveTournaments?.[0]?.maxParticipants || 120,
-        suitableFor: String(featuredTournament.suitableFor || effectiveTournaments?.[0]?.suitableFor || ''),
-        format: String(featuredTournament.format || ''),
+        id: featuredTournamentPublicId || String(featuredTournament.id || firstCmsTournament?.id || ''),
+        title: String(featuredTournament.title || firstCmsTournament?.title || ''),
+        type: String(featuredTournament.type || firstCmsTournament?.type || ''),
+        date: String(featuredTournament.date || firstCmsTournament?.date || ''),
+        registrationDeadline: String(featuredTournament.registrationDeadline || firstCmsTournament?.registrationDeadline || ''),
+        description: String(featuredTournament.description || firstCmsTournament?.description || ''),
+        skills: Array.isArray(featuredTournament.skills) ? featuredTournament.skills.map((s: unknown) => typeof s === 'string' ? s : String((s as { value?: string }).value || '')) : firstCmsTournament?.skills || [],
+        mentors: Array.isArray(featuredTournament.mentors) ? featuredTournament.mentors.map((m: unknown) => typeof m === 'string' ? m : String((m as { value?: string }).value || '')) : firstCmsTournament?.mentors || [],
+        maxParticipants: Number(featuredTournament.maxParticipants) || firstCmsTournament?.maxParticipants || 0,
+        suitableFor: String(featuredTournament.suitableFor || firstCmsTournament?.suitableFor || ''),
+        format: String(featuredTournament.format || firstCmsTournament?.format || ''),
       }
-    : effectiveTournaments?.[0] ?? {
-    id: 'fallback',
-    title: 'Navykus Global Case Cup: Sustainable Cities',
-    type: 'Кейс-чемпионат',
-    date: '18–25 Сентября 2026',
-    registrationDeadline: '15 Сентября 2026',
-    description: 'Разработка инновационных решений для урбанистических проблем будущего. Международное жюри, реальные кейсы от урбанистов, архитекторов и экологов со всего мира.',
-    skills: ['Системное мышление', 'Экологическое проектирование', 'Teamwork', 'Презентация'],
-    mentors: ['д-р Марк Шпильман (MIT)', 'Елена Самарина (УрбанХаб)', 'Артур де Гроот (Роттердамский университет)'],
-    maxParticipants: 120,
-    suitableFor: 'Школьники 8–11 классов, увлеченные экологией, урбанистикой и социальными инновациями.',
-    format: 'Онлайн (групповой этап, защита проектов по видеосвязи)',
-  };
+    : firstCmsTournament ?? null;
   const inlineInterestLabels: Record<string, string> = {
     projects: t('ui.app.d52e1ae8a0'),
     cases: t('ui.app.852dca4487'),
@@ -751,14 +741,16 @@ export default function App() {
                 >{t('ui.app.d13f387e64')}</button>
               </div>
 
-              <div className="pt-2 flex flex-wrap items-center gap-x-8 gap-y-4 text-xs text-brand-slate/90">
-                {(stats?.length > 0 ? stats : [{ value: '15+', label: t('ui.app.ffecc101e5') }]).map((stat, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
-                    <Globe className="w-4 h-4 text-[#bc4638]" />
-                    <span><strong>{stat.value}</strong>{stat.label}</span>
-                  </div>
-                ))}
-              </div>
+              {stats.length > 0 && (
+                <div className="pt-2 flex flex-wrap items-center gap-x-8 gap-y-4 text-xs text-brand-slate/90">
+                  {stats.map((stat, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <Globe className="w-4 h-4 text-[#bc4638]" />
+                      <span><strong>{stat.value}</strong>{stat.label}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
 
             </motion.div>
 
@@ -813,6 +805,7 @@ export default function App() {
             </motion.div>
           </section>
 
+          {nearestTournament && (
           <section id="nearest-championship" className="relative z-10 py-16 md:py-20 max-w-7xl mx-auto px-[6%] md:px-[10%] section-accent-rose">
             <motion.div
               {...fadeUpLarge}
@@ -869,7 +862,7 @@ export default function App() {
                   </div>
                   <div className="grid gap-3 md:grid-cols-3">
                     {featuredExperts?.slice(0, 3).map((expert) => (
-                      <div key={expert.id} className="rounded-xl border border-white/55 bg-white/45 p-3">
+                      <div key={expert.id} data-preview-id={expert.id} className="rounded-xl border border-white/55 bg-white/45 p-3">
                         <div className="font-serif text-lg font-semibold leading-tight text-brand-dark">{expert.name}</div>
                         <div className="mt-1.5 text-xs leading-relaxed text-brand-slate">{expert.role}</div>
                       </div>
@@ -894,6 +887,7 @@ export default function App() {
 
             </motion.div>
           </section>
+          )}
 
           <section id="embedded-application-form" className="relative z-10 py-16 md:py-24 max-w-7xl mx-auto px-[6%] md:px-[10%]">
             <motion.div

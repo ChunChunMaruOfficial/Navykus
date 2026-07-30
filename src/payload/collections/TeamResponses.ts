@@ -1,6 +1,8 @@
 import type { Access, CollectionConfig } from 'payload';
 
 import { adminOrModerator, isAdmin, isModerator, ownerOrStaff } from '../access';
+import { auditAfterChange, auditAfterDelete } from '../audit';
+import { localizedAfterChange, localizedAfterDelete, originalLanguageField } from '../localization';
 
 const participantOrStaff: Access = ({ req: { user } }) => {
   if (!user) return false;
@@ -27,7 +29,12 @@ export const TeamResponses: CollectionConfig = {
     update: ownerOrStaff('recipient'),
     delete: adminOrModerator,
   },
+  hooks: {
+    afterChange: [localizedAfterChange('team-responses'), auditAfterChange('team-responses')],
+    afterDelete: [localizedAfterDelete('team-responses'), auditAfterDelete('team-responses')],
+  },
   fields: [
+    originalLanguageField,
     { name: 'post', type: 'relationship', relationTo: 'team-posts', required: true },
     { name: 'sender', type: 'relationship', relationTo: 'users', required: true },
     { name: 'recipient', type: 'relationship', relationTo: 'users', required: true },

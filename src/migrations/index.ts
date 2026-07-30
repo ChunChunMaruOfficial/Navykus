@@ -2,6 +2,13 @@ import * as migration_20260714_165539_add_user_roles from './20260714_165539_add
 import * as migration_20260714_223245_add_platform_indexes from './20260714_223245_add_platform_indexes';
 import * as migration_20260715_120000_add_user_avatar_profile from './20260715_120000_add_user_avatar_profile';
 import * as migration_20260722_225723 from './20260722_225723';
+import * as migration_20260725_120000_add_tournament_display_fields from './20260725_120000_add_tournament_display_fields';
+import * as migration_20260725_130000_add_content_localizations from './20260725_130000_add_content_localizations';
+import * as migration_20260725_140000_add_team_member_moderation from './20260725_140000_add_team_member_moderation';
+import * as migration_20260729_123911 from './20260729_123911';
+import * as migration_20260729_170000_add_legacy_content_admin_fields from './20260729_170000_add_legacy_content_admin_fields';
+import * as migration_20260729_171500_add_operator_settings from './20260729_171500_add_operator_settings';
+import * as migration_20260729_191500_add_opportunity_card_fields from './20260729_191500_add_opportunity_card_fields';
 
 export const migrations = [
   {
@@ -22,6 +29,41 @@ export const migrations = [
   {
     up: migration_20260722_225723.up,
     down: migration_20260722_225723.down,
-    name: '20260722_225723'
+    name: '20260722_225723',
+  },
+  {
+    up: migration_20260725_120000_add_tournament_display_fields.up,
+    down: migration_20260725_120000_add_tournament_display_fields.down,
+    name: '20260725_120000_add_tournament_display_fields',
+  },
+  {
+    up: migration_20260725_130000_add_content_localizations.up,
+    down: migration_20260725_130000_add_content_localizations.down,
+    name: '20260725_130000_add_content_localizations',
+  },
+  {
+    up: migration_20260725_140000_add_team_member_moderation.up,
+    down: migration_20260725_140000_add_team_member_moderation.down,
+    name: '20260725_140000_add_team_member_moderation',
+  },
+  {
+    up: migration_20260729_123911.up,
+    down: migration_20260729_123911.down,
+    name: '20260729_123911'
+  },
+  {
+    up: migration_20260729_170000_add_legacy_content_admin_fields.up,
+    down: migration_20260729_170000_add_legacy_content_admin_fields.down,
+    name: '20260729_170000_add_legacy_content_admin_fields',
+  },
+  {
+    up: migration_20260729_171500_add_operator_settings.up,
+    down: migration_20260729_171500_add_operator_settings.down,
+    name: '20260729_171500_add_operator_settings',
+  },
+  {
+    up: migration_20260729_191500_add_opportunity_card_fields.up,
+    down: migration_20260729_191500_add_opportunity_card_fields.down,
+    name: '20260729_191500_add_opportunity_card_fields',
   },
 ];

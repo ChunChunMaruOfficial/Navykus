@@ -1,13 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { apiUrl } from '../api';
-import { useLocalizedData } from '../i18n/useLocalizedData';
+import { useCmsCollection, useCmsLanguage } from './useCmsCollection';
 
 export type CmsTournamentDoc = {
   id: string | number;
   title: string;
   type: string;
   description: string;
+  pitch?: string;
   date: string;
   registrationDeadline: string;
   maxParticipants: number;
@@ -15,6 +13,14 @@ export type CmsTournamentDoc = {
   mentors?: Array<{ value: string }> | string[];
   suitableFor?: string;
   format?: string;
+  targetAudience?: string;
+  ageLimit?: string;
+  teamsAllowed?: string;
+  language?: string;
+  expectedResult?: string;
+  themesText?: string;
+  evaluationCriteriaText?: string;
+  registrationStatus?: 'open' | 'suspended' | 'closed';
 };
 
 export type CmsMappedTournament = {
@@ -22,6 +28,7 @@ export type CmsMappedTournament = {
   title: string;
   type: string;
   description: string;
+  pitch: string;
   date: string;
   registrationDeadline: string;
   maxParticipants: number;
@@ -29,6 +36,14 @@ export type CmsMappedTournament = {
   mentors: string[];
   suitableFor: string;
   format: string;
+  targetAudience: string;
+  ageLimit: string;
+  teamsAllowed: string;
+  language: string;
+  expectedResult: string;
+  themesText: string;
+  evaluationCriteriaText: string;
+  registrationStatus: 'open' | 'suspended' | 'closed';
 };
 
 const listValues = (items: unknown): string[] => {
@@ -45,6 +60,7 @@ const mapCmsDoc = (doc: CmsTournamentDoc): CmsMappedTournament => ({
   title: doc.title,
   type: doc.type || '',
   description: doc.description || '',
+  pitch: doc.pitch || '',
   date: doc.date || '',
   registrationDeadline: doc.registrationDeadline || '',
   maxParticipants: doc.maxParticipants || 0,
@@ -52,37 +68,30 @@ const mapCmsDoc = (doc: CmsTournamentDoc): CmsMappedTournament => ({
   mentors: listValues(doc.mentors),
   suitableFor: doc.suitableFor || '',
   format: doc.format || '',
+  targetAudience: doc.targetAudience || '',
+  ageLimit: doc.ageLimit || '',
+  teamsAllowed: doc.teamsAllowed || '',
+  language: doc.language || '',
+  expectedResult: doc.expectedResult || '',
+  themesText: doc.themesText || '',
+  evaluationCriteriaText: doc.evaluationCriteriaText || '',
+  registrationStatus: ['open', 'suspended', 'closed'].includes(doc.registrationStatus || '')
+    ? doc.registrationStatus as CmsMappedTournament['registrationStatus']
+    : 'open',
 });
 
+export const useCmsTournamentsState = () => {
+  const language = useCmsLanguage();
+  const collection = useCmsCollection<CmsTournamentDoc, CmsMappedTournament>({
+    path: `/api/tournaments?limit=50&lang=${encodeURIComponent(language)}`,
+    map: mapCmsDoc,
+  });
+  return {
+    ...collection,
+    data: collection.data || [],
+  };
+};
+
 export const useCmsTournaments = () => {
-  const { t } = useTranslation();
-  const { tournaments: fallbackTournaments } = useLocalizedData();
-  const [tournaments, setTournaments] = useState<CmsMappedTournament[] | null>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    fetch(apiUrl('/api/tournaments?limit=50'))
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to fetch tournaments');
-        return res.json();
-      })
-      .then((data: { docs?: CmsTournamentDoc[] } | CmsTournamentDoc[]) => {
-        if (!isMounted) return;
-        const docs = Array.isArray(data) ? data : (data.docs || []);
-        setTournaments(docs.map(mapCmsDoc));
-      })
-      .catch(() => {
-        if (isMounted) setTournaments([]);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [t]);
-
-  return useMemo(() => {
-    if (!tournaments?.length) return fallbackTournaments;
-    return tournaments;
-  }, [tournaments, fallbackTournaments]);
+  return useCmsTournamentsState().data;
 };

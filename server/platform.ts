@@ -10,7 +10,18 @@ import multer from 'multer';
 import type { RequiredDataFromCollectionSlug } from 'payload';
 
 import { getPayloadClient } from './payload';
+import { applyLocalizations, languageFromRequest } from './content-localizations';
 import { evaluatePassword } from './password-policy';
+import { processPendingContentLocalizations, retryContentLocalization, SUPPORTED_CONTENT_COLLECTIONS } from '../src/payload/localization';
+import { syncBlogPublicationData, syncPublishedDraftData, syncTeamMemberPublicationData } from '../src/payload/fields';
+import { adminVerificationRecipient, isAllowedAdminEmail, normalizeEmail } from '../src/security/admin-auth';
+import {
+  ADMIN_CONTENT_TYPES,
+  getAdminContentType,
+  getAdminContentTypeByCollection,
+  type AdminContentField,
+  type AdminContentType,
+} from '../src/content-admin-registry';
 
 type Role = 'user' | 'moderator' | 'admin';
 type PlatformUser = {
@@ -78,6 +89,8 @@ const APPLICATION_STATUSES = new Set([
   'cancelled',
 ]);
 const SUPPORTED_LANGUAGES = new Set(['ru', 'en', 'kk', 'uz', 'ar', 'de', 'es', 'tr']);
+const TEAM_MEMBER_MODERATION_STATUSES = new Set(['pending', 'approved', 'rejected', 'needs_edit']);
+const TRANSLATION_STATUSES = new Set(['pending', 'in_progress', 'ready', 'failed']);
 
 fs.mkdirSync(avatarUploadDir, { recursive: true });
 
@@ -277,6 +290,69 @@ const publicApplication = (doc: unknown) => {
   return record;
 };
 
+const publicTeamMemberModeration = (doc: unknown) => {
+  const record = doc as Record<string, unknown>;
+  return {
+    id: String(record.id),
+    name: String(record.name || ''),
+    age: Number(record.age || 0),
+    country: String(record.country || ''),
+    city: typeof record.city === 'string' ? record.city : undefined,
+    shortBio: String(record.shortBio || ''),
+    interests: listValues(record.interests),
+    skills: listValues(record.skills),
+    targetRoles: Array.isArray(record.targetRoles) ? record.targetRoles.map(String) : [],
+    targetProject: typeof record.targetProject === 'string' ? record.targetProject : undefined,
+    whyLooking: String(record.whyLooking || ''),
+    contact: String(record.contact || ''),
+    contactType: String(record.contactType || ''),
+    moderationStatus: String(record.moderationStatus || (record.isApproved ? 'approved' : 'pending')),
+    moderationComment: typeof record.moderationComment === 'string' ? record.moderationComment : undefined,
+    isApproved: Boolean(record.isApproved),
+    reviewedAt: typeof record.reviewedAt === 'string' ? record.reviewedAt : undefined,
+    createdAt: typeof record.createdAt === 'string' ? record.createdAt : undefined,
+  };
+};
+
+const publicTranslationRecord = (doc: unknown) => {
+  const record = doc as Record<string, unknown>;
+  return {
+    id: String(record.id),
+    sourceCollection: String(record.sourceCollection || ''),
+    sourceId: String(record.sourceId || ''),
+    language: String(record.language || ''),
+    translationStatus: String(record.translationStatus || ''),
+    attempts: Number(record.attempts || 0),
+    errorMessage: typeof record.errorMessage === 'string' ? record.errorMessage : undefined,
+    generatedAt: typeof record.generatedAt === 'string' ? record.generatedAt : undefined,
+    updatedAt: typeof record.updatedAt === 'string' ? record.updatedAt : undefined,
+    createdAt: typeof record.createdAt === 'string' ? record.createdAt : undefined,
+  };
+};
+
+const writeAdminAudit = async (
+  payload: Awaited<ReturnType<typeof getPayloadClient>>,
+  actor: Pick<PlatformUser, 'id' | 'email'> | undefined,
+  action: string,
+  collection: string,
+  documentId = '',
+  summary?: string,
+) => {
+  await payload.create({
+    collection: 'audit-logs' as any,
+    data: {
+      action,
+      collection,
+      documentId,
+      actorId: actor?.id,
+      actorEmail: actor?.email,
+      changedFields: [],
+      summary: summary || `${action} ${collection}:${documentId}`,
+    },
+    overrideAccess: true,
+  }).catch(() => undefined);
+};
+
 const getAuthenticatedUser = async (req: Request) => {
   const token = getBearerToken(req);
   if (!token) return undefined;
@@ -291,6 +367,7 @@ const getAuthenticatedUser = async (req: Request) => {
 
   if (!result?.user) return undefined;
   const user = normalizeUser(result.user as unknown as Record<string, unknown>);
+  if (!isAllowedAdminEmail(user.email)) return undefined;
   return user.accountStatus === 'blocked' ? undefined : user;
 };
 
@@ -388,11 +465,221 @@ const pageOptions = (req: Request) => ({
   limit: Math.min(50, Math.max(1, Number(req.query.limit || 12))),
 });
 
-const catalogWhere = (req: Request, searchFields: string[], extra: Record<string, unknown> = {}) => {
-  const where: Record<string, unknown> = {
-    isPublished: { equals: true },
-    ...extra,
+const payloadUserForStaff = async (payload: Awaited<ReturnType<typeof getPayloadClient>>, staff: PlatformUser) => {
+  const result = await payload.find({
+    collection: USER_COLLECTION,
+    where: { email: { equals: staff.email } },
+    limit: 1,
+    overrideAccess: true,
+  });
+  return result.docs[0];
+};
+
+const payloadRequestForStaff = async (payload: Awaited<ReturnType<typeof getPayloadClient>>, staff: PlatformUser) => {
+  const user = await payloadUserForStaff(payload, staff);
+  if (!user) throw new Error('ADMIN_PAYLOAD_USER_NOT_FOUND');
+  return { user, payload } as any;
+};
+
+const listPayloadValues = (value: unknown) => {
+  if (typeof value === 'string') {
+    return value.split(/\r?\n|,/).map((item) => item.trim()).filter(Boolean).map((item) => ({ value: item }));
+  }
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((item) => {
+      if (typeof item === 'string') return item.trim();
+      if (item && typeof item === 'object' && 'value' in item) return String((item as Record<string, unknown>).value || '').trim();
+      return '';
+    })
+    .filter(Boolean)
+    .map((item) => ({ value: item }));
+};
+
+const multiSelectValues = (value: unknown) => {
+  if (typeof value === 'string') return value.split(/\r?\n|,/).map((item) => item.trim()).filter(Boolean);
+  if (!Array.isArray(value)) return [];
+  return value.map(String).map((item) => item.trim()).filter(Boolean);
+};
+
+const sanitizeAdminFieldValue = (field: AdminContentField, rawValue: unknown, isCreate: boolean) => {
+  const value = rawValue === undefined && isCreate ? field.defaultValue : rawValue;
+  if (value === undefined) return undefined;
+
+  if (field.type === 'checkbox') return Boolean(value);
+  if (field.type === 'number') {
+    if (value === '' || value === null) return field.required ? 0 : null;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : field.required ? 0 : null;
+  }
+  if (field.type === 'list') return listPayloadValues(value);
+  if (field.type === 'multiselect') return multiSelectValues(value);
+  if (field.type === 'select') {
+    const text = String(value || '').trim();
+    if (!text) return field.required ? field.defaultValue || field.options?.[0] : undefined;
+    if (field.options?.length && !field.options.includes(text)) return field.defaultValue || field.options[0];
+    return text;
+  }
+  if (field.type === 'date') {
+    const text = String(value || '').trim();
+    return text || (field.required ? new Date().toISOString() : null);
+  }
+  if (field.type === 'hidden') return value;
+  return String(value ?? '').trim();
+};
+
+const sanitizeAdminContentData = (
+  type: AdminContentType,
+  body: Record<string, unknown>,
+  isCreate: boolean,
+  payloadUserId: string | number,
+  originalDoc?: Record<string, unknown>,
+) => {
+  const data: Record<string, unknown> = {};
+
+  for (const field of type.fields) {
+    const value = sanitizeAdminFieldValue(field, body[field.name], isCreate);
+    if (value !== undefined) data[field.name] = value;
+  }
+
+  if (type.collection === 'blog-posts' && isCreate && !data.author) {
+    data.author = payloadId(payloadUserId);
+  }
+  if (type.collection === 'experts' && data.tournamentId) {
+    data.tournamentId = payloadId(String(data.tournamentId));
+  }
+  if (type.collection === 'blog-posts') {
+    syncBlogPublicationData(data, originalDoc);
+  } else if (type.collection === 'team-members') {
+    syncTeamMemberPublicationData(data, originalDoc);
+  } else if (type.supportsDraftStatus && (type.usesPublishedFlag || type.requiresPublishedFlag)) {
+    syncPublishedDraftData(data, originalDoc);
+  }
+
+  return data;
+};
+
+const adminContentSearchWhere = (type: AdminContentType, q: unknown) => {
+  const query = typeof q === 'string' ? q.trim() : '';
+  if (!query) return {};
+  return { or: type.searchFields.map((field) => ({ [field]: { like: query } })) };
+};
+
+const serializeAdminContentDoc = (type: AdminContentType, doc: Record<string, unknown>) => {
+  const previewId = encodeURIComponent(String(doc.id || ''));
+  const slug = typeof doc.slug === 'string' && doc.slug.trim() ? encodeURIComponent(doc.slug.trim()) : '';
+  const publicPreviewUrl = type.key === 'opportunities' && slug
+    ? `/activities/opportunities/${slug}?previewId=${previewId}`
+    : type.key === 'blog' && slug
+      ? `/blog/${slug}?previewId=${previewId}`
+      : type.publicPath
+        ? `${type.publicPath}?previewId=${previewId}`
+        : undefined;
+  return {
+    ...doc,
+    publicPreviewUrl,
   };
+};
+
+const cleanupContentLocalizations = async (
+  payload: Awaited<ReturnType<typeof getPayloadClient>>,
+  collection: string,
+  id: string | number,
+) => {
+  if (!(SUPPORTED_CONTENT_COLLECTIONS as readonly string[]).includes(collection)) return;
+  await payload.delete({
+    collection: 'content-localizations' as any,
+    where: {
+      and: [
+        { sourceCollection: { equals: collection } },
+        { sourceId: { equals: String(id) } },
+      ],
+    },
+    overrideAccess: true,
+  }).catch(() => undefined);
+};
+
+const checkTranslationProvider = async () => {
+  const provider = process.env.TRANSLATION_PROVIDER === 'libretranslate'
+    ? 'libretranslate'
+    : process.env.TRANSLATION_PROVIDER === 'mymemory'
+      ? 'mymemory'
+      : 'google';
+  try {
+    let response: globalThis.Response;
+    if (provider === 'libretranslate') {
+      response = await fetch(process.env.LIBRETRANSLATE_URL || 'https://libretranslate.com/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          q: 'test',
+          source: 'en',
+          target: 'de',
+          format: 'text',
+          ...(process.env.LIBRETRANSLATE_API_KEY ? { api_key: process.env.LIBRETRANSLATE_API_KEY } : {}),
+        }),
+        signal: AbortSignal.timeout(6000),
+      });
+    } else if (provider === 'google') {
+      const url = new URL(process.env.GOOGLE_TRANSLATE_URL || 'https://translate.googleapis.com/translate_a/single');
+      url.searchParams.set('client', 'gtx');
+      url.searchParams.set('sl', 'en');
+      url.searchParams.set('tl', 'de');
+      url.searchParams.set('dt', 't');
+      url.searchParams.set('q', 'test');
+      response = await fetch(url, { signal: AbortSignal.timeout(6000) });
+    } else {
+      const url = new URL(process.env.MYMEMORY_TRANSLATE_URL || 'https://api.mymemory.translated.net/get');
+      url.searchParams.set('q', 'test');
+      url.searchParams.set('langpair', 'en|de');
+      if (process.env.MYMEMORY_EMAIL) url.searchParams.set('de', process.env.MYMEMORY_EMAIL);
+      response = await fetch(url, { signal: AbortSignal.timeout(6000) });
+    }
+    return {
+      ok: response.ok,
+      status: response.ok ? 'connected' : `http_${response.status}`,
+      provider,
+    };
+  } catch (error) {
+    return { ok: false, status: 'request_failed', provider, message: (error as Error).message };
+  }
+};
+
+const systemHealth = async () => {
+  const payload = await getPayloadClient();
+  const db = await payload.find({ collection: USER_COLLECTION, limit: 0 })
+    .then(() => ({ ok: true, status: 'connected' }))
+    .catch((error) => ({ ok: false, status: 'failed', message: (error as Error).message }));
+  const disk = await fs.promises.statfs(process.cwd())
+    .then((stats) => {
+      const freeBytes = Number(stats.bavail) * Number(stats.bsize);
+      const totalBytes = Number(stats.blocks) * Number(stats.bsize);
+      const usedPercent = totalBytes > 0 ? Math.round((1 - freeBytes / totalBytes) * 1000) / 10 : 0;
+      return { ok: usedPercent < 90, status: usedPercent < 90 ? 'ok' : 'low_space', freeBytes, totalBytes, usedPercent };
+    })
+    .catch((error) => ({ ok: false, status: 'failed', message: (error as Error).message }));
+  const translation = await checkTranslationProvider();
+  const smtpConfigured = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+  return {
+    generatedAt: new Date().toISOString(),
+    service: { ok: true, status: 'online', uptimeSeconds: Math.round(process.uptime()) },
+    db,
+    translation,
+    smtp: { ok: smtpConfigured, status: smtpConfigured ? 'configured' : 'missing_config' },
+    disk,
+  };
+};
+
+const publicContentWhere = (collection: string, extra: Record<string, unknown> = {}) => {
+  const contentType = getAdminContentTypeByCollection(collection);
+  const where: Record<string, unknown> = {};
+  if (contentType?.requiresPublishedFlag || contentType?.usesPublishedFlag) where.isPublished = { equals: true };
+  if (contentType?.supportsDraftStatus) where._status = { equals: 'published' };
+  return { ...where, ...extra };
+};
+
+const catalogWhere = (collection: string, req: Request, searchFields: string[], extra: Record<string, unknown> = {}) => {
+  const where: Record<string, unknown> = publicContentWhere(collection, extra);
   const q = typeof req.query.q === 'string' ? req.query.q.trim() : '';
   if (q) {
     where.or = searchFields.map((field) => ({ [field]: { like: q } }));
@@ -406,9 +693,10 @@ const CODE_TTL_MINUTES = 10;
 
 const sendVerificationEmail = async (payload: any, to: string, code: string, subject: string) => {
   if (!process.env.SMTP_HOST) return;
+  const recipient = adminVerificationRecipient(to);
   try {
     await payload.sendEmail({
-      to,
+      to: recipient,
       from: `${process.env.SMTP_FROM_NAME || 'Navykus'} <${process.env.SMTP_FROM || 'noreply@navykus.online'}>`,
       subject,
       html: `
@@ -422,6 +710,7 @@ const sendVerificationEmail = async (payload: any, to: string, code: string, sub
     });
   } catch (error) {
     console.error('Failed to send email:', error);
+    throw error;
   }
 };
 
@@ -440,11 +729,15 @@ export const registerPlatformRoutes = (app: Express) => {
     try {
       const payload = await getPayloadClient();
       const body = req.body || {};
-      const email = String(body.email || '').trim().toLowerCase();
+      const email = normalizeEmail(body.email);
       const password = String(body.password || '');
 
       if (!email || !password || password.length < 8 || password !== body.passwordConfirmation) {
         res.status(400).json({ code: 'AUTH_INVALID_REGISTRATION' });
+        return;
+      }
+      if (!isAllowedAdminEmail(email)) {
+        res.status(403).json({ code: 'AUTH_REGISTRATION_RESTRICTED' });
         return;
       }
       if (!body.privacyAccepted || !body.termsAccepted) {
@@ -470,9 +763,9 @@ export const registerPlatformRoutes = (app: Express) => {
       const userData: UserWriteData = {
         email,
         password,
-        role: 'user',
-        accountStatus: 'pending',
-        emailVerified: false,
+        role: 'admin',
+        accountStatus: 'active',
+        emailVerified: true,
         verificationCode: generateCode(),
         verificationCodeExpires: new Date(Date.now() + CODE_TTL_MINUTES * 60 * 1000).toISOString(),
         ...pickProfileUpdate(body),
@@ -512,10 +805,14 @@ export const registerPlatformRoutes = (app: Express) => {
   app.post('/api/auth/login', async (req, res, next) => {
     try {
       const payload = await getPayloadClient();
-      const email = String(req.body?.email || '').trim().toLowerCase();
+      const email = normalizeEmail(req.body?.email);
       const password = String(req.body?.password || '');
       if (!email || !password) {
         res.status(400).json({ code: 'AUTH_CREDENTIALS_REQUIRED' });
+        return;
+      }
+      if (!isAllowedAdminEmail(email)) {
+        res.status(403).json({ code: 'AUTH_LOGIN_RESTRICTED' });
         return;
       }
 
@@ -536,6 +833,7 @@ export const registerPlatformRoutes = (app: Express) => {
       }
 
       setSessionCookie(res, login.token, login.exp);
+      await writeAdminAudit(payload, user, 'login', 'users', user.id, `login users:${user.id}`);
       res.json({ user, token: login.token });
     } catch (_error) {
       res.status(401).json({ code: 'AUTH_LOGIN_FAILED' });
@@ -575,7 +873,12 @@ export const registerPlatformRoutes = (app: Express) => {
     }
   });
 
-  app.post('/api/auth/logout', (_req, res) => {
+  app.post('/api/auth/logout', async (req, res) => {
+    const payload = await getPayloadClient().catch(() => undefined);
+    const user = await getAuthenticatedUser(req).catch(() => undefined);
+    if (payload && user) {
+      await writeAdminAudit(payload, user, 'logout', 'users', user.id, `logout users:${user.id}`);
+    }
     clearSessionCookie(res);
     res.json({ ok: true });
   });
@@ -593,9 +896,13 @@ export const registerPlatformRoutes = (app: Express) => {
   app.post('/api/auth/forgot-password', async (req, res, next) => {
     try {
       const payload = await getPayloadClient();
-      const email = String(req.body?.email || '').trim().toLowerCase();
+      const email = normalizeEmail(req.body?.email);
       if (!email) {
         res.status(400).json({ code: 'AUTH_EMAIL_REQUIRED' });
+        return;
+      }
+      if (!isAllowedAdminEmail(email)) {
+        res.json({ status: 'sent' });
         return;
       }
       let token: string | undefined;
@@ -643,9 +950,13 @@ export const registerPlatformRoutes = (app: Express) => {
   app.post('/api/auth/send-code', async (req, res, next) => {
     try {
       const payload = await getPayloadClient();
-      const email = String(req.body?.email || '').trim().toLowerCase();
+      const email = normalizeEmail(req.body?.email);
       if (!email) {
         res.status(400).json({ code: 'AUTH_EMAIL_REQUIRED' });
+        return;
+      }
+      if (!isAllowedAdminEmail(email)) {
+        res.status(403).json({ code: 'AUTH_LOGIN_RESTRICTED' });
         return;
       }
 
@@ -677,7 +988,12 @@ export const registerPlatformRoutes = (app: Express) => {
         overrideAccess: true,
       });
 
-      await sendVerificationEmail(payload, email, code, 'Код для входа — Navykus');
+      try {
+        await sendVerificationEmail(payload, email, code, 'Код для входа — Navykus');
+      } catch {
+        res.status(502).json({ code: 'AUTH_EMAIL_SEND_FAILED' });
+        return;
+      }
 
       res.json({ status: 'sent' });
     } catch (error) {
@@ -688,11 +1004,15 @@ export const registerPlatformRoutes = (app: Express) => {
   app.post('/api/auth/verify-code', async (req, res, next) => {
     try {
       const payload = await getPayloadClient();
-      const email = String(req.body?.email || '').trim().toLowerCase();
+      const email = normalizeEmail(req.body?.email);
       const code = String(req.body?.code || '').trim();
 
       if (!email || !code) {
         res.status(400).json({ code: 'AUTH_CODE_REQUIRED' });
+        return;
+      }
+      if (!isAllowedAdminEmail(email)) {
+        res.status(403).json({ code: 'AUTH_LOGIN_RESTRICTED' });
         return;
       }
 
@@ -950,6 +1270,7 @@ export const registerPlatformRoutes = (app: Express) => {
         sort,
         overrideAccess: true,
       });
+      await applyLocalizations(payload, 'users', result.docs as unknown as Array<Record<string, unknown>>, languageFromRequest(req));
       const docs = result.docs
         .map((doc) => publicParticipant(doc as unknown as Record<string, unknown>))
         .filter((participant) => {
@@ -983,7 +1304,9 @@ export const registerPlatformRoutes = (app: Express) => {
         res.status(404).json({ code: 'PARTICIPANT_NOT_FOUND' });
         return;
       }
-      res.json({ participant: publicParticipant(doc as unknown as Record<string, unknown>) });
+      const docs = [doc as unknown as Record<string, unknown>];
+      await applyLocalizations(payload, 'users', docs, languageFromRequest(req));
+      res.json({ participant: publicParticipant(docs[0]) });
     } catch (_error) {
       res.status(404).json({ code: 'PARTICIPANT_NOT_FOUND' });
     }
@@ -1263,6 +1586,7 @@ export const registerPlatformRoutes = (app: Express) => {
         sort: '-createdAt',
         overrideAccess: true,
       });
+      await applyLocalizations(payload, 'team-posts', result.docs as unknown as Array<Record<string, unknown>>, languageFromRequest(req));
       res.json({ docs: result.docs });
     } catch (error) {
       next(error);
@@ -1274,6 +1598,7 @@ export const registerPlatformRoutes = (app: Express) => {
       const user = await requireUser(req, res);
       if (!user) return;
       const payload = await getPayloadClient();
+      const language = languageFromRequest(req);
       const [posts, responses] = await Promise.all([
         payload.find({ collection: 'team-posts' as any, where: { user: { equals: user.id } }, limit: 100, overrideAccess: true }),
         payload.find({
@@ -1282,6 +1607,10 @@ export const registerPlatformRoutes = (app: Express) => {
           limit: 100,
           overrideAccess: true,
         }),
+      ]);
+      await Promise.all([
+        applyLocalizations(payload, 'team-posts', posts.docs as unknown as Array<Record<string, unknown>>, language),
+        applyLocalizations(payload, 'team-responses', responses.docs as unknown as Array<Record<string, unknown>>, language),
       ]);
       res.json({ posts: posts.docs, responses: responses.docs });
     } catch (error) {
@@ -1299,9 +1628,13 @@ export const registerPlatformRoutes = (app: Express) => {
         res.status(400).json({ code: 'TEAM_POST_INVALID' });
         return;
       }
+      const teamPostOriginalLanguage = typeof body.originalLanguage === 'string' && SUPPORTED_LANGUAGES.has(body.originalLanguage)
+        ? body.originalLanguage
+        : 'ru';
       const post = await payload.create({
         collection: 'team-posts' as any,
         data: {
+          originalLanguage: teamPostOriginalLanguage,
           user: payloadId(user.id),
           title: body.title,
           description: body.description,
@@ -1345,9 +1678,13 @@ export const registerPlatformRoutes = (app: Express) => {
         res.status(409).json({ code: 'TEAM_RESPONSE_DUPLICATE' });
         return;
       }
+      const teamResponseOriginalLanguage = typeof req.body?.originalLanguage === 'string' && SUPPORTED_LANGUAGES.has(req.body.originalLanguage)
+          ? req.body.originalLanguage
+          : 'ru';
       const response = await payload.create({
         collection: 'team-responses' as any,
         data: {
+          originalLanguage: teamResponseOriginalLanguage,
           post: payloadId(req.params.id),
           sender: payloadId(user.id),
           recipient: payloadId(recipient),
@@ -1415,12 +1752,13 @@ export const registerPlatformRoutes = (app: Express) => {
       const { page, limit } = pageOptions(req);
       const result = await payload.find({
         collection: 'tournaments' as any,
-        where: catalogWhere(req, ['title', 'description']),
+        where: catalogWhere('tournaments', req, ['title', 'description']),
         page,
         limit,
         sort: req.query.sort === 'oldest' ? 'createdAt' : '-createdAt',
         overrideAccess: true,
       });
+      await applyLocalizations(payload, 'tournaments', result.docs as Array<Record<string, unknown>>, languageFromRequest(req));
       res.json(result);
     } catch (error) {
       next(error);
@@ -1435,6 +1773,7 @@ export const registerPlatformRoutes = (app: Express) => {
         where: {
           isPublished: { equals: true },
           isFeatured: { equals: true },
+          _status: { equals: 'published' },
         },
         limit: 1,
         overrideAccess: true,
@@ -1443,6 +1782,7 @@ export const registerPlatformRoutes = (app: Express) => {
         res.status(404).json({ code: 'NO_FEATURED_CHAMPIONSHIP' });
         return;
       }
+      await applyLocalizations(payload, 'tournaments', result.docs as Array<Record<string, unknown>>, languageFromRequest(req));
       res.json({ doc: result.docs[0] });
     } catch (error) {
       next(error);
@@ -1455,12 +1795,13 @@ export const registerPlatformRoutes = (app: Express) => {
       const { page, limit } = pageOptions(req);
       const result = await payload.find({
         collection: 'events' as any,
-        where: catalogWhere(req, ['title', 'shortDescription', 'fullDescription', 'speaker', 'country'], req.query.format ? { format: { equals: req.query.format } } : {}),
+        where: catalogWhere('events', req, ['title', 'shortDescription', 'fullDescription', 'speaker', 'country'], req.query.format ? { format: { equals: req.query.format } } : {}),
         page,
         limit,
         sort: req.query.sort === 'oldest' ? 'eventDate' : '-eventDate',
         overrideAccess: true,
       });
+      await applyLocalizations(payload, 'events', result.docs as Array<Record<string, unknown>>, languageFromRequest(req));
       res.json(result);
     } catch (error) {
       next(error);
@@ -1473,12 +1814,13 @@ export const registerPlatformRoutes = (app: Express) => {
       const { page, limit } = pageOptions(req);
       const result = await payload.find({
         collection: 'opportunities' as any,
-        where: catalogWhere(req, ['title', 'shortDescription', 'fullDescription', 'organization', 'country'], req.query.format ? { format: { equals: req.query.format } } : {}),
+        where: catalogWhere('opportunities', req, ['title', 'shortDescription', 'fullDescription', 'organization', 'country'], req.query.format ? { format: { equals: req.query.format } } : {}),
         page,
         limit,
         sort: req.query.sort === 'deadline' ? 'deadline' : '-createdAt',
         overrideAccess: true,
       });
+      await applyLocalizations(payload, 'opportunities', result.docs as Array<Record<string, unknown>>, languageFromRequest(req));
       res.json(result);
     } catch (error) {
       next(error);
@@ -1512,6 +1854,167 @@ export const registerPlatformRoutes = (app: Express) => {
         sort: req.query.sort === 'oldest' ? 'createdAt' : '-sortOrder',
         overrideAccess: true,
       });
+      await applyLocalizations(payload, 'activities', result.docs as Array<Record<string, unknown>>, languageFromRequest(req));
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get('/api/admin/content-types', async (req: AuthenticatedRequest, res, next) => {
+    try {
+      const staff = await requireStaff(req, res);
+      if (!staff) return;
+      res.json({ types: ADMIN_CONTENT_TYPES });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get('/api/admin/content/:type', async (req: AuthenticatedRequest, res, next) => {
+    try {
+      const staff = await requireStaff(req, res);
+      if (!staff) return;
+      const contentType = getAdminContentType(req.params.type);
+      if (!contentType) {
+        res.status(404).json({ code: 'ADMIN_CONTENT_TYPE_NOT_FOUND' });
+        return;
+      }
+      const payload = await getPayloadClient();
+      const payloadReq = await payloadRequestForStaff(payload, staff);
+      const { page, limit } = pageOptions(req);
+      const result = await payload.find({
+        collection: contentType.collection as any,
+        where: adminContentSearchWhere(contentType, req.query.q),
+        page,
+        limit,
+        depth: 1,
+        sort: typeof req.query.sort === 'string' ? req.query.sort : '-createdAt',
+        req: payloadReq,
+        overrideAccess: false,
+      });
+      res.json({
+        ...result,
+        type: contentType,
+        docs: (result.docs as Array<Record<string, unknown>>).map((doc) => serializeAdminContentDoc(contentType, doc)),
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/api/admin/content/:type', async (req: AuthenticatedRequest, res, next) => {
+    try {
+      const staff = await requireStaff(req, res);
+      if (!staff) return;
+      const contentType = getAdminContentType(req.params.type);
+      if (!contentType) {
+        res.status(404).json({ code: 'ADMIN_CONTENT_TYPE_NOT_FOUND' });
+        return;
+      }
+      const payload = await getPayloadClient();
+      const payloadReq = await payloadRequestForStaff(payload, staff);
+      const data = sanitizeAdminContentData(contentType, req.body || {}, true, payloadReq.user.id);
+      const created = await payload.create({
+        collection: contentType.collection as any,
+        data: data as any,
+        depth: 1,
+        req: payloadReq,
+        overrideAccess: false,
+      });
+      await writeAdminAudit(payload, staff, 'create', contentType.collection, String((created as Record<string, unknown>).id || ''));
+      res.status(201).json({ doc: serializeAdminContentDoc(contentType, created as Record<string, unknown>) });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.patch('/api/admin/content/:type/:id', async (req: AuthenticatedRequest, res, next) => {
+    try {
+      const staff = await requireStaff(req, res);
+      if (!staff) return;
+      const contentType = getAdminContentType(req.params.type);
+      if (!contentType) {
+        res.status(404).json({ code: 'ADMIN_CONTENT_TYPE_NOT_FOUND' });
+        return;
+      }
+      const payload = await getPayloadClient();
+      const payloadReq = await payloadRequestForStaff(payload, staff);
+      const originalDoc = await payload.findByID({
+        collection: contentType.collection as any,
+        id: payloadId(req.params.id),
+        depth: 0,
+        req: payloadReq,
+        overrideAccess: false,
+      }) as Record<string, unknown>;
+      const data = sanitizeAdminContentData(contentType, req.body || {}, false, payloadReq.user.id, originalDoc);
+      const updated = await payload.update({
+        collection: contentType.collection as any,
+        id: payloadId(req.params.id),
+        data: data as any,
+        depth: 1,
+        req: payloadReq,
+        overrideAccess: false,
+      });
+      await writeAdminAudit(payload, staff, 'update', contentType.collection, req.params.id);
+      res.json({ doc: serializeAdminContentDoc(contentType, updated as Record<string, unknown>) });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.delete('/api/admin/content/:type/:id', async (req: AuthenticatedRequest, res, next) => {
+    try {
+      const staff = await requireStaff(req, res);
+      if (!staff) return;
+      const contentType = getAdminContentType(req.params.type);
+      if (!contentType) {
+        res.status(404).json({ code: 'ADMIN_CONTENT_TYPE_NOT_FOUND' });
+        return;
+      }
+      const payload = await getPayloadClient();
+      const payloadReq = await payloadRequestForStaff(payload, staff);
+      await payload.delete({
+        collection: contentType.collection as any,
+        id: payloadId(req.params.id),
+        req: payloadReq,
+        overrideAccess: false,
+      });
+      await cleanupContentLocalizations(payload, contentType.collection, req.params.id);
+      await writeAdminAudit(payload, staff, 'delete', contentType.collection, req.params.id);
+      res.json({ ok: true });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get('/api/admin/audit-logs', async (req: AuthenticatedRequest, res, next) => {
+    try {
+      const staff = await requireStaff(req, res);
+      if (!staff) return;
+      if (staff.role !== 'admin') {
+        res.status(403).json({ code: 'FORBIDDEN' });
+        return;
+      }
+      const payload = await getPayloadClient();
+      const { page, limit } = pageOptions(req);
+      const q = typeof req.query.q === 'string' ? req.query.q.trim() : '';
+      const result = await payload.find({
+        collection: 'audit-logs' as any,
+        where: q ? {
+          or: [
+            { action: { like: q } },
+            { collection: { like: q } },
+            { documentId: { like: q } },
+            { actorEmail: { like: q } },
+            { summary: { like: q } },
+          ],
+        } : {},
+        page,
+        limit,
+        sort: typeof req.query.sort === 'string' ? req.query.sort : '-createdAt',
+        overrideAccess: true,
+      });
       res.json(result);
     } catch (error) {
       next(error);
@@ -1523,7 +2026,7 @@ export const registerPlatformRoutes = (app: Express) => {
       const staff = await requireStaff(req, res);
       if (!staff) return;
       const payload = await getPayloadClient();
-const [users, applications, championships, events, opportunities, teamPosts, blogPending] = await Promise.all([
+const [users, applications, championships, events, opportunities, teamPosts, blogPending, teamMemberPending, translationsFailed] = await Promise.all([
         payload.count({ collection: USER_COLLECTION, overrideAccess: true }),
         payload.count({ collection: 'applications' as any, overrideAccess: true }),
         payload.count({ collection: 'tournaments' as any, where: { isPublished: { equals: true } }, overrideAccess: true }),
@@ -1531,6 +2034,8 @@ const [users, applications, championships, events, opportunities, teamPosts, blo
         payload.count({ collection: 'opportunities' as any, where: { isPublished: { equals: true } }, overrideAccess: true }),
         payload.count({ collection: 'team-posts' as any, overrideAccess: true }),
         payload.count({ collection: 'blog-posts' as any, where: { status: { equals: 'pending_review' } }, overrideAccess: true }),
+        payload.count({ collection: 'team-members' as any, where: { moderationStatus: { equals: 'pending' } }, overrideAccess: true }),
+        payload.count({ collection: 'content-localizations' as any, where: { translationStatus: { equals: 'failed' } }, overrideAccess: true }),
       ]);
       res.json({
         users: users.totalDocs,
@@ -1540,7 +2045,163 @@ const [users, applications, championships, events, opportunities, teamPosts, blo
         publishedOpportunities: opportunities.totalDocs,
         teamPosts: teamPosts.totalDocs,
         blogPending: blogPending.totalDocs,
+        teamMemberPending: teamMemberPending.totalDocs,
+        translationsFailed: translationsFailed.totalDocs,
       });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get('/api/admin/health', async (req: AuthenticatedRequest, res, next) => {
+    try {
+      const staff = await requireStaff(req, res);
+      if (!staff) return;
+      res.json(await systemHealth());
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get('/api/admin/team-members', async (req: AuthenticatedRequest, res, next) => {
+    try {
+      const staff = await requireStaff(req, res);
+      if (!staff) return;
+      const payload = await getPayloadClient();
+      const { page, limit } = pageOptions(req);
+      const status = typeof req.query.status === 'string' && TEAM_MEMBER_MODERATION_STATUSES.has(req.query.status)
+        ? req.query.status
+        : undefined;
+      const result = await payload.find({
+        collection: 'team-members' as any,
+        where: status ? { moderationStatus: { equals: status } } : {},
+        page,
+        limit,
+        sort: '-createdAt',
+        overrideAccess: true,
+      });
+      res.json({ ...result, docs: result.docs.map(publicTeamMemberModeration) });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.patch('/api/admin/team-members/:id/moderation', async (req: AuthenticatedRequest, res, next) => {
+    try {
+      const staff = await requireStaff(req, res);
+      if (!staff) return;
+      const status = String(req.body?.moderationStatus || '');
+      if (!TEAM_MEMBER_MODERATION_STATUSES.has(status)) {
+        res.status(400).json({ code: 'TEAM_MEMBER_MODERATION_STATUS_INVALID' });
+        return;
+      }
+      const payload = await getPayloadClient();
+      const updated = await payload.update({
+        collection: 'team-members' as any,
+        id: req.params.id,
+        data: {
+          moderationStatus: status,
+          moderationComment: typeof req.body?.moderationComment === 'string' ? req.body.moderationComment : undefined,
+          reviewedAt: new Date().toISOString(),
+          isApproved: status === 'approved',
+        },
+        overrideAccess: true,
+      });
+      res.json({ doc: publicTeamMemberModeration(updated) });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get('/api/admin/translations', async (req: AuthenticatedRequest, res, next) => {
+    try {
+      const staff = await requireStaff(req, res);
+      if (!staff) return;
+      const payload = await getPayloadClient();
+      const { page, limit } = pageOptions(req);
+      const and: Array<Record<string, unknown>> = [];
+      if (typeof req.query.status === 'string' && TRANSLATION_STATUSES.has(req.query.status)) {
+        and.push({ translationStatus: { equals: req.query.status } });
+      }
+      if (typeof req.query.collection === 'string' && (SUPPORTED_CONTENT_COLLECTIONS as readonly string[]).includes(req.query.collection)) {
+        and.push({ sourceCollection: { equals: req.query.collection } });
+      }
+      if (typeof req.query.language === 'string' && SUPPORTED_LANGUAGES.has(req.query.language)) {
+        and.push({ language: { equals: req.query.language } });
+      }
+      const result = await payload.find({
+        collection: 'content-localizations' as any,
+        where: and.length ? { and } : {},
+        page,
+        limit,
+        sort: req.query.sort === 'oldest' ? 'createdAt' : '-updatedAt',
+        overrideAccess: true,
+      });
+      const counts = await Promise.all(
+        Array.from(TRANSLATION_STATUSES).map(async (status) => ({
+          status,
+          totalDocs: (await payload.count({
+            collection: 'content-localizations' as any,
+            where: { translationStatus: { equals: status } },
+            overrideAccess: true,
+          })).totalDocs,
+        })),
+      );
+      res.json({
+        ...result,
+        docs: result.docs.map(publicTranslationRecord),
+        counts: Object.fromEntries(counts.map((item) => [item.status, item.totalDocs])),
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/api/admin/translations/:id/retry', async (req: AuthenticatedRequest, res, next) => {
+    try {
+      const staff = await requireStaff(req, res);
+      if (!staff) return;
+      const payload = await getPayloadClient();
+      const updated = await retryContentLocalization(payload, req.params.id);
+      await writeAdminAudit(payload, staff, 'retry_translation', 'content-localizations', req.params.id);
+      res.json({ doc: publicTranslationRecord(updated) });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/api/admin/translations/retry-failed', async (req: AuthenticatedRequest, res, next) => {
+    try {
+      const staff = await requireStaff(req, res);
+      if (!staff) return;
+      const payload = await getPayloadClient();
+      const collection = typeof req.body?.collection === 'string' && (SUPPORTED_CONTENT_COLLECTIONS as readonly string[]).includes(req.body.collection)
+        ? req.body.collection
+        : undefined;
+      const language = typeof req.body?.language === 'string' && SUPPORTED_LANGUAGES.has(req.body.language)
+        ? req.body.language
+        : undefined;
+      const and: Array<Record<string, unknown>> = [{ translationStatus: { equals: 'failed' } }];
+      if (collection) and.push({ sourceCollection: { equals: collection } });
+      if (language) and.push({ language: { equals: language } });
+      const failed = await payload.find({
+        collection: 'content-localizations' as any,
+        where: { and },
+        limit: 50,
+        depth: 0,
+        overrideAccess: true,
+      });
+      for (const doc of failed.docs as Array<Record<string, unknown>>) {
+        await payload.update({
+          collection: 'content-localizations' as any,
+          id: payloadId(doc.id as string | number),
+          data: { translationStatus: 'pending', attempts: 0, errorMessage: '' },
+          overrideAccess: true,
+        });
+      }
+      const processed = await processPendingContentLocalizations(payload);
+      await writeAdminAudit(payload, staff, 'retry_failed_translations', 'content-localizations', '', `retry_failed_translations queued=${failed.docs.length}`);
+      res.json({ queued: failed.docs.length, processed });
     } catch (error) {
       next(error);
     }

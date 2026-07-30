@@ -28,7 +28,6 @@ import {
   cardItemFadeUp,
 } from '../motion-animations';
 import { useCmsFaqs } from '../hooks/useCmsFaqs';
-import type { FaqItem } from '../types';
 import BrandImage from './BrandImage';
 import Logo from './Logo';
 
@@ -47,12 +46,6 @@ interface ActivityItem {
   description: string;
 }
 
-
-interface FallbackFAQItem {
-  id: string;
-  question: string;
-  answer: string;
-}
 
 const AUDIENCE_SEGMENTS: Segment[] = [
   {
@@ -130,39 +123,6 @@ const ACTIVITIES_ITEMS: ActivityItem[] = [
 ];
 
 
-const FAQ_ITEMS: FallbackFAQItem[] = [
-  {
-    id: "faq-1",
-    question: 'ui.aboutprojectpage.4b5e0f1908',
-    answer: 'ui.aboutprojectpage.09fd377d38'
-  },
-  {
-    id: "faq-2",
-    question: 'ui.aboutprojectpage.a4f04e2aad',
-    answer: 'ui.aboutprojectpage.3aeea8f6e3'
-  },
-  {
-    id: "faq-3",
-    question: 'ui.aboutprojectpage.ace0eadb3d',
-    answer: 'ui.aboutprojectpage.090808a2de'
-  },
-  {
-    id: "faq-4",
-    question: 'ui.aboutprojectpage.1d5cd942b3',
-    answer: 'ui.aboutprojectpage.3e6cba422a'
-  },
-  {
-    id: "faq-5",
-    question: 'ui.aboutprojectpage.55cd784afe',
-    answer: 'ui.aboutprojectpage.b38dd282f8'
-  },
-  {
-    id: "faq-6",
-    question: 'ui.aboutprojectpage.e663d62bb5',
-    answer: 'ui.aboutprojectpage.b966ab17f5'
-  }
-];
-
 interface AboutProjectPageProps {
   onBackToHome: () => void;
   onNavigateToSection: (sectionId: string) => void;
@@ -178,15 +138,7 @@ export default function AboutProjectPage({
   
   const [selectedSegmentIdx, setSelectedSegmentIdx] = useState(0);
   const [activeFaqIdx, setActiveFaqIdx] = useState<number | null>(null);
-  const faqItems = useCmsFaqs(
-    'about',
-    FAQ_ITEMS.map<FaqItem>((faq) => ({
-      id: faq.id,
-      page: 'about',
-      question: t(faq.question),
-      answer: t(faq.answer),
-    })),
-  );
+  const faqItems = useCmsFaqs('about');
 
   const handleNavigateFromAbout = (sectionId: string) => {
     onBackToHome();

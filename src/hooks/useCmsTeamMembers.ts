@@ -1,8 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { apiUrl } from '../api';
-import { useLocalizedData } from '../i18n/useLocalizedData';
 import type { TeamMember } from '../types';
+import { useCmsCollection, useCmsLanguage } from './useCmsCollection';
 
 type CmsTeamMemberDoc = {
   id: string | number;
@@ -45,35 +42,9 @@ const mapCmsTeamMember = (doc: CmsTeamMemberDoc): TeamMember => ({
 });
 
 export const useCmsTeamMembers = () => {
-  const { t } = useTranslation();
-  const { teamMembers: fallbackMembers } = useLocalizedData();
-  const [cmsMembers, setCmsMembers] = useState<TeamMember[] | null>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    fetch(apiUrl('/api/team-members?limit=200&depth=1&sort=-createdAt'))
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to fetch team members');
-        return res.json();
-      })
-      .then((data: { docs?: CmsTeamMemberDoc[] } | CmsTeamMemberDoc[]) => {
-        if (!isMounted) return;
-        const docs = Array.isArray(data) ? data : (data.docs || []);
-        const mapped = docs.map(mapCmsTeamMember);
-        setCmsMembers(mapped);
-      })
-      .catch(() => {
-        if (isMounted) setCmsMembers([]);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [t]);
-
-  return useMemo(() => {
-    if (!cmsMembers?.length) return fallbackMembers;
-    return cmsMembers;
-  }, [cmsMembers, fallbackMembers]);
+  const language = useCmsLanguage();
+  return useCmsCollection<CmsTeamMemberDoc, TeamMember>({
+    path: `/api/team-members?limit=200&depth=1&sort=-createdAt&lang=${encodeURIComponent(language)}`,
+    map: mapCmsTeamMember,
+  }).data || [];
 };

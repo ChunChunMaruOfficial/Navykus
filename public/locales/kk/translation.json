@@ -7,7 +7,8 @@
     "ar": "Arabic",
     "de": "German",
     "es": "Spanish",
-    "tr": "Turkish"
+    "tr": "Turkish",
+    "auto": "Авто"
   },
   "common": {
     "brand": "Navykus",
@@ -23,7 +24,8 @@
     "close": "Жабу",
     "loading": "Жүктелуде",
     "details": "Толығырақ",
-    "collapse": "Свернуть"
+    "collapse": "Свернуть",
+    "cancel": "Отмена"
   },
   "meta": {
     "home": {
@@ -41,6 +43,14 @@
     },
     "findTeam": {
       "title": "Команданы табыңыз - Навыкус"
+    },
+    "blog": {
+      "description": "Новости сообщества, образовательные статьи, интервью, истории участников и материалы платформы Навыкус.",
+      "title": "Блог — Навыкус"
+    },
+    "notFound": {
+      "description": "Запрошенная страница не найдена. Вернитесь на главную страницу Навыкус.",
+      "title": "Страница не найдена — Навыкус"
     }
   },
   "ui": {
@@ -121,7 +131,16 @@
       "ed16b5adfc": "Үйлестіруші:",
       "9e059272f1": "Құпиялылық",
       "3a86197ba3": "Келісім",
-      "2060fe9f62": "Кубок қазылары мен тәлімгерлері"
+      "2060fe9f62": "Кубок қазылары мен тәлімгерлері",
+      "copyright": "© 2026 Navikus Global Education",
+      "madeBy": "сделано Dioxoid Digital",
+      "notFoundCodeLabel": "страница 404",
+      "notFoundDescription": "Похоже, ссылка устарела или адрес введен с ошибкой. Вернитесь на главную и продолжите путь в сообществе Навыкус.",
+      "notFoundEyebrow": "Маршрут не найден",
+      "notFoundTitle": "Эта страница ушла с маршрута",
+      "scrollTop": "Наверх",
+      "trustGrowthDescription": "Участник видит следующий шаг: от первой идеи и командной работы до защиты проекта, сертификата и портфолио.",
+      "trustGrowthTitle": "Понятная траектория роста"
     },
     "aboutprojectpage": {
       "2805697540": "Қатысу",
@@ -545,7 +564,10 @@
       "f1a3b5c7d0": "Жаңалары бірінші",
       "a4b6c8d0e2": "Ескілері бірінші",
       "b5c7d9e1f3": "Аты (А→Я)",
-      "c1d2e3f4a5b": "Жетілдірілген іздеу"
+      "c1d2e3f4a5b": "Жетілдірілген іздеу",
+      "myProfile": "Моя анкета",
+      "myProfileDesc": "Ваша анкета для поиска команды",
+      "registerDesc": "Заполните анкету, чтобы найти команду. После регистрации данные сохранятся в вашем профиле."
     },
     "blogpage": {
       "nav": {
@@ -641,6 +663,101 @@
       "fileSizeError": "File size must not exceed 10 MB.",
       "privateContact": "Public phone numbers and email addresses are hidden. Invitations are sent through a safe platform flow.",
       "findTeamHeroAlt": "Participants discussing a team project"
+    },
+    "authmodal": {
+      "authorizedText": "Аккаунт {{name}} подключен к платформе Navykus.",
+      "authorizedTitle": "Вы авторизованы",
+      "codeAction": "Войти",
+      "codeInput": "Код",
+      "codeResent": "Код отправлен повторно.",
+      "codeSent": "Код отправлен на вашу почту. Проверьте входящие.",
+      "codeSubtitle": "Войдите или создайте аккаунт, чтобы использовать личные функции Navykus.",
+      "codeTab": "Код",
+      "codeTitle": "Вход по коду",
+      "emailVerified": "Почта подтверждена. Добро пожаловать!",
+      "headerButton": "Авторизация",
+      "hidePassword": "Скрыть пароль",
+      "profile": "Открыть профиль",
+      "resendCode": "Отправить снова",
+      "sendCode": "Отправить",
+      "showPassword": "Показать пароль",
+      "subtitle": "Войдите или создайте аккаунт, чтобы использовать личные функции Navykus.",
+      "success": "Готово. Вы авторизованы.",
+      "verifyAction": "Подтвердить",
+      "verifyEmailPrompt": "Подтвердите почту, чтобы получить доступ к платформе.",
+      "verifyEmailText": "Мы отправили код на {{email}}. Введите его, чтобы завершить регистрацию.",
+      "verifyEmailTitle": "Подтвердите почту"
+    },
+    "blogeditor": {
+      "actions": {
+        "cancel": "Отмена",
+        "delete": "Удалить",
+        "hidePreview": "Скрыть предпросмотр",
+        "preview": "Предпросмотр",
+        "saveDraft": "Сохранить черновик",
+        "submitReview": "Отправить на модерацию"
+      },
+      "categories": {
+        "activities": "Активности",
+        "championships": "Чемпионаты",
+        "education": "Образование",
+        "interviews": "Интервью",
+        "news": "Новости",
+        "opportunities": "Возможности",
+        "projects": "Проекты",
+        "stories": "Истории участников",
+        "tips": "Советы"
+      },
+      "createTitle": "Новая статья",
+      "editTitle": "Редактировать статью",
+      "fields": {
+        "category": "Категория",
+        "content": "Содержание",
+        "coverAlt": "Описание обложки",
+        "coverId": "ID обложки",
+        "excerpt": "Аннотация",
+        "originalLanguage": "Язык оригинала",
+        "seoDescription": "SEO описание",
+        "seoTitle": "SEO заголовок",
+        "slug": "Slug (URL)",
+        "tags": "Теги (через запятую)",
+        "title": "Заголовок"
+      },
+      "readingTime": "{{count}} мин. чтения",
+      "title": "Редактор статьи",
+      "validation": {
+        "categoryRequired": "Выберите категорию",
+        "contentRequired": "Добавьте содержание",
+        "deleteConfirm": "Удалить статью навсегда? Это действие нельзя отменить.",
+        "excerptRequired": "Укажите аннотацию",
+        "excerptTooLong": "Аннотация не должна превышать 600 символов",
+        "titleRequired": "Укажите заголовок",
+        "titleTooLong": "Заголовок не должен превышать 200 символов"
+      }
+    },
+    "blogmoderation": {
+      "adminTabs": {
+        "blog": "Блог",
+        "overview": "Обзор"
+      },
+      "commentPlaceholder": "Комментарий (необязательно)",
+      "editPost": "Редактировать",
+      "editorComingSoon": "Редактор блога — скоро.",
+      "myPosts": "Мои посты",
+      "newPost": "Новый пост",
+      "prevComment": "Комментарий",
+      "revision": "Вернуть на доработку",
+      "tabs": {
+        "all": "Все",
+        "approved": "Одобрено",
+        "drafts": "Черновики",
+        "pending_review": "На проверке",
+        "published": "Опубликовано",
+        "rejected": "Отклонено"
+      },
+      "title": "Модерация блога",
+      "unpublish": "Снять с публикации",
+      "viewArticle": "Открыть статью"
     }
   },
   "authmodal": {
@@ -1283,7 +1400,34 @@
     "errors": {
       "API_ERROR": "Сұрау орындалмады",
       "INTERNAL_SERVER_ERROR": "Ішкі сервер қатесі",
-      "AUTH_EMAIL_EXISTS": "Бұл электрондық пошта тіркелген"
+      "AUTH_EMAIL_EXISTS": "Бұл электрондық пошта тіркелген",
+      "ACCOUNT_BLOCKED": "Account is blocked",
+      "APPLICATION_DUPLICATE": "You already have an active application for this item",
+      "APPLICATION_STATUS_INVALID": "Application status is invalid",
+      "APPLICATION_TARGET_REQUIRED": "Select an application target",
+      "AUTH_AGREEMENT_REQUIRED": "Accept the policy and terms",
+      "AUTH_CREDENTIALS_REQUIRED": "Enter email and password",
+      "AUTH_EMAIL_REQUIRED": "Enter email",
+      "AUTH_INVALID_REGISTRATION": "Check registration fields",
+      "AUTH_INVALID_RESET": "Invalid reset data",
+      "AUTH_LOGIN_FAILED": "Invalid email or password",
+      "AUTH_RATE_LIMIT": "Too many requests. Please try again later.",
+      "AUTH_REQUIRED": "Log in to continue",
+      "AVATAR_INVALID": "Upload a valid JPG, PNG, or WebP image.",
+      "AVATAR_REQUIRED": "Choose an avatar file.",
+      "FAVORITE_INVALID": "Favorite data is invalid",
+      "FORBIDDEN": "Access denied",
+      "PARTICIPANT_NOT_FOUND": "Participant not found",
+      "TEAM_POST_INVALID": "Team post data is invalid",
+      "TEAM_RESPONSE_DUPLICATE": "You already responded to this post",
+      "TEAM_RESPONSE_INVALID": "Team response is invalid",
+      "TEAM_RESPONSE_STATUS_INVALID": "Team response status is invalid",
+      "USER_LAST_ADMIN_FORBIDDEN": "At least one active administrator is required",
+      "USER_ROLE_INVALID": "User role is invalid",
+      "USER_SELF_BLOCK_FORBIDDEN": "You cannot block your own account",
+      "USER_STATUS_INVALID": "Account status is invalid",
+      "API_REQUEST_FAILED": "Серверге қосылу мүмкін болмады. Сайт мекенжайын тексеріп, қайта көріңіз.",
+      "AUTH_EMAIL_SEND_FAILED": "Кодты email арқылы жіберу мүмкін болмады. SMTP уақытша қолжетімсіз."
     },
     "nav": {
       "home": "Home",

@@ -1259,7 +1259,9 @@
     "errors": {
       "API_ERROR": "So'rov bajarilmadi",
       "INTERNAL_SERVER_ERROR": "Ichki server xatosi",
-      "AUTH_EMAIL_EXISTS": "Bu elektron pochta allaqachon ro'yxatdan o'tgan"
+      "AUTH_EMAIL_EXISTS": "Bu elektron pochta allaqachon ro'yxatdan o'tgan",
+      "API_REQUEST_FAILED": "Serverga ulanib bo‘lmadi. Sayt manzilini tekshiring va qayta urinib ko‘ring.",
+      "AUTH_EMAIL_SEND_FAILED": "Kodni email orqali yuborib bo‘lmadi. SMTP vaqtincha ishlamayapti."
     }
   }
 }

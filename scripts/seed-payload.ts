@@ -4,14 +4,28 @@ import {
   ACTIVITIES,
   EXPERTS,
   PILLARS,
+  SCENARIOS,
   STATS,
   TEAM_MEMBERS,
   TOURNAMENTS,
   TRUST_POINTS,
 } from '../src/data';
+import { OPPORTUNITIES } from '../src/components/OpportunitiesPage';
 import { getPayloadClient } from '../server/payload';
 
 const list = (items: string[] = []) => items.map((value) => ({ value }));
+const DRAFT_COLLECTIONS = new Set(['team-members', 'tournaments', 'events', 'opportunities', 'experts', 'faqs', 'blog-posts']);
+const PUBLISHED_FLAG_COLLECTIONS = new Set(['tournaments', 'events', 'opportunities', 'experts', 'faqs', 'blog-posts']);
+const pickRu = (value: Record<string, string> | string | undefined) => {
+  if (!value) return '';
+  if (typeof value === 'string') return value;
+  return value.ru || value.en || Object.values(value).find(Boolean) || '';
+};
+const asDate = (value?: string) => value ? (value.includes('T') ? value : `${value}T00:00:00.000Z`) : undefined;
+const seedVisibility = (collection: string) => ({
+  ...(DRAFT_COLLECTIONS.has(collection) ? { _status: 'published' } : {}),
+  ...(PUBLISHED_FLAG_COLLECTIONS.has(collection) ? { isPublished: true } : {}),
+});
 const ui = (await import('../src/i18n/locales/ru/translation.json', { with: { type: 'json' } })).default.ui as any;
 
 const tr = (path: string) => path.split('.').reduce<any>((acc, key) => acc?.[key], { ui }) || path;
@@ -106,52 +120,65 @@ const EVENT_SEED = [
   },
 ];
 
-const OPPORTUNITY_SEED = [
+const OPPORTUNITY_SEED = OPPORTUNITIES.map((item) => ({
+  legacyId: item.id,
+  title: pickRu(item.title),
+  slug: item.slug,
+  organization: pickRu(item.organizer),
+  opportunityType: item.category,
+  source: item.source,
+  category: item.category,
+  direction: item.direction,
+  participation: item.participation,
+  shortDescription: pickRu(item.summary),
+  fullDescription: pickRu(item.description),
+  logoUrl: item.imageUrl,
+  imageUrl: item.imageUrl,
+  country: pickRu(item.country),
+  city: pickRu(item.city),
+  format: item.format,
+  ageMin: item.minAge,
+  ageMax: item.maxAge,
+  deadline: asDate(item.deadline),
+  startDate: asDate(item.startDate),
+  finalDeadline: item.finalDeadline,
+  registrationOpen: item.registrationOpen,
+  seats: item.seats,
+  savedCount: item.savedCount,
+  editorPick: item.editorPick,
+  recommended: item.recommended,
+  cost: item.cost,
+  funding: item.cost === 'scholarship',
+  portfolioValue: item.portfolioValue,
+  publishedAt: asDate(item.publishedAt),
+  officialUrl: item.externalUrl,
+  internalApplicationsEnabled: item.source === 'navykus',
+  languages: list(item.languages),
+  skills: list(item.skills.map(pickRu)),
+  keywords: list(item.keywords),
+  grades: list(item.grades.map(String)),
+  requirements: list(item.requirements.map(pickRu)),
+  benefits: list(item.outcomes.map(pickRu)),
+  documents: list([]),
+}));
+
+const TRUST_POINT_SEED = [
+  ...TRUST_POINTS,
   {
-    legacyId: 'opp-data-olympiad',
-    title: 'Data Literacy Olympiad',
-    slug: 'data-literacy-olympiad',
-    organization: 'Open Data School',
-    opportunityType: 'olympiad',
-    shortDescription: 'Online olympiad in data analysis, visualization and critical thinking.',
-    fullDescription: 'Tasks test graph reading, spotting distortions and explaining insights clearly.',
-    country: 'Global',
-    format: 'online',
-    ageMin: 13,
-    ageMax: 18,
-    deadline: '2026-11-15T20:59:00.000Z',
-    cost: 'free',
-    funding: false,
-    officialUrl: 'https://example.org/data-literacy',
-    internalApplicationsEnabled: true,
-    languages: list(['en', 'ru']),
-    requirements: list(['student status', 'internet access']),
-    benefits: list(['certificate', 'portfolio task']),
-    documents: list(['school confirmation optional']),
+    id: 'tr-6',
+    title: tr('ui.app.trustGrowthTitle'),
+    description: tr('ui.app.trustGrowthDescription'),
   },
-  {
-    legacyId: 'opp-volunteer-sprint',
-    title: 'Volunteer Impact Sprint',
-    slug: 'volunteer-impact-sprint',
-    organization: 'Open Social Labs',
-    opportunityType: 'volunteering',
-    shortDescription: 'A one-month volunteer sprint for students helping NGOs with digital projects.',
-    fullDescription: 'Choose a task, find a team and record the outcome in your portfolio with mentor confirmation.',
-    country: 'Global',
-    format: 'online',
-    ageMin: 14,
-    ageMax: 19,
-    deadline: '2026-12-05T20:59:00.000Z',
-    cost: 'free',
-    funding: false,
-    officialUrl: 'https://example.org/volunteer-sprint',
-    internalApplicationsEnabled: true,
-    languages: list(['en', 'ru', 'es']),
-    requirements: list(['motivation letter']),
-    benefits: list(['mentor feedback', 'confirmed volunteer hours']),
-    documents: list(['portfolio link optional']),
-  },
-];
+].filter((item, index, items) => items.findIndex((candidate) => candidate.id === item.id) === index);
+
+const STAT_SEED = STATS.length > 0
+  ? STATS
+  : [
+      {
+        value: '15+',
+        label: tr('ui.app.ffecc101e5'),
+      },
+    ];
 
 const ensureByLegacyId = async (
   collection: string,
@@ -170,7 +197,18 @@ const ensureByLegacyId = async (
     overrideAccess: true,
   });
 
-  if (existing.docs[0]) {
+  const existingDoc = existing.docs[0] as Record<string, unknown> | undefined;
+  if (existingDoc) {
+    const visibilityPatch = seedVisibility(collection);
+    const needsVisibilityPatch = Object.entries(visibilityPatch).some(([key, value]) => existingDoc[key] !== value);
+    if (needsVisibilityPatch) {
+      await payload.update({
+        collection: collection as any,
+        id: existingDoc.id as any,
+        data: visibilityPatch,
+        overrideAccess: true,
+      });
+    }
     return;
   }
 
@@ -179,6 +217,62 @@ const ensureByLegacyId = async (
     data: {
       legacyId,
       ...data,
+      ...seedVisibility(collection),
+    },
+    overrideAccess: true,
+  });
+};
+
+const ensureOpportunitySeed = async (
+  legacyId: string,
+  slug: string,
+  data: Record<string, unknown>,
+) => {
+  const payload = await getPayloadClient();
+  const existing = await payload.find({
+    collection: 'opportunities' as any,
+    where: {
+      or: [
+        { legacyId: { equals: legacyId } },
+        { slug: { equals: slug } },
+      ],
+    },
+    limit: 1,
+    overrideAccess: true,
+  });
+
+  const existingDoc = existing.docs[0] as Record<string, unknown> | undefined;
+  if (existingDoc) {
+    const missingCardFields = !existingDoc.source || !existingDoc.category || !existingDoc.imageUrl;
+    const oldSeedIdentity = existingDoc.legacyId !== legacyId;
+    if (missingCardFields || oldSeedIdentity) {
+      await payload.update({
+        collection: 'opportunities' as any,
+        id: existingDoc.id as any,
+        data: {
+          legacyId,
+          ...data,
+          ...seedVisibility('opportunities'),
+        },
+        overrideAccess: true,
+      });
+    } else if (existingDoc._status !== 'published' || existingDoc.isPublished !== true) {
+      await payload.update({
+        collection: 'opportunities' as any,
+        id: existingDoc.id as any,
+        data: seedVisibility('opportunities'),
+        overrideAccess: true,
+      });
+    }
+    return;
+  }
+
+  await payload.create({
+    collection: 'opportunities' as any,
+    data: {
+      legacyId,
+      ...data,
+      ...seedVisibility('opportunities'),
     },
     overrideAccess: true,
   });
@@ -236,6 +330,26 @@ const seed = async () => {
       sortOrder: index,
       isPublished: true,
       isFeatured: index === 0, // Mark the first tournament as featured
+      originalLanguage: 'ru',
+      pitch: tr('ui.championshippage.dd865f6e85'),
+      targetAudience: tr('ui.championshippage.8de641ff48'),
+      ageLimit: tr('ui.championshippage.9c2bddb76a'),
+      teamsAllowed: tr('ui.championshippage.ed233d55cc'),
+      language: tr('ui.championshippage.e91c59966c'),
+      expectedResult: tr('ui.championshippage.034bb56718'),
+      registrationStatus: 'open',
+      themesText: [
+        tr('ui.championshippage.6e972b4b72'),
+        tr('ui.championshippage.61fb774e62'),
+        tr('ui.championshippage.058159276f'),
+        tr('ui.championshippage.f1d7d23827'),
+      ].join('\n'),
+      evaluationCriteriaText: [
+        tr('ui.championshippage.47b3f641ee'),
+        tr('ui.championshippage.49a254c0ad'),
+        tr('ui.championshippage.c3ab1eab18'),
+        tr('ui.championshippage.bdbee4fdad'),
+      ].join('\n'),
       skills: list(item.skills),
       mentors: list(item.mentors),
     });
@@ -272,12 +386,15 @@ const seed = async () => {
     await ensureByLegacyId('team-members', item.id, {
       ...item,
       sortOrder: index,
+      originalLanguage: 'ru',
+      moderationStatus: 'approved',
+      reviewedAt: new Date().toISOString(),
       interests: list(item.interests),
       skills: list(item.skills),
     });
   }
 
-  for (const [index, item] of TRUST_POINTS.entries()) {
+  for (const [index, item] of TRUST_POINT_SEED.entries()) {
     await ensureByLegacyId('trust-points', item.id, {
       ...item,
       sortOrder: index,
@@ -293,7 +410,15 @@ const seed = async () => {
     });
   }
 
-  for (const [index, item] of STATS.entries()) {
+  for (const [index, item] of SCENARIOS.entries()) {
+    await ensureByLegacyId('scenarios', item.id, {
+      ...item,
+      sortOrder: index,
+      isPublished: true,
+    });
+  }
+
+  for (const [index, item] of STAT_SEED.entries()) {
     await ensureByLegacyId('stats', `stat-${index + 1}`, {
       ...item,
       sortOrder: index,
@@ -316,14 +441,16 @@ const seed = async () => {
       ...item,
       sortOrder: index,
       isPublished: true,
+      originalLanguage: 'ru',
     });
   }
 
   for (const [index, item] of OPPORTUNITY_SEED.entries()) {
-    await ensureByLegacyId('opportunities', item.legacyId, {
+    await ensureOpportunitySeed(item.legacyId, item.slug, {
       ...item,
       sortOrder: index,
       isPublished: true,
+      originalLanguage: 'ru',
     });
   }
 
@@ -383,14 +510,23 @@ const seed = async () => {
       overrideAccess: true,
     });
 
-    if (!existing.docs[0]) {
+    const existingPost = existing.docs[0] as Record<string, unknown> | undefined;
+    if (!existingPost) {
       await payload.create({
         collection: 'blog-posts' as any,
         data: {
           ...post,
+          ...seedVisibility('blog-posts'),
           author: adminId,
           tags: list(post.tags),
         },
+        overrideAccess: true,
+      });
+    } else if (existingPost._status !== 'published' || existingPost.isPublished !== true) {
+      await payload.update({
+        collection: 'blog-posts' as any,
+        id: existingPost.id as any,
+        data: seedVisibility('blog-posts'),
         overrideAccess: true,
       });
     }

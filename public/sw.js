@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v6';
 const STATIC_CACHE = `navykus-static-${CACHE_VERSION}`;
 const IMAGES_CACHE = `navykus-images-${CACHE_VERSION}`;
 const LOCALES_CACHE = `navykus-locales-${CACHE_VERSION}`;
@@ -52,6 +52,20 @@ self.addEventListener('fetch', (event) => {
   if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
   if (url.origin !== self.location.origin) return;
 
+  // Payload Admin is a separate Next.js app. Never cache its pages, chunks or server action traffic.
+  if (
+    url.pathname.startsWith('/admin') ||
+    url.pathname.startsWith('/_next') ||
+    url.pathname.startsWith('/payload-api') ||
+    url.pathname.startsWith('/payload-graphql') ||
+    url.pathname.startsWith('/payload-graphql-playground') ||
+    url.pathname.startsWith('/graphql') ||
+    url.pathname.startsWith('/graphql-playground')
+  ) {
+    event.respondWith(fetch(request));
+    return;
+  }
+
   // API calls: always hit the network so CMS updates and empty startup responses are not cached.
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(fetch(request).catch(() => new Response('', { status: 503, statusText: 'Service Unavailable' })));
@@ -72,7 +86,7 @@ self.addEventListener('fetch', (event) => {
 
   // Static assets (JS, CSS)
   if (url.pathname.match(/\.(js|css|svg|png|jpg|jpeg|webp|ico|json)$/)) {
-    event.respondWith(cacheFirst(request, STATIC_CACHE));
+    event.respondWith(networkFirst(request, STATIC_CACHE));
     return;
   }
 

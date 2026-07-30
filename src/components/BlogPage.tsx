@@ -231,7 +231,7 @@ function FeaturedCard({ post, t, language }: { post: BlogPostDoc; t: TFunction; 
   const capName = (p: BlogPostDoc) => (typeof p.author === 'object' ? (p.author as {name:string}).name : String(p.author || ''));
   const src = post.cover || '/images/home/community-classroom.jpg';
   return (
-    <motion.article variants={cardItemFadeUp.variants} className="group relative flex min-h-[420px] flex-col overflow-hidden rounded-[1.5rem] border border-white/60 bg-white/42 surface-elevated-soft backdrop-blur-sm transition-colors hover:bg-white/62">
+    <motion.article variants={cardItemFadeUp.variants} data-preview-id={post.id || post.slug} className="group relative flex min-h-[420px] flex-col overflow-hidden rounded-[1.5rem] border border-white/60 bg-white/42 surface-elevated-soft backdrop-blur-sm transition-colors hover:bg-white/62">
       <div className="overflow-hidden"><BrandImage src={src} alt={post.title} aspectRatio="16 / 10" objectPosition="50% 42%" sizes="33vw" className="rounded-none border-0 shadow-none" /></div>
       <div className="flex min-w-0 flex-1 flex-col p-5">
         <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -255,7 +255,7 @@ function BlogCard({ post, t, language }: { post: BlogPostDoc; t: TFunction; lang
   const capName = (p: BlogPostDoc) => (typeof p.author === 'object' ? (p.author as {name:string}).name : String(p.author || ''));
   const src = post.cover || '/images/home/community-classroom.jpg';
   return (
-    <motion.article variants={cardItemFadeUp.variants} tabIndex={0} className="group relative flex min-h-[370px] cursor-pointer flex-col overflow-hidden rounded-[1.5rem] border border-white/60 bg-white/48 surface-elevated-soft backdrop-blur-sm transition-colors hover:border-[#d8d1cc] hover:bg-white/62">
+    <motion.article variants={cardItemFadeUp.variants} data-preview-id={post.id || post.slug} tabIndex={0} className="group relative flex min-h-[370px] cursor-pointer flex-col overflow-hidden rounded-[1.5rem] border border-white/60 bg-white/48 surface-elevated-soft backdrop-blur-sm transition-colors hover:border-[#d8d1cc] hover:bg-white/62">
       <div className="overflow-hidden bg-white/35"><BrandImage src={src} alt={post.title} aspectRatio="16 / 9" objectPosition="50% 42%" sizes="(max-width:639px) 100vw,45vw" className="rounded-none border-0 shadow-none" /></div>
       <div className="flex min-w-0 flex-1 flex-col p-5">
         <div className="mb-3 flex flex-wrap items-center gap-2">

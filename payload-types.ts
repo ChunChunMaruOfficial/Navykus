@@ -80,6 +80,7 @@ export interface Config {
     'team-responses': TeamResponse;
     'trust-points': TrustPoint;
     pillars: Pillar;
+    scenarios: Scenario;
     stats: Stat;
     applications: Application;
     'application-status-history': ApplicationStatusHistory;
@@ -87,6 +88,9 @@ export interface Config {
     notifications: Notification;
     'community-leads': CommunityLead;
     'contact-settings': ContactSetting;
+    'operator-settings': OperatorSetting;
+    'audit-logs': AuditLog;
+    'content-localizations': ContentLocalization;
     'blog-posts': BlogPost;
     'blog-post-localizations': BlogPostLocalization;
     'blog-moderation-history': BlogModerationHistory;
@@ -110,6 +114,7 @@ export interface Config {
     'team-responses': TeamResponsesSelect<false> | TeamResponsesSelect<true>;
     'trust-points': TrustPointsSelect<false> | TrustPointsSelect<true>;
     pillars: PillarsSelect<false> | PillarsSelect<true>;
+    scenarios: ScenariosSelect<false> | ScenariosSelect<true>;
     stats: StatsSelect<false> | StatsSelect<true>;
     applications: ApplicationsSelect<false> | ApplicationsSelect<true>;
     'application-status-history': ApplicationStatusHistorySelect<false> | ApplicationStatusHistorySelect<true>;
@@ -117,6 +122,9 @@ export interface Config {
     notifications: NotificationsSelect<false> | NotificationsSelect<true>;
     'community-leads': CommunityLeadsSelect<false> | CommunityLeadsSelect<true>;
     'contact-settings': ContactSettingsSelect<false> | ContactSettingsSelect<true>;
+    'operator-settings': OperatorSettingsSelect<false> | OperatorSettingsSelect<true>;
+    'audit-logs': AuditLogsSelect<false> | AuditLogsSelect<true>;
+    'content-localizations': ContentLocalizationsSelect<false> | ContentLocalizationsSelect<true>;
     'blog-posts': BlogPostsSelect<false> | BlogPostsSelect<true>;
     'blog-post-localizations': BlogPostLocalizationsSelect<false> | BlogPostLocalizationsSelect<true>;
     'blog-moderation-history': BlogModerationHistorySelect<false> | BlogModerationHistorySelect<true>;
@@ -229,7 +237,7 @@ export interface User {
   accountStatus: 'active' | 'blocked' | 'pending';
   emailVerified?: boolean | null;
   verificationCode?: string | null;
-  verificationCodeExpired?: string | null;
+  verificationCodeExpires?: string | null;
   role: 'user' | 'moderator' | 'admin';
   updatedAt: string;
   createdAt: string;
@@ -284,15 +292,27 @@ export interface Tournament {
   sortOrder?: number | null;
   isPublished?: boolean | null;
   /**
+   * Language used as the source for AI localizations.
+   */
+  originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
+  /**
    * Mark this championship to appear on the homepage
    */
   isFeatured?: boolean | null;
   title: string;
   /**
+   * Auto-generated from title when empty.
+   */
+  slug?: string | null;
+  /**
    * e.g. "Кейс-чемпионат", "Хакатон"
    */
   type: string;
   description: string;
+  /**
+   * Short hero text. Falls back to description.
+   */
+  pitch?: string | null;
   /**
    * Event date(s)
    */
@@ -301,6 +321,7 @@ export interface Tournament {
    * Registration cutoff date
    */
   registrationDeadline: string;
+  registrationStatus: 'open' | 'suspended' | 'closed';
   maxParticipants: number;
   skills?:
     | {
@@ -322,8 +343,24 @@ export interface Tournament {
    * Format description (e.g. online, offline, hybrid)
    */
   format?: string | null;
+  targetAudience?: string | null;
+  ageLimit?: string | null;
+  teamsAllowed?: string | null;
+  language?: string | null;
+  expectedResult?: string | null;
+  /**
+   * One item per line.
+   */
+  themesText?: string | null;
+  /**
+   * One item per line.
+   */
+  evaluationCriteriaText?: string | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -337,6 +374,10 @@ export interface Activity {
   legacyId?: string | null;
   sortOrder?: number | null;
   isPublished?: boolean | null;
+  /**
+   * Language used as the source for AI localizations.
+   */
+  originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
   title: string;
   shortDescription: string;
   fullDescription: string;
@@ -355,6 +396,8 @@ export interface Activity {
   prerequisites: string;
   ctaText: string;
   ctaLink?: string | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -370,12 +413,31 @@ export interface Expert {
   legacyId?: string | null;
   sortOrder?: number | null;
   isPublished?: boolean | null;
+  /**
+   * Language used as the source for AI localizations.
+   */
+  originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
   name: string;
+  /**
+   * Роль в чемпионате: жюри, наставник или эксперт
+   */
+  type: 'jury' | 'mentor' | 'expert';
   role: string;
   expertise: string;
   description: string;
+  /**
+   * Фото эксперта, наставника или жюри
+   */
+  photo?: (number | null) | Media;
+  /**
+   * К какому чемпионату привязан эксперт
+   */
+  tournamentId?: (number | null) | Tournament;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -389,11 +451,18 @@ export interface Faq {
   legacyId?: string | null;
   sortOrder?: number | null;
   isPublished?: boolean | null;
+  /**
+   * Language used as the source for AI localizations.
+   */
+  originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
   page: 'home' | 'about' | 'championship' | 'activities' | 'find-team' | 'opportunities';
   question: string;
   answer: string;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * Online & offline events (workshops, lectures, meetups)
@@ -409,8 +478,15 @@ export interface Event {
   legacyId?: string | null;
   sortOrder?: number | null;
   isPublished?: boolean | null;
+  /**
+   * Language used as the source for AI localizations.
+   */
+  originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
   title: string;
-  slug: string;
+  /**
+   * Auto-generated from title when empty.
+   */
+  slug?: string | null;
   shortDescription: string;
   /**
    * Detailed description (optional)
@@ -455,6 +531,7 @@ export interface Event {
   seoDescription?: string | null;
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * External & internal opportunities for students (grants, internships, olympiads, etc.)
@@ -470,8 +547,15 @@ export interface Opportunity {
   legacyId?: string | null;
   sortOrder?: number | null;
   isPublished?: boolean | null;
+  /**
+   * Language used as the source for AI localizations.
+   */
+  originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
   title: string;
-  slug: string;
+  /**
+   * Auto-generated from title when empty.
+   */
+  slug?: string | null;
   organization: string;
   /**
    * e.g. championship, olympiad, internship, grant
@@ -526,6 +610,7 @@ export interface Opportunity {
   seoDescription?: string | null;
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -538,6 +623,10 @@ export interface TeamMember {
    */
   legacyId?: string | null;
   sortOrder?: number | null;
+  /**
+   * Language used as the source for AI localizations.
+   */
+  originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
   name: string;
   age: number;
   country: string;
@@ -562,9 +651,18 @@ export interface TeamMember {
   whyLooking: string;
   contact: string;
   contactType: 'telegram' | 'email' | 'discord';
+  /**
+   * Review status for participant-submitted profiles.
+   */
+  moderationStatus: 'pending' | 'approved' | 'rejected' | 'needs_edit';
+  moderationComment?: string | null;
+  reviewedAt?: string | null;
   isApproved?: boolean | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -613,7 +711,7 @@ export interface TeamResponse {
   sender: number | User;
   recipient: number | User;
   kind?: ('response' | 'invitation') | null;
-  message?: string | null;
+  message: string;
   status?: ('pending' | 'accepted' | 'rejected') | null;
   updatedAt: string;
   createdAt: string;
@@ -630,8 +728,14 @@ export interface TrustPoint {
   legacyId?: string | null;
   sortOrder?: number | null;
   isPublished?: boolean | null;
+  /**
+   * Language used as the source for AI localizations.
+   */
+  originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
   title: string;
   description: string;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -647,9 +751,53 @@ export interface Pillar {
   legacyId?: string | null;
   sortOrder?: number | null;
   isPublished?: boolean | null;
+  /**
+   * Language used as the source for AI localizations.
+   */
+  originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
   label: string;
   title: string;
   description: string;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "scenarios".
+ */
+export interface Scenario {
+  id: number;
+  /**
+   * Stable ID from the original frontend data file.
+   */
+  legacyId?: string | null;
+  sortOrder?: number | null;
+  isPublished?: boolean | null;
+  /**
+   * Language used as the source for AI localizations.
+   */
+  originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
+  /**
+   * Scenario title, e.g. "Хочу попробовать"
+   */
+  title: string;
+  /**
+   * Who this scenario is for
+   */
+  who: string;
+  /**
+   * Why participate
+   */
+  why: string;
+  /**
+   * Button text
+   */
+  ctaText: string;
+  actionType: 'apply' | 'team' | 'activity' | 'general';
+  seoTitle?: string | null;
+  seoDescription?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -665,8 +813,20 @@ export interface Stat {
   legacyId?: string | null;
   sortOrder?: number | null;
   isPublished?: boolean | null;
+  /**
+   * Language used as the source for AI localizations.
+   */
+  originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
+  /**
+   * e.g. "15+", "1000+"
+   */
   value: string;
+  /**
+   * e.g. "countries", "participants"
+   */
   label: string;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -837,6 +997,115 @@ export interface ContactSetting {
   createdAt: string;
 }
 /**
+ * Operator details displayed in the Privacy Policy (personal data operator section).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "operator-settings".
+ */
+export interface OperatorSetting {
+  id: number;
+  /**
+   * Admin-only label to identify this settings entry.
+   */
+  label: string;
+  /**
+   * Full name of the operator (for self-employed: full name; for legal entities: company name).
+   */
+  operatorName?: string | null;
+  /**
+   * Taxpayer Identification Number (ИНН).
+   */
+  operatorInn?: string | null;
+  /**
+   * Primary State Registration Number. Not required for self-employed individuals.
+   */
+  operatorOgrn?: string | null;
+  /**
+   * Legal and postal address for sending written requests from data subjects.
+   */
+  operatorAddress?: string | null;
+  /**
+   * Registration number in the Roskomnadzor personal data operators register (assigned after submitting the notification).
+   */
+  operatorRegistryNumber?: string | null;
+  /**
+   * Date of entry in the Roskomnadzor register (assigned after submitting the notification).
+   */
+  operatorRegistryDate?: string | null;
+  /**
+   * Email address where data subjects can send requests regarding their personal data.
+   */
+  contactsEmail?: string | null;
+  /**
+   * Postal address for submitting written requests from data subjects.
+   */
+  contactsPostalAddress?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "audit-logs".
+ */
+export interface AuditLog {
+  id: number;
+  action: string;
+  collection: string;
+  documentId: string;
+  actorId?: string | null;
+  actorEmail?: string | null;
+  changedFields?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  summary: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * AI-generated localized copies for public CMS content.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "content-localizations".
+ */
+export interface ContentLocalization {
+  id: number;
+  sourceCollection:
+    | 'users'
+    | 'team-members'
+    | 'activities'
+    | 'blog-posts'
+    | 'events'
+    | 'experts'
+    | 'faqs'
+    | 'opportunities'
+    | 'pillars'
+    | 'scenarios'
+    | 'stats'
+    | 'trust-points'
+    | 'tournaments';
+  sourceId: string;
+  language: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
+  localizedData:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  translationStatus: 'pending' | 'in_progress' | 'ready' | 'failed';
+  contentHash?: string | null;
+  errorMessage?: string | null;
+  generatedAt?: string | null;
+  attempts?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "blog-posts".
  */
@@ -878,9 +1147,9 @@ export interface BlogPost {
   author: number | User;
   originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
   /**
-   * URL slug
+   * Auto-generated URL slug when empty.
    */
-  slug: string;
+  slug?: string | null;
   seoTitle?: string | null;
   seoDescription?: string | null;
   /**
@@ -898,6 +1167,7 @@ export interface BlogPost {
   isPublished?: boolean | null;
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1013,6 +1283,10 @@ export interface PayloadLockedDocument {
         value: number | Pillar;
       } | null)
     | ({
+        relationTo: 'scenarios';
+        value: number | Scenario;
+      } | null)
+    | ({
         relationTo: 'stats';
         value: number | Stat;
       } | null)
@@ -1039,6 +1313,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'contact-settings';
         value: number | ContactSetting;
+      } | null)
+    | ({
+        relationTo: 'operator-settings';
+        value: number | OperatorSetting;
+      } | null)
+    | ({
+        relationTo: 'audit-logs';
+        value: number | AuditLog;
+      } | null)
+    | ({
+        relationTo: 'content-localizations';
+        value: number | ContentLocalization;
       } | null)
     | ({
         relationTo: 'blog-posts';
@@ -1157,7 +1443,7 @@ export interface UsersSelect<T extends boolean = true> {
   accountStatus?: T;
   emailVerified?: T;
   verificationCode?: T;
-  verificationCodeExpired?: T;
+  verificationCodeExpires?: T;
   role?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1202,12 +1488,16 @@ export interface TournamentsSelect<T extends boolean = true> {
   legacyId?: T;
   sortOrder?: T;
   isPublished?: T;
+  originalLanguage?: T;
   isFeatured?: T;
   title?: T;
+  slug?: T;
   type?: T;
   description?: T;
+  pitch?: T;
   date?: T;
   registrationDeadline?: T;
+  registrationStatus?: T;
   maxParticipants?: T;
   skills?:
     | T
@@ -1223,8 +1513,18 @@ export interface TournamentsSelect<T extends boolean = true> {
       };
   suitableFor?: T;
   format?: T;
+  targetAudience?: T;
+  ageLimit?: T;
+  teamsAllowed?: T;
+  language?: T;
+  expectedResult?: T;
+  themesText?: T;
+  evaluationCriteriaText?: T;
+  seoTitle?: T;
+  seoDescription?: T;
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1234,6 +1534,7 @@ export interface ActivitiesSelect<T extends boolean = true> {
   legacyId?: T;
   sortOrder?: T;
   isPublished?: T;
+  originalLanguage?: T;
   title?: T;
   shortDescription?: T;
   fullDescription?: T;
@@ -1252,6 +1553,8 @@ export interface ActivitiesSelect<T extends boolean = true> {
   prerequisites?: T;
   ctaText?: T;
   ctaLink?: T;
+  seoTitle?: T;
+  seoDescription?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1263,12 +1566,19 @@ export interface ExpertsSelect<T extends boolean = true> {
   legacyId?: T;
   sortOrder?: T;
   isPublished?: T;
+  originalLanguage?: T;
   name?: T;
+  type?: T;
   role?: T;
   expertise?: T;
   description?: T;
+  photo?: T;
+  tournamentId?: T;
+  seoTitle?: T;
+  seoDescription?: T;
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1278,11 +1588,15 @@ export interface FaqsSelect<T extends boolean = true> {
   legacyId?: T;
   sortOrder?: T;
   isPublished?: T;
+  originalLanguage?: T;
   page?: T;
   question?: T;
   answer?: T;
+  seoTitle?: T;
+  seoDescription?: T;
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1292,6 +1606,7 @@ export interface EventsSelect<T extends boolean = true> {
   legacyId?: T;
   sortOrder?: T;
   isPublished?: T;
+  originalLanguage?: T;
   title?: T;
   slug?: T;
   shortDescription?: T;
@@ -1323,6 +1638,7 @@ export interface EventsSelect<T extends boolean = true> {
   seoDescription?: T;
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1332,6 +1648,7 @@ export interface OpportunitiesSelect<T extends boolean = true> {
   legacyId?: T;
   sortOrder?: T;
   isPublished?: T;
+  originalLanguage?: T;
   title?: T;
   slug?: T;
   organization?: T;
@@ -1376,6 +1693,7 @@ export interface OpportunitiesSelect<T extends boolean = true> {
   seoDescription?: T;
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1384,6 +1702,7 @@ export interface OpportunitiesSelect<T extends boolean = true> {
 export interface TeamMembersSelect<T extends boolean = true> {
   legacyId?: T;
   sortOrder?: T;
+  originalLanguage?: T;
   name?: T;
   age?: T;
   country?: T;
@@ -1406,9 +1725,15 @@ export interface TeamMembersSelect<T extends boolean = true> {
   whyLooking?: T;
   contact?: T;
   contactType?: T;
+  moderationStatus?: T;
+  moderationComment?: T;
+  reviewedAt?: T;
   isApproved?: T;
+  seoTitle?: T;
+  seoDescription?: T;
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1468,8 +1793,11 @@ export interface TrustPointsSelect<T extends boolean = true> {
   legacyId?: T;
   sortOrder?: T;
   isPublished?: T;
+  originalLanguage?: T;
   title?: T;
   description?: T;
+  seoTitle?: T;
+  seoDescription?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1481,9 +1809,31 @@ export interface PillarsSelect<T extends boolean = true> {
   legacyId?: T;
   sortOrder?: T;
   isPublished?: T;
+  originalLanguage?: T;
   label?: T;
   title?: T;
   description?: T;
+  seoTitle?: T;
+  seoDescription?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "scenarios_select".
+ */
+export interface ScenariosSelect<T extends boolean = true> {
+  legacyId?: T;
+  sortOrder?: T;
+  isPublished?: T;
+  originalLanguage?: T;
+  title?: T;
+  who?: T;
+  why?: T;
+  ctaText?: T;
+  actionType?: T;
+  seoTitle?: T;
+  seoDescription?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1495,8 +1845,11 @@ export interface StatsSelect<T extends boolean = true> {
   legacyId?: T;
   sortOrder?: T;
   isPublished?: T;
+  originalLanguage?: T;
   value?: T;
   label?: T;
+  seoTitle?: T;
+  seoDescription?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1604,6 +1957,60 @@ export interface ContactSettingsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "operator-settings_select".
+ */
+export interface OperatorSettingsSelect<T extends boolean = true> {
+  label?: T;
+  operatorName?: T;
+  operatorInn?: T;
+  operatorOgrn?: T;
+  operatorAddress?: T;
+  operatorRegistryNumber?: T;
+  operatorRegistryDate?: T;
+  contactsEmail?: T;
+  contactsPostalAddress?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "audit-logs_select".
+ */
+export interface AuditLogsSelect<T extends boolean = true> {
+  action?: T;
+  collection?: T;
+  documentId?: T;
+  actorId?: T;
+  actorEmail?: T;
+  changedFields?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  summary?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "content-localizations_select".
+ */
+export interface ContentLocalizationsSelect<T extends boolean = true> {
+  sourceCollection?: T;
+  sourceId?: T;
+  language?: T;
+  localizedData?: T;
+  translationStatus?: T;
+  contentHash?: T;
+  errorMessage?: T;
+  generatedAt?: T;
+  attempts?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "blog-posts_select".
  */
 export interface BlogPostsSelect<T extends boolean = true> {
@@ -1636,6 +2043,7 @@ export interface BlogPostsSelect<T extends boolean = true> {
   isPublished?: T;
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

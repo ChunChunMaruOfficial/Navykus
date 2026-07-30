@@ -1,9 +1,10 @@
 import type { Express, Request, Response, NextFunction } from 'express';
 
 import { getPayloadClient } from './payload';
-import { enqueueArticleTranslations, retrySingleLocalization } from './blog-translation-queue';
+import { applyLocalizations, languageFromRequest, localizationSummaries } from './content-localizations';
 import type { SupportedLanguage } from '../src/i18n/languages';
 import { SUPPORTED_LANGUAGES } from '../src/i18n/languages';
+import { syncBlogPublicationData } from '../src/payload/fields';
 
 const BLOG_STATUSES = new Set<string>(['draft', 'pending_review', 'needs_revision', 'approved', 'published', 'rejected', 'archived']);
 const STAFF_ROLES = new Set(['admin', 'moderator']);
@@ -41,7 +42,12 @@ const normalizePost = (doc: Record<string, unknown>) => ({
   category: String(doc.category || ''),
   tags: listValues(doc.tags),
   status: String(doc.status || 'draft'),
-  author: doc.author && typeof doc.author === 'object' ? { id: String((doc.author as Record<string, unknown>).id || ''), name: String((doc.author as Record<string, unknown>).name || '') } : { id: String(doc.author || ''), name: '' },
+  author: doc.author && typeof doc.author === 'object'
+    ? {
+      id: String((doc.author as Record<string, unknown>).id || ''),
+      name: String((doc.author as Record<string, unknown>).name || (doc.author as Record<string, unknown>).email || (doc.author as Record<string, unknown>).id || ''),
+    }
+    : { id: String(doc.author || ''), name: String(doc.author || '') },
   originalLanguage: String(doc.originalLanguage || 'ru'),
   slug: String(doc.slug || ''),
   seoTitle: typeof doc.seoTitle === 'string' ? doc.seoTitle : undefined,
@@ -53,22 +59,6 @@ const normalizePost = (doc: Record<string, unknown>) => ({
   updatedAt: String(doc.updatedAt || ''),
   publishedAt: typeof doc.publishedAt === 'string' ? doc.publishedAt : undefined,
   moderationComment: typeof doc.moderationComment === 'string' ? doc.moderationComment : undefined,
-});
-
-const normalizeLocalization = (doc: Record<string, unknown>) => ({
-  id: String(doc.id),
-  post: doc.post && typeof doc.post === 'object' ? String((doc.post as Record<string, unknown>).id || '') : String(doc.post || ''),
-  language: String(doc.language || 'ru'),
-  title: String(doc.title || ''),
-  excerpt: String(doc.excerpt || ''),
-  content: String(doc.content || ''),
-  slug: String(doc.slug || ''),
-  coverAlt: typeof doc.coverAlt === 'string' ? doc.coverAlt : undefined,
-  seoTitle: typeof doc.seoTitle === 'string' ? doc.seoTitle : undefined,
-  seoDescription: typeof doc.seoDescription === 'string' ? doc.seoDescription : undefined,
-  translationStatus: String(doc.translationStatus || 'pending'),
-  errorMessage: typeof doc.errorMessage === 'string' ? doc.errorMessage : undefined,
-  generatedAt: typeof doc.generatedAt === 'string' ? doc.generatedAt : undefined,
 });
 
 const getUser = async (req: Request): Promise<PlatformUser | undefined> => {
@@ -137,38 +127,17 @@ const notifyStaff = async (type: string, relatedId: string, href?: string) => {
   }
 };
 
-const attachLocalizations = async (posts: ReturnType<typeof normalizePost>[], language: SupportedLanguage) => {
-  if (!posts.length || !posts[0] || language === posts[0].originalLanguage) return;
-  const ids = posts.map((p) => payloadId(p.id));
-  const payload = await getPayloadClient();
-  const locs = await payload.find({
-    collection: 'blog-post-localizations' as any,
-    where: { and: [{ post: { in: ids } }, { language: { equals: language } }, { translationStatus: { equals: 'ready' } }] },
-    limit: 200,
-    overrideAccess: true,
-  });
-  const locMap = new Map(locs.docs.map((l: any) => [String(l.post), normalizeLocalization(l as unknown as Record<string, unknown>)]));
-  for (const post of posts) {
-    const loc = locMap.get(post.id);
-    if (loc) {
-      Object.assign(post, { title: loc.title, excerpt: loc.excerpt, content: loc.content, slug: loc.slug, seoTitle: loc.seoTitle, seoDescription: loc.seoDescription, coverAlt: loc.coverAlt ?? post.coverAlt });
-    } else {
-      (post as any).translationPending = true;
-    }
-  }
-};
-
 export const registerBlogRoutes = (app: Express) => {
   /* 1. Public list */
   app.get('/api/blog/posts', asyncRoute(async (req, res) => {
     const payload = await getPayloadClient();
-    const language = typeof req.query.lang === 'string' && (SUPPORTED_LANGUAGES as readonly string[]).includes(req.query.lang) ? (req.query.lang as SupportedLanguage) : 'ru';
+    const language = languageFromRequest(req);
     const limit = Math.min(50, Math.max(1, Number(req.query.limit || 12)));
     const page = Math.max(1, Number(req.query.page || 1));
     const category = typeof req.query.category === 'string' ? req.query.category : undefined;
     const q = typeof req.query.q === 'string' ? req.query.q.trim() : '';
 
-    const where: Record<string, unknown> = { status: { equals: 'published' }, isPublished: { equals: true } };
+    const where: Record<string, unknown> = { status: { equals: 'published' }, isPublished: { equals: true }, _status: { equals: 'published' } };
     if (category) where.category = { equals: category };
     if (q) where.or = ['title', 'excerpt', 'content'].map((f) => ({ [f]: { like: q } }));
 
@@ -181,34 +150,53 @@ export const registerBlogRoutes = (app: Express) => {
       depth: 2,
       overrideAccess: true,
     });
+    await applyLocalizations(payload, 'blog-posts', result.docs as Array<Record<string, unknown>>, language);
     const posts = result.docs.map((d) => normalizePost(d as unknown as Record<string, unknown>));
-    await attachLocalizations(posts, language);
     res.json({ docs: posts, totalDocs: result.totalDocs, totalPages: result.totalPages, page, language });
   }));
 
-  /* 2. Public single post */
+  /* 2. Authenticated single post by id for editing */
+  app.get('/api/blog/posts/by-id/:id', asyncRoute(async (req, res) => {
+    const user = await requireUser(req as AuthenticatedRequest, res);
+    if (!user) return;
+    const payload = await getPayloadClient();
+    const id = payloadId(String(req.params.id));
+    const doc = await payload.findByID({
+      collection: 'blog-posts' as any,
+      id,
+      depth: 2,
+      overrideAccess: true,
+    }).catch(() => undefined) as unknown as Record<string, unknown> | undefined;
+    if (!doc) { res.status(404).json({ code: 'POST_NOT_FOUND' }); return; }
+    const authorId = doc.author && typeof doc.author === 'object' ? String((doc.author as Record<string, unknown>).id || '') : String(doc.author || '');
+    if (authorId !== user.id && !STAFF_ROLES.has(user.role)) { res.status(403).json({ code: 'FORBIDDEN' }); return; }
+    res.json({ post: normalizePost(doc) });
+  }));
+
+  /* 3. Public single post */
   app.get('/api/blog/posts/:slug', asyncRoute(async (req, res) => {
     const payload = await getPayloadClient();
     const slug = String(req.params.slug);
-    const language = typeof req.query.lang === 'string' && (SUPPORTED_LANGUAGES as readonly string[]).includes(req.query.lang) ? (req.query.lang as SupportedLanguage) : 'ru';
+    const language = languageFromRequest(req);
 
     const result = await payload.find({
       collection: 'blog-posts' as any,
-      where: { slug: { equals: slug }, status: { equals: 'published' }, isPublished: { equals: true } },
+      where: { slug: { equals: slug }, status: { equals: 'published' }, isPublished: { equals: true }, _status: { equals: 'published' } },
       limit: 1,
       depth: 2,
       overrideAccess: true,
     });
     const doc = result.docs[0] as unknown as Record<string, unknown> | undefined;
     if (!doc) { res.status(404).json({ code: 'POST_NOT_FOUND' }); return; }
-    const post = normalizePost(doc);
+    const docs = [doc];
+    await applyLocalizations(payload, 'blog-posts', docs, language);
+    const post = normalizePost(docs[0]);
 
     void payload.update({ collection: 'blog-posts' as any, id: payloadId(post.id), data: { views: Number(doc.views || 0) + 1 }, overrideAccess: true }).catch(() => undefined);
-    await attachLocalizations([post], language);
     res.json({ post });
   }));
 
-  /* 3. Author create */
+  /* 4. Author create */
   app.post('/api/blog/posts', asyncRoute(async (req, res) => {
     const user = await requireUser(req as AuthenticatedRequest, res);
     if (!user) return;
@@ -230,22 +218,24 @@ export const registerBlogRoutes = (app: Express) => {
     const tags = Array.isArray(body.tags) ? body.tags.map(String).filter(Boolean).map((v) => ({ value: v })) : [];
     const readingTime = Number(body.readingTime) > 0 ? Number(body.readingTime) : estimateReadingTime(content);
 
+    const data = syncBlogPublicationData({
+      title, excerpt, content,
+      cover: body.cover ? payloadId(String(body.cover)) : undefined,
+      coverAlt: typeof body.coverAlt === 'string' ? body.coverAlt : undefined,
+      category, tags, status,
+      author: payloadId(user.id),
+      originalLanguage,
+      slug: slugify(String(body.slug || title)),
+      seoTitle: typeof body.seoTitle === 'string' ? body.seoTitle : undefined,
+      seoDescription: typeof body.seoDescription === 'string' ? body.seoDescription : undefined,
+      readingTime, views: 0, likes: 0,
+      isApproved: false, isPublished: false,
+      moderationComment: undefined,
+    });
+
     const post = await payload.create({
       collection: 'blog-posts' as any,
-      data: {
-        title, excerpt, content,
-        cover: body.cover ? payloadId(String(body.cover)) : undefined,
-        coverAlt: typeof body.coverAlt === 'string' ? body.coverAlt : undefined,
-        category, tags, status,
-        author: payloadId(user.id),
-        originalLanguage,
-        slug: slugify(String(body.slug || title)),
-        seoTitle: typeof body.seoTitle === 'string' ? body.seoTitle : undefined,
-        seoDescription: typeof body.seoDescription === 'string' ? body.seoDescription : undefined,
-        readingTime, views: 0, likes: 0,
-        isApproved: false, isPublished: false,
-        moderationComment: undefined,
-      } as any,
+      data: data as any,
       overrideAccess: true,
     });
 
@@ -256,7 +246,7 @@ export const registerBlogRoutes = (app: Express) => {
     res.status(201).json({ post: normalizePost(post as unknown as Record<string, unknown>) });
   }));
 
-  /* 4. Author/staff update */
+  /* 5. Author/staff update */
   app.patch('/api/blog/posts/:id', asyncRoute(async (req, res) => {
     const user = await requireUser(req as AuthenticatedRequest, res);
     if (!user) return;
@@ -290,9 +280,7 @@ export const registerBlogRoutes = (app: Express) => {
     if (toStaffOnly && !isStaff) { res.status(400).json({ code: 'BLOG_INVALID_STATUS' }); return; }
     if (nextStatus !== currentStatus) {
       data.status = nextStatus;
-      data.isApproved = nextStatus === 'approved' || nextStatus === 'published';
-      data.isPublished = nextStatus === 'published';
-      data.publishedAt = nextStatus === 'published' ? String(body.publishedAt || new Date().toISOString()) : undefined;
+      if (nextStatus === 'published') data.publishedAt = String(body.publishedAt || existing.publishedAt || new Date().toISOString());
       const modComment = typeof body.moderationComment === 'string' ? body.moderationComment : undefined;
       if (modComment) data.moderationComment = modComment;
       await createModerationHistory(String(id), authorId, user.id, currentStatus, nextStatus, modComment);
@@ -300,26 +288,13 @@ export const registerBlogRoutes = (app: Express) => {
       if (nextStatus === 'pending_review') await notifyStaff('blog_post_pending_review', String(id), '/platform/admin/blog');
     }
 
+    syncBlogPublicationData(data, existing);
     const updated = await payload.update({ collection: 'blog-posts' as any, id, data: data as any, depth: 1, overrideAccess: true });
-
-    if (nextStatus === 'approved' || nextStatus === 'published') {
-      const post = updated as unknown as Record<string, unknown>;
-      enqueueArticleTranslations(String(id), {
-        title: String(post.title || ''),
-        excerpt: String(post.excerpt || ''),
-        content: String(post.content || ''),
-        slug: String(post.slug || ''),
-        originalLanguage: String(post.originalLanguage || 'ru') as SupportedLanguage,
-        seoTitle: typeof post.seoTitle === 'string' ? post.seoTitle : undefined,
-        seoDescription: typeof post.seoDescription === 'string' ? post.seoDescription : undefined,
-        coverAlt: typeof post.coverAlt === 'string' ? post.coverAlt : undefined,
-      });
-    }
 
     res.json({ post: normalizePost(updated as unknown as Record<string, unknown>) });
   }));
 
-  /* 5. Delete */
+  /* 6. Delete */
   app.delete('/api/blog/posts/:id', asyncRoute(async (req, res) => {
     const user = await requireUser(req as AuthenticatedRequest, res);
     if (!user) return;
@@ -333,7 +308,7 @@ export const registerBlogRoutes = (app: Express) => {
     res.json({ ok: true });
   }));
 
-  /* 6. My posts */
+  /* 7. My posts */
   app.get('/api/profile/blog', asyncRoute(async (req, res) => {
     const user = await requireUser(req as AuthenticatedRequest, res);
     if (!user) return;
@@ -345,7 +320,7 @@ export const registerBlogRoutes = (app: Express) => {
     res.json({ docs: result.docs.map((d) => normalizePost(d as unknown as Record<string, unknown>)) });
   }));
 
-  /* 7. Moderation history */
+  /* 8. Moderation history */
   app.get('/api/blog/posts/:id/history', asyncRoute(async (req, res) => {
     const user = await requireUser(req as AuthenticatedRequest, res);
     if (!user) return;
@@ -368,7 +343,7 @@ export const registerBlogRoutes = (app: Express) => {
     })) });
   }));
 
-  /* 8. Staff moderation list + localization retry */
+  /* 9. Staff moderation list + localization retry */
   app.get('/api/admin/blog', asyncRoute(async (req, res) => {
     const staff = await requireStaff(req as AuthenticatedRequest, res);
     if (!staff) return;
@@ -380,15 +355,8 @@ export const registerBlogRoutes = (app: Express) => {
       collection: 'blog-posts' as any, where, sort: '-updatedAt', limit: 100, depth: 2, overrideAccess: true,
     });
     const docs = result.docs as any[];
-    const ids = docs.map((d) => payloadId(String(d.id)));
-    const locs = ids.length ? await payload.find({
-      collection: 'blog-post-localizations' as any, where: { post: { in: ids } }, limit: 200, depth: 0, overrideAccess: true,
-    }) : { docs: [] };
-    const locMap: Record<string, Array<{ language: string; translationStatus: string }>> = {};
-    for (const l of locs.docs as any[]) {
-      const pId = String(l.post || '');
-      (locMap[pId] ??= []).push({ language: String(l.language || ''), translationStatus: String(l.translationStatus || '') });
-    }
-    res.json({ docs: docs.map((d) => ({ ...normalizePost(d as unknown as Record<string, unknown>), localizations: locMap[String(d.id)] || [] })) });
+    const ids = docs.map((d) => String(d.id));
+    const locMap = await localizationSummaries(payload, 'blog-posts', ids);
+    res.json({ docs: docs.map((d) => ({ ...normalizePost(d as unknown as Record<string, unknown>), localizations: locMap.get(String(d.id)) || [] })) });
   }));
 };

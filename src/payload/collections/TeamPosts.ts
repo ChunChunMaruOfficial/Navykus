@@ -2,6 +2,8 @@ import type { CollectionConfig } from 'payload';
 
 import { adminOrModerator, anyone, ownerOrStaff } from '../access';
 import { textListField } from '../fields';
+import { auditAfterChange, auditAfterDelete } from '../audit';
+import { localizedAfterChange, localizedAfterDelete, originalLanguageField } from '../localization';
 
 export const TeamPosts: CollectionConfig = {
   slug: 'team-posts',
@@ -16,7 +18,20 @@ export const TeamPosts: CollectionConfig = {
     update: ownerOrStaff('user'),
     delete: ownerOrStaff('user'),
   },
+  hooks: {
+    beforeChange: [
+      ({ data, req }) => {
+        if (req.user && !data.user) {
+          return { ...data, user: req.user.id };
+        }
+        return data;
+      },
+    ],
+    afterChange: [localizedAfterChange('team-posts'), auditAfterChange('team-posts')],
+    afterDelete: [localizedAfterDelete('team-posts'), auditAfterDelete('team-posts')],
+  },
   fields: [
+    originalLanguageField,
     { name: 'user', type: 'relationship', relationTo: 'users', required: true },
     { name: 'title', type: 'text', required: true },
     { name: 'description', type: 'textarea', required: true },
@@ -31,14 +46,4 @@ export const TeamPosts: CollectionConfig = {
     textListField('ownSkills', 'Own skills'),
     textListField('interests', 'Interests'),
   ],
-  hooks: {
-    beforeChange: [
-      ({ data, req }) => {
-        if (req.user && !data.user) {
-          return { ...data, user: req.user.id };
-        }
-        return data;
-      },
-    ],
-  },
 };

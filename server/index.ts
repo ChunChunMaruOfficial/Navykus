@@ -22,20 +22,16 @@ for (const key of requiredEnv) {
   }
 }
 
-import {
-  ACTIVITIES,
-  EXPERTS,
-  PILLARS,
-  SCENARIOS,
-  STATS,
-  TEAM_MEMBERS,
-  TOURNAMENTS,
-  TRUST_POINTS,
-} from '../src/data';
+import { execSync } from 'node:child_process';
+
 import type { PageKey } from '../src/types';
+import { SUPPORTED_LANGUAGES } from '../src/i18n/languages';
+import { getAdminContentTypeByCollection } from '../src/content-admin-registry';
 import { getPayloadClient } from './payload';
 import { registerPlatformRoutes } from './platform';
 import { registerBlogRoutes } from './blog';
+import { startTranslationWorker } from './translation-worker';
+import { applyLocalizations, languageFromRequest } from './content-localizations';
 import {
   normalizeActivity,
   normalizeExpert,
@@ -154,7 +150,15 @@ app.use((req, res, next) => {
     console.error('CORS_ORIGIN environment variable is required in production');
     process.exit(1);
   }
-  res.header('Access-Control-Allow-Origin', configuredOrigin);
+  const configuredOrigins = configuredOrigin.split(',').map((origin) => origin.trim()).filter(Boolean);
+  const allowedOrigins = new Set([
+    ...configuredOrigins,
+    'https://navykus.online',
+    'https://www.navykus.online',
+  ]);
+  const requestOrigin = req.headers.origin;
+  const allowOrigin = requestOrigin && allowedOrigins.has(requestOrigin) ? requestOrigin : configuredOrigins[0] || configuredOrigin;
+  res.header('Access-Control-Allow-Origin', allowOrigin);
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Vary', 'Origin');
   res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
@@ -193,30 +197,37 @@ app.use('/media', express.static(path.resolve(process.cwd(), 'uploads', 'media')
 
 registerPlatformRoutes(app);
 registerBlogRoutes(app);
+startTranslationWorker(getPayloadClient);
+
+export const publicCollectionWhere = (collection: string, where: Record<string, unknown> = {}) => {
+  const contentType = getAdminContentTypeByCollection(collection);
+  const filters: Record<string, unknown> = {};
+
+  if (contentType?.requiresPublishedFlag || contentType?.usesPublishedFlag) {
+    filters.isPublished = { equals: true };
+  }
+  if (contentType?.supportsDraftStatus) {
+    filters._status = { equals: 'published' };
+  }
+
+  return {
+    ...filters,
+    ...where,
+  };
+};
 
 const findPublished = async (collection: string, where: Record<string, unknown> = {}) => {
-  try {
-    const payload = await getPayloadClient();
-    const result = await payload.find({
-      collection: collection as any,
-      depth: 1,
-      limit: 200,
-      sort: 'sortOrder',
-      where: {
-        isPublished: {
-          equals: true,
-        },
-        ...where,
-      },
-      overrideAccess: true,
-    });
+  const payload = await getPayloadClient();
+  const result = await payload.find({
+    collection: collection as any,
+    depth: 1,
+    limit: 200,
+    sort: 'sortOrder',
+    where: publicCollectionWhere(collection, where),
+    overrideAccess: true,
+  });
 
-    return result.docs;
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.warn(`CMS read failed for ${collection}; using fallback data: ${message}`);
-    return [];
-  }
+  return result.docs;
 };
 
 const findApprovedTeamMembers = async () => {
@@ -230,6 +241,9 @@ const findApprovedTeamMembers = async () => {
       isApproved: {
         equals: true,
       },
+      _status: {
+        equals: 'published',
+      },
     },
     overrideAccess: true,
   });
@@ -237,17 +251,21 @@ const findApprovedTeamMembers = async () => {
   return result.docs;
 };
 
+const GIT_HASH = process.env.GIT_HASH || (() => { try { return execSync('git rev-parse --short HEAD', { encoding: 'utf-8', timeout: 3000 }).trim(); } catch { return 'dev'; } })();
+
 app.get('/api/health', asyncRoute(async (_req, res) => {
   try {
     const payload = await getPayloadClient();
     await payload.find({ collection: 'users', limit: 0 });
-    res.json({ ok: true, service: 'navykus-express-payload', db: 'connected' });
+    res.json({ ok: true, service: 'navykus-express-payload', db: 'connected', version: GIT_HASH, deployedAt: new Date().toISOString() });
   } catch {
-    res.status(503).json({ ok: false, service: 'navykus-express-payload', db: 'disconnected' });
+    res.status(503).json({ ok: false, service: 'navykus-express-payload', db: 'disconnected', version: GIT_HASH });
   }
 }));
 
-app.get('/api/content/home', asyncRoute(async (_req, res) => {
+app.get('/api/content/home', asyncRoute(async (req, res) => {
+  const payload = await getPayloadClient();
+  const language = languageFromRequest(req);
   const [tournaments, activities, experts, teamMembers, trustPoints, pillars, stats] = await Promise.all([
     findPublished('tournaments'),
     findPublished('activities'),
@@ -258,31 +276,47 @@ app.get('/api/content/home', asyncRoute(async (_req, res) => {
     findPublished('stats'),
   ]);
 
+  await Promise.all([
+    applyLocalizations(payload, 'tournaments', tournaments as Array<Record<string, unknown>>, language),
+    applyLocalizations(payload, 'activities', activities as Array<Record<string, unknown>>, language),
+    applyLocalizations(payload, 'team-members', teamMembers as Array<Record<string, unknown>>, language),
+    applyLocalizations(payload, 'experts', experts as Array<Record<string, unknown>>, language),
+    applyLocalizations(payload, 'trust-points', trustPoints as Array<Record<string, unknown>>, language),
+    applyLocalizations(payload, 'pillars', pillars as Array<Record<string, unknown>>, language),
+    applyLocalizations(payload, 'stats', stats as Array<Record<string, unknown>>, language),
+  ]);
+
   res.json({
-    tournaments: tournaments.length ? tournaments.map(normalizeTournament) : TOURNAMENTS,
-    activities: activities.length ? activities.map(normalizeActivity) : ACTIVITIES,
-    experts: experts.length ? experts.map(normalizeExpert) : EXPERTS,
-    teamMembers: teamMembers.length ? teamMembers.map(normalizeTeamMember) : TEAM_MEMBERS,
-    trustPoints: trustPoints.length ? trustPoints.map(normalizeTrustPoint) : TRUST_POINTS,
-    pillars: pillars.length ? pillars.map(normalizePillar) : PILLARS,
-    stats: stats.length ? stats.map(normalizeStat) : STATS,
+    tournaments: tournaments.map(normalizeTournament),
+    activities: activities.map(normalizeActivity),
+    experts: experts.map(normalizeExpert),
+    teamMembers: teamMembers.map(normalizeTeamMember),
+    trustPoints: trustPoints.map(normalizeTrustPoint),
+    pillars: pillars.map(normalizePillar),
+    stats: stats.map(normalizeStat),
   });
 }));
 
-app.get('/api/tournaments', asyncRoute(async (_req, res) => {
+app.get('/api/tournaments', asyncRoute(async (req, res) => {
+  const payload = await getPayloadClient();
   const docs = await findPublished('tournaments');
-  res.json(docs.length ? docs.map(normalizeTournament) : TOURNAMENTS);
+  await applyLocalizations(payload, 'tournaments', docs as Array<Record<string, unknown>>, languageFromRequest(req));
+  res.json(docs.map(normalizeTournament));
 }));
 
-app.get('/api/activities', asyncRoute(async (_req, res) => {
+app.get('/api/activities', asyncRoute(async (req, res) => {
+  const payload = await getPayloadClient();
   const docs = await findPublished('activities');
-  res.json(docs.length ? docs.map(normalizeActivity) : ACTIVITIES);
+  await applyLocalizations(payload, 'activities', docs as Array<Record<string, unknown>>, languageFromRequest(req));
+  res.json(docs.map(normalizeActivity));
 }));
 
 app.get('/api/faqs', asyncRoute(async (req, res) => {
+  const payload = await getPayloadClient();
   const page = typeof req.query.page === 'string' ? req.query.page : undefined;
   const where = page ? { page: { equals: page } } : {};
   const docs = await findPublished('faqs', where);
+  await applyLocalizations(payload, 'faqs', docs as Array<Record<string, unknown>>, languageFromRequest(req));
   const faqs = docs.map(normalizeFaq);
 
   if (page) {
@@ -298,40 +332,73 @@ app.get('/api/faqs', asyncRoute(async (req, res) => {
   );
 }));
 
-app.get('/api/pillars', asyncRoute(async (_req, res) => {
+app.get('/api/pillars', asyncRoute(async (req, res) => {
+  const payload = await getPayloadClient();
   const docs = await findPublished('pillars');
-  res.json(docs.length ? docs.map(normalizePillar) : PILLARS);
+  await applyLocalizations(payload, 'pillars', docs as Array<Record<string, unknown>>, languageFromRequest(req));
+  res.json(docs.map(normalizePillar));
 }));
 
-app.get('/api/scenarios', asyncRoute(async (_req, res) => {
+app.get('/api/scenarios', asyncRoute(async (req, res) => {
+  const payload = await getPayloadClient();
   const docs = await findPublished('scenarios');
-  res.json(docs.length ? docs.map(normalizeScenario) : SCENARIOS);
+  await applyLocalizations(payload, 'scenarios', docs as Array<Record<string, unknown>>, languageFromRequest(req));
+  res.json(docs.map(normalizeScenario));
 }));
 
 app.get('/api/experts', asyncRoute(async (req, res) => {
+  const payload = await getPayloadClient();
   const tournamentId = typeof req.query.tournamentId === 'string' ? req.query.tournamentId.trim() : '';
   const docs = await findPublished('experts');
+  await applyLocalizations(payload, 'experts', docs as Array<Record<string, unknown>>, languageFromRequest(req));
   const normalized = docs.map(normalizeExpert);
-  const fallback = tournamentId
-    ? EXPERTS.filter((expert) => expert.tournamentId === tournamentId)
-    : EXPERTS;
   const filtered = tournamentId ? normalized.filter((expert) => expert.tournamentId === tournamentId) : normalized;
-  res.json(filtered.length ? filtered : fallback);
+  res.json(filtered);
 }));
 
-app.get('/api/trust-points', asyncRoute(async (_req, res) => {
+app.get('/api/trust-points', asyncRoute(async (req, res) => {
+  const payload = await getPayloadClient();
   const docs = await findPublished('trust-points');
-  res.json(docs.length ? docs.map(normalizeTrustPoint) : TRUST_POINTS);
+  await applyLocalizations(payload, 'trust-points', docs as Array<Record<string, unknown>>, languageFromRequest(req));
+  res.json(docs.map(normalizeTrustPoint));
 }));
 
-app.get('/api/stats', asyncRoute(async (_req, res) => {
+app.get('/api/stats', asyncRoute(async (req, res) => {
+  const payload = await getPayloadClient();
   const docs = await findPublished('stats');
-  res.json(docs.length ? docs.map(normalizeStat) : STATS);
+  await applyLocalizations(payload, 'stats', docs as Array<Record<string, unknown>>, languageFromRequest(req));
+  res.json(docs.map(normalizeStat));
 }));
 
-app.get('/api/team-members', asyncRoute(async (_req, res) => {
+app.get('/api/contact-settings', asyncRoute(async (req, res) => {
+  const payload = await getPayloadClient();
+  const result = await payload.find({
+    collection: 'contact-settings' as any,
+    depth: Number(req.query.depth || 0),
+    limit: Math.min(10, Math.max(1, Number(req.query.limit || 1))),
+    sort: '-updatedAt',
+    overrideAccess: true,
+  });
+  res.json(result);
+}));
+
+app.get('/api/operator-settings', asyncRoute(async (req, res) => {
+  const payload = await getPayloadClient();
+  const result = await payload.find({
+    collection: 'operator-settings' as any,
+    depth: Number(req.query.depth || 0),
+    limit: Math.min(10, Math.max(1, Number(req.query.limit || 1))),
+    sort: '-updatedAt',
+    overrideAccess: true,
+  });
+  res.json(result);
+}));
+
+app.get('/api/team-members', asyncRoute(async (req, res) => {
+  const payload = await getPayloadClient();
   const docs = await findApprovedTeamMembers();
-  res.json(docs.length ? docs.map(normalizeTeamMember) : TEAM_MEMBERS.filter((member) => member.isApproved));
+  await applyLocalizations(payload, 'team-members', docs as Array<Record<string, unknown>>, languageFromRequest(req));
+  res.json(docs.map(normalizeTeamMember));
 }));
 
 app.post('/api/applications', upload.single('projectFile'), asyncRoute(async (req, res) => {
@@ -430,6 +497,9 @@ app.post('/api/team-members', asyncRoute(async (req, res) => {
     res.status(400).json({ code: 'TEAM_MEMBER_REQUIRED_FIELDS' });
     return;
   }
+  const originalLanguage = typeof body.originalLanguage === 'string' && (SUPPORTED_LANGUAGES as readonly string[]).includes(body.originalLanguage)
+    ? body.originalLanguage
+    : 'ru';
 
   const member = await payload.create({
     collection: 'team-members' as any,
@@ -446,6 +516,8 @@ app.post('/api/team-members', asyncRoute(async (req, res) => {
       whyLooking: body.whyLooking || body.shortBio,
       contact: body.contact,
       contactType: body.contactType || 'telegram',
+      originalLanguage,
+      moderationStatus: 'pending',
       isApproved: false,
     },
     overrideAccess: true,

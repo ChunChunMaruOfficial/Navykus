@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Check, ArrowRight, Ticket as TicketIcon, Upload } from 'lucide-react';
-import { Tournament, ApplicationForm, Ticket } from '../types';
-import { useLocalizedData } from '../i18n/useLocalizedData';
+import { ApplicationForm, Ticket } from '../types';
+import { useCmsTournaments } from '../hooks/useCmsTournaments';
 
 interface ApplicationModalProps {
   isOpen: boolean;
@@ -19,7 +19,7 @@ const APPLICATION_UPLOAD_CLASS =
 
 export default function ApplicationModal({ isOpen, onClose, selectedTournamentId }: ApplicationModalProps) {
   const { t } = useTranslation();
-  const { tournaments } = useLocalizedData();
+  const tournaments = useCmsTournaments();
   const modalRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const [form, setForm] = useState<ApplicationForm>({

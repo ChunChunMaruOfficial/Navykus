@@ -30,11 +30,20 @@ export const normalizeTournament = (doc: any): Tournament => ({
   date: doc.date,
   registrationDeadline: doc.registrationDeadline,
   description: doc.description,
+  pitch: doc.pitch,
   skills: listValues(doc.skills),
   mentors: listValues(doc.mentors),
   maxParticipants: Number(doc.maxParticipants || 0),
   suitableFor: doc.suitableFor,
   format: doc.format,
+  targetAudience: doc.targetAudience,
+  ageLimit: doc.ageLimit,
+  teamsAllowed: doc.teamsAllowed,
+  language: doc.language,
+  expectedResult: doc.expectedResult,
+  themesText: doc.themesText,
+  evaluationCriteriaText: doc.evaluationCriteriaText,
+  registrationStatus: ['open', 'suspended', 'closed'].includes(doc.registrationStatus) ? doc.registrationStatus : 'open',
 });
 
 export const normalizeActivity = (doc: any): ActivityItem => ({

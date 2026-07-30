@@ -1,7 +1,10 @@
 import type { CollectionConfig } from 'payload';
 
 import { adminOrModerator, anyone } from '../access';
-import { legacyIdField, publishedField, sortOrderField } from '../fields';
+import { legacyIdField, publicContentVersions, publishedField, seoFields, sortOrderField, syncPublishedDraftBeforeChange } from '../fields';
+import { auditAfterChange, auditAfterDelete } from '../audit';
+import { localizedAfterChange, localizedAfterDelete, originalLanguageField } from '../localization';
+import { publicPreview } from '../preview';
 
 export const Experts: CollectionConfig = {
   slug: 'experts',
@@ -9,17 +12,25 @@ export const Experts: CollectionConfig = {
     useAsTitle: 'name',
     group: 'Content',
     defaultColumns: ['name', 'type', 'tournamentId', 'role'],
+    preview: publicPreview('experts'),
   },
+  versions: publicContentVersions,
   access: {
     read: anyone,
     create: adminOrModerator,
     update: adminOrModerator,
     delete: adminOrModerator,
   },
+  hooks: {
+    beforeChange: [syncPublishedDraftBeforeChange],
+    afterChange: [localizedAfterChange('experts'), auditAfterChange('experts')],
+    afterDelete: [localizedAfterDelete('experts'), auditAfterDelete('experts')],
+  },
   fields: [
     legacyIdField,
     sortOrderField,
     publishedField,
+    originalLanguageField,
     { name: 'name', type: 'text', required: true },
     {
       name: 'type',
@@ -43,7 +54,7 @@ export const Experts: CollectionConfig = {
       type: 'upload',
       relationTo: 'media',
       admin: {
-        description: 'Фото эксперта/наставника/жюри',
+        description: 'Фото эксперта, наставника или жюри',
       },
     },
     {
@@ -55,5 +66,6 @@ export const Experts: CollectionConfig = {
         description: 'К какому чемпионату привязан эксперт',
       },
     },
+    ...seoFields,
   ],
 };

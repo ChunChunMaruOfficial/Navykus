@@ -1,8 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { apiUrl } from '../api';
-import { useLocalizedData } from '../i18n/useLocalizedData';
 import type { ActivityItem } from '../types';
+import { useCmsCollection, useCmsLanguage } from './useCmsCollection';
 
 type CmsActivityDoc = {
   id: string | number;
@@ -41,42 +38,11 @@ const mapCmsActivity = (doc: CmsActivityDoc): ActivityItem => ({
 });
 
 export const useCmsActivities = () => {
-  const { t } = useTranslation();
-  const { activities: fallbackActivities } = useLocalizedData();
-  const [cmsActivities, setCmsActivities] = useState<ActivityItem[] | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const language = useCmsLanguage();
+  const result = useCmsCollection<CmsActivityDoc, ActivityItem>({
+    path: `/api/activities?limit=50&lang=${encodeURIComponent(language)}`,
+    map: mapCmsActivity,
+  });
 
-  useEffect(() => {
-    let isMounted = true;
-    setIsLoading(true);
-
-    fetch(apiUrl('/api/activities?limit=50'))
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to fetch activities');
-        return res.json();
-      })
-      .then((data: { docs?: CmsActivityDoc[] } | CmsActivityDoc[]) => {
-        if (!isMounted) return;
-        const docs = Array.isArray(data) ? data : (data.docs || []);
-        const mapped = docs.map(mapCmsActivity);
-        setCmsActivities(mapped);
-      })
-      .catch(() => {
-        if (isMounted) setCmsActivities([]);
-      })
-      .finally(() => {
-        if (isMounted) setIsLoading(false);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [t]);
-
-  const activities = useMemo(() => {
-    if (!cmsActivities?.length) return fallbackActivities;
-    return cmsActivities;
-  }, [cmsActivities, fallbackActivities]);
-
-  return { activities, isLoading };
+  return { activities: result.data || [], isLoading: result.isLoading };
 };

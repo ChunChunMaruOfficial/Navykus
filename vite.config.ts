@@ -3,9 +3,20 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig} from 'vite';
 
+const moveEntryScriptAfterRoot = () => ({
+  name: 'move-entry-script-after-root',
+  enforce: 'post' as const,
+  transformIndexHtml(html: string) {
+    const entryScriptPattern = /\n\s*<script type="module" crossorigin src="\/assets\/index-[^"]+\.js"><\/script>/;
+    const entryScript = html.match(entryScriptPattern)?.[0];
+    if (!entryScript || !html.includes('</body>')) return html;
+    return html.replace(entryScriptPattern, '').replace('</body>', `${entryScript}\n  </body>`);
+  },
+});
+
 export default defineConfig(() => {
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [react(), tailwindcss(), moveEntryScriptAfterRoot()],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
@@ -40,6 +51,18 @@ export default defineConfig(() => {
           changeOrigin: true,
         },
         '/graphql-playground': {
+          target: 'http://localhost:3001',
+          changeOrigin: true,
+        },
+        '/payload-api': {
+          target: 'http://localhost:3001',
+          changeOrigin: true,
+        },
+        '/payload-graphql': {
+          target: 'http://localhost:3001',
+          changeOrigin: true,
+        },
+        '/payload-graphql-playground': {
           target: 'http://localhost:3001',
           changeOrigin: true,
         },

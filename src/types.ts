@@ -5,11 +5,20 @@ export interface Tournament {
   date: string;
   registrationDeadline: string;
   description: string;
+  pitch?: string;
   skills: string[];
   mentors: string[];
   maxParticipants: number;
   suitableFor?: string;
   format?: string;
+  targetAudience?: string;
+  ageLimit?: string;
+  teamsAllowed?: string;
+  language?: string;
+  expectedResult?: string;
+  themesText?: string;
+  evaluationCriteriaText?: string;
+  registrationStatus?: 'open' | 'suspended' | 'closed';
 }
 
 export interface ApplicationForm {

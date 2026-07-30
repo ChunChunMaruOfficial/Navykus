@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -26,8 +26,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { useCmsFaqs } from '../hooks/useCmsFaqs';
-import { useCmsTournaments } from '../hooks/useCmsTournaments';
-import type { FaqItem as CmsFaqItem } from '../types';
+import { useCmsTournamentsState } from '../hooks/useCmsTournaments';
 import BrandImage from './BrandImage';
 
 interface ChampionshipData {
@@ -48,12 +47,6 @@ interface ChampionshipData {
   evaluationCriteria: string[];
   themes: string[];
   registrationStatus: 'open' | 'suspended' | 'closed';
-}
-
-interface FAQItem {
-  id: string;
-  question: string;
-  answer: string;
 }
 
 interface ChampionshipPageProps {
@@ -78,6 +71,12 @@ const keyInfoLabelClass = "text-xs sm:text-[13px] lg:text-sm font-mono uppercase
 const keyInfoValueClass = "text-base sm:text-lg lg:text-xl font-serif font-bold leading-tight";
 const keyInfoSubtextClass = "text-sm sm:text-base text-brand-slate font-normal md:font-light leading-snug";
 
+const splitCmsList = (value?: string) =>
+  (value || '')
+    .split(/\r?\n/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+
 export default function ChampionshipPage({ 
   onBackToHome, 
   onNavigateToSection, 
@@ -85,68 +84,37 @@ export default function ChampionshipPage({
   onOpenAuthModal,
 }: ChampionshipPageProps) {
   const { t } = useTranslation();
-  const cmsTournaments = useCmsTournaments();
+  const {
+    data: cmsTournaments,
+    isLoading: isCmsLoading,
+    hasLoadError: hasCmsLoadError,
+  } = useCmsTournamentsState();
+  const cmsData = useMemo<ChampionshipData | null>(() => {
+    const tourney = cmsTournaments[0];
+    if (!tourney) return null;
+    const themes = splitCmsList(tourney.themesText);
+    const evaluationCriteria = splitCmsList(tourney.evaluationCriteriaText);
 
-  // Sync CMS tournament data into editable state
-  useEffect(() => {
-    if (cmsTournaments && cmsTournaments.length > 0) {
-      const tourney = cmsTournaments[0];
-      setCmsData((prev) => ({
-        ...prev,
-        title: tourney.title || prev.title,
-        description: tourney.description || prev.description,
-        date: tourney.date || prev.date,
-        registrationDeadline: tourney.registrationDeadline || prev.registrationDeadline,
-        format: tourney.format || prev.format,
-        maxParticipants: tourney.maxParticipants || prev.maxParticipants,
-      }));
-    }
+    return {
+      id: tourney.id,
+      title: tourney.title,
+      type: tourney.type,
+      date: tourney.date,
+      registrationDeadline: tourney.registrationDeadline,
+      description: tourney.description,
+      pitch: tourney.pitch || tourney.description,
+      targetAudience: tourney.targetAudience || tourney.suitableFor,
+      ageLimit: tourney.ageLimit,
+      format: tourney.format,
+      teamsAllowed: tourney.teamsAllowed,
+      lang: tourney.language,
+      maxParticipants: tourney.maxParticipants,
+      expectedResult: tourney.expectedResult,
+      evaluationCriteria: evaluationCriteria.length ? evaluationCriteria : tourney.mentors,
+      themes: themes.length ? themes : tourney.skills,
+      registrationStatus: tourney.registrationStatus,
+    };
   }, [cmsTournaments]);
-
-  // CMS/Editable state with prefilled default championship data
-  const [cmsData, setCmsData] = useState<ChampionshipData>({
-    id: 'cup-1',
-    title: 'Navykus Global Case Cup: Sustainable Cities',
-    type: t('ui.championshippage.4d64641fc0'),
-    date: t('ui.championshippage.bbc292ccc9'),
-    registrationDeadline: t('ui.championshippage.96d45bb877'),
-    description: t('ui.championshippage.567335aef2'),
-    pitch: t('ui.championshippage.dd865f6e85'),
-    targetAudience: t('ui.championshippage.8de641ff48'),
-    ageLimit: t('ui.championshippage.9c2bddb76a'),
-    format: t('ui.championshippage.14fe253652'),
-    teamsAllowed: t('ui.championshippage.ed233d55cc'),
-    lang: t('ui.championshippage.e91c59966c'),
-    maxParticipants: 120,
-    expectedResult: t('ui.championshippage.034bb56718'),
-    evaluationCriteria: [
-      t('ui.championshippage.47b3f641ee'),
-      t('ui.championshippage.49a254c0ad'),
-      t('ui.championshippage.c3ab1eab18'),
-      t('ui.championshippage.bdbee4fdad')
-    ],
-    themes: [
-      t('ui.championshippage.6e972b4b72'),
-      t('ui.championshippage.61fb774e62'),
-      t('ui.championshippage.058159276f'),
-      t('ui.championshippage.f1d7d23827')
-    ],
-    registrationStatus: 'open'
-  });
-
-  // CMS toggle and state
-  const [isCmsPanelOpen, setIsCmsPanelOpen] = useState(false);
-  const [tempTitle, setTempTitle] = useState(cmsData.title);
-  const [tempPitch, setTempPitch] = useState(cmsData.pitch);
-  const [tempDate, setTempDate] = useState(cmsData.date);
-  const [tempDeadline, setTempDeadline] = useState(cmsData.registrationDeadline);
-  const [tempAge, setTempAge] = useState(cmsData.ageLimit);
-  const [tempFormat, setTempFormat] = useState(cmsData.format);
-  const [tempTeams, setTempTeams] = useState(cmsData.teamsAllowed);
-  const [tempStatus, setTempStatus] = useState<ChampionshipData['registrationStatus']>(cmsData.registrationStatus);
-
-  // New theme input state
-  const [newTheme, setNewTheme] = useState('');
 
   // Interactive UI states (scenarios, tabs, accordions)
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
@@ -172,42 +140,6 @@ export default function ChampionshipPage({
     seatNum: number;
     regTime: string;
   } | null>(null);
-
-  // Apply changes from temp CMS state
-  const handleApplyCmsChanges = () => {
-    setCmsData(prev => ({
-      ...prev,
-      title: tempTitle,
-      pitch: tempPitch,
-      date: tempDate,
-      registrationDeadline: tempDeadline,
-      ageLimit: tempAge,
-      format: tempFormat,
-      teamsAllowed: tempTeams,
-      registrationStatus: tempStatus
-    }));
-    // Show user a quick toast/confirmation or just close
-    setIsCmsPanelOpen(false);
-  };
-
-  // Add new theme via CMS
-  const handleAddTheme = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTheme.trim()) return;
-    setCmsData(prev => ({
-      ...prev,
-      themes: [...prev.themes, newTheme.trim()]
-    }));
-    setNewTheme('');
-  };
-
-  // Delete theme via CMS
-  const handleDeleteTheme = (index: number) => {
-    setCmsData(prev => ({
-      ...prev,
-      themes: prev.themes.filter((_, idx) => idx !== index)
-    }));
-  };
 
   // Form submit simulator
   const handleFormSubmit = (e: React.FormEvent) => {
@@ -294,40 +226,19 @@ export default function ChampionshipPage({
     }, 150);
   };
 
-  const fallbackFaqItems: FAQItem[] = [
-    {
-      id: 'championship-faq-1',
-      question: t('ui.championshippage.75eb0d84'),
-      answer: t('ui.championshippage.4b587e32b1')
-    },
-    {
-      id: 'championship-faq-2',
-      question: t('ui.championshippage.ccc076b0'),
-      answer: t('ui.championshippage.abf0a3c0da')
-    },
-    {
-      id: 'championship-faq-3',
-      question: t('ui.championshippage.fdb6874f'),
-      answer: t('ui.championshippage.c00db4e511')
-    },
-    {
-      id: 'championship-faq-4',
-      question: t('ui.championshippage.c264c842'),
-      answer: t('ui.championshippage.75488dd388')
-    },
-    {
-      id: 'championship-faq-5',
-      question: t('ui.championshippage.47dfb4af'),
-      answer: t('ui.championshippage.59016ab8e3')
-    }
-  ];
-  const faqItems = useCmsFaqs(
-    'championship',
-    fallbackFaqItems.map<CmsFaqItem>((faq) => ({
-      ...faq,
-      page: 'championship',
-    })),
-  );
+  const faqItems = useCmsFaqs('championship');
+
+  if (!cmsData) {
+    return (
+      <div className="relative w-full text-brand-dark pb-16 pt-24">
+        <div className="mx-auto max-w-7xl px-[6%] md:px-[10%]">
+          <div className="rounded-3xl border border-white/[0.15] bg-white/[0.12] p-8 text-center text-sm text-brand-slate glass-xl surface-elevated">
+            {isCmsLoading ? t('platform.states.loading') : hasCmsLoadError ? t('platform.states.error') : t('platform.states.empty')}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full text-brand-dark pb-16 pt-24">
@@ -342,7 +253,7 @@ export default function ChampionshipPage({
             <div className="flex">
               {cmsData.registrationStatus === 'open' && (
                 <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 rounded-full text-[10px] font-mono uppercase tracking-widest font-semibold animate-pulse">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>{t('ui.championshippage.6bdc7661d3')}{cmsData.registrationDeadline}
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>{t('ui.championshippage.6bdc7661d3')} {cmsData.registrationDeadline}
                 </span>
               )}
               {cmsData.registrationStatus === 'suspended' && (
@@ -743,7 +654,7 @@ export default function ChampionshipPage({
                     <div className="bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white p-4 text-left flex justify-between items-center">
                       <div>
                         <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-widest text-white/80">{t('ui.championshippage.41799b91ae')}</span>
-                        <h4 className="text-xs sm:text-sm font-serif font-semibold mt-0.5 truncate max-w-[200px]">Navykus Global Case Cup</h4>
+                        <h4 className="text-xs sm:text-sm font-serif font-semibold mt-0.5 truncate max-w-[200px]">{cmsData.title}</h4>
                       </div>
                       <span className="text-[10px] font-mono px-2 py-0.5 bg-white/10 rounded uppercase font-bold text-white border border-white/20">{t('ui.championshippage.7c2aa283')}</span>
                     </div>

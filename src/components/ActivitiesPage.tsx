@@ -28,7 +28,8 @@ import {
 } from '../motion-animations';
 import BrandImage from './BrandImage';
 import { ActivityCategory, ActivityItem, ActivityStatus, ParticipationScenario } from '../types';
-import { useCmsActivities } from '../hooks/useCmsActivities';
+import { useCmsEvents } from '../hooks/useCmsEvents';
+import { useCmsOpportunities } from '../hooks/useCmsOpportunities';
 import { useCmsScenarios } from '../hooks/useCmsScenarios';
 
 
@@ -145,7 +146,8 @@ export default function ActivitiesPage({
   onOpenApplyModal,
 }: ActivitiesPageProps) {
   const { t } = useTranslation();
-  const { activities, isLoading: activitiesLoading } = useCmsActivities();
+  const { events: activities, isLoading: activitiesLoading } = useCmsEvents();
+  const { opportunities: cmsOpportunities } = useCmsOpportunities();
   const scenarios = useCmsScenarios();
   const [activeView, setActiveView] = useState<ActivityView>(getInitialActivityView);
   const [routePath, setRoutePath] = useState(getCurrentPath);
@@ -155,14 +157,8 @@ export default function ActivitiesPage({
   const [opportunitiesCount, setOpportunitiesCount] = useState<number>(0);
 
   useEffect(() => {
-    let mounted = true;
-    import('./OpportunitiesPage').then(mod => {
-      if (mounted) setOpportunitiesCount(mod.OPPORTUNITIES.length);
-    }).catch(() => {
-      if (mounted) setOpportunitiesCount(0);
-    });
-    return () => { mounted = false; };
-  }, []);
+    setOpportunitiesCount(cmsOpportunities.length);
+  }, [cmsOpportunities]);
 
   useEffect(() => {
     const syncViewWithPath = () => {
@@ -541,6 +537,7 @@ function ActivityCard({
   return (
     <motion.article
       variants={cardItemFadeUp.variants}
+      data-preview-id={activity.id}
       role="button"
       tabIndex={0}
       onClick={onOpenDetails}

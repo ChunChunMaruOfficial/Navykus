@@ -623,6 +623,39 @@ const normalizeSearch = (value: string) =>
     .replace(/\u0451/g, '\u0435')
     .trim();
 
+const SUPPORTED_LANGUAGES: SupportedLanguage[] = ['ru', 'en', 'kk', 'uz', 'ar', 'de', 'es', 'tr'];
+
+const localized = (value = ''): LText => lt({
+  ru: value,
+  en: value,
+  kk: value,
+  uz: value,
+  ar: value,
+  de: value,
+  es: value,
+  tr: value,
+});
+
+const localizedList = (items: string[] = []) => items.map((item) => localized(item));
+
+const normalizeChoice = <T extends string>(value: string | undefined, allowed: readonly T[], fallback: T): T => {
+  if (value && allowed.includes(value as T)) return value as T;
+  return fallback;
+};
+
+const normalizeCategory = (value: string | undefined): CategoryId => {
+  const normalized = value === 'olympiad' ? 'olympiads' : value === 'internship' ? 'internships' : value;
+  return normalizeChoice(normalized, CATEGORIES.map((category) => category.id), 'projects');
+};
+
+const normalizeLanguageList = (items: string[] = []): SupportedLanguage[] => {
+  const languages = items.filter((item): item is SupportedLanguage => SUPPORTED_LANGUAGES.includes(item as SupportedLanguage));
+  return languages.length ? languages : ['ru'];
+};
+
+const normalizeGrades = (items: string[] = []) =>
+  items.map((item) => Number(item)).filter((item) => Number.isInteger(item) && item > 0);
+
 const readJson = <T,>(key: string, fallback: T): T => {
   if (typeof localStorage === 'undefined') return fallback;
   try {
@@ -767,6 +800,7 @@ function OpportunityCard({
   return (
     <motion.article
       {...cardItemFadeUp}
+      data-preview-id={opportunity.id}
       className="group relative flex h-full min-h-[520px] flex-col overflow-hidden rounded-[1.35rem] border border-white/65 bg-white/46 surface-elevated-soft backdrop-blur-xl transition-transform duration-300 hover:-translate-y-1"
     >
       <div className="overflow-hidden bg-white/36">
@@ -909,46 +943,45 @@ export default function OpportunitiesPage({
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success'>('idle');
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
-  const cmsOpportunities = useCmsOpportunities();
+  const { opportunities: cmsOpportunities, isLoading: cmsOpportunitiesLoading } = useCmsOpportunities();
   const allOpportunities = useMemo(() => {
-    if (!cmsOpportunities?.length) return OPPORTUNITIES;
     const mapped: Opportunity[] = (cmsOpportunities || []).map((doc) => ({
-      id: `cms-${doc.id}`,
+      id: doc.id,
       slug: doc.slug,
-      source: 'verified' as SourceId,
-      category: (doc.type === 'olympiad' ? 'olympiads' : doc.type === 'volunteering' ? 'volunteering' : doc.type === 'internship' ? 'internships' : 'projects') as CategoryId,
-      direction: 'social' as DirectionId,
-      format: (['online', 'offline', 'hybrid'].includes(doc.format) ? doc.format : 'online') as FormatId,
-      participation: 'both' as ParticipationId,
-      cost: (doc.cost === 'paid' ? 'paid' : doc.cost === 'scholarship' ? 'scholarship' : 'free') as CostId,
-      title: lt({ ru: doc.title, en: doc.title, kk: doc.title, uz: doc.title, ar: doc.title, de: doc.title, es: doc.title, tr: doc.title }),
-      organizer: lt({ ru: doc.organization, en: doc.organization, kk: doc.organization, uz: doc.organization, ar: doc.organization, de: doc.organization, es: doc.organization, tr: doc.organization }),
-      summary: lt({ ru: doc.shortDescription, en: doc.shortDescription, kk: doc.shortDescription, uz: doc.shortDescription, ar: doc.shortDescription, de: doc.shortDescription, es: doc.shortDescription, tr: doc.shortDescription }),
-      description: lt({ ru: doc.fullDescription || doc.shortDescription, en: doc.fullDescription || doc.shortDescription, kk: doc.fullDescription || doc.shortDescription, uz: doc.fullDescription || doc.shortDescription, ar: doc.fullDescription || doc.shortDescription, de: doc.fullDescription || doc.shortDescription, es: doc.fullDescription || doc.shortDescription, tr: doc.fullDescription || doc.shortDescription }),
-      country: lt({ ru: doc.country, en: doc.country, kk: doc.country, uz: doc.country, ar: doc.country, de: doc.country, es: doc.country, tr: doc.country }),
-      city: lt({ ru: '', en: '', kk: '', uz: '', ar: '', de: '', es: '', tr: '' }),
-      languages: doc.languages.filter((l): l is SupportedLanguage => ['ru','en','kk','uz','ar','de','es','tr'].includes(l)),
-      skills: [],
-      keywords: [doc.organization, doc.type].filter(Boolean),
+      source: normalizeChoice(doc.source, ['navykus', 'verified', 'partner'], 'verified'),
+      category: normalizeCategory(doc.category || doc.type),
+      direction: normalizeChoice(doc.direction, ['business', 'science', 'tech', 'social', 'creative', 'leadership'], 'social'),
+      format: normalizeChoice(doc.format, ['online', 'offline', 'hybrid'], 'online'),
+      participation: normalizeChoice(doc.participation, ['individual', 'team', 'both'], 'both'),
+      cost: normalizeChoice(doc.cost, ['free', 'paid', 'scholarship'], 'free'),
+      title: localized(doc.title),
+      organizer: localized(doc.organization),
+      summary: localized(doc.shortDescription),
+      description: localized(doc.fullDescription || doc.shortDescription),
+      country: localized(doc.country),
+      city: localized(doc.city),
+      languages: normalizeLanguageList(doc.languages),
+      skills: localizedList(doc.skills),
+      keywords: doc.keywords.length ? doc.keywords : [doc.organization, doc.type].filter(Boolean),
       minAge: doc.ageMin || 0,
       maxAge: doc.ageMax || 25,
-      grades: [],
+      grades: normalizeGrades(doc.grades),
       deadline: doc.deadline,
-      startDate: '',
-      finalDeadline: !!doc.deadline,
-      registrationOpen: !doc.deadline || new Date(doc.deadline) > new Date(),
-      seats: 0,
-      savedCount: 0,
-      imageUrl: doc.logoUrl || '',
-      editorPick: false,
-      recommended: false,
-      requirements: [],
-      outcomes: (doc.benefits || []).map((b) => lt({ ru: b, en: b, kk: b, uz: b, ar: b, de: b, es: b, tr: b })),
+      startDate: doc.startDate || '',
+      finalDeadline: doc.finalDeadline,
+      registrationOpen: doc.registrationOpen ?? (!doc.deadline || new Date(doc.deadline) > new Date()),
+      seats: doc.seats,
+      savedCount: doc.savedCount,
+      imageUrl: doc.imageUrl || doc.logoUrl || '',
+      editorPick: doc.editorPick,
+      recommended: doc.recommended,
+      requirements: localizedList(doc.requirements),
+      outcomes: localizedList(doc.benefits),
       externalUrl: doc.officialUrl,
-      portfolioValue: 0,
-      publishedAt: doc.createdAt,
+      portfolioValue: doc.portfolioValue,
+      publishedAt: doc.publishedAt || doc.createdAt,
     }));
-    return [...mapped, ...OPPORTUNITIES];
+    return mapped;
   }, [cmsOpportunities]);
 
   useEffect(() => {
@@ -997,7 +1030,7 @@ export default function OpportunitiesPage({
   useEffect(() => writeJson(STORAGE_KEYS.portfolio, portfolio), [portfolio]);
 
   const selectedOpportunity = route.slug
-    ? OPPORTUNITIES.find((opportunity) => opportunity.slug === route.slug)
+    ? allOpportunities.find((opportunity) => opportunity.slug === route.slug)
     : undefined;
   const catalogHeroClass = embedded
     ? "relative z-10 w-full overflow-hidden pb-8"
@@ -1032,11 +1065,11 @@ export default function OpportunitiesPage({
       acc[category.id] = allOpportunities.filter((opportunity) => opportunity.category === category.id).length;
       return acc;
     }, {} as Record<CategoryId, number>);
-  }, []);
+  }, [allOpportunities]);
 
   const countries = useMemo(
     () => Array.from(new Set(allOpportunities.map((item) => pick(item.country, language)))).sort((a, b) => a.localeCompare(b)),
-    [language],
+    [allOpportunities, language],
   );
 
   const quizScores = useMemo(() => {
@@ -1044,7 +1077,7 @@ export default function OpportunitiesPage({
       acc[opportunity.id] = scoreOpportunity(opportunity, quiz, language);
       return acc;
     }, {});
-  }, [language, quiz]);
+  }, [allOpportunities, language, quiz]);
 
   const filtered = useMemo(() => {
     const q = normalizeSearch(debouncedQuery);
@@ -1097,11 +1130,11 @@ export default function OpportunitiesPage({
       if (sortBy === 'popular') return b.savedCount - a.savedCount;
       return Number(b.recommended) - Number(a.recommended) || Number(b.editorPick) - Number(a.editorPick) || (getDaysLeft(a.deadline) ?? 999) - (getDaysLeft(b.deadline) ?? 999);
     });
-  }, [debouncedQuery, filters, language, quizScores, sortBy]);
+  }, [allOpportunities, debouncedQuery, filters, language, quizScores, sortBy]);
 
   const recommended = useMemo(
     () => allOpportunities.filter((opportunity) => opportunity.recommended).slice(0, 4),
-    [],
+    [allOpportunities],
   );
 
   const urgent = useMemo(
@@ -1109,7 +1142,7 @@ export default function OpportunitiesPage({
       const days = getDaysLeft(opportunity.deadline);
       return opportunity.finalDeadline && opportunity.registrationOpen && days !== null && days >= 0 && days <= 14;
     }).sort((a, b) => (getDaysLeft(a.deadline) ?? 99) - (getDaysLeft(b.deadline) ?? 99)),
-    [],
+    [allOpportunities],
   );
 
   const visibleItems = filtered.slice(0, visibleCount);
@@ -1257,7 +1290,7 @@ export default function OpportunitiesPage({
               </h2>
               <div className="grid gap-3 md:grid-cols-3">
                 {urgent.slice(0, 3).map((opportunity) => (
-                  <button key={opportunity.id} onClick={() => navigate(`/activities/opportunities/${opportunity.slug}`)} className="rounded-2xl bg-white/55 p-4 text-left text-xs text-brand-slate">
+                  <button key={opportunity.id} data-preview-id={opportunity.id} onClick={() => navigate(`/activities/opportunities/${opportunity.slug}`)} className="rounded-2xl bg-white/55 p-4 text-left text-xs text-brand-slate">
                     <span className="font-semibold text-[#bc4638]">{getDaysLeft(opportunity.deadline)} {pick(UI.daysLeft, language)}</span>
                     <div className="mt-1 font-serif text-base font-semibold text-brand-dark">{pick(opportunity.title, language)}</div>
                     <div className="mt-1">{opportunity.registrationOpen ? pick(UI.registrationOpen, language) : pick(UI.registrationClosed, language)}</div>
@@ -1355,7 +1388,7 @@ export default function OpportunitiesPage({
               { value: 'popular', label: pick(UI.popular, language) },
             ]} />
           </div>
-          {isLoading ? (
+          {isLoading || cmsOpportunitiesLoading ? (
             <SkeletonGrid />
           ) : visibleItems.length > 0 ? (
             <>
@@ -1392,7 +1425,7 @@ export default function OpportunitiesPage({
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {recommended.map((opportunity) => (
               <button
-                key={opportunity.id}onClick={() => navigate(`/activities/opportunities/${opportunity.slug}`)} className="rounded-2xl border border-white/60 bg-white/40 p-4 text-left surface-elevated-soft backdrop-blur-md transition-transform hover:-translate-y-0.5"
+                key={opportunity.id} data-preview-id={opportunity.id} onClick={() => navigate(`/activities/opportunities/${opportunity.slug}`)} className="rounded-2xl border border-white/60 bg-white/40 p-4 text-left surface-elevated-soft backdrop-blur-md transition-transform hover:-translate-y-0.5"
               >
                 <span className="mb-3 inline-flex rounded-full bg-[#bc4638]/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#8d3026]">
                   {getSourceLabel(opportunity.source, language)}
@@ -1548,7 +1581,7 @@ export default function OpportunitiesPage({
   };
 
   const renderRecommendations = () => {
-    const matches = [...OPPORTUNITIES].sort((a, b) => (quizScores[b.id] || 0) - (quizScores[a.id] || 0));
+    const matches = [...allOpportunities].sort((a, b) => (quizScores[b.id] || 0) - (quizScores[a.id] || 0));
     return (
       <section className={pageShellClass}>
         <Header
@@ -1613,7 +1646,7 @@ export default function OpportunitiesPage({
             <GlassCrystal />
           </div>
           <div className="absolute bottom-5 left-5 right-5 grid grid-cols-2 gap-3">
-            <Metric icon={<ClipboardCheck className="h-4 w-4" />} value={OPPORTUNITIES.length} label={pick(UI.published, language)} />
+            <Metric icon={<ClipboardCheck className="h-4 w-4" />} value={allOpportunities.length} label={pick(UI.published, language)} />
             <Metric icon={<Heart className="h-4 w-4" />} value={favorites.length} label={pick(UI.saved, language)} />
           </div>
         </motion.div>
@@ -1706,7 +1739,7 @@ export default function OpportunitiesPage({
           <h2 className="mb-4 font-serif text-2xl font-semibold text-brand-dark">{pick(UI.tracker, language)}</h2>
           <div className="grid gap-3">
             {applications.length ? applications.map((application) => {
-              const opportunity = OPPORTUNITIES.find((item) => item.id === application.opportunityId);
+              const opportunity = allOpportunities.find((item) => item.id === application.opportunityId);
               return (
                 <div key={application.id} className="rounded-2xl bg-white/55 p-4 text-sm text-brand-slate">
                   <div className="font-semibold text-brand-dark">{opportunity ? pick(opportunity.title, language) : application.opportunityId}</div>

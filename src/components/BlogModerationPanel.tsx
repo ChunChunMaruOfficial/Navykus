@@ -44,6 +44,23 @@ function StateBlock({ state, empty, children }: { state: LoadState; empty?: bool
 
 type PostWithLoc = BlogPostDoc & { localizations?: BlogLocalizationSummary[] };
 
+const authorLabel = (post: BlogPostDoc, fallback: string) => {
+  const author = post.author as unknown;
+  if (author && typeof author === 'object') {
+    const record = author as Record<string, unknown>;
+    return String(record.name || record.email || record.id || fallback);
+  }
+  if (typeof author === 'string' || typeof author === 'number') return String(author);
+  return fallback;
+};
+
+const formatPostDate = (value: string) => {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(date);
+};
+
 export default function BlogModerationPanel({ user }: { user?: PlatformUser | null }) {
   const { t } = useTranslation();
   const [posts, setPosts] = useState<PostWithLoc[]>([]);
@@ -122,9 +139,9 @@ export default function BlogModerationPanel({ user }: { user?: PlatformUser | nu
             <article key={post.id} className="rounded-2xl border border-white/60 bg-white/45 p-4">
               <div className="font-serif text-xl text-brand-dark">{post.title}</div>
               <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-brand-slate">
-                <span>{post.author.name}</span>
+                <span>{authorLabel(post, t('ui.blogmoderation.unknownAuthor', { defaultValue: 'Unknown author' }))}</span>
                 <span className="text-xs">·</span>
-                <span>{post.createdAt ? new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(new Date(post.createdAt)) : ''}</span>
+                <span>{formatPostDate(post.createdAt)}</span>
               </div>
               <div className="mt-2 flex flex-wrap items-center gap-1.5">
                 {langBadge(post.originalLanguage)}
