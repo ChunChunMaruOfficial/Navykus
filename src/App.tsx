@@ -197,6 +197,7 @@ export default function App() {
   const [legalPage, setLegalPage] = useState<'privacy' | 'terms' | null>(legalSubpageFromPath);
   const [isPlatformRoute, setIsPlatformRoute] = useState(getIsPlatformRoute);
   const navRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const navContainerRef = useRef<HTMLElement | null>(null);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
   const [authUser, setAuthUser] = useState<PlatformUser | null | undefined>(undefined);
   const [contactSettings, setContactSettings] = useState<ContactSettings | null>(null);
@@ -326,16 +327,59 @@ export default function App() {
       return;
     }
     const activeRef = navRefs.current[currentPage];
-    if (activeRef) {
-      const { offsetLeft, offsetWidth } = activeRef;
-      setIndicatorStyle({ left: offsetLeft, width: offsetWidth, opacity: 1 });
-    }
+    const container = navContainerRef.current;
+    if (!activeRef || !container) return;
+    // Measure the active button relative to the nav container itself, so the
+    // indicator stays aligned even if the nav shifts inside the header.
+    const buttonRect = activeRef.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    setIndicatorStyle({
+      left: buttonRect.left - containerRect.left,
+      width: buttonRect.width,
+      opacity: 1,
+    });
   }, [currentPage]);
 
   useEffect(() => {
-    updateNavIndicator();
-    window.addEventListener('resize', updateNavIndicator);
-    return () => window.removeEventListener('resize', updateNavIndicator);
+    const container = navContainerRef.current;
+    let frameId = 0;
+    let resizeObserver: ResizeObserver | null = null;
+    let mutationObserver: MutationObserver | null = null;
+
+    const measure = () => {
+      cancelAnimationFrame(frameId);
+      frameId = requestAnimationFrame(() => updateNavIndicator());
+    };
+
+    measure();
+    window.addEventListener('resize', measure);
+
+    // Re-measure whenever the nav layout changes — not just on resize.
+    // On reload, translations load and web fonts swap asynchronously after the
+    // first render, so measuring once on mount leaves the indicator stuck at
+    // the position of the pre-translation (wide) labels.
+    if (container && typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(measure);
+      resizeObserver.observe(container);
+    }
+    if (container && typeof MutationObserver !== 'undefined') {
+      mutationObserver = new MutationObserver(measure);
+      mutationObserver.observe(container, {
+        childList: true,
+        subtree: true,
+        characterData: true,
+      });
+    }
+    if (typeof document !== 'undefined' && document.fonts?.ready) {
+      document.fonts.ready.then(measure).catch(() => undefined);
+    }
+
+    return () => {
+      cancelAnimationFrame(frameId);
+      window.removeEventListener('resize', measure);
+      resizeObserver?.disconnect();
+      mutationObserver?.disconnect();
+    };
   }, [updateNavIndicator]);
 
   const navigateToPage = (page: Page) => {
@@ -573,7 +617,7 @@ export default function App() {
             <span className="font-semibold tracking-tight text-sm sm:text-base text-[#111111]">{t('ui.app.b1a2ec16fe')}</span>
           </button>
 
-          <nav className="relative hidden md:flex items-center gap-4 lg:gap-8 text-[11px] lg:text-[12px] font-medium text-[#5b6472] uppercase tracking-wider">
+          <nav ref={navContainerRef} className="relative hidden md:flex items-center gap-4 lg:gap-8 text-[11px] lg:text-[12px] font-medium text-[#5b6472] uppercase tracking-wider">
             <button
               ref={(el) => { navRefs.current['about'] = el; }}
               onClick={() => navigateToPage('about')}
