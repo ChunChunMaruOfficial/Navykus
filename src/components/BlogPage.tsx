@@ -172,8 +172,8 @@ export default function BlogPage({ onCreateBlog }: BlogPageProps) {
         <StudyBackground />
 
         {articleState === 'loading' && (
-          <div className="relative z-10 mx-auto max-w-3xl px-[6%] pt-32 md:px-[10%] md:pt-36">
-            <div className="rounded-2xl border border-white/60 bg-white/45 p-10 text-center backdrop-blur-xl">
+          <div className="relative z-10 mx-auto max-w-6xl px-[6%] pt-32 md:px-[10%] md:pt-36">
+            <div className="mx-auto max-w-4xl rounded-2xl border border-white/60 bg-white/45 p-10 text-center backdrop-blur-xl">
               <div className="mx-auto mb-4 h-8 w-8 animate-pulse rounded-full bg-brand-dark/10" />
               <p className="text-sm text-brand-slate">{t('common.loading')}</p>
             </div>
@@ -181,8 +181,8 @@ export default function BlogPage({ onCreateBlog }: BlogPageProps) {
         )}
 
         {articleState === 'error' && (
-          <div className="relative z-10 mx-auto max-w-3xl px-[6%] pt-32 md:px-[10%] md:pt-36">
-            <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-sm text-red-700">
+          <div className="relative z-10 mx-auto max-w-6xl px-[6%] pt-32 md:px-[10%] md:pt-36">
+            <div className="mx-auto max-w-4xl rounded-2xl border border-red-200 bg-red-50 p-6 text-sm text-red-700">
               <p>{t('common.notFound', { defaultValue: 'Article not found' })}</p>
               <button onClick={navigateToList} className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-dark px-5 py-2.5 text-xs font-semibold text-white transition-all hover:bg-brand-dark/90 cursor-pointer">
                 <ArrowRight className="h-3.5 w-3.5 rotate-180" /><span>{t('ui.blogpage.backToList')}</span></button>
@@ -191,16 +191,16 @@ export default function BlogPage({ onCreateBlog }: BlogPageProps) {
         )}
 
         {articleState === 'success' && article && (
-          <article className="relative z-10 mx-auto max-w-3xl px-[6%] pb-20 pt-28 md:px-[10%] md:pt-32">
-            {/* Back button */}
-            <motion.div {...fadeUp}>
-              <button onClick={navigateToList} className="mb-8 inline-flex items-center gap-2 rounded-xl border border-[#d8d1cc] bg-white/55 px-4 py-2 text-[11px] font-semibold text-brand-slate backdrop-blur-sm transition-all hover:border-brand-dark hover:text-brand-dark cursor-pointer">
+          <article className="relative z-10 mx-auto max-w-6xl px-[6%] pb-24 pt-28 md:px-[10%] md:pt-32">
+            {/* Subtle back link at top for long articles */}
+            <motion.div {...fadeUp} className="mx-auto mb-8 max-w-4xl">
+              <button onClick={navigateToList} className="inline-flex items-center gap-2 rounded-xl border border-[#d8d1cc] bg-white/55 px-4 py-2 text-xs font-semibold text-brand-slate backdrop-blur-sm transition-all hover:border-brand-dark hover:text-brand-dark cursor-pointer">
                 <ArrowRight className="h-3.5 w-3.5 rotate-180" />
                 <span>{t('ui.blogpage.backToList')}</span></button>
             </motion.div>
 
-            {/* Category + date */}
-            <motion.div {...fadeUp} className="mb-4 flex flex-wrap items-center gap-3">
+            {/* Category + date — aligned with readable column */}
+            <motion.div {...fadeUp} className="mx-auto mb-4 flex max-w-4xl flex-wrap items-center gap-3">
               <span className={`inline-flex items-center rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wide ${CATEGORY_META[article.category]?.chip || 'bg-brand-slate/10'}`}>
                 {CATEGORY_META[article.category] ? t(CATEGORY_META[article.category].label) : article.category}</span>
               <span className="inline-flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-wider text-brand-slate">
@@ -210,24 +210,24 @@ export default function BlogPage({ onCreateBlog }: BlogPageProps) {
             </motion.div>
 
             {/* Title */}
-            <motion.h1 {...fadeUpLarge} className="text-3xl font-serif font-semibold leading-[1.1] tracking-tight text-brand-dark sm:text-4xl md:text-[42px]">
+            <motion.h1 {...fadeUpLarge} className="mx-auto max-w-4xl text-3xl font-serif font-semibold leading-[1.1] tracking-tight text-brand-dark sm:text-4xl md:text-[42px]">
               {article.title}</motion.h1>
 
             {/* Author */}
-            <motion.div {...fadeUp} className="mt-4 flex items-center gap-3 text-sm text-brand-slate">
+            <motion.div {...fadeUp} className="mx-auto mt-4 flex max-w-4xl items-center gap-3 text-sm text-brand-slate">
               <User className="h-4 w-4 text-[#bd5b82]" />
               <span>{typeof article.author === 'object' ? (article.author as { name: string }).name : String(article.author || '')}</span>
             </motion.div>
 
             {/* Cover */}
             {article.cover && (
-              <motion.div {...fadeInScale} className="mt-8 overflow-hidden rounded-[1.5rem]">
-                <BrandImage src={article.cover} alt={article.coverAlt || article.title} aspectRatio="16 / 9" objectPosition="50% 42%" priority sizes="(min-width: 768px) 720px, 100vw" />
+              <motion.div {...fadeInScale} className="mx-auto mt-8 max-w-4xl overflow-hidden rounded-[1.5rem]">
+                <BrandImage src={article.cover} alt={article.coverAlt || article.title} aspectRatio="16 / 9" objectPosition="50% 42%" priority sizes="(min-width: 768px) 896px, 100vw" />
               </motion.div>
             )}
 
             {/* Content */}
-            <motion.div {...fadeUp} className="prose prose-sm sm:prose-base max-w-none mt-10 text-brand-dark/85">
+            <motion.div {...fadeUp} className="prose prose-sm sm:prose-base mx-auto mt-10 max-w-3xl text-brand-dark/85">
               {article.excerpt && (
                 <p className="text-lg font-medium leading-relaxed text-brand-dark/75 sm:text-xl">{article.excerpt}</p>
               )}
@@ -236,12 +236,21 @@ export default function BlogPage({ onCreateBlog }: BlogPageProps) {
 
             {/* Tags */}
             {article.tags?.length > 0 && (
-              <motion.div {...fadeUp} className="mt-10 flex flex-wrap gap-2">
+              <motion.div {...fadeUp} className="mx-auto mt-10 flex max-w-4xl flex-wrap gap-2">
                 {article.tags.map((tag) => (
                   <span key={tag} className="rounded-full border border-[#d8d1cc] bg-white/50 px-3 py-1 text-[10px] font-mono uppercase tracking-wider text-brand-slate">{tag}</span>
                 ))}
               </motion.div>
             )}
+
+            {/* Back button — large, at the bottom */}
+            <motion.div {...fadeUp} className="mx-auto mt-16 max-w-4xl">
+              <div className="rounded-[1.75rem] border border-[#d8d1cc]/70 bg-white/45 px-6 py-8 text-center shadow-[0_18px_50px_rgba(17,17,17,0.06)] backdrop-blur-sm sm:px-10">
+                <button onClick={navigateToList} className="inline-flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-8 py-4 text-sm font-semibold text-white shadow-xl shadow-[#bc4638]/25 transition-all hover:scale-[1.03] hover:shadow-[#bc4638]/35 active:scale-[0.98] sm:text-base cursor-pointer">
+                  <ArrowRight className="h-5 w-5 rotate-180" />
+                  <span>{t('ui.blogpage.backToList')}</span></button>
+              </div>
+            </motion.div>
           </article>
         )}
       </div>
