@@ -22,6 +22,22 @@ function deepMerge(target, source) {
   }
 }
 
+// Source-wins deep merge: every value present in `source` overwrites the
+// corresponding value in `target`, while keys that exist ONLY in target are
+// preserved. This is used for the src -> public sync so that stale/English
+// fallback values already present in public/locales get replaced by the real
+// translations from src/i18n/locales (the browser loads public/locales).
+function mergeSourceWins(target, source) {
+  for (const [k, v] of Object.entries(source)) {
+    if (typeof v === 'object' && v !== null && !Array.isArray(v)) {
+      if (!target[k] || typeof target[k] !== 'object') target[k] = {};
+      mergeSourceWins(target[k], v);
+    } else {
+      target[k] = v;
+    }
+  }
+}
+
 // For each language, merge all platform sub-sections from RU
 for (const lang of LANGS) {
   const filePath = `src/i18n/locales/${lang}/translation.json`;
@@ -74,10 +90,10 @@ for (const lang of LANGS) {
 
 // Also sync to public/locales/ — the browser loads translations from
 // public/locales, so every key present in src must also exist there (otherwise
-// the UI shows the raw key). A plain deep-merge (adding missing keys only)
-// keeps public a superset of src without clobbering any public-only keys.
-// All languages are covered, not just LANGS (en/ru are maintained directly in
-// src and previously never reached public).
+// the UI shows the raw key). A source-wins merge overwrites existing stale
+// values in public with the real translations from src, while preserving any
+// public-only keys. All languages are covered, not just LANGS (en/ru are
+// maintained directly in src and previously never reached public).
 const ALL_LANGS = ['ru', 'en', 'de', 'es', 'tr', 'kk', 'uz', 'ar'];
 for (const lang of ALL_LANGS) {
   const srcPath = `src/i18n/locales/${lang}/translation.json`;
@@ -96,7 +112,7 @@ for (const lang of ALL_LANGS) {
     continue;
   }
 
-  deepMerge(pubData, srcData);
+  mergeSourceWins(pubData, srcData);
 
   fs.writeFileSync(pubPath, JSON.stringify(pubData, null, 2) + '\n', 'utf8');
   console.log(`Updated ${pubPath}`);
