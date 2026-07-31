@@ -1071,7 +1071,11 @@ export const registerPlatformRoutes = (app: Express) => {
       });
 
       const payloadSecret = (payload as unknown as { secret: string }).secret;
-      const jwt = await import('jsonwebtoken');
+      // jsonwebtoken is a CommonJS module: in ESM, dynamic import() returns a namespace
+      // object whose real export lives under `.default`. Calling jwt.sign on the namespace
+      // itself throws "jwt.sign is not a function" (500 on every correct code), so we must
+      // unwrap the default export before signing.
+      const { default: jwt } = await import('jsonwebtoken');
       const token = jwt.sign(
         {
           id: userDoc.id,
