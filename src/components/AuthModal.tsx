@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'motion/react';
-import { Check, Eye, EyeOff, LogOut, UserRound, X } from 'lucide-react';
+import { Check, Clock, Eye, EyeOff, LogOut, UserRound, X } from 'lucide-react';
 
 import {
   forgetRememberedPlatformAccount,
@@ -93,6 +93,7 @@ export default function AuthModal({ isOpen, onClose, onAuthChange, onNavigateLeg
   const [rememberedAccount, setRememberedAccount] = useState<RememberedPlatformAccount | undefined>(undefined);
   const [state, setState] = useState<LoadState>('idle');
   const [message, setMessage] = useState('');
+  const [justRegistered, setJustRegistered] = useState(false);
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
@@ -112,6 +113,7 @@ export default function AuthModal({ isOpen, onClose, onAuthChange, onNavigateLeg
 
   useEffect(() => {
     if (!isOpen) return;
+    setJustRegistered(false);
     setRememberedAccount(getRememberedPlatformAccount());
     platformApi.me().then((result) => {
       setUser(result.user);
@@ -272,7 +274,12 @@ export default function AuthModal({ isOpen, onClose, onAuthChange, onNavigateLeg
       setRememberedAccount(getRememberedPlatformAccount());
       onAuthChangeRef.current?.(result.user);
       setState('idle');
-      if (!result.user.emailVerified) {
+      if (mode === 'register') {
+        // Registration puts the profile into manual moderation — show the notice
+        // in the modal instead of navigating straight to the profile page.
+        setJustRegistered(true);
+        setMessage('');
+      } else if (!result.user.emailVerified) {
         setShowEmailVerify(true);
         setMessage(t('ui.authmodal.verifyEmailPrompt'));
       } else {
@@ -323,6 +330,7 @@ export default function AuthModal({ isOpen, onClose, onAuthChange, onNavigateLeg
     onAuthChangeRef.current?.(null);
     setState('idle');
     setMessage('');
+    setJustRegistered(false);
   };
 
   const displayName = user ? [user.firstName, user.lastName].filter(Boolean).join(' ') || user.email : '';
@@ -376,6 +384,18 @@ export default function AuthModal({ isOpen, onClose, onAuthChange, onNavigateLeg
                       </p>
                     </div>
                   </div>
+
+                  {justRegistered && (
+                    <motion.div
+                      layout
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex items-start gap-3 rounded-2xl border border-emerald-200/70 bg-emerald-50/85 p-4 text-sm text-emerald-800"
+                    >
+                      <Clock className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                      <p className="leading-relaxed">{t('ui.authmodal.moderationNotice')}</p>
+                    </motion.div>
+                  )}
 
                   <div className="rounded-2xl border border-white/60 bg-white/20 p-5">
                     <div className="flex items-center gap-3">

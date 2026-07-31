@@ -159,8 +159,12 @@ export const syncTeamMemberPublicationData = (
 
   if (draftChanged) {
     data._status = draftStatus === 'published' && effectiveApproved ? 'published' : 'draft';
-  } else if ((moderationChanged || approvedChanged) && effectiveApproved === false) {
-    data._status = 'draft';
+  } else if (moderationChanged || approvedChanged) {
+    // Approval via the moderation panel only sends { moderationStatus, isApproved }
+    // (no _status), so without this branch an approved member stayed _status='draft'
+    // and never appeared on the public page (findApprovedTeamMembers requires
+    // _status='published'). Publish on approval, unpublish on rejection/needs_edit.
+    data._status = effectiveApproved ? 'published' : 'draft';
   }
   return data;
 };

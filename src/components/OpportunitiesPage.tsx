@@ -13,7 +13,6 @@ import {
   CheckCircle2,
   ChevronDown,
   CircleDollarSign,
-  ClipboardCheck,
   Code2,
   Compass,
   FilePlus2,
@@ -22,7 +21,6 @@ import {
   Heart,
   Landmark,
   Languages,
-  LineChart,
   MapPin,
   Medal,
   Plus,
@@ -37,11 +35,9 @@ import {
   Trophy,
   Users,
 } from 'lucide-react';
-import GlassCrystal from './GlassCrystal';
 import {
   cardItemFadeUp,
   cardStaggerContainer,
-  fadeInScale,
   fadeUp,
   fadeUpLarge,
   heroFadeUpLarge,
@@ -78,8 +74,8 @@ type FormatId = 'online' | 'offline' | 'hybrid';
 type CostId = 'free' | 'paid' | 'scholarship';
 type SourceId = 'navykus' | 'verified' | 'partner';
 type ParticipationId = 'individual' | 'team' | 'both';
-type SortId = 'recommended' | 'deadline' | 'match' | 'newest' | 'popular';
-type RouteMode = 'catalog' | 'detail' | 'recommendations' | 'favorites' | 'compare' | 'submit' | 'profile';
+type SortId = 'recommended' | 'deadline' | 'newest' | 'popular';
+type RouteMode = 'catalog' | 'detail' | 'favorites' | 'compare' | 'submit' | 'profile';
 type ApplicationStatus = 'draft' | 'submitted' | 'review' | 'accepted' | 'completed';
 
 type LText = Record<SupportedLanguage, string>;
@@ -137,19 +133,6 @@ type PortfolioRecord = {
   createdAt: string;
 };
 
-type QuizState = {
-  age: string;
-  grade: string;
-  interests: DirectionId[];
-  skills: string[];
-  goal: string;
-  format: FormatId | 'any';
-  time: 'weekend' | 'after-school' | 'intensive';
-  cost: CostId | 'any';
-  language: SupportedLanguage | 'any';
-  participation: ParticipationId | 'any';
-};
-
 type Filters = {
   q: string;
   category: CategoryId | 'all';
@@ -196,19 +179,6 @@ const EMPTY_FILTERS: Filters = {
 
 const createEmptyFilters = (): Filters => ({ ...EMPTY_FILTERS });
 
-const EMPTY_QUIZ: QuizState = {
-  age: '',
-  grade: '',
-  interests: [],
-  skills: [],
-  goal: '',
-  format: 'any',
-  time: 'after-school',
-  cost: 'any',
-  language: 'any',
-  participation: 'any',
-};
-
 const lt = (value: Record<string, string>): LText => ({
   ru: value.ru,
   en: value.en,
@@ -247,7 +217,6 @@ const UI = {
     tr: 'Becerileri geliştiren ve gerçek projeler üretmeye yardımcı olan şampiyonaları, stajları, hibeleri, araştırmaları ve uluslararası programları keşfet.',
   }),
   search: lt({ ru: '\u041f\u043e\u0438\u0441\u043a \u043f\u043e \u043d\u0430\u0437\u0432\u0430\u043d\u0438\u044e, \u043d\u0430\u0432\u044b\u043a\u0430\u043c, \u0441\u0442\u0440\u0430\u043d\u0435, \u043e\u0440\u0433\u0430\u043d\u0438\u0437\u0430\u0442\u043e\u0440\u0443...', en: 'Search by title, skills, country, organizer...', kk: '\u0410\u0442\u0430\u0443\u044b, \u0434\u0430\u0493\u0434\u044b\u043b\u0430\u0440, \u0435\u043b, \u04b1\u0439\u044b\u043c\u0434\u0430\u0441\u0442\u044b\u0440\u0443\u0448\u044b \u0431\u043e\u0439\u044b\u043d\u0448\u0430 \u0456\u0437\u0434\u0435\u0443...', uz: 'Nomi, konikmalar, mamlakat, tashkilotchi boyicha qidirish...', ar: 'ابحث بالعنوان أو المهارات أو البلد أو المنظم...', de: 'Suche nach Titel, Skills, Land, Organisation...', es: 'Buscar por título, habilidades, país u organizador...', tr: 'Başlık, beceri, ülke veya düzenleyici ile ara...' }),
-  matchMe: lt({ ru: '\u041f\u043e\u0434\u043e\u0431\u0440\u0430\u0442\u044c \u0434\u043b\u044f \u043c\u0435\u043d\u044f', en: 'Match me', kk: '\u041c\u0430\u0493\u0430\u043d \u0442\u0430\u04a3\u0434\u0430\u0443', uz: 'Menga mosini topish', ar: 'اختر لي', de: 'Für mich finden', es: 'Recomendar para mí', tr: 'Bana uygun bul' }),
   published: lt({ ru: '\u043e\u043f\u0443\u0431\u043b\u0438\u043a\u043e\u0432\u0430\u043d\u043d\u044b\u0445 \u0432\u043e\u0437\u043c\u043e\u0436\u043d\u043e\u0441\u0442\u0435\u0439', en: 'published opportunities', kk: '\u0436\u0430\u0440\u0438\u044f\u043b\u0430\u043d\u0493\u0430\u043d \u043c\u04af\u043c\u043a\u0456\u043d\u0434\u0456\u043a', uz: 'e’lon qilingan imkoniyat', ar: 'فرصة منشورة', de: 'veröffentlichte Chancen', es: 'oportunidades publicadas', tr: 'yayındaki fırsat' }),
   recommended: lt({ ru: '\u0420\u0435\u043a\u043e\u043c\u0435\u043d\u0434\u0443\u0435\u043c', en: 'Recommended', kk: '\u04b0\u0441\u044b\u043d\u044b\u043b\u0430\u0434\u044b', uz: 'Tavsiya qilamiz', ar: 'موصى به', de: 'Empfohlen', es: 'Recomendamos', tr: 'Önerilen' }),
   urgent: lt({ ru: '\u0423\u0441\u043f\u0435\u0439 \u043f\u043e\u0434\u0430\u0442\u044c \u0437\u0430\u044f\u0432\u043a\u0443', en: 'Apply soon', kk: '\u04e8\u0442\u0456\u043d\u0456\u043c \u0431\u0435\u0440\u0443\u0433\u0435 \u04af\u043b\u0433\u0435\u0440', uz: 'Ariza berishga ulgur', ar: 'قدّم قريباً', de: 'Bald bewerben', es: 'Postula pronto', tr: 'Yakında başvur' }),
@@ -270,8 +239,6 @@ const UI = {
   externalApply: lt({ ru: '\u041f\u0435\u0440\u0435\u0439\u0442\u0438 \u043d\u0430 \u0441\u0430\u0439\u0442', en: 'Open website', kk: '\u0421\u0430\u0439\u0442\u049b\u0430 \u04e9\u0442\u0443', uz: 'Saytga otish', ar: 'افتح الموقع', de: 'Website öffnen', es: 'Abrir sitio', tr: 'Siteyi aç' }),
   noResults: lt({ ru: '\u041d\u0438\u0447\u0435\u0433\u043e \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e', en: 'No results', kk: '\u0415\u0448\u0442\u0435\u04a3\u0435 \u0442\u0430\u0431\u044b\u043b\u043c\u0430\u0434\u044b', uz: 'Natija topilmadi', ar: 'لا توجد نتائج', de: 'Keine Ergebnisse', es: 'Sin resultados', tr: 'Sonuç yok' }),
   clearFilters: lt({ ru: '\u041e\u0447\u0438\u0441\u0442\u0438\u0442\u044c \u0444\u0438\u043b\u044c\u0442\u0440\u044b', en: 'Clear filters', kk: '\u0421\u04af\u0437\u0433\u0456\u043b\u0435\u0440\u0434\u0456 \u0442\u0430\u0437\u0430\u043b\u0430\u0443', uz: 'Filtrlarni tozalash', ar: 'مسح الفلاتر', de: 'Filter löschen', es: 'Limpiar filtros', tr: 'Filtreleri temizle' }),
-  recommendationsTitle: lt({ ru: '\u041f\u0435\u0440\u0441\u043e\u043d\u0430\u043b\u044c\u043d\u044b\u0439 \u043f\u043e\u0434\u0431\u043e\u0440', en: 'Personal matching', kk: '\u0416\u0435\u043a\u0435 \u0442\u0430\u04a3\u0434\u0430\u0443', uz: 'Shaxsiy tanlov', ar: 'ترشيح شخصي', de: 'Persönliche Empfehlung', es: 'Selección personal', tr: 'Kişisel eşleştirme' }),
-  recommendationsDescription: lt({ ru: '\u041f\u043e\u0434\u0431\u043e\u0440 \u0443\u0447\u0438\u0442\u044b\u0432\u0430\u0435\u0442 \u0432\u043e\u0437\u0440\u0430\u0441\u0442, \u043a\u043b\u0430\u0441\u0441, \u0444\u043e\u0440\u043c\u0430\u0442 \u0443\u0447\u0430\u0441\u0442\u0438\u044f, \u0438\u043d\u0442\u0435\u0440\u0435\u0441\u044b \u0438 \u0442\u043e, \u0433\u0434\u0435 \u0432\u044b \u0443\u0436\u0435 \u043f\u0440\u043e\u0431\u043e\u0432\u0430\u043b\u0438 \u0441\u0435\u0431\u044f: \u043a\u0435\u0439\u0441\u044b, \u0438\u0441\u0441\u043b\u0435\u0434\u043e\u0432\u0430\u043d\u0438\u044f, \u043a\u043e\u043c\u0430\u043d\u0434\u043d\u044b\u0435 \u043f\u0440\u043e\u0435\u043a\u0442\u044b \u0438 \u0441\u043c\u0435\u0436\u043d\u044b\u0435 \u043d\u0430\u0432\u044b\u043a\u0438.', en: 'Matching uses your age, grade, preferred format, interests, and what you have already tried: cases, research, team projects, and related skills.', kk: 'Matching uses your age, grade, preferred format, interests, and what you have already tried.', uz: 'Matching uses your age, grade, preferred format, interests, and what you have already tried.', ar: 'Matching uses your age, grade, preferred format, interests, and what you have already tried.', de: 'Matching uses your age, grade, preferred format, interests, and what you have already tried.', es: 'Matching uses your age, grade, preferred format, interests, and what you have already tried.', tr: 'Matching uses your age, grade, preferred format, interests, and what you have already tried.' }),
   favoritesTitle: lt({ ru: '\u0418\u0437\u0431\u0440\u0430\u043d\u043d\u044b\u0435 \u0432\u043e\u0437\u043c\u043e\u0436\u043d\u043e\u0441\u0442\u0438', en: 'Favorite opportunities', kk: '\u0422\u0430\u04a3\u0434\u0430\u0443\u043b\u044b \u043c\u04af\u043c\u043a\u0456\u043d\u0434\u0456\u043a\u0442\u0435\u0440', uz: 'Sevimli imkoniyatlar', ar: 'الفرص المفضلة', de: 'Favorisierte Chancen', es: 'Oportunidades favoritas', tr: 'Favori fırsatlar' }),
   compareTitle: lt({ ru: '\u0421\u0440\u0430\u0432\u043d\u0435\u043d\u0438\u0435 \u0432\u043e\u0437\u043c\u043e\u0436\u043d\u043e\u0441\u0442\u0435\u0439', en: 'Opportunity comparison', kk: '\u041c\u04af\u043c\u043a\u0456\u043d\u0434\u0456\u043a\u0442\u0435\u0440\u0434\u0456 \u0441\u0430\u043b\u044b\u0441\u0442\u044b\u0440\u0443', uz: 'Imkoniyatlarni solishtirish', ar: 'مقارنة الفرص', de: 'Chancenvergleich', es: 'Comparación de oportunidades', tr: 'Fırsat karşılaştırması' }),
   submitTitle: lt({ ru: '\u041f\u0440\u0435\u0434\u043b\u043e\u0436\u0438\u0442\u044c \u0432\u043e\u0437\u043c\u043e\u0436\u043d\u043e\u0441\u0442\u044c', en: 'Submit an opportunity', kk: '\u041c\u04af\u043c\u043a\u0456\u043d\u0434\u0456\u043a \u04b1\u0441\u044b\u043d\u0443', uz: 'Imkoniyat taklif qilish', ar: 'اقترح فرصة', de: 'Chance einreichen', es: 'Proponer oportunidad', tr: 'Fırsat öner' }),
@@ -294,7 +261,6 @@ const UI = {
   onlineOnly: lt({ ru: '\u0422\u043e\u043b\u044c\u043a\u043e \u043e\u043d\u043b\u0430\u0439\u043d', en: 'Online only', kk: '\u0422\u0435\u043a \u043e\u043d\u043b\u0430\u0439\u043d', uz: 'Faqat onlayn', ar: '\u0639\u0628\u0631 \u0627\u0644\u0625\u0646\u062a\u0631\u0646\u062a \u0641\u0642\u0637', de: 'Nur online', es: 'Solo online', tr: 'Sadece online' }),
   beginner: lt({ ru: '\u0414\u043b\u044f \u043d\u043e\u0432\u0438\u0447\u043a\u043e\u0432', en: 'Beginner', kk: '\u0416\u0430\u04a3\u0430 \u0431\u0430\u0441\u0442\u0430\u0493\u0430\u043d', uz: 'Boshlovchi', ar: '\u0644\u0644\u0645\u0628\u062a\u062f\u0626\u064a\u0646', de: 'Einsteiger', es: 'Principiante', tr: 'Baslangic' }),
   portfolioValue: lt({ ru: '\u0426\u0435\u043d\u043d\u043e \u0434\u043b\u044f \u043f\u043e\u0440\u0442\u0444\u043e\u043b\u0438\u043e', en: 'Portfolio value', kk: '\u041f\u043e\u0440\u0442\u0444\u043e\u043b\u0438\u043e\u0493\u0430 \u049b\u04b1\u043d\u0434\u044b', uz: 'Portfolio uchun foydali', ar: '\u0642\u064a\u0645\u0629 \u0644\u0644\u0645\u0644\u0641', de: 'Portfolio-Wert', es: 'Valor para portafolio', tr: 'Portfolyo degeri' }),
-  matchScore: lt({ ru: '\u0421\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0435', en: 'Match score', kk: '\u0421\u04d9\u0439\u043a\u0435\u0441\u0442\u0456\u043a', uz: 'Moslik', ar: '\u062f\u0631\u062c\u0629 \u0627\u0644\u062a\u0637\u0627\u0628\u0642', de: 'Match-Wert', es: 'Coincidencia', tr: 'Uyum puani' }),
   newest: lt({ ru: '\u041d\u043e\u0432\u044b\u0435', en: 'Newest', kk: '\u0416\u0430\u04a3\u0430', uz: 'Yangi', ar: '\u0627\u0644\u0623\u062d\u062f\u062b', de: 'Neueste', es: 'Nuevas', tr: 'Yeni' }),
   popular: lt({ ru: '\u041f\u043e\u043f\u0443\u043b\u044f\u0440\u043d\u044b\u0435', en: 'Popular', kk: '\u0422\u0430\u043d\u044b\u043c\u0430\u043b', uz: 'Mashhur', ar: '\u0627\u0644\u0623\u0634\u0647\u0631', de: 'Beliebt', es: 'Populares', tr: 'Populer' }),
   languagesLabel: lt({ ru: '\u042f\u0437\u044b\u043a\u0438', en: 'Languages', kk: '\u0422\u0456\u043b\u0434\u0435\u0440', uz: 'Tillar', ar: '\u0627\u0644\u0644\u063a\u0627\u062a', de: 'Sprachen', es: 'Idiomas', tr: 'Diller' }),
@@ -682,7 +648,7 @@ const getDaysLeft = (deadline?: string) => {
 const getRoute = (): { mode: RouteMode; slug?: string } => {
   if (typeof window === 'undefined') return { mode: 'catalog' };
   const path = window.location.pathname.replace(/\/$/, '') || '/';
-  if (path === '/activities/opportunities/recommendations') return { mode: 'recommendations' };
+  if (path === '/activities/opportunities/recommendations') return { mode: 'catalog' };
   if (path === '/activities/opportunities/favorites') return { mode: 'favorites' };
   if (path === '/activities/opportunities/compare') return { mode: 'compare' };
   if (path === '/activities/opportunities/submit') return { mode: 'submit' };
@@ -705,28 +671,8 @@ const getSourceLabel = (source: SourceId, language: SupportedLanguage) => {
   return pick(UI.partner, language);
 };
 
-const scoreOpportunity = (opportunity: Opportunity, quiz: QuizState, language: SupportedLanguage) => {
-  let score = 28;
-  const age = Number(quiz.age);
-  const grade = Number(quiz.grade);
-  if (age && age >= opportunity.minAge && age <= opportunity.maxAge) score += 16;
-  if (grade && opportunity.grades.includes(grade)) score += 12;
-  if (quiz.interests.includes(opportunity.direction)) score += 18;
-  if (quiz.format !== 'any' && quiz.format === opportunity.format) score += 10;
-  if (quiz.cost !== 'any' && quiz.cost === opportunity.cost) score += 8;
-  if (quiz.language !== 'any' && opportunity.languages.includes(quiz.language)) score += 6;
-  if (quiz.participation !== 'any' && (opportunity.participation === quiz.participation || opportunity.participation === 'both')) score += 6;
-  if (quiz.skills.length) {
-    const haystack = opportunity.skills.map((item) => normalizeSearch(pick(item, language))).join(' ');
-    score += Math.min(12, quiz.skills.filter((item) => haystack.includes(normalizeSearch(item))).length * 4);
-  }
-  if (opportunity.recommended) score += 4;
-  return Math.max(5, Math.min(100, score));
-};
-
 const routeTitle = (mode: RouteMode, language: SupportedLanguage, opportunity?: Opportunity) => {
   if (opportunity) return `${pick(opportunity.title, language)} — ${pick(OPPORTUNITIES_NAV_LABELS, language)}`;
-  if (mode === 'recommendations') return `${pick(UI.recommendationsTitle, language)} — Navykus`;
   if (mode === 'favorites') return `${pick(UI.favoritesTitle, language)} — Navykus`;
   if (mode === 'compare') return `${pick(UI.compareTitle, language)} — Navykus`;
   if (mode === 'submit') return `${pick(UI.submitTitle, language)} — Navykus`;
@@ -780,7 +726,6 @@ function OpportunityCard({
   language,
   isFavorite,
   isCompared,
-  match,
   onFavorite,
   onCompare,
 }: {
@@ -788,7 +733,6 @@ function OpportunityCard({
   language: SupportedLanguage;
   isFavorite: boolean;
   isCompared: boolean;
-  match: number;
   onFavorite: () => void;
   onCompare: () => void;
 }) {
@@ -847,10 +791,6 @@ function OpportunityCard({
           <span className="inline-flex items-center gap-2 rounded-xl bg-white/55 px-3 py-2">
             <Users className="h-3.5 w-3.5 text-[#6b8f71]" />
             {pick(PARTICIPATION[opportunity.participation], language)}
-          </span>
-          <span className="inline-flex items-center gap-2 rounded-xl bg-white/55 px-3 py-2">
-            <LineChart className="h-3.5 w-3.5 text-[#c9a96e]" />
-            {match}%
           </span>
         </div>
 
@@ -937,7 +877,6 @@ export default function OpportunitiesPage({
   const [compare, setCompare] = useState<string[]>(() => readJson<string[]>(STORAGE_KEYS.compare, []));
   const [applications, setApplications] = useState<UserApplication[]>(() => readJson<UserApplication[]>(STORAGE_KEYS.applications, []));
   const [portfolio, setPortfolio] = useState<PortfolioRecord[]>(() => readJson<PortfolioRecord[]>(STORAGE_KEYS.portfolio, []));
-  const [quiz, setQuiz] = useState<QuizState>(EMPTY_QUIZ);
   const [applicationNote, setApplicationNote] = useState('');
   const [proposal, setProposal] = useState({ title: '', organizer: '', link: '', note: '' });
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success'>('idle');
@@ -1015,7 +954,8 @@ export default function OpportunitiesPage({
       beginner: params.get('beginner') === '1',
       portfolio: params.get('portfolio') === '1',
     });
-    setSortBy((params.get('sort') as SortId | null) || 'recommended');
+    const sortParam = params.get('sort');
+    setSortBy((['recommended', 'deadline', 'newest', 'popular'] as SortId[]).includes(sortParam as SortId) ? sortParam as SortId : 'recommended');
     setVisibleCount(6);
   }, [route.mode]);
 
@@ -1072,13 +1012,6 @@ export default function OpportunitiesPage({
     [allOpportunities, language],
   );
 
-  const quizScores = useMemo(() => {
-    return allOpportunities.reduce<Record<string, number>>((acc, opportunity) => {
-      acc[opportunity.id] = scoreOpportunity(opportunity, quiz, language);
-      return acc;
-    }, {});
-  }, [allOpportunities, language, quiz]);
-
   const filtered = useMemo(() => {
     const q = normalizeSearch(debouncedQuery);
     const age = Number(filters.age);
@@ -1125,12 +1058,11 @@ export default function OpportunitiesPage({
 
     return result.sort((a, b) => {
       if (sortBy === 'deadline') return (getDaysLeft(a.deadline) ?? 999) - (getDaysLeft(b.deadline) ?? 999);
-      if (sortBy === 'match') return (quizScores[b.id] || 0) - (quizScores[a.id] || 0);
       if (sortBy === 'newest') return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
       if (sortBy === 'popular') return b.savedCount - a.savedCount;
       return Number(b.recommended) - Number(a.recommended) || Number(b.editorPick) - Number(a.editorPick) || (getDaysLeft(a.deadline) ?? 999) - (getDaysLeft(b.deadline) ?? 999);
     });
-  }, [allOpportunities, debouncedQuery, filters, language, quizScores, sortBy]);
+  }, [allOpportunities, debouncedQuery, filters, language, sortBy]);
 
   const recommended = useMemo(
     () => allOpportunities.filter((opportunity) => opportunity.recommended).slice(0, 4),
@@ -1226,7 +1158,6 @@ export default function OpportunitiesPage({
       language={language}
       isFavorite={favorites.includes(opportunity.id)}
       isCompared={compare.includes(opportunity.id)}
-      match={quizScores[opportunity.id] || scoreOpportunity(opportunity, EMPTY_QUIZ, language)}
       onFavorite={() => toggleFavorite(opportunity.id)}
       onCompare={() => toggleCompare(opportunity.id)}
     />
@@ -1234,10 +1165,6 @@ export default function OpportunitiesPage({
 
   const renderHeaderActions = () => (
     <div className="flex flex-wrap gap-2">
-      <button onClick={() => navigate('/activities/opportunities/recommendations')} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-[#bc4638]/15">
-        <Sparkles className="h-4 w-4" />
-        {pick(UI.matchMe, language)}
-      </button>
       <button onClick={() => navigate('/activities/opportunities/favorites')} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/60 bg-white/45 px-4 py-2 text-xs font-semibold text-brand-slate">
         <Heart className="h-4 w-4" />
         {favorites.length}
@@ -1265,7 +1192,7 @@ export default function OpportunitiesPage({
             </h1>
             <p className="max-w-3xl text-sm leading-relaxed text-brand-slate sm:text-base">{pick(UI.heroText, language)}</p>
           </div>
-          <div className="grid w-full gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
+          <div className="grid w-full gap-3">
             <label className="relative block">
               <span className="sr-only">{pick(UI.search, language)}</span>
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-slate/60" />
@@ -1277,10 +1204,6 @@ export default function OpportunitiesPage({
                 className="min-h-12 w-full rounded-2xl border border-white/65 bg-white/60 py-3 pl-11 pr-4 text-sm text-brand-dark shadow-[0_10px_35px_rgba(91,100,114,0.08)] outline-none backdrop-blur-xl transition-colors placeholder:text-brand-slate/45 focus:border-[#8f99a8]"
               />
             </label>
-            <button onClick={() => navigate('/activities/opportunities/recommendations')} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-brand-dark px-5 py-3 text-xs font-semibold text-white">
-              <Sparkles className="h-4 w-4" />
-              {pick(UI.matchMe, language)}
-            </button>
           </div>
           {urgent.length > 0 && (
             <div className="rounded-[1.5rem] border border-[#bc4638]/12 bg-[#bc4638]/7 p-4 surface-elevated-soft backdrop-blur-md">
@@ -1383,7 +1306,6 @@ export default function OpportunitiesPage({
             <SelectField label={pick(UI.sort, language)} value={sortBy} onChange={(value) => { setSortBy(value as SortId); syncFiltersToUrl(filters, value as SortId); }} options={[
               { value: 'recommended', label: pick(UI.recommended, language) },
               { value: 'deadline', label: pick(UI.deadline, language) },
-              { value: 'match', label: pick(UI.matchScore, language) },
               { value: 'newest', label: pick(UI.newest, language) },
               { value: 'popular', label: pick(UI.popular, language) },
             ]} />
@@ -1483,10 +1405,9 @@ export default function OpportunitiesPage({
             </div>
             <div className="space-y-8 p-6 sm:p-8">
               <p className="text-base leading-relaxed text-brand-slate">{pick(selectedOpportunity.description, language)}</p>
-              <div className="grid gap-4 sm:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <Metric icon={<CalendarClock className="h-4 w-4" />} value={selectedOpportunity.deadline || '∞'} label={pick(UI.deadline, language)} />
                 <Metric icon={<Languages className="h-4 w-4" />} value={selectedOpportunity.languages.map((item) => item.toUpperCase()).join(', ')} label={pick(UI.languagesLabel, language)} />
-                <Metric icon={<LineChart className="h-4 w-4" />} value={`${quizScores[selectedOpportunity.id]}%`} label={pick(UI.matchScore, language)} />
               </div>
               <section>
                 <h2 className="mb-3 font-serif text-2xl font-semibold text-brand-dark">{pick(UI.requirementsLabel, language)}</h2>
@@ -1580,82 +1501,6 @@ export default function OpportunitiesPage({
     );
   };
 
-  const renderRecommendations = () => {
-    const matches = [...allOpportunities].sort((a, b) => (quizScores[b.id] || 0) - (quizScores[a.id] || 0));
-    return (
-      <section className={pageShellClass}>
-        <Header
-          title={pick(UI.recommendationsTitle, language)}
-          description={pick(UI.recommendationsDescription, language)}
-          language={language}
-        />
-        <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
-          <div className="rounded-[1.5rem] border border-white/60 bg-white/42 p-5 surface-elevated-soft backdrop-blur-xl">
-            <div className="grid gap-4">
-              <div className="grid grid-cols-2 gap-2">
-                <label className="grid gap-2 text-[10px] font-mono uppercase tracking-widest text-brand-dark/70">
-                  {pick(UI.ageLabel, language)}
-                  <input
-                    type="number"
-                    inputMode="numeric"
-                    min={10}
-                    max={19}
-                    placeholder="15"
-                    value={quiz.age}
-                    onChange={(event) => setQuiz({ ...quiz, age: event.target.value.replace(/\D/g, '').slice(0, 2) })}
-                    className="min-h-11 w-full rounded-xl border border-[#d8d1cc] bg-white/70 px-3 text-xs normal-case tracking-normal text-brand-dark outline-none focus:border-brand-dark/45"
-                  />
-                </label>
-                <label className="grid gap-2 text-[10px] font-mono uppercase tracking-widest text-brand-dark/70">
-                  {pick(UI.gradeLabel, language)}
-                  <input
-                    type="number"
-                    inputMode="numeric"
-                    min={5}
-                    max={11}
-                    placeholder="9"
-                    value={quiz.grade}
-                    onChange={(event) => setQuiz({ ...quiz, grade: event.target.value.replace(/\D/g, '').slice(0, 2) })}
-                    className="min-h-11 w-full rounded-xl border border-[#d8d1cc] bg-white/70 px-3 text-xs normal-case tracking-normal text-brand-dark outline-none focus:border-brand-dark/45"
-                  />
-                </label>
-              </div>
-              <SelectField label={pick(UI.formatLabel, language)} value={quiz.format} onChange={(value) => setQuiz({ ...quiz, format: value as QuizState['format'] })} options={[{ value: 'any', label: pick(UI.any, language) }, ...Object.entries(FORMATS).map(([value, label]) => ({ value, label: pick(label, language) }))]} />
-              <SelectField label={pick(UI.costLabel, language)} value={quiz.cost} onChange={(value) => setQuiz({ ...quiz, cost: value as QuizState['cost'] })} options={[{ value: 'any', label: pick(UI.any, language) }, ...Object.entries(COSTS).map(([value, label]) => ({ value, label: pick(label, language) }))]} />
-              <SelectField label={pick(UI.teamLabel, language)} value={quiz.participation} onChange={(value) => setQuiz({ ...quiz, participation: value as QuizState['participation'] })} options={[{ value: 'any', label: pick(UI.any, language) }, ...Object.entries(PARTICIPATION).map(([value, label]) => ({ value, label: pick(label, language) }))]} />
-              <div className="grid gap-2">
-                <span className="text-[10px] font-mono uppercase tracking-widest text-brand-dark/70">{pick(UI.interestsLabel, language)}</span>
-                <div className="flex flex-wrap gap-2">
-                  {Object.entries(DIRECTIONS).map(([value, label]) => (
-                    <button key={value} onClick={() => setQuiz((state) => ({ ...state, interests: state.interests.includes(value as DirectionId) ? state.interests.filter((item) => item !== value) : [...state.interests, value as DirectionId] }))} className={`rounded-full px-3 py-1.5 text-[11px] ${quiz.interests.includes(value as DirectionId) ? 'bg-brand-dark text-white' : 'bg-white/55 text-brand-slate'}`}>
-                      {pick(label, language)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-          <motion.div {...cardStaggerContainer} className="grid items-stretch gap-5 lg:grid-cols-2">
-            {matches.map(renderCard)}
-</motion.div>
-
-        {!embedded && (
-        <motion.div {...fadeInScale} className="relative hidden min-h-[330px] overflow-hidden rounded-[2rem] border border-white/60 bg-white/35 surface-elevated backdrop-blur-xl lg:block">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#bc4638]/8 via-transparent to-[#bd5b82]/12" />
-          <div className="absolute inset-0 scale-90">
-            <GlassCrystal />
-          </div>
-          <div className="absolute bottom-5 left-5 right-5 grid grid-cols-2 gap-3">
-            <Metric icon={<ClipboardCheck className="h-4 w-4" />} value={allOpportunities.length} label={pick(UI.published, language)} />
-            <Metric icon={<Heart className="h-4 w-4" />} value={favorites.length} label={pick(UI.saved, language)} />
-          </div>
-        </motion.div>
-        )}
-         </div>
-       </section>
-    );
-  };
-
   const renderFavorites = () => {
     const items = allOpportunities.filter((opportunity) => favorites.includes(opportunity.id));
     return (
@@ -1681,7 +1526,6 @@ export default function OpportunitiesPage({
                   [pick(UI.formatLabel, language), (item: Opportunity) => pick(FORMATS[item.format], language)],
                   [pick(UI.costLabel, language), (item: Opportunity) => pick(COSTS[item.cost], language)],
                   [pick(UI.ageLabel, language), (item: Opportunity) => `${item.minAge}-${item.maxAge}`],
-                  [pick(UI.matchScore, language), (item: Opportunity) => `${quizScores[item.id]}%`],
                 ].map(([label, getValue]) => (
                   <tr key={String(label)} className="border-b border-white/50">
                     <th className="w-40 px-3 py-4 text-xs uppercase tracking-widest text-brand-slate">{String(label)}</th>
@@ -1768,7 +1612,6 @@ export default function OpportunitiesPage({
     <div className="relative w-full overflow-hidden pb-6 text-brand-dark">
       {route.mode === 'catalog' && renderCatalog()}
       {route.mode === 'detail' && renderDetail()}
-      {route.mode === 'recommendations' && renderRecommendations()}
       {route.mode === 'favorites' && renderFavorites()}
       {route.mode === 'compare' && renderCompare()}
       {route.mode === 'submit' && renderSubmit()}
@@ -1801,10 +1644,6 @@ function EmptyState({ language }: { language: SupportedLanguage }) {
     <div className="rounded-[1.5rem] border border-white/60 bg-white/42 p-8 text-center surface-elevated-soft backdrop-blur-xl">
       <ShieldCheck className="mx-auto mb-3 h-8 w-8 text-brand-slate/55" />
       <h3 className="font-serif text-2xl font-semibold text-brand-dark">{pick(UI.noResults, language)}</h3>
-      <button onClick={() => navigate('/opportunities/recommendations')} className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand-dark px-5 py-2 text-xs font-semibold text-white">
-        <Sparkles className="h-4 w-4" />
-        {pick(UI.matchMe, language)}
-      </button>
     </div>
   );
 }

@@ -228,7 +228,6 @@
       "0b2e4667a1": "Oquvchilar uchun tadbirlar",
       "9bc3c6004a": "Konikmalarni rivojlantirish va haqiqiy loyihalar yaratishga yordam beradigan maruzalar, vorkshoplar, loyiha sprintlari, jamoaviy formatlar va onlayn uchrashuvlarni toping.",
       "807368f2dd": "Nomi, formati, mavzusi yoki konikmalar boyicha qidirish...",
-      "0ad86f239d": "Menga mosini topish",
       "62d6062e": "Faoliyatni qanday tanlash mumkin?",
       "5f082a56": "Qayerdan boshlashni bilmayapsizmi? Tayyorlik darajangizni aniqlang va mos formatni tanlang.",
       "97446fff": "Qayerdan boshlashni bilmayapsizmi?",
@@ -695,7 +694,8 @@
       "verifyAction": "Подтвердить",
       "verifyEmailPrompt": "Подтвердите почту, чтобы получить доступ к платформе.",
       "verifyEmailText": "Мы отправили код на {{email}}. Введите его, чтобы завершить регистрацию.",
-      "verifyEmailTitle": "Подтвердите почту"
+      "verifyEmailTitle": "Подтвердите почту",
+      "moderationNotice": "Anketangiz moderatsiyaga yuborildi. Tez orada u boshqa ishtirokchilar qatorida paydo bo'ladi!"
     },
     "blogeditor": {
       "actions": {

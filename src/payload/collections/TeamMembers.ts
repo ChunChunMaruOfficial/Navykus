@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload';
 
-import { adminOrModerator, anyone } from '../access';
+import { adminOrModerator } from '../access';
 import { legacyIdField, publicContentVersions, seoFields, sortOrderField, syncTeamMemberPublicationBeforeChange, textListField } from '../fields';
 import { auditAfterChange, auditAfterDelete } from '../audit';
 import { localizedAfterChange, localizedAfterDelete, originalLanguageField } from '../localization';
@@ -12,11 +12,16 @@ export const TeamMembers: CollectionConfig = {
     useAsTitle: 'name',
     group: 'Community',
     preview: publicPreview('team-members'),
+    defaultColumns: ['name', 'country', 'moderationStatus', 'isApproved', 'updatedAt'],
   },
   versions: publicContentVersions,
   access: {
-    read: anyone,
-    create: anyone,
+    // Public submission goes through POST /api/team-members (overrideAccess: true),
+    // which always forces moderationStatus='pending' + isApproved=false. Direct
+    // collection access is staff-only so nobody can self-approve (or read pending
+    // profiles with contact info) via the Payload REST API.
+    read: adminOrModerator,
+    create: adminOrModerator,
     update: adminOrModerator,
     delete: adminOrModerator,
   },

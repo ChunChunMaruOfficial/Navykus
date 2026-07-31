@@ -220,7 +220,6 @@
       "0b2e4667a1": "Events for students",
       "9bc3c6004a": "Find lectures, workshops, project sprints, team formats, and online meetups that help build skills and real projects.",
       "807368f2dd": "Search by title, format, topic, or skills...",
-      "0ad86f239d": "Match me",
       "62d6062e": "How to choose an activity?",
       "5f082a56": "Don't know where to start? Determine your readiness level and choose the appropriate format.",
       "97446fff": "Don't know where to start?",
@@ -712,7 +711,8 @@
       "resendCode": "Resend code",
       "codeResent": "Code has been resent.",
       "emailVerified": "Email verified. Welcome!",
-      "codeComingSoon": "Code login UI is ready. Sending and verification will be connected later."
+      "codeComingSoon": "Code login UI is ready. Sending and verification will be connected later.",
+      "moderationNotice": "Your profile has been sent for moderation. It will appear among other participants soon!"
     },
     "blogeditor": {
       "title": "Blog Editor",

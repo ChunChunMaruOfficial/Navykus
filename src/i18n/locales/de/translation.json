@@ -209,7 +209,6 @@
       "0b2e4667a1": "Events für Schüler",
       "9bc3c6004a": "Finde Vorträge, Workshops, Projektsprints, Teamformate und Online-Treffen, die Skills und echte Projekte fördern.",
       "807368f2dd": "Suche nach Titel, Format, Thema oder Skills...",
-      "0ad86f239d": "Für mich finden",
       "62d6062e": "Wie wähle ich eine Aktivität aus?",
       "5f082a56": "Sie wissen nicht, wo Sie anfangen sollen? Bestimmen Sie Ihren Bereitschaftsgrad und wählen Sie das passende Format.",
       "97446fff": "Sie wissen nicht, wo Sie anfangen sollen?",
@@ -650,6 +649,9 @@
       "fileSizeError": "File size must not exceed 10 MB.",
       "privateContact": "Public phone numbers and email addresses are hidden. Invitations are sent through a safe platform flow.",
       "findTeamHeroAlt": "Participants discussing a team project"
+    },
+    "authmodal": {
+      "moderationNotice": "Ihr Profil wurde zur Moderation eingereicht. Es wird bald unter den anderen Teilnehmern erscheinen!"
     }
   },
   "data": {

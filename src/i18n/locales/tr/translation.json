@@ -209,7 +209,6 @@
       "0b2e4667a1": "Öğrenciler için etkinlikler",
       "9bc3c6004a": "Becerileri geliştiren ve gerçek projeler üretmeye yardımcı olan dersleri, atölyeleri, proje sprintlerini, takım formatlarını ve çevrimiçi buluşmaları keşfet.",
       "807368f2dd": "Başlık, format, konu veya beceriyle ara...",
-      "0ad86f239d": "Bana uygun bul",
       "62d6062e": "Bir aktivite nasıl seçilir?",
       "5f082a56": "Nereden başlayacağınızı bilmiyor musunuz? Hazırlık seviyenizi belirleyin ve uygun formatı seçin.",
       "97446fff": "Nereden başlayacağınızı bilmiyor musunuz?",
@@ -650,6 +649,9 @@
       "fileSizeError": "File size must not exceed 10 MB.",
       "privateContact": "Public phone numbers and email addresses are hidden. Invitations are sent through a safe platform flow.",
       "findTeamHeroAlt": "Participants discussing a team project"
+    },
+    "authmodal": {
+      "moderationNotice": "Profiliniz moderasyona gönderildi. Yakında diğer katılımcılar arasında görünecek!"
     }
   },
   "data": {

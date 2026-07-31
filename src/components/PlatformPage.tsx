@@ -8,6 +8,7 @@ import {
   Check,
   CheckCircle2,
   ChevronLeft,
+  Clock,
   Edit3,
   ExternalLink,
   LogOut,
@@ -225,6 +226,7 @@ function AuthView({ mode, onAuth }: { mode: 'login' | 'register' | 'forgot' | 'r
   const [rememberedAccount, setRememberedAccount] = useState<RememberedPlatformAccount | undefined>(() => getRememberedPlatformAccount());
   const [state, setState] = useState<LoadState>('idle');
   const [message, setMessage] = useState('');
+  const [justRegistered, setJustRegistered] = useState(false);
 
   const update = (key: string, value: string | boolean) => setForm((current) => ({ ...current, [key]: value }));
 
@@ -256,7 +258,11 @@ function AuthView({ mode, onAuth }: { mode: 'login' | 'register' | 'forgot' | 'r
         rememberPlatformAccount(result.user);
         setRememberedAccount(getRememberedPlatformAccount());
         onAuth(result.user);
-        navigate('/profile');
+        // Registration puts the profile into manual moderation — show the notice
+        // instead of navigating straight to the profile page.
+        setJustRegistered(true);
+        setState('success');
+        return;
       } else if (mode === 'forgot') {
         const result = await platformApi.forgotPassword(String(form.email || ''));
         setMessage(result.resetToken ? `${t('platform.auth.devResetToken')} ${result.resetToken}` : t('platform.auth.forgotSuccess'));
@@ -330,6 +336,12 @@ function AuthView({ mode, onAuth }: { mode: 'login' | 'register' | 'forgot' | 'r
         <button disabled={state === 'loading'} className="min-h-12 rounded-xl bg-brand-dark px-5 text-xs font-semibold uppercase tracking-wider text-white disabled:opacity-60">
           {state === 'loading' ? t('platform.states.saving') : t(`platform.auth.${mode}Action`)}
         </button>
+        {justRegistered && (
+          <div className="flex items-start gap-3 rounded-2xl border border-emerald-200/70 bg-emerald-50/85 p-4 text-sm text-emerald-800">
+            <Clock className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+            <p className="leading-relaxed">{t('ui.authmodal.moderationNotice')}</p>
+          </div>
+        )}
         {message && <div className={`rounded-xl px-4 py-3 text-sm ${state === 'error' ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`}>{message}</div>}
       </form>
       <div className="flex flex-wrap gap-3 text-xs font-semibold text-brand-slate">

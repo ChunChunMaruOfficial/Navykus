@@ -10,7 +10,6 @@ import {
   Clock,
   Heart,
   Search,
-  Sparkles,
   Target,
   Trophy,
   Users,
@@ -134,13 +133,6 @@ const getCurrentPath = () => {
   return window.location.pathname.replace(/\/$/, '') || '/';
 };
 
-const OPPORTUNITIES_UTILITY_PATHS = new Set([
-  `${ACTIVITIES_OPPORTUNITIES_PATH}/recommendations`,
-  `${ACTIVITIES_OPPORTUNITIES_PATH}/favorites`,
-  `${ACTIVITIES_OPPORTUNITIES_PATH}/compare`,
-  `${ACTIVITIES_OPPORTUNITIES_PATH}/submit`,
-]);
-
 export default function ActivitiesPage({
   onNavigateToSection,
   onOpenApplyModal,
@@ -184,15 +176,6 @@ export default function ActivitiesPage({
       setRoutePath(nextPath);
       window.dispatchEvent(new PopStateEvent('popstate'));
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const navigateToOpportunityRecommendations = () => {
-    setActiveView('opportunities');
-    const nextPath = `${ACTIVITIES_OPPORTUNITIES_PATH}/recommendations`;
-    window.history.pushState({}, '', nextPath);
-    setRoutePath(nextPath);
-    window.dispatchEvent(new PopStateEvent('popstate'));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -279,7 +262,7 @@ export default function ActivitiesPage({
                 {t('ui.activitiespage.9bc3c6004a')}
               </p>
             </div>
-            <div className="grid w-full gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
+            <div className="grid w-full gap-3">
               <label className="relative block">
                 <span className="sr-only">{t('ui.activitiespage.807368f2dd')}</span>
                 <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-slate/60" />
@@ -290,14 +273,6 @@ export default function ActivitiesPage({
                   className="min-h-12 w-full rounded-2xl border border-white/65 bg-white/60 py-3 pl-11 pr-4 text-sm text-brand-dark shadow-[0_10px_35px_rgba(91,100,114,0.08)] outline-none backdrop-blur-xl transition-colors placeholder:text-brand-slate/45 focus:border-[#8f99a8]"
                 />
               </label>
-              <button
-                type="button"
-                onClick={navigateToOpportunityRecommendations}
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-brand-dark px-5 py-3 text-xs font-semibold text-white"
-              >
-                <Sparkles className="h-4 w-4" />
-                {t('ui.activitiespage.0ad86f239d')}
-              </button>
             </div>
           </motion.div>
         </section>

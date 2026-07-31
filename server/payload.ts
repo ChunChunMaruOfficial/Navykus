@@ -77,9 +77,13 @@ const reconcileDraftPublishedColumns = async (table: string) => {
 
 const reconcileTeamMemberPublicationColumns = async () => {
   if (!(await hasTable('team_members'))) return;
-  await executeSafe("UPDATE team_members SET is_approved = 0 WHERE _status = 'draft';");
-  await executeSafe("UPDATE team_members SET _status = 'draft' WHERE is_approved = 0 OR moderation_status <> 'approved';");
-  await executeSafe("UPDATE team_members SET _status = 'published' WHERE is_approved = 1 AND moderation_status = 'approved' AND (_status IS NULL OR _status = '');");
+  // moderation_status is the single source of truth. The old order derived
+  // is_approved from _status first, which silently UN-approved members that were
+  // approved but still _status='draft' (a state the sync hook could produce), and
+  // never published approved members stuck at _status='draft'. Now approval
+  // always yields published and everything else is draft + not approved.
+  await executeSafe("UPDATE team_members SET is_approved = 0, _status = 'draft' WHERE moderation_status IS NULL OR moderation_status <> 'approved';");
+  await executeSafe("UPDATE team_members SET is_approved = 1, _status = 'published' WHERE moderation_status = 'approved';");
 };
 
 const reconcileBlogPublicationColumns = async () => {

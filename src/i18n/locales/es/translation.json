@@ -228,7 +228,6 @@
       "0b2e4667a1": "Eventos para estudiantes",
       "9bc3c6004a": "Encuentra charlas, talleres, sprints de proyecto, formatos de equipo y encuentros online que ayudan a desarrollar habilidades y proyectos reales.",
       "807368f2dd": "Buscar por título, formato, tema o habilidades...",
-      "0ad86f239d": "Recomendar para mí",
       "62d6062e": "¿Cómo elegir una actividad?",
       "5f082a56": "¿No sabes por dónde empezar? Determine su nivel de preparación y elija el formato apropiado.",
       "97446fff": "¿No sabes por dónde empezar?",
@@ -709,7 +708,8 @@
       "codeInput": "Code",
       "sendCode": "Send",
       "codeAction": "Continue by code",
-      "codeComingSoon": "Code login UI is ready. Sending and verification will be connected later."
+      "codeComingSoon": "Code login UI is ready. Sending and verification will be connected later.",
+      "moderationNotice": "¡Tu perfil ha sido enviado a moderación! Pronto aparecerá entre los demás participantes."
     },
     "blogeditor": {
       "title": "Editor de blog",
