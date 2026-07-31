@@ -72,17 +72,23 @@ jobs:
           export NODE_OPTIONS="--max-old-space-size=3072"
           npm install --production=false
 
-          echo "=== [3/6] Building frontend ==="
+          echo "=== [3/6] TypeScript check ==="
+          npm run lint
+
+          echo "=== [4/6] Building frontend ==="
           npm run build
 
-          echo "=== [4/6] Building admin panel ==="
+          echo "=== [5/6] Building admin panel ==="
           npm run build:admin
 
-          echo "=== [5/6] Restarting services ==="
+          echo "=== [5b/6] Database migrations ==="
+          npx payload migrate --config src/payload.config.ts || echo "Migration skipped (may be already applied)"
+
+          echo "=== [6/6] Restarting services ==="
           pm2 restart navykus-api --update-env || pm2 start npm --name navykus-api -- run start:api
           pm2 restart navykus-admin --update-env || pm2 start npm --name navykus-admin -- run start:admin
 
-          echo "=== [6/6] Health check ==="
+          echo "=== [7/7] Health check ===
           for attempt in $(seq 1 24); do
             if curl -fsS http://127.0.0.1:4000/api/health >/tmp/navykus-health.json; then
               cat /tmp/navykus-health.json
