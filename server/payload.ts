@@ -188,6 +188,17 @@ const ensureDevelopmentSchema = async () => {
   await ensureColumn('tournaments', 'evaluation_criteria_text', 'text');
   await ensureColumn('tournaments', 'original_language', "text DEFAULT 'ru'");
   await ensureColumn('tournaments', 'slug', 'text');
+  // Конфиг/схема требуют unique slug для tournaments, но в существующей БД индекса не было.
+  // Защита: при дубликатах slug (например, в проде) создание unique-индекса уронило бы
+  // getPayloadClient() на старте — поэтому сначала проверяем и при дубликатах пропускаем.
+  const duplicateSlugs = await getFirst<{ c?: number }>(
+    "SELECT COUNT(*) as c FROM (SELECT slug FROM tournaments WHERE slug IS NOT NULL AND slug <> '' GROUP BY slug HAVING COUNT(*) > 1)",
+  );
+  if (Number(duplicateSlugs?.c || 0) === 0) {
+    await executeSafe('CREATE UNIQUE INDEX IF NOT EXISTS tournaments_slug_idx ON tournaments (slug);');
+  } else {
+    console.warn(`[ensureDevelopmentSchema] tournaments: найдены дубликаты slug (${duplicateSlugs?.c}) — unique-индекс не создан`);
+  }
   await ensureColumn('tournaments', 'seo_title', 'text');
   await ensureColumn('tournaments', 'seo_description', 'text');
   await ensureColumn('tournaments', '_status', "text DEFAULT 'published'");
@@ -275,6 +286,8 @@ const ensureDevelopmentSchema = async () => {
   await ensureColumn('team_members', 'moderation_status', "text DEFAULT 'pending' NOT NULL");
   await ensureColumn('team_members', 'moderation_comment', 'text');
   await ensureColumn('team_members', 'reviewed_at', 'text');
+  await ensureColumn('team_posts', 'original_language', "text DEFAULT 'ru'");
+  await ensureColumn('team_responses', 'original_language', "text DEFAULT 'ru'");
   await ensureColumn('experts', 'original_language', "text DEFAULT 'ru'");
   await ensureColumn('experts', 'seo_title', 'text');
   await ensureColumn('experts', 'seo_description', 'text');

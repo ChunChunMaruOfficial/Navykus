@@ -252,7 +252,9 @@ export const registerBlogRoutes = (app: Express) => {
     if (!user) return;
     const payload = await getPayloadClient();
     const id = payloadId(String(req.params.id));
-    const existing = await payload.findByID({ collection: 'blog-posts' as any, id, depth: 0, overrideAccess: false }).catch(() => undefined) as unknown as Record<string, unknown>;
+    // overrideAccess: true — без него локальный API Payload не видит автора (req не передаётся),
+    // и автор не смог бы редактировать собственный черновик (404). Проверка владельца ниже.
+    const existing = await payload.findByID({ collection: 'blog-posts' as any, id, depth: 0, overrideAccess: true }).catch(() => undefined) as unknown as Record<string, unknown>;
     if (!existing) { res.status(404).json({ code: 'POST_NOT_FOUND' }); return; }
     const authorId = existing.author && typeof existing.author === 'object' ? String((existing.author as Record<string, unknown>).id) : String(existing.author || '');
     const isOwner = authorId === user.id;
@@ -300,7 +302,8 @@ export const registerBlogRoutes = (app: Express) => {
     if (!user) return;
     const payload = await getPayloadClient();
     const id = payloadId(String(req.params.id));
-    const existing = await payload.findByID({ collection: 'blog-posts' as any, id, depth: 0, overrideAccess: false }).catch(() => undefined) as unknown as Record<string, unknown>;
+    // overrideAccess: true — см. комментарий в PATCH: автор должен удалять свой черновик.
+    const existing = await payload.findByID({ collection: 'blog-posts' as any, id, depth: 0, overrideAccess: true }).catch(() => undefined) as unknown as Record<string, unknown>;
     if (!existing) { res.status(404).json({ code: 'POST_NOT_FOUND' }); return; }
     const authorId = existing.author && typeof existing.author === 'object' ? String((existing.author as Record<string, unknown>).id) : String(existing.author || '');
     if (authorId !== user.id && !STAFF_ROLES.has(user.role)) { res.status(403).json({ code: 'FORBIDDEN' }); return; }
@@ -315,7 +318,7 @@ export const registerBlogRoutes = (app: Express) => {
     const payload = await getPayloadClient();
     const result = await payload.find({
       collection: 'blog-posts' as any, where: { author: { equals: payloadId(user.id) } },
-      sort: '-createdAt', limit: 100, depth: 1, overrideAccess: false,
+      sort: '-createdAt', limit: 100, depth: 1, overrideAccess: true,
     });
     res.json({ docs: result.docs.map((d) => normalizePost(d as unknown as Record<string, unknown>)) });
   }));
@@ -326,7 +329,8 @@ export const registerBlogRoutes = (app: Express) => {
     if (!user) return;
     const payload = await getPayloadClient();
     const id = payloadId(String(req.params.id));
-    const post = await payload.findByID({ collection: 'blog-posts' as any, id, depth: 0, overrideAccess: false }).catch(() => undefined) as unknown as Record<string, unknown>;
+    // overrideAccess: true — иначе локальный API не видит автора и черновик недоступен (404).
+    const post = await payload.findByID({ collection: 'blog-posts' as any, id, depth: 0, overrideAccess: true }).catch(() => undefined) as unknown as Record<string, unknown>;
     if (!post) { res.status(404).json({ code: 'POST_NOT_FOUND' }); return; }
     const authorId = post.author && typeof post.author === 'object' ? String((post.author as Record<string, unknown>).id) : String(post.author || '');
     if (authorId !== user.id && !STAFF_ROLES.has(user.role)) { res.status(403).json({ code: 'FORBIDDEN' }); return; }

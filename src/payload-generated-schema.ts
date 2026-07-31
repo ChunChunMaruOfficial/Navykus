@@ -252,7 +252,7 @@ export const tournaments_skills = sqliteTable(
     _order: integer("_order").notNull(),
     _parentID: integer("_parent_id").notNull(),
     id: text("id").primaryKey(),
-    value: text("value").notNull(),
+    value: text("value"),
   },
   (columns) => [
     index("tournaments_skills_order_idx").on(columns._order),
@@ -271,7 +271,7 @@ export const tournaments_mentors = sqliteTable(
     _order: integer("_order").notNull(),
     _parentID: integer("_parent_id").notNull(),
     id: text("id").primaryKey(),
-    value: text("value").notNull(),
+    value: text("value"),
   },
   (columns) => [
     index("tournaments_mentors_order_idx").on(columns._order),
@@ -291,26 +291,172 @@ export const tournaments = sqliteTable(
     legacyId: text("legacy_id"),
     sortOrder: numeric("sort_order", { mode: "number" }).default(0),
     isPublished: integer("is_published", { mode: "boolean" }).default(true),
+    originalLanguage: text("original_language", {
+      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
+    }).default("ru"),
     isFeatured: integer("is_featured", { mode: "boolean" }).default(false),
-    title: text("title").notNull(),
-    type: text("type").notNull(),
-    description: text("description").notNull(),
-    date: text("date").notNull(),
-    registrationDeadline: text("registration_deadline").notNull(),
-    maxParticipants: numeric("max_participants", { mode: "number" }).notNull(),
+    title: text("title"),
+    slug: text("slug"),
+    type: text("type"),
+    description: text("description"),
+    pitch: text("pitch"),
+    date: text("date"),
+    registrationDeadline: text("registration_deadline"),
+    registrationStatus: text("registration_status", {
+      enum: ["open", "suspended", "closed"],
+    }).default("open"),
+    maxParticipants: numeric("max_participants", { mode: "number" }),
     suitableFor: text("suitable_for"),
     format: text("format"),
+    targetAudience: text("target_audience"),
+    ageLimit: text("age_limit"),
+    teamsAllowed: text("teams_allowed"),
+    language: text("language"),
+    expectedResult: text("expected_result"),
+    themesText: text("themes_text"),
+    evaluationCriteriaText: text("evaluation_criteria_text"),
+    seoTitle: text("seo_title"),
+    seoDescription: text("seo_description"),
     updatedAt: text("updated_at")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
     createdAt: text("created_at")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    _status: text("_status", { enum: ["draft", "published"] }).default("draft"),
   },
   (columns) => [
     index("tournaments_legacy_id_idx").on(columns.legacyId),
+    index("tournaments_original_language_idx").on(columns.originalLanguage),
+    uniqueIndex("tournaments_slug_idx").on(columns.slug),
     index("tournaments_updated_at_idx").on(columns.updatedAt),
     index("tournaments_created_at_idx").on(columns.createdAt),
+    index("tournaments__status_idx").on(columns._status),
+  ],
+);
+
+export const _tournaments_v_version_skills = sqliteTable(
+  "_tournaments_v_version_skills",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: integer("id").primaryKey(),
+    value: text("value"),
+    _uuid: text("_uuid"),
+  },
+  (columns) => [
+    index("_tournaments_v_version_skills_order_idx").on(columns._order),
+    index("_tournaments_v_version_skills_parent_id_idx").on(columns._parentID),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [_tournaments_v.id],
+      name: "_tournaments_v_version_skills_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _tournaments_v_version_mentors = sqliteTable(
+  "_tournaments_v_version_mentors",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: integer("id").primaryKey(),
+    value: text("value"),
+    _uuid: text("_uuid"),
+  },
+  (columns) => [
+    index("_tournaments_v_version_mentors_order_idx").on(columns._order),
+    index("_tournaments_v_version_mentors_parent_id_idx").on(columns._parentID),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [_tournaments_v.id],
+      name: "_tournaments_v_version_mentors_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _tournaments_v = sqliteTable(
+  "_tournaments_v",
+  {
+    id: integer("id").primaryKey(),
+    parent: integer("parent_id").references(() => tournaments.id, {
+      onDelete: "set null",
+    }),
+    version_legacyId: text("version_legacy_id"),
+    version_sortOrder: numeric("version_sort_order", {
+      mode: "number",
+    }).default(0),
+    version_isPublished: integer("version_is_published", {
+      mode: "boolean",
+    }).default(true),
+    version_originalLanguage: text("version_original_language", {
+      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
+    }).default("ru"),
+    version_isFeatured: integer("version_is_featured", {
+      mode: "boolean",
+    }).default(false),
+    version_title: text("version_title"),
+    version_slug: text("version_slug"),
+    version_type: text("version_type"),
+    version_description: text("version_description"),
+    version_pitch: text("version_pitch"),
+    version_date: text("version_date"),
+    version_registrationDeadline: text("version_registration_deadline"),
+    version_registrationStatus: text("version_registration_status", {
+      enum: ["open", "suspended", "closed"],
+    }).default("open"),
+    version_maxParticipants: numeric("version_max_participants", {
+      mode: "number",
+    }),
+    version_suitableFor: text("version_suitable_for"),
+    version_format: text("version_format"),
+    version_targetAudience: text("version_target_audience"),
+    version_ageLimit: text("version_age_limit"),
+    version_teamsAllowed: text("version_teams_allowed"),
+    version_language: text("version_language"),
+    version_expectedResult: text("version_expected_result"),
+    version_themesText: text("version_themes_text"),
+    version_evaluationCriteriaText: text("version_evaluation_criteria_text"),
+    version_seoTitle: text("version_seo_title"),
+    version_seoDescription: text("version_seo_description"),
+    version_updatedAt: text("version_updated_at").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    version_createdAt: text("version_created_at").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    version__status: text("version__status", {
+      enum: ["draft", "published"],
+    }).default("draft"),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    latest: integer("latest", { mode: "boolean" }),
+  },
+  (columns) => [
+    index("_tournaments_v_parent_idx").on(columns.parent),
+    index("_tournaments_v_version_version_legacy_id_idx").on(
+      columns.version_legacyId,
+    ),
+    index("_tournaments_v_version_version_original_language_idx").on(
+      columns.version_originalLanguage,
+    ),
+    index("_tournaments_v_version_version_slug_idx").on(columns.version_slug),
+    index("_tournaments_v_version_version_updated_at_idx").on(
+      columns.version_updatedAt,
+    ),
+    index("_tournaments_v_version_version_created_at_idx").on(
+      columns.version_createdAt,
+    ),
+    index("_tournaments_v_version_version__status_idx").on(
+      columns.version__status,
+    ),
+    index("_tournaments_v_created_at_idx").on(columns.createdAt),
+    index("_tournaments_v_updated_at_idx").on(columns.updatedAt),
+    index("_tournaments_v_latest_idx").on(columns.latest),
   ],
 );
 
@@ -340,6 +486,11 @@ export const activities = sqliteTable(
     legacyId: text("legacy_id"),
     sortOrder: numeric("sort_order", { mode: "number" }).default(0),
     isPublished: integer("is_published", { mode: "boolean" }).default(true),
+    originalLanguage: text("original_language", {
+      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
+    })
+      .notNull()
+      .default("ru"),
     title: text("title").notNull(),
     shortDescription: text("short_description").notNull(),
     fullDescription: text("full_description").notNull(),
@@ -363,6 +514,8 @@ export const activities = sqliteTable(
     prerequisites: text("prerequisites").notNull(),
     ctaText: text("cta_text").notNull(),
     ctaLink: text("cta_link"),
+    seoTitle: text("seo_title"),
+    seoDescription: text("seo_description"),
     updatedAt: text("updated_at")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
@@ -372,6 +525,7 @@ export const activities = sqliteTable(
   },
   (columns) => [
     index("activities_legacy_id_idx").on(columns.legacyId),
+    index("activities_original_language_idx").on(columns.originalLanguage),
     index("activities_updated_at_idx").on(columns.updatedAt),
     index("activities_created_at_idx").on(columns.createdAt),
   ],
@@ -384,32 +538,117 @@ export const experts = sqliteTable(
     legacyId: text("legacy_id"),
     sortOrder: numeric("sort_order", { mode: "number" }).default(0),
     isPublished: integer("is_published", { mode: "boolean" }).default(true),
-    name: text("name").notNull(),
-    type: text("type", { enum: ["jury", "mentor", "expert"] })
-      .notNull()
-      .default("expert"),
-    role: text("role").notNull(),
-    expertise: text("expertise").notNull(),
-    description: text("description").notNull(),
+    originalLanguage: text("original_language", {
+      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
+    }).default("ru"),
+    name: text("name"),
+    type: text("type", { enum: ["jury", "mentor", "expert"] }).default(
+      "expert",
+    ),
+    role: text("role"),
+    expertise: text("expertise"),
+    description: text("description"),
     photo: integer("photo_id").references(() => media.id, {
       onDelete: "set null",
     }),
     tournamentId: integer("tournament_id_id").references(() => tournaments.id, {
       onDelete: "set null",
     }),
+    seoTitle: text("seo_title"),
+    seoDescription: text("seo_description"),
     updatedAt: text("updated_at")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
     createdAt: text("created_at")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    _status: text("_status", { enum: ["draft", "published"] }).default("draft"),
   },
   (columns) => [
     index("experts_legacy_id_idx").on(columns.legacyId),
+    index("experts_original_language_idx").on(columns.originalLanguage),
     index("experts_photo_idx").on(columns.photo),
     index("experts_tournament_id_idx").on(columns.tournamentId),
     index("experts_updated_at_idx").on(columns.updatedAt),
     index("experts_created_at_idx").on(columns.createdAt),
+    index("experts__status_idx").on(columns._status),
+  ],
+);
+
+export const _experts_v = sqliteTable(
+  "_experts_v",
+  {
+    id: integer("id").primaryKey(),
+    parent: integer("parent_id").references(() => experts.id, {
+      onDelete: "set null",
+    }),
+    version_legacyId: text("version_legacy_id"),
+    version_sortOrder: numeric("version_sort_order", {
+      mode: "number",
+    }).default(0),
+    version_isPublished: integer("version_is_published", {
+      mode: "boolean",
+    }).default(true),
+    version_originalLanguage: text("version_original_language", {
+      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
+    }).default("ru"),
+    version_name: text("version_name"),
+    version_type: text("version_type", {
+      enum: ["jury", "mentor", "expert"],
+    }).default("expert"),
+    version_role: text("version_role"),
+    version_expertise: text("version_expertise"),
+    version_description: text("version_description"),
+    version_photo: integer("version_photo_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    version_tournamentId: integer("version_tournament_id_id").references(
+      () => tournaments.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_seoTitle: text("version_seo_title"),
+    version_seoDescription: text("version_seo_description"),
+    version_updatedAt: text("version_updated_at").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    version_createdAt: text("version_created_at").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    version__status: text("version__status", {
+      enum: ["draft", "published"],
+    }).default("draft"),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    latest: integer("latest", { mode: "boolean" }),
+  },
+  (columns) => [
+    index("_experts_v_parent_idx").on(columns.parent),
+    index("_experts_v_version_version_legacy_id_idx").on(
+      columns.version_legacyId,
+    ),
+    index("_experts_v_version_version_original_language_idx").on(
+      columns.version_originalLanguage,
+    ),
+    index("_experts_v_version_version_photo_idx").on(columns.version_photo),
+    index("_experts_v_version_version_tournament_id_idx").on(
+      columns.version_tournamentId,
+    ),
+    index("_experts_v_version_version_updated_at_idx").on(
+      columns.version_updatedAt,
+    ),
+    index("_experts_v_version_version_created_at_idx").on(
+      columns.version_createdAt,
+    ),
+    index("_experts_v_version_version__status_idx").on(columns.version__status),
+    index("_experts_v_created_at_idx").on(columns.createdAt),
+    index("_experts_v_updated_at_idx").on(columns.updatedAt),
+    index("_experts_v_latest_idx").on(columns.latest),
   ],
 );
 
@@ -420,6 +659,9 @@ export const faqs = sqliteTable(
     legacyId: text("legacy_id"),
     sortOrder: numeric("sort_order", { mode: "number" }).default(0),
     isPublished: integer("is_published", { mode: "boolean" }).default(true),
+    originalLanguage: text("original_language", {
+      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
+    }).default("ru"),
     page: text("page", {
       enum: [
         "home",
@@ -429,21 +671,94 @@ export const faqs = sqliteTable(
         "find-team",
         "opportunities",
       ],
-    }).notNull(),
-    question: text("question").notNull(),
-    answer: text("answer").notNull(),
+    }),
+    question: text("question"),
+    answer: text("answer"),
+    seoTitle: text("seo_title"),
+    seoDescription: text("seo_description"),
     updatedAt: text("updated_at")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
     createdAt: text("created_at")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    _status: text("_status", { enum: ["draft", "published"] }).default("draft"),
   },
   (columns) => [
     index("faqs_legacy_id_idx").on(columns.legacyId),
+    index("faqs_original_language_idx").on(columns.originalLanguage),
     index("faqs_page_idx").on(columns.page),
     index("faqs_updated_at_idx").on(columns.updatedAt),
     index("faqs_created_at_idx").on(columns.createdAt),
+    index("faqs__status_idx").on(columns._status),
+  ],
+);
+
+export const _faqs_v = sqliteTable(
+  "_faqs_v",
+  {
+    id: integer("id").primaryKey(),
+    parent: integer("parent_id").references(() => faqs.id, {
+      onDelete: "set null",
+    }),
+    version_legacyId: text("version_legacy_id"),
+    version_sortOrder: numeric("version_sort_order", {
+      mode: "number",
+    }).default(0),
+    version_isPublished: integer("version_is_published", {
+      mode: "boolean",
+    }).default(true),
+    version_originalLanguage: text("version_original_language", {
+      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
+    }).default("ru"),
+    version_page: text("version_page", {
+      enum: [
+        "home",
+        "about",
+        "championship",
+        "activities",
+        "find-team",
+        "opportunities",
+      ],
+    }),
+    version_question: text("version_question"),
+    version_answer: text("version_answer"),
+    version_seoTitle: text("version_seo_title"),
+    version_seoDescription: text("version_seo_description"),
+    version_updatedAt: text("version_updated_at").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    version_createdAt: text("version_created_at").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    version__status: text("version__status", {
+      enum: ["draft", "published"],
+    }).default("draft"),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    latest: integer("latest", { mode: "boolean" }),
+  },
+  (columns) => [
+    index("_faqs_v_parent_idx").on(columns.parent),
+    index("_faqs_v_version_version_legacy_id_idx").on(columns.version_legacyId),
+    index("_faqs_v_version_version_original_language_idx").on(
+      columns.version_originalLanguage,
+    ),
+    index("_faqs_v_version_version_page_idx").on(columns.version_page),
+    index("_faqs_v_version_version_updated_at_idx").on(
+      columns.version_updatedAt,
+    ),
+    index("_faqs_v_version_version_created_at_idx").on(
+      columns.version_createdAt,
+    ),
+    index("_faqs_v_version_version__status_idx").on(columns.version__status),
+    index("_faqs_v_created_at_idx").on(columns.createdAt),
+    index("_faqs_v_updated_at_idx").on(columns.updatedAt),
+    index("_faqs_v_latest_idx").on(columns.latest),
   ],
 );
 
@@ -453,7 +768,7 @@ export const events_languages = sqliteTable(
     _order: integer("_order").notNull(),
     _parentID: integer("_parent_id").notNull(),
     id: text("id").primaryKey(),
-    value: text("value").notNull(),
+    value: text("value"),
   },
   (columns) => [
     index("events_languages_order_idx").on(columns._order),
@@ -472,7 +787,7 @@ export const events_materials = sqliteTable(
     _order: integer("_order").notNull(),
     _parentID: integer("_parent_id").notNull(),
     id: text("id").primaryKey(),
-    value: text("value").notNull(),
+    value: text("value"),
   },
   (columns) => [
     index("events_materials_order_idx").on(columns._order),
@@ -492,21 +807,24 @@ export const events = sqliteTable(
     legacyId: text("legacy_id"),
     sortOrder: numeric("sort_order", { mode: "number" }).default(0),
     isPublished: integer("is_published", { mode: "boolean" }).default(true),
-    title: text("title").notNull(),
-    slug: text("slug").notNull(),
-    shortDescription: text("short_description").notNull(),
+    originalLanguage: text("original_language", {
+      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
+    }).default("ru"),
+    title: text("title"),
+    slug: text("slug"),
+    shortDescription: text("short_description"),
     fullDescription: text("full_description"),
     imageUrl: text("image_url"),
-    eventType: text("event_type").notNull(),
-    eventDate: text("event_date")
-      .notNull()
-      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    eventType: text("event_type"),
+    eventDate: text("event_date").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
     timeZone: text("time_zone").default("UTC"),
     registrationDeadline: text("registration_deadline").default(
       sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
     ),
     participantLimit: numeric("participant_limit", { mode: "number" }),
-    format: text("format", { enum: ["online", "offline", "hybrid"] }).notNull(),
+    format: text("format", { enum: ["online", "offline", "hybrid"] }),
     country: text("country"),
     venue: text("venue"),
     onlineLink: text("online_link"),
@@ -519,9 +837,11 @@ export const events = sqliteTable(
     createdAt: text("created_at")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    _status: text("_status", { enum: ["draft", "published"] }).default("draft"),
   },
   (columns) => [
     index("events_legacy_id_idx").on(columns.legacyId),
+    index("events_original_language_idx").on(columns.originalLanguage),
     uniqueIndex("events_slug_idx").on(columns.slug),
     index("events_event_type_idx").on(columns.eventType),
     index("events_event_date_idx").on(columns.eventDate),
@@ -530,6 +850,139 @@ export const events = sqliteTable(
     index("events_country_idx").on(columns.country),
     index("events_updated_at_idx").on(columns.updatedAt),
     index("events_created_at_idx").on(columns.createdAt),
+    index("events__status_idx").on(columns._status),
+  ],
+);
+
+export const _events_v_version_languages = sqliteTable(
+  "_events_v_version_languages",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: integer("id").primaryKey(),
+    value: text("value"),
+    _uuid: text("_uuid"),
+  },
+  (columns) => [
+    index("_events_v_version_languages_order_idx").on(columns._order),
+    index("_events_v_version_languages_parent_id_idx").on(columns._parentID),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [_events_v.id],
+      name: "_events_v_version_languages_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _events_v_version_materials = sqliteTable(
+  "_events_v_version_materials",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: integer("id").primaryKey(),
+    value: text("value"),
+    _uuid: text("_uuid"),
+  },
+  (columns) => [
+    index("_events_v_version_materials_order_idx").on(columns._order),
+    index("_events_v_version_materials_parent_id_idx").on(columns._parentID),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [_events_v.id],
+      name: "_events_v_version_materials_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _events_v = sqliteTable(
+  "_events_v",
+  {
+    id: integer("id").primaryKey(),
+    parent: integer("parent_id").references(() => events.id, {
+      onDelete: "set null",
+    }),
+    version_legacyId: text("version_legacy_id"),
+    version_sortOrder: numeric("version_sort_order", {
+      mode: "number",
+    }).default(0),
+    version_isPublished: integer("version_is_published", {
+      mode: "boolean",
+    }).default(true),
+    version_originalLanguage: text("version_original_language", {
+      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
+    }).default("ru"),
+    version_title: text("version_title"),
+    version_slug: text("version_slug"),
+    version_shortDescription: text("version_short_description"),
+    version_fullDescription: text("version_full_description"),
+    version_imageUrl: text("version_image_url"),
+    version_eventType: text("version_event_type"),
+    version_eventDate: text("version_event_date").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    version_timeZone: text("version_time_zone").default("UTC"),
+    version_registrationDeadline: text("version_registration_deadline").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    version_participantLimit: numeric("version_participant_limit", {
+      mode: "number",
+    }),
+    version_format: text("version_format", {
+      enum: ["online", "offline", "hybrid"],
+    }),
+    version_country: text("version_country"),
+    version_venue: text("version_venue"),
+    version_onlineLink: text("version_online_link"),
+    version_speaker: text("version_speaker"),
+    version_seoTitle: text("version_seo_title"),
+    version_seoDescription: text("version_seo_description"),
+    version_updatedAt: text("version_updated_at").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    version_createdAt: text("version_created_at").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    version__status: text("version__status", {
+      enum: ["draft", "published"],
+    }).default("draft"),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    latest: integer("latest", { mode: "boolean" }),
+  },
+  (columns) => [
+    index("_events_v_parent_idx").on(columns.parent),
+    index("_events_v_version_version_legacy_id_idx").on(
+      columns.version_legacyId,
+    ),
+    index("_events_v_version_version_original_language_idx").on(
+      columns.version_originalLanguage,
+    ),
+    index("_events_v_version_version_slug_idx").on(columns.version_slug),
+    index("_events_v_version_version_event_type_idx").on(
+      columns.version_eventType,
+    ),
+    index("_events_v_version_version_event_date_idx").on(
+      columns.version_eventDate,
+    ),
+    index("_events_v_version_version_registration_deadline_idx").on(
+      columns.version_registrationDeadline,
+    ),
+    index("_events_v_version_version_format_idx").on(columns.version_format),
+    index("_events_v_version_version_country_idx").on(columns.version_country),
+    index("_events_v_version_version_updated_at_idx").on(
+      columns.version_updatedAt,
+    ),
+    index("_events_v_version_version_created_at_idx").on(
+      columns.version_createdAt,
+    ),
+    index("_events_v_version_version__status_idx").on(columns.version__status),
+    index("_events_v_created_at_idx").on(columns.createdAt),
+    index("_events_v_updated_at_idx").on(columns.updatedAt),
+    index("_events_v_latest_idx").on(columns.latest),
   ],
 );
 
@@ -539,7 +992,7 @@ export const opportunities_languages = sqliteTable(
     _order: integer("_order").notNull(),
     _parentID: integer("_parent_id").notNull(),
     id: text("id").primaryKey(),
-    value: text("value").notNull(),
+    value: text("value"),
   },
   (columns) => [
     index("opportunities_languages_order_idx").on(columns._order),
@@ -552,13 +1005,70 @@ export const opportunities_languages = sqliteTable(
   ],
 );
 
+export const opportunities_skills = sqliteTable(
+  "opportunities_skills",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: text("id").primaryKey(),
+    value: text("value"),
+  },
+  (columns) => [
+    index("opportunities_skills_order_idx").on(columns._order),
+    index("opportunities_skills_parent_id_idx").on(columns._parentID),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [opportunities.id],
+      name: "opportunities_skills_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const opportunities_keywords = sqliteTable(
+  "opportunities_keywords",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: text("id").primaryKey(),
+    value: text("value"),
+  },
+  (columns) => [
+    index("opportunities_keywords_order_idx").on(columns._order),
+    index("opportunities_keywords_parent_id_idx").on(columns._parentID),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [opportunities.id],
+      name: "opportunities_keywords_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const opportunities_grades = sqliteTable(
+  "opportunities_grades",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: text("id").primaryKey(),
+    value: text("value"),
+  },
+  (columns) => [
+    index("opportunities_grades_order_idx").on(columns._order),
+    index("opportunities_grades_parent_id_idx").on(columns._parentID),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [opportunities.id],
+      name: "opportunities_grades_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
 export const opportunities_requirements = sqliteTable(
   "opportunities_requirements",
   {
     _order: integer("_order").notNull(),
     _parentID: integer("_parent_id").notNull(),
     id: text("id").primaryKey(),
-    value: text("value").notNull(),
+    value: text("value"),
   },
   (columns) => [
     index("opportunities_requirements_order_idx").on(columns._order),
@@ -577,7 +1087,7 @@ export const opportunities_benefits = sqliteTable(
     _order: integer("_order").notNull(),
     _parentID: integer("_parent_id").notNull(),
     id: text("id").primaryKey(),
-    value: text("value").notNull(),
+    value: text("value"),
   },
   (columns) => [
     index("opportunities_benefits_order_idx").on(columns._order),
@@ -596,7 +1106,7 @@ export const opportunities_documents = sqliteTable(
     _order: integer("_order").notNull(),
     _parentID: integer("_parent_id").notNull(),
     id: text("id").primaryKey(),
-    value: text("value").notNull(),
+    value: text("value"),
   },
   (columns) => [
     index("opportunities_documents_order_idx").on(columns._order),
@@ -616,20 +1126,52 @@ export const opportunities = sqliteTable(
     legacyId: text("legacy_id"),
     sortOrder: numeric("sort_order", { mode: "number" }).default(0),
     isPublished: integer("is_published", { mode: "boolean" }).default(true),
-    title: text("title").notNull(),
-    slug: text("slug").notNull(),
-    organization: text("organization").notNull(),
-    opportunityType: text("opportunity_type").notNull(),
-    shortDescription: text("short_description").notNull(),
+    originalLanguage: text("original_language", {
+      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
+    }).default("ru"),
+    title: text("title"),
+    slug: text("slug"),
+    organization: text("organization"),
+    opportunityType: text("opportunity_type"),
+    source: text("source", {
+      enum: ["navykus", "verified", "partner"],
+    }).default("verified"),
+    category: text("category"),
+    direction: text("direction", {
+      enum: ["business", "science", "tech", "social", "creative", "leadership"],
+    }).default("social"),
+    participation: text("participation", {
+      enum: ["individual", "team", "both"],
+    }).default("both"),
+    shortDescription: text("short_description"),
     fullDescription: text("full_description"),
     logoUrl: text("logo_url"),
+    imageUrl: text("image_url"),
     country: text("country"),
+    city: text("city"),
     format: text("format", { enum: ["online", "offline", "hybrid"] }),
     ageMin: numeric("age_min", { mode: "number" }),
     ageMax: numeric("age_max", { mode: "number" }),
     cost: text("cost"),
     funding: integer("funding", { mode: "boolean" }).default(false),
     deadline: text("deadline").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    startDate: text("start_date").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    finalDeadline: integer("final_deadline", { mode: "boolean" }).default(
+      false,
+    ),
+    registrationOpen: integer("registration_open", { mode: "boolean" }).default(
+      true,
+    ),
+    seats: numeric("seats", { mode: "number" }).default(0),
+    savedCount: numeric("saved_count", { mode: "number" }).default(0),
+    editorPick: integer("editor_pick", { mode: "boolean" }).default(false),
+    recommended: integer("recommended", { mode: "boolean" }).default(false),
+    portfolioValue: numeric("portfolio_value", { mode: "number" }).default(0),
+    publishedAt: text("published_at").default(
       sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
     ),
     officialUrl: text("official_url"),
@@ -644,9 +1186,11 @@ export const opportunities = sqliteTable(
     createdAt: text("created_at")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    _status: text("_status", { enum: ["draft", "published"] }).default("draft"),
   },
   (columns) => [
     index("opportunities_legacy_id_idx").on(columns.legacyId),
+    index("opportunities_original_language_idx").on(columns.originalLanguage),
     uniqueIndex("opportunities_slug_idx").on(columns.slug),
     index("opportunities_organization_idx").on(columns.organization),
     index("opportunities_opportunity_type_idx").on(columns.opportunityType),
@@ -656,6 +1200,301 @@ export const opportunities = sqliteTable(
     index("opportunities_deadline_idx").on(columns.deadline),
     index("opportunities_updated_at_idx").on(columns.updatedAt),
     index("opportunities_created_at_idx").on(columns.createdAt),
+    index("opportunities__status_idx").on(columns._status),
+  ],
+);
+
+export const _opportunities_v_version_languages = sqliteTable(
+  "_opportunities_v_version_languages",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: integer("id").primaryKey(),
+    value: text("value"),
+    _uuid: text("_uuid"),
+  },
+  (columns) => [
+    index("_opportunities_v_version_languages_order_idx").on(columns._order),
+    index("_opportunities_v_version_languages_parent_id_idx").on(
+      columns._parentID,
+    ),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [_opportunities_v.id],
+      name: "_opportunities_v_version_languages_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _opportunities_v_version_skills = sqliteTable(
+  "_opportunities_v_version_skills",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: integer("id").primaryKey(),
+    value: text("value"),
+    _uuid: text("_uuid"),
+  },
+  (columns) => [
+    index("_opportunities_v_version_skills_order_idx").on(columns._order),
+    index("_opportunities_v_version_skills_parent_id_idx").on(
+      columns._parentID,
+    ),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [_opportunities_v.id],
+      name: "_opportunities_v_version_skills_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _opportunities_v_version_keywords = sqliteTable(
+  "_opportunities_v_version_keywords",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: integer("id").primaryKey(),
+    value: text("value"),
+    _uuid: text("_uuid"),
+  },
+  (columns) => [
+    index("_opportunities_v_version_keywords_order_idx").on(columns._order),
+    index("_opportunities_v_version_keywords_parent_id_idx").on(
+      columns._parentID,
+    ),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [_opportunities_v.id],
+      name: "_opportunities_v_version_keywords_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _opportunities_v_version_grades = sqliteTable(
+  "_opportunities_v_version_grades",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: integer("id").primaryKey(),
+    value: text("value"),
+    _uuid: text("_uuid"),
+  },
+  (columns) => [
+    index("_opportunities_v_version_grades_order_idx").on(columns._order),
+    index("_opportunities_v_version_grades_parent_id_idx").on(
+      columns._parentID,
+    ),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [_opportunities_v.id],
+      name: "_opportunities_v_version_grades_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _opportunities_v_version_requirements = sqliteTable(
+  "_opportunities_v_version_requirements",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: integer("id").primaryKey(),
+    value: text("value"),
+    _uuid: text("_uuid"),
+  },
+  (columns) => [
+    index("_opportunities_v_version_requirements_order_idx").on(columns._order),
+    index("_opportunities_v_version_requirements_parent_id_idx").on(
+      columns._parentID,
+    ),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [_opportunities_v.id],
+      name: "_opportunities_v_version_requirements_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _opportunities_v_version_benefits = sqliteTable(
+  "_opportunities_v_version_benefits",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: integer("id").primaryKey(),
+    value: text("value"),
+    _uuid: text("_uuid"),
+  },
+  (columns) => [
+    index("_opportunities_v_version_benefits_order_idx").on(columns._order),
+    index("_opportunities_v_version_benefits_parent_id_idx").on(
+      columns._parentID,
+    ),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [_opportunities_v.id],
+      name: "_opportunities_v_version_benefits_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _opportunities_v_version_documents = sqliteTable(
+  "_opportunities_v_version_documents",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: integer("id").primaryKey(),
+    value: text("value"),
+    _uuid: text("_uuid"),
+  },
+  (columns) => [
+    index("_opportunities_v_version_documents_order_idx").on(columns._order),
+    index("_opportunities_v_version_documents_parent_id_idx").on(
+      columns._parentID,
+    ),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [_opportunities_v.id],
+      name: "_opportunities_v_version_documents_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _opportunities_v = sqliteTable(
+  "_opportunities_v",
+  {
+    id: integer("id").primaryKey(),
+    parent: integer("parent_id").references(() => opportunities.id, {
+      onDelete: "set null",
+    }),
+    version_legacyId: text("version_legacy_id"),
+    version_sortOrder: numeric("version_sort_order", {
+      mode: "number",
+    }).default(0),
+    version_isPublished: integer("version_is_published", {
+      mode: "boolean",
+    }).default(true),
+    version_originalLanguage: text("version_original_language", {
+      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
+    }).default("ru"),
+    version_title: text("version_title"),
+    version_slug: text("version_slug"),
+    version_organization: text("version_organization"),
+    version_opportunityType: text("version_opportunity_type"),
+    version_source: text("version_source", {
+      enum: ["navykus", "verified", "partner"],
+    }).default("verified"),
+    version_category: text("version_category"),
+    version_direction: text("version_direction", {
+      enum: ["business", "science", "tech", "social", "creative", "leadership"],
+    }).default("social"),
+    version_participation: text("version_participation", {
+      enum: ["individual", "team", "both"],
+    }).default("both"),
+    version_shortDescription: text("version_short_description"),
+    version_fullDescription: text("version_full_description"),
+    version_logoUrl: text("version_logo_url"),
+    version_imageUrl: text("version_image_url"),
+    version_country: text("version_country"),
+    version_city: text("version_city"),
+    version_format: text("version_format", {
+      enum: ["online", "offline", "hybrid"],
+    }),
+    version_ageMin: numeric("version_age_min", { mode: "number" }),
+    version_ageMax: numeric("version_age_max", { mode: "number" }),
+    version_cost: text("version_cost"),
+    version_funding: integer("version_funding", { mode: "boolean" }).default(
+      false,
+    ),
+    version_deadline: text("version_deadline").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    version_startDate: text("version_start_date").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    version_finalDeadline: integer("version_final_deadline", {
+      mode: "boolean",
+    }).default(false),
+    version_registrationOpen: integer("version_registration_open", {
+      mode: "boolean",
+    }).default(true),
+    version_seats: numeric("version_seats", { mode: "number" }).default(0),
+    version_savedCount: numeric("version_saved_count", {
+      mode: "number",
+    }).default(0),
+    version_editorPick: integer("version_editor_pick", {
+      mode: "boolean",
+    }).default(false),
+    version_recommended: integer("version_recommended", {
+      mode: "boolean",
+    }).default(false),
+    version_portfolioValue: numeric("version_portfolio_value", {
+      mode: "number",
+    }).default(0),
+    version_publishedAt: text("version_published_at").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    version_officialUrl: text("version_official_url"),
+    version_internalApplicationsEnabled: integer(
+      "version_internal_applications_enabled",
+      { mode: "boolean" },
+    ).default(false),
+    version_seoTitle: text("version_seo_title"),
+    version_seoDescription: text("version_seo_description"),
+    version_updatedAt: text("version_updated_at").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    version_createdAt: text("version_created_at").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    version__status: text("version__status", {
+      enum: ["draft", "published"],
+    }).default("draft"),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    latest: integer("latest", { mode: "boolean" }),
+  },
+  (columns) => [
+    index("_opportunities_v_parent_idx").on(columns.parent),
+    index("_opportunities_v_version_version_legacy_id_idx").on(
+      columns.version_legacyId,
+    ),
+    index("_opportunities_v_version_version_original_language_idx").on(
+      columns.version_originalLanguage,
+    ),
+    index("_opportunities_v_version_version_slug_idx").on(columns.version_slug),
+    index("_opportunities_v_version_version_organization_idx").on(
+      columns.version_organization,
+    ),
+    index("_opportunities_v_version_version_opportunity_type_idx").on(
+      columns.version_opportunityType,
+    ),
+    index("_opportunities_v_version_version_country_idx").on(
+      columns.version_country,
+    ),
+    index("_opportunities_v_version_version_format_idx").on(
+      columns.version_format,
+    ),
+    index("_opportunities_v_version_version_funding_idx").on(
+      columns.version_funding,
+    ),
+    index("_opportunities_v_version_version_deadline_idx").on(
+      columns.version_deadline,
+    ),
+    index("_opportunities_v_version_version_updated_at_idx").on(
+      columns.version_updatedAt,
+    ),
+    index("_opportunities_v_version_version_created_at_idx").on(
+      columns.version_createdAt,
+    ),
+    index("_opportunities_v_version_version__status_idx").on(
+      columns.version__status,
+    ),
+    index("_opportunities_v_created_at_idx").on(columns.createdAt),
+    index("_opportunities_v_updated_at_idx").on(columns.updatedAt),
+    index("_opportunities_v_latest_idx").on(columns.latest),
   ],
 );
 
@@ -665,7 +1504,7 @@ export const team_members_interests = sqliteTable(
     _order: integer("_order").notNull(),
     _parentID: integer("_parent_id").notNull(),
     id: text("id").primaryKey(),
-    value: text("value").notNull(),
+    value: text("value"),
   },
   (columns) => [
     index("team_members_interests_order_idx").on(columns._order),
@@ -684,7 +1523,7 @@ export const team_members_skills = sqliteTable(
     _order: integer("_order").notNull(),
     _parentID: integer("_parent_id").notNull(),
     id: text("id").primaryKey(),
-    value: text("value").notNull(),
+    value: text("value"),
   },
   (columns) => [
     index("team_members_skills_order_idx").on(columns._order),
@@ -733,29 +1572,197 @@ export const team_members = sqliteTable(
     id: integer("id").primaryKey(),
     legacyId: text("legacy_id"),
     sortOrder: numeric("sort_order", { mode: "number" }).default(0),
-    name: text("name").notNull(),
-    age: numeric("age", { mode: "number" }).notNull(),
-    country: text("country").notNull(),
+    originalLanguage: text("original_language", {
+      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
+    }).default("ru"),
+    name: text("name"),
+    age: numeric("age", { mode: "number" }),
+    country: text("country"),
     city: text("city"),
-    shortBio: text("short_bio").notNull(),
+    shortBio: text("short_bio"),
     targetProject: text("target_project"),
-    whyLooking: text("why_looking").notNull(),
-    contact: text("contact").notNull(),
+    whyLooking: text("why_looking"),
+    contact: text("contact"),
     contactType: text("contact_type", {
       enum: ["telegram", "email", "discord"],
-    }).notNull(),
+    }),
+    moderationStatus: text("moderation_status", {
+      enum: ["pending", "approved", "rejected", "needs_edit"],
+    }).default("pending"),
+    moderationComment: text("moderation_comment"),
+    reviewedAt: text("reviewed_at").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
     isApproved: integer("is_approved", { mode: "boolean" }).default(false),
+    seoTitle: text("seo_title"),
+    seoDescription: text("seo_description"),
     updatedAt: text("updated_at")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
     createdAt: text("created_at")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    _status: text("_status", { enum: ["draft", "published"] }).default("draft"),
   },
   (columns) => [
     index("team_members_legacy_id_idx").on(columns.legacyId),
+    index("team_members_original_language_idx").on(columns.originalLanguage),
+    index("team_members_moderation_status_idx").on(columns.moderationStatus),
     index("team_members_updated_at_idx").on(columns.updatedAt),
     index("team_members_created_at_idx").on(columns.createdAt),
+    index("team_members__status_idx").on(columns._status),
+  ],
+);
+
+export const _team_members_v_version_interests = sqliteTable(
+  "_team_members_v_version_interests",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: integer("id").primaryKey(),
+    value: text("value"),
+    _uuid: text("_uuid"),
+  },
+  (columns) => [
+    index("_team_members_v_version_interests_order_idx").on(columns._order),
+    index("_team_members_v_version_interests_parent_id_idx").on(
+      columns._parentID,
+    ),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [_team_members_v.id],
+      name: "_team_members_v_version_interests_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _team_members_v_version_skills = sqliteTable(
+  "_team_members_v_version_skills",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: integer("id").primaryKey(),
+    value: text("value"),
+    _uuid: text("_uuid"),
+  },
+  (columns) => [
+    index("_team_members_v_version_skills_order_idx").on(columns._order),
+    index("_team_members_v_version_skills_parent_id_idx").on(columns._parentID),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [_team_members_v.id],
+      name: "_team_members_v_version_skills_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _team_members_v_version_target_roles = sqliteTable(
+  "_team_members_v_version_target_roles",
+  {
+    order: integer("order").notNull(),
+    parent: integer("parent_id").notNull(),
+    value: text("value", {
+      enum: [
+        "developer",
+        "designer",
+        "researcher",
+        "product_manager",
+        "marketer",
+        "team_lead",
+        "analyst",
+        "other",
+      ],
+    }),
+    id: integer("id").primaryKey(),
+  },
+  (columns) => [
+    index("_team_members_v_version_target_roles_order_idx").on(columns.order),
+    index("_team_members_v_version_target_roles_parent_idx").on(columns.parent),
+    foreignKey({
+      columns: [columns["parent"]],
+      foreignColumns: [_team_members_v.id],
+      name: "_team_members_v_version_target_roles_parent_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _team_members_v = sqliteTable(
+  "_team_members_v",
+  {
+    id: integer("id").primaryKey(),
+    parent: integer("parent_id").references(() => team_members.id, {
+      onDelete: "set null",
+    }),
+    version_legacyId: text("version_legacy_id"),
+    version_sortOrder: numeric("version_sort_order", {
+      mode: "number",
+    }).default(0),
+    version_originalLanguage: text("version_original_language", {
+      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
+    }).default("ru"),
+    version_name: text("version_name"),
+    version_age: numeric("version_age", { mode: "number" }),
+    version_country: text("version_country"),
+    version_city: text("version_city"),
+    version_shortBio: text("version_short_bio"),
+    version_targetProject: text("version_target_project"),
+    version_whyLooking: text("version_why_looking"),
+    version_contact: text("version_contact"),
+    version_contactType: text("version_contact_type", {
+      enum: ["telegram", "email", "discord"],
+    }),
+    version_moderationStatus: text("version_moderation_status", {
+      enum: ["pending", "approved", "rejected", "needs_edit"],
+    }).default("pending"),
+    version_moderationComment: text("version_moderation_comment"),
+    version_reviewedAt: text("version_reviewed_at").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    version_isApproved: integer("version_is_approved", {
+      mode: "boolean",
+    }).default(false),
+    version_seoTitle: text("version_seo_title"),
+    version_seoDescription: text("version_seo_description"),
+    version_updatedAt: text("version_updated_at").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    version_createdAt: text("version_created_at").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    version__status: text("version__status", {
+      enum: ["draft", "published"],
+    }).default("draft"),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    latest: integer("latest", { mode: "boolean" }),
+  },
+  (columns) => [
+    index("_team_members_v_parent_idx").on(columns.parent),
+    index("_team_members_v_version_version_legacy_id_idx").on(
+      columns.version_legacyId,
+    ),
+    index("_team_members_v_version_version_original_language_idx").on(
+      columns.version_originalLanguage,
+    ),
+    index("_team_members_v_version_version_moderation_status_idx").on(
+      columns.version_moderationStatus,
+    ),
+    index("_team_members_v_version_version_updated_at_idx").on(
+      columns.version_updatedAt,
+    ),
+    index("_team_members_v_version_version_created_at_idx").on(
+      columns.version_createdAt,
+    ),
+    index("_team_members_v_version_version__status_idx").on(
+      columns.version__status,
+    ),
+    index("_team_members_v_created_at_idx").on(columns.createdAt),
+    index("_team_members_v_updated_at_idx").on(columns.updatedAt),
+    index("_team_members_v_latest_idx").on(columns.latest),
   ],
 );
 
@@ -820,6 +1827,11 @@ export const team_posts = sqliteTable(
   "team_posts",
   {
     id: integer("id").primaryKey(),
+    originalLanguage: text("original_language", {
+      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
+    })
+      .notNull()
+      .default("ru"),
     user: integer("user_id")
       .notNull()
       .references(() => users.id, {
@@ -846,6 +1858,7 @@ export const team_posts = sqliteTable(
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
   },
   (columns) => [
+    index("team_posts_original_language_idx").on(columns.originalLanguage),
     index("team_posts_user_idx").on(columns.user),
     index("team_posts_status_idx").on(columns.status),
     index("team_posts_updated_at_idx").on(columns.updatedAt),
@@ -857,6 +1870,11 @@ export const team_responses = sqliteTable(
   "team_responses",
   {
     id: integer("id").primaryKey(),
+    originalLanguage: text("original_language", {
+      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
+    })
+      .notNull()
+      .default("ru"),
     post: integer("post_id")
       .notNull()
       .references(() => team_posts.id, {
@@ -887,6 +1905,7 @@ export const team_responses = sqliteTable(
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
   },
   (columns) => [
+    index("team_responses_original_language_idx").on(columns.originalLanguage),
     index("team_responses_post_idx").on(columns.post),
     index("team_responses_sender_idx").on(columns.sender),
     index("team_responses_recipient_idx").on(columns.recipient),
@@ -904,8 +1923,15 @@ export const trust_points = sqliteTable(
     legacyId: text("legacy_id"),
     sortOrder: numeric("sort_order", { mode: "number" }).default(0),
     isPublished: integer("is_published", { mode: "boolean" }).default(true),
+    originalLanguage: text("original_language", {
+      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
+    })
+      .notNull()
+      .default("ru"),
     title: text("title").notNull(),
     description: text("description").notNull(),
+    seoTitle: text("seo_title"),
+    seoDescription: text("seo_description"),
     updatedAt: text("updated_at")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
@@ -915,6 +1941,7 @@ export const trust_points = sqliteTable(
   },
   (columns) => [
     index("trust_points_legacy_id_idx").on(columns.legacyId),
+    index("trust_points_original_language_idx").on(columns.originalLanguage),
     index("trust_points_updated_at_idx").on(columns.updatedAt),
     index("trust_points_created_at_idx").on(columns.createdAt),
   ],
@@ -927,9 +1954,16 @@ export const pillars = sqliteTable(
     legacyId: text("legacy_id"),
     sortOrder: numeric("sort_order", { mode: "number" }).default(0),
     isPublished: integer("is_published", { mode: "boolean" }).default(true),
+    originalLanguage: text("original_language", {
+      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
+    })
+      .notNull()
+      .default("ru"),
     label: text("label").notNull(),
     title: text("title").notNull(),
     description: text("description").notNull(),
+    seoTitle: text("seo_title"),
+    seoDescription: text("seo_description"),
     updatedAt: text("updated_at")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
@@ -939,6 +1973,7 @@ export const pillars = sqliteTable(
   },
   (columns) => [
     index("pillars_legacy_id_idx").on(columns.legacyId),
+    index("pillars_original_language_idx").on(columns.originalLanguage),
     index("pillars_updated_at_idx").on(columns.updatedAt),
     index("pillars_created_at_idx").on(columns.createdAt),
   ],
@@ -951,6 +1986,11 @@ export const scenarios = sqliteTable(
     legacyId: text("legacy_id"),
     sortOrder: numeric("sort_order", { mode: "number" }).default(0),
     isPublished: integer("is_published", { mode: "boolean" }).default(true),
+    originalLanguage: text("original_language", {
+      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
+    })
+      .notNull()
+      .default("ru"),
     title: text("title").notNull(),
     who: text("who").notNull(),
     why: text("why").notNull(),
@@ -960,6 +2000,8 @@ export const scenarios = sqliteTable(
     })
       .notNull()
       .default("general"),
+    seoTitle: text("seo_title"),
+    seoDescription: text("seo_description"),
     updatedAt: text("updated_at")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
@@ -969,6 +2011,7 @@ export const scenarios = sqliteTable(
   },
   (columns) => [
     index("scenarios_legacy_id_idx").on(columns.legacyId),
+    index("scenarios_original_language_idx").on(columns.originalLanguage),
     index("scenarios_updated_at_idx").on(columns.updatedAt),
     index("scenarios_created_at_idx").on(columns.createdAt),
   ],
@@ -981,8 +2024,15 @@ export const stats = sqliteTable(
     legacyId: text("legacy_id"),
     sortOrder: numeric("sort_order", { mode: "number" }).default(0),
     isPublished: integer("is_published", { mode: "boolean" }).default(true),
+    originalLanguage: text("original_language", {
+      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
+    })
+      .notNull()
+      .default("ru"),
     value: text("value").notNull(),
     label: text("label").notNull(),
+    seoTitle: text("seo_title"),
+    seoDescription: text("seo_description"),
     updatedAt: text("updated_at")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
@@ -992,6 +2042,7 @@ export const stats = sqliteTable(
   },
   (columns) => [
     index("stats_legacy_id_idx").on(columns.legacyId),
+    index("stats_original_language_idx").on(columns.originalLanguage),
     index("stats_updated_at_idx").on(columns.updatedAt),
     index("stats_created_at_idx").on(columns.createdAt),
   ],
@@ -1270,13 +2321,149 @@ export const contact_settings = sqliteTable(
   ],
 );
 
+export const operator_settings = sqliteTable(
+  "operator_settings",
+  {
+    id: integer("id").primaryKey(),
+    label: text("label").notNull().default("Operator Settings"),
+    operatorName: text("operator_name").default(""),
+    operatorInn: text("operator_inn").default(""),
+    operatorOgrn: text("operator_ogrn").default(""),
+    operatorAddress: text("operator_address").default(""),
+    operatorRegistryNumber: text("operator_registry_number").default(""),
+    operatorRegistryDate: text("operator_registry_date").default(""),
+    contactsEmail: text("contacts_email").default("info@navykus.online"),
+    contactsPostalAddress: text("contacts_postal_address").default(""),
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+  },
+  (columns) => [
+    index("operator_settings_updated_at_idx").on(columns.updatedAt),
+    index("operator_settings_created_at_idx").on(columns.createdAt),
+  ],
+);
+
+export const audit_logs_changed_fields = sqliteTable(
+  "audit_logs_changed_fields",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: text("id").primaryKey(),
+    value: text("value").notNull(),
+  },
+  (columns) => [
+    index("audit_logs_changed_fields_order_idx").on(columns._order),
+    index("audit_logs_changed_fields_parent_id_idx").on(columns._parentID),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [audit_logs.id],
+      name: "audit_logs_changed_fields_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const audit_logs = sqliteTable(
+  "audit_logs",
+  {
+    id: integer("id").primaryKey(),
+    action: text("action").notNull(),
+    collection: text("collection").notNull(),
+    documentId: text("document_id").notNull(),
+    actorId: text("actor_id"),
+    actorEmail: text("actor_email"),
+    summary: text("summary").notNull(),
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+  },
+  (columns) => [
+    index("audit_logs_action_idx").on(columns.action),
+    index("audit_logs_collection_idx").on(columns.collection),
+    index("audit_logs_document_id_idx").on(columns.documentId),
+    index("audit_logs_actor_id_idx").on(columns.actorId),
+    index("audit_logs_actor_email_idx").on(columns.actorEmail),
+    index("audit_logs_updated_at_idx").on(columns.updatedAt),
+    index("audit_logs_created_at_idx").on(columns.createdAt),
+  ],
+);
+
+export const content_localizations = sqliteTable(
+  "content_localizations",
+  {
+    id: integer("id").primaryKey(),
+    sourceCollection: text("source_collection", {
+      enum: [
+        "users",
+        "team-members",
+        "activities",
+        "blog-posts",
+        "events",
+        "experts",
+        "faqs",
+        "opportunities",
+        "pillars",
+        "scenarios",
+        "stats",
+        "trust-points",
+        "tournaments",
+        "team-posts",
+        "team-responses",
+      ],
+    }).notNull(),
+    sourceId: text("source_id").notNull(),
+    language: text("language", {
+      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
+    }).notNull(),
+    localizedData: text("localized_data", { mode: "json" })
+      .notNull()
+      .default("{}"),
+    translationStatus: text("translation_status", {
+      enum: ["pending", "in_progress", "ready", "failed"],
+    })
+      .notNull()
+      .default("pending"),
+    contentHash: text("content_hash"),
+    errorMessage: text("error_message"),
+    generatedAt: text("generated_at").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    attempts: numeric("attempts", { mode: "number" }).default(0),
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+  },
+  (columns) => [
+    index("content_localizations_source_collection_idx").on(
+      columns.sourceCollection,
+    ),
+    index("content_localizations_source_id_idx").on(columns.sourceId),
+    index("content_localizations_language_idx").on(columns.language),
+    index("content_localizations_translation_status_idx").on(
+      columns.translationStatus,
+    ),
+    index("content_localizations_content_hash_idx").on(columns.contentHash),
+    index("content_localizations_updated_at_idx").on(columns.updatedAt),
+    index("content_localizations_created_at_idx").on(columns.createdAt),
+  ],
+);
+
 export const blog_posts_tags = sqliteTable(
   "blog_posts_tags",
   {
     _order: integer("_order").notNull(),
     _parentID: integer("_parent_id").notNull(),
     id: text("id").primaryKey(),
-    value: text("value").notNull(),
+    value: text("value"),
   },
   (columns) => [
     index("blog_posts_tags_order_idx").on(columns._order),
@@ -1295,9 +2482,9 @@ export const blog_posts = sqliteTable(
     id: integer("id").primaryKey(),
     legacyId: text("legacy_id"),
     sortOrder: numeric("sort_order", { mode: "number" }).default(0),
-    title: text("title").notNull(),
-    excerpt: text("excerpt").notNull(),
-    content: text("content").notNull(),
+    title: text("title"),
+    excerpt: text("excerpt"),
+    content: text("content"),
     cover: integer("cover_id").references(() => media.id, {
       onDelete: "set null",
     }),
@@ -1314,7 +2501,7 @@ export const blog_posts = sqliteTable(
         "education",
         "projects",
       ],
-    }).notNull(),
+    }),
     status: text("status", {
       enum: [
         "draft",
@@ -1325,20 +2512,14 @@ export const blog_posts = sqliteTable(
         "rejected",
         "archived",
       ],
-    })
-      .notNull()
-      .default("draft"),
-    author: integer("author_id")
-      .notNull()
-      .references(() => users.id, {
-        onDelete: "set null",
-      }),
+    }).default("draft"),
+    author: integer("author_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
     originalLanguage: text("original_language", {
       enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
-    })
-      .notNull()
-      .default("ru"),
-    slug: text("slug").notNull(),
+    }).default("ru"),
+    slug: text("slug"),
     seoTitle: text("seo_title"),
     seoDescription: text("seo_description"),
     readingTime: numeric("reading_time", { mode: "number" }),
@@ -1356,6 +2537,7 @@ export const blog_posts = sqliteTable(
     createdAt: text("created_at")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    _status: text("_status", { enum: ["draft", "published"] }).default("draft"),
   },
   (columns) => [
     index("blog_posts_legacy_id_idx").on(columns.legacyId),
@@ -1367,6 +2549,142 @@ export const blog_posts = sqliteTable(
     uniqueIndex("blog_posts_slug_idx").on(columns.slug),
     index("blog_posts_updated_at_idx").on(columns.updatedAt),
     index("blog_posts_created_at_idx").on(columns.createdAt),
+    index("blog_posts__status_idx").on(columns._status),
+  ],
+);
+
+export const _blog_posts_v_version_tags = sqliteTable(
+  "_blog_posts_v_version_tags",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: integer("id").primaryKey(),
+    value: text("value"),
+    _uuid: text("_uuid"),
+  },
+  (columns) => [
+    index("_blog_posts_v_version_tags_order_idx").on(columns._order),
+    index("_blog_posts_v_version_tags_parent_id_idx").on(columns._parentID),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [_blog_posts_v.id],
+      name: "_blog_posts_v_version_tags_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _blog_posts_v = sqliteTable(
+  "_blog_posts_v",
+  {
+    id: integer("id").primaryKey(),
+    parent: integer("parent_id").references(() => blog_posts.id, {
+      onDelete: "set null",
+    }),
+    version_legacyId: text("version_legacy_id"),
+    version_sortOrder: numeric("version_sort_order", {
+      mode: "number",
+    }).default(0),
+    version_title: text("version_title"),
+    version_excerpt: text("version_excerpt"),
+    version_content: text("version_content"),
+    version_cover: integer("version_cover_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    version_coverAlt: text("version_cover_alt"),
+    version_category: text("version_category", {
+      enum: [
+        "news",
+        "championships",
+        "activities",
+        "opportunities",
+        "stories",
+        "interviews",
+        "tips",
+        "education",
+        "projects",
+      ],
+    }),
+    version_status: text("version_status", {
+      enum: [
+        "draft",
+        "pending_review",
+        "needs_revision",
+        "approved",
+        "published",
+        "rejected",
+        "archived",
+      ],
+    }).default("draft"),
+    version_author: integer("version_author_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    version_originalLanguage: text("version_original_language", {
+      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
+    }).default("ru"),
+    version_slug: text("version_slug"),
+    version_seoTitle: text("version_seo_title"),
+    version_seoDescription: text("version_seo_description"),
+    version_readingTime: numeric("version_reading_time", { mode: "number" }),
+    version_views: numeric("version_views", { mode: "number" }).default(0),
+    version_likes: numeric("version_likes", { mode: "number" }).default(0),
+    version_publishedAt: text("version_published_at").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    version_moderationComment: text("version_moderation_comment"),
+    version_isApproved: integer("version_is_approved", {
+      mode: "boolean",
+    }).default(false),
+    version_isPublished: integer("version_is_published", {
+      mode: "boolean",
+    }).default(false),
+    version_updatedAt: text("version_updated_at").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    version_createdAt: text("version_created_at").default(
+      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+    ),
+    version__status: text("version__status", {
+      enum: ["draft", "published"],
+    }).default("draft"),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    latest: integer("latest", { mode: "boolean" }),
+  },
+  (columns) => [
+    index("_blog_posts_v_parent_idx").on(columns.parent),
+    index("_blog_posts_v_version_version_legacy_id_idx").on(
+      columns.version_legacyId,
+    ),
+    index("_blog_posts_v_version_version_cover_idx").on(columns.version_cover),
+    index("_blog_posts_v_version_version_category_idx").on(
+      columns.version_category,
+    ),
+    index("_blog_posts_v_version_version_status_idx").on(
+      columns.version_status,
+    ),
+    index("_blog_posts_v_version_version_author_idx").on(
+      columns.version_author,
+    ),
+    index("_blog_posts_v_version_version_original_language_idx").on(
+      columns.version_originalLanguage,
+    ),
+    index("_blog_posts_v_version_version_slug_idx").on(columns.version_slug),
+    index("_blog_posts_v_version_version_updated_at_idx").on(
+      columns.version_updatedAt,
+    ),
+    index("_blog_posts_v_version_version_created_at_idx").on(
+      columns.version_createdAt,
+    ),
+    index("_blog_posts_v_version_version__status_idx").on(
+      columns.version__status,
+    ),
+    index("_blog_posts_v_created_at_idx").on(columns.createdAt),
+    index("_blog_posts_v_updated_at_idx").on(columns.updatedAt),
+    index("_blog_posts_v_latest_idx").on(columns.latest),
   ],
 );
 
@@ -1509,6 +2827,9 @@ export const payload_locked_documents_rels = sqliteTable(
     notificationsID: integer("notifications_id"),
     "community-leadsID": integer("community_leads_id"),
     "contact-settingsID": integer("contact_settings_id"),
+    "operator-settingsID": integer("operator_settings_id"),
+    "audit-logsID": integer("audit_logs_id"),
+    "content-localizationsID": integer("content_localizations_id"),
     "blog-postsID": integer("blog_posts_id"),
     "blog-post-localizationsID": integer("blog_post_localizations_id"),
     "blog-moderation-historyID": integer("blog_moderation_history_id"),
@@ -1565,6 +2886,15 @@ export const payload_locked_documents_rels = sqliteTable(
     ),
     index("payload_locked_documents_rels_contact_settings_id_idx").on(
       columns["contact-settingsID"],
+    ),
+    index("payload_locked_documents_rels_operator_settings_id_idx").on(
+      columns["operator-settingsID"],
+    ),
+    index("payload_locked_documents_rels_audit_logs_id_idx").on(
+      columns["audit-logsID"],
+    ),
+    index("payload_locked_documents_rels_content_localizations_id_idx").on(
+      columns["content-localizationsID"],
     ),
     index("payload_locked_documents_rels_blog_posts_id_idx").on(
       columns["blog-postsID"],
@@ -1684,6 +3014,21 @@ export const payload_locked_documents_rels = sqliteTable(
       columns: [columns["contact-settingsID"]],
       foreignColumns: [contact_settings.id],
       name: "payload_locked_documents_rels_contact_settings_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["operator-settingsID"]],
+      foreignColumns: [operator_settings.id],
+      name: "payload_locked_documents_rels_operator_settings_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["audit-logsID"]],
+      foreignColumns: [audit_logs.id],
+      name: "payload_locked_documents_rels_audit_logs_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["content-localizationsID"]],
+      foreignColumns: [content_localizations.id],
+      name: "payload_locked_documents_rels_content_localizations_fk",
     }).onDelete("cascade"),
     foreignKey({
       columns: [columns["blog-postsID"]],
@@ -1867,6 +3212,42 @@ export const relations_tournaments = relations(tournaments, ({ many }) => ({
     relationName: "mentors",
   }),
 }));
+export const relations__tournaments_v_version_skills = relations(
+  _tournaments_v_version_skills,
+  ({ one }) => ({
+    _parentID: one(_tournaments_v, {
+      fields: [_tournaments_v_version_skills._parentID],
+      references: [_tournaments_v.id],
+      relationName: "version_skills",
+    }),
+  }),
+);
+export const relations__tournaments_v_version_mentors = relations(
+  _tournaments_v_version_mentors,
+  ({ one }) => ({
+    _parentID: one(_tournaments_v, {
+      fields: [_tournaments_v_version_mentors._parentID],
+      references: [_tournaments_v.id],
+      relationName: "version_mentors",
+    }),
+  }),
+);
+export const relations__tournaments_v = relations(
+  _tournaments_v,
+  ({ one, many }) => ({
+    parent: one(tournaments, {
+      fields: [_tournaments_v.parent],
+      references: [tournaments.id],
+      relationName: "parent",
+    }),
+    version_skills: many(_tournaments_v_version_skills, {
+      relationName: "version_skills",
+    }),
+    version_mentors: many(_tournaments_v_version_mentors, {
+      relationName: "version_mentors",
+    }),
+  }),
+);
 export const relations_activities_benefits = relations(
   activities_benefits,
   ({ one }) => ({
@@ -1894,7 +3275,31 @@ export const relations_experts = relations(experts, ({ one }) => ({
     relationName: "tournamentId",
   }),
 }));
+export const relations__experts_v = relations(_experts_v, ({ one }) => ({
+  parent: one(experts, {
+    fields: [_experts_v.parent],
+    references: [experts.id],
+    relationName: "parent",
+  }),
+  version_photo: one(media, {
+    fields: [_experts_v.version_photo],
+    references: [media.id],
+    relationName: "version_photo",
+  }),
+  version_tournamentId: one(tournaments, {
+    fields: [_experts_v.version_tournamentId],
+    references: [tournaments.id],
+    relationName: "version_tournamentId",
+  }),
+}));
 export const relations_faqs = relations(faqs, () => ({}));
+export const relations__faqs_v = relations(_faqs_v, ({ one }) => ({
+  parent: one(faqs, {
+    fields: [_faqs_v.parent],
+    references: [faqs.id],
+    relationName: "parent",
+  }),
+}));
 export const relations_events_languages = relations(
   events_languages,
   ({ one }) => ({
@@ -1923,6 +3328,39 @@ export const relations_events = relations(events, ({ many }) => ({
     relationName: "materials",
   }),
 }));
+export const relations__events_v_version_languages = relations(
+  _events_v_version_languages,
+  ({ one }) => ({
+    _parentID: one(_events_v, {
+      fields: [_events_v_version_languages._parentID],
+      references: [_events_v.id],
+      relationName: "version_languages",
+    }),
+  }),
+);
+export const relations__events_v_version_materials = relations(
+  _events_v_version_materials,
+  ({ one }) => ({
+    _parentID: one(_events_v, {
+      fields: [_events_v_version_materials._parentID],
+      references: [_events_v.id],
+      relationName: "version_materials",
+    }),
+  }),
+);
+export const relations__events_v = relations(_events_v, ({ one, many }) => ({
+  parent: one(events, {
+    fields: [_events_v.parent],
+    references: [events.id],
+    relationName: "parent",
+  }),
+  version_languages: many(_events_v_version_languages, {
+    relationName: "version_languages",
+  }),
+  version_materials: many(_events_v_version_materials, {
+    relationName: "version_materials",
+  }),
+}));
 export const relations_opportunities_languages = relations(
   opportunities_languages,
   ({ one }) => ({
@@ -1930,6 +3368,36 @@ export const relations_opportunities_languages = relations(
       fields: [opportunities_languages._parentID],
       references: [opportunities.id],
       relationName: "languages",
+    }),
+  }),
+);
+export const relations_opportunities_skills = relations(
+  opportunities_skills,
+  ({ one }) => ({
+    _parentID: one(opportunities, {
+      fields: [opportunities_skills._parentID],
+      references: [opportunities.id],
+      relationName: "skills",
+    }),
+  }),
+);
+export const relations_opportunities_keywords = relations(
+  opportunities_keywords,
+  ({ one }) => ({
+    _parentID: one(opportunities, {
+      fields: [opportunities_keywords._parentID],
+      references: [opportunities.id],
+      relationName: "keywords",
+    }),
+  }),
+);
+export const relations_opportunities_grades = relations(
+  opportunities_grades,
+  ({ one }) => ({
+    _parentID: one(opportunities, {
+      fields: [opportunities_grades._parentID],
+      references: [opportunities.id],
+      relationName: "grades",
     }),
   }),
 );
@@ -1967,6 +3435,15 @@ export const relations_opportunities = relations(opportunities, ({ many }) => ({
   languages: many(opportunities_languages, {
     relationName: "languages",
   }),
+  skills: many(opportunities_skills, {
+    relationName: "skills",
+  }),
+  keywords: many(opportunities_keywords, {
+    relationName: "keywords",
+  }),
+  grades: many(opportunities_grades, {
+    relationName: "grades",
+  }),
   requirements: many(opportunities_requirements, {
     relationName: "requirements",
   }),
@@ -1977,6 +3454,107 @@ export const relations_opportunities = relations(opportunities, ({ many }) => ({
     relationName: "documents",
   }),
 }));
+export const relations__opportunities_v_version_languages = relations(
+  _opportunities_v_version_languages,
+  ({ one }) => ({
+    _parentID: one(_opportunities_v, {
+      fields: [_opportunities_v_version_languages._parentID],
+      references: [_opportunities_v.id],
+      relationName: "version_languages",
+    }),
+  }),
+);
+export const relations__opportunities_v_version_skills = relations(
+  _opportunities_v_version_skills,
+  ({ one }) => ({
+    _parentID: one(_opportunities_v, {
+      fields: [_opportunities_v_version_skills._parentID],
+      references: [_opportunities_v.id],
+      relationName: "version_skills",
+    }),
+  }),
+);
+export const relations__opportunities_v_version_keywords = relations(
+  _opportunities_v_version_keywords,
+  ({ one }) => ({
+    _parentID: one(_opportunities_v, {
+      fields: [_opportunities_v_version_keywords._parentID],
+      references: [_opportunities_v.id],
+      relationName: "version_keywords",
+    }),
+  }),
+);
+export const relations__opportunities_v_version_grades = relations(
+  _opportunities_v_version_grades,
+  ({ one }) => ({
+    _parentID: one(_opportunities_v, {
+      fields: [_opportunities_v_version_grades._parentID],
+      references: [_opportunities_v.id],
+      relationName: "version_grades",
+    }),
+  }),
+);
+export const relations__opportunities_v_version_requirements = relations(
+  _opportunities_v_version_requirements,
+  ({ one }) => ({
+    _parentID: one(_opportunities_v, {
+      fields: [_opportunities_v_version_requirements._parentID],
+      references: [_opportunities_v.id],
+      relationName: "version_requirements",
+    }),
+  }),
+);
+export const relations__opportunities_v_version_benefits = relations(
+  _opportunities_v_version_benefits,
+  ({ one }) => ({
+    _parentID: one(_opportunities_v, {
+      fields: [_opportunities_v_version_benefits._parentID],
+      references: [_opportunities_v.id],
+      relationName: "version_benefits",
+    }),
+  }),
+);
+export const relations__opportunities_v_version_documents = relations(
+  _opportunities_v_version_documents,
+  ({ one }) => ({
+    _parentID: one(_opportunities_v, {
+      fields: [_opportunities_v_version_documents._parentID],
+      references: [_opportunities_v.id],
+      relationName: "version_documents",
+    }),
+  }),
+);
+export const relations__opportunities_v = relations(
+  _opportunities_v,
+  ({ one, many }) => ({
+    parent: one(opportunities, {
+      fields: [_opportunities_v.parent],
+      references: [opportunities.id],
+      relationName: "parent",
+    }),
+    version_languages: many(_opportunities_v_version_languages, {
+      relationName: "version_languages",
+    }),
+    version_skills: many(_opportunities_v_version_skills, {
+      relationName: "version_skills",
+    }),
+    version_keywords: many(_opportunities_v_version_keywords, {
+      relationName: "version_keywords",
+    }),
+    version_grades: many(_opportunities_v_version_grades, {
+      relationName: "version_grades",
+    }),
+    version_requirements: many(_opportunities_v_version_requirements, {
+      relationName: "version_requirements",
+    }),
+    version_benefits: many(_opportunities_v_version_benefits, {
+      relationName: "version_benefits",
+    }),
+    version_documents: many(_opportunities_v_version_documents, {
+      relationName: "version_documents",
+    }),
+  }),
+);
 export const relations_team_members_interests = relations(
   team_members_interests,
   ({ one }) => ({
@@ -2018,6 +3596,55 @@ export const relations_team_members = relations(team_members, ({ many }) => ({
     relationName: "targetRoles",
   }),
 }));
+export const relations__team_members_v_version_interests = relations(
+  _team_members_v_version_interests,
+  ({ one }) => ({
+    _parentID: one(_team_members_v, {
+      fields: [_team_members_v_version_interests._parentID],
+      references: [_team_members_v.id],
+      relationName: "version_interests",
+    }),
+  }),
+);
+export const relations__team_members_v_version_skills = relations(
+  _team_members_v_version_skills,
+  ({ one }) => ({
+    _parentID: one(_team_members_v, {
+      fields: [_team_members_v_version_skills._parentID],
+      references: [_team_members_v.id],
+      relationName: "version_skills",
+    }),
+  }),
+);
+export const relations__team_members_v_version_target_roles = relations(
+  _team_members_v_version_target_roles,
+  ({ one }) => ({
+    parent: one(_team_members_v, {
+      fields: [_team_members_v_version_target_roles.parent],
+      references: [_team_members_v.id],
+      relationName: "version_targetRoles",
+    }),
+  }),
+);
+export const relations__team_members_v = relations(
+  _team_members_v,
+  ({ one, many }) => ({
+    parent: one(team_members, {
+      fields: [_team_members_v.parent],
+      references: [team_members.id],
+      relationName: "parent",
+    }),
+    version_interests: many(_team_members_v_version_interests, {
+      relationName: "version_interests",
+    }),
+    version_skills: many(_team_members_v_version_skills, {
+      relationName: "version_skills",
+    }),
+    version_targetRoles: many(_team_members_v_version_target_roles, {
+      relationName: "version_targetRoles",
+    }),
+  }),
+);
 export const relations_team_posts_required_skills = relations(
   team_posts_required_skills,
   ({ one }) => ({
@@ -2155,6 +3782,29 @@ export const relations_contact_settings = relations(
   contact_settings,
   () => ({}),
 );
+export const relations_operator_settings = relations(
+  operator_settings,
+  () => ({}),
+);
+export const relations_audit_logs_changed_fields = relations(
+  audit_logs_changed_fields,
+  ({ one }) => ({
+    _parentID: one(audit_logs, {
+      fields: [audit_logs_changed_fields._parentID],
+      references: [audit_logs.id],
+      relationName: "changedFields",
+    }),
+  }),
+);
+export const relations_audit_logs = relations(audit_logs, ({ many }) => ({
+  changedFields: many(audit_logs_changed_fields, {
+    relationName: "changedFields",
+  }),
+}));
+export const relations_content_localizations = relations(
+  content_localizations,
+  () => ({}),
+);
 export const relations_blog_posts_tags = relations(
   blog_posts_tags,
   ({ one }) => ({
@@ -2180,6 +3830,39 @@ export const relations_blog_posts = relations(blog_posts, ({ one, many }) => ({
     relationName: "author",
   }),
 }));
+export const relations__blog_posts_v_version_tags = relations(
+  _blog_posts_v_version_tags,
+  ({ one }) => ({
+    _parentID: one(_blog_posts_v, {
+      fields: [_blog_posts_v_version_tags._parentID],
+      references: [_blog_posts_v.id],
+      relationName: "version_tags",
+    }),
+  }),
+);
+export const relations__blog_posts_v = relations(
+  _blog_posts_v,
+  ({ one, many }) => ({
+    parent: one(blog_posts, {
+      fields: [_blog_posts_v.parent],
+      references: [blog_posts.id],
+      relationName: "parent",
+    }),
+    version_cover: one(media, {
+      fields: [_blog_posts_v.version_cover],
+      references: [media.id],
+      relationName: "version_cover",
+    }),
+    version_tags: many(_blog_posts_v_version_tags, {
+      relationName: "version_tags",
+    }),
+    version_author: one(users, {
+      fields: [_blog_posts_v.version_author],
+      references: [users.id],
+      relationName: "version_author",
+    }),
+  }),
+);
 export const relations_blog_post_localizations = relations(
   blog_post_localizations,
   ({ one }) => ({
@@ -2324,6 +4007,21 @@ export const relations_payload_locked_documents_rels = relations(
       references: [contact_settings.id],
       relationName: "contact-settings",
     }),
+    "operator-settingsID": one(operator_settings, {
+      fields: [payload_locked_documents_rels["operator-settingsID"]],
+      references: [operator_settings.id],
+      relationName: "operator-settings",
+    }),
+    "audit-logsID": one(audit_logs, {
+      fields: [payload_locked_documents_rels["audit-logsID"]],
+      references: [audit_logs.id],
+      relationName: "audit-logs",
+    }),
+    "content-localizationsID": one(content_localizations, {
+      fields: [payload_locked_documents_rels["content-localizationsID"]],
+      references: [content_localizations.id],
+      relationName: "content-localizations",
+    }),
     "blog-postsID": one(blog_posts, {
       fields: [payload_locked_documents_rels["blog-postsID"]],
       references: [blog_posts.id],
@@ -2388,22 +4086,45 @@ type DatabaseSchema = {
   tournaments_skills: typeof tournaments_skills;
   tournaments_mentors: typeof tournaments_mentors;
   tournaments: typeof tournaments;
+  _tournaments_v_version_skills: typeof _tournaments_v_version_skills;
+  _tournaments_v_version_mentors: typeof _tournaments_v_version_mentors;
+  _tournaments_v: typeof _tournaments_v;
   activities_benefits: typeof activities_benefits;
   activities: typeof activities;
   experts: typeof experts;
+  _experts_v: typeof _experts_v;
   faqs: typeof faqs;
+  _faqs_v: typeof _faqs_v;
   events_languages: typeof events_languages;
   events_materials: typeof events_materials;
   events: typeof events;
+  _events_v_version_languages: typeof _events_v_version_languages;
+  _events_v_version_materials: typeof _events_v_version_materials;
+  _events_v: typeof _events_v;
   opportunities_languages: typeof opportunities_languages;
+  opportunities_skills: typeof opportunities_skills;
+  opportunities_keywords: typeof opportunities_keywords;
+  opportunities_grades: typeof opportunities_grades;
   opportunities_requirements: typeof opportunities_requirements;
   opportunities_benefits: typeof opportunities_benefits;
   opportunities_documents: typeof opportunities_documents;
   opportunities: typeof opportunities;
+  _opportunities_v_version_languages: typeof _opportunities_v_version_languages;
+  _opportunities_v_version_skills: typeof _opportunities_v_version_skills;
+  _opportunities_v_version_keywords: typeof _opportunities_v_version_keywords;
+  _opportunities_v_version_grades: typeof _opportunities_v_version_grades;
+  _opportunities_v_version_requirements: typeof _opportunities_v_version_requirements;
+  _opportunities_v_version_benefits: typeof _opportunities_v_version_benefits;
+  _opportunities_v_version_documents: typeof _opportunities_v_version_documents;
+  _opportunities_v: typeof _opportunities_v;
   team_members_interests: typeof team_members_interests;
   team_members_skills: typeof team_members_skills;
   team_members_target_roles: typeof team_members_target_roles;
   team_members: typeof team_members;
+  _team_members_v_version_interests: typeof _team_members_v_version_interests;
+  _team_members_v_version_skills: typeof _team_members_v_version_skills;
+  _team_members_v_version_target_roles: typeof _team_members_v_version_target_roles;
+  _team_members_v: typeof _team_members_v;
   team_posts_required_skills: typeof team_posts_required_skills;
   team_posts_own_skills: typeof team_posts_own_skills;
   team_posts_interests: typeof team_posts_interests;
@@ -2420,8 +4141,14 @@ type DatabaseSchema = {
   notifications: typeof notifications;
   community_leads: typeof community_leads;
   contact_settings: typeof contact_settings;
+  operator_settings: typeof operator_settings;
+  audit_logs_changed_fields: typeof audit_logs_changed_fields;
+  audit_logs: typeof audit_logs;
+  content_localizations: typeof content_localizations;
   blog_posts_tags: typeof blog_posts_tags;
   blog_posts: typeof blog_posts;
+  _blog_posts_v_version_tags: typeof _blog_posts_v_version_tags;
+  _blog_posts_v: typeof _blog_posts_v;
   blog_post_localizations: typeof blog_post_localizations;
   blog_moderation_history: typeof blog_moderation_history;
   payload_kv: typeof payload_kv;
@@ -2440,22 +4167,45 @@ type DatabaseSchema = {
   relations_tournaments_skills: typeof relations_tournaments_skills;
   relations_tournaments_mentors: typeof relations_tournaments_mentors;
   relations_tournaments: typeof relations_tournaments;
+  relations__tournaments_v_version_skills: typeof relations__tournaments_v_version_skills;
+  relations__tournaments_v_version_mentors: typeof relations__tournaments_v_version_mentors;
+  relations__tournaments_v: typeof relations__tournaments_v;
   relations_activities_benefits: typeof relations_activities_benefits;
   relations_activities: typeof relations_activities;
   relations_experts: typeof relations_experts;
+  relations__experts_v: typeof relations__experts_v;
   relations_faqs: typeof relations_faqs;
+  relations__faqs_v: typeof relations__faqs_v;
   relations_events_languages: typeof relations_events_languages;
   relations_events_materials: typeof relations_events_materials;
   relations_events: typeof relations_events;
+  relations__events_v_version_languages: typeof relations__events_v_version_languages;
+  relations__events_v_version_materials: typeof relations__events_v_version_materials;
+  relations__events_v: typeof relations__events_v;
   relations_opportunities_languages: typeof relations_opportunities_languages;
+  relations_opportunities_skills: typeof relations_opportunities_skills;
+  relations_opportunities_keywords: typeof relations_opportunities_keywords;
+  relations_opportunities_grades: typeof relations_opportunities_grades;
   relations_opportunities_requirements: typeof relations_opportunities_requirements;
   relations_opportunities_benefits: typeof relations_opportunities_benefits;
   relations_opportunities_documents: typeof relations_opportunities_documents;
   relations_opportunities: typeof relations_opportunities;
+  relations__opportunities_v_version_languages: typeof relations__opportunities_v_version_languages;
+  relations__opportunities_v_version_skills: typeof relations__opportunities_v_version_skills;
+  relations__opportunities_v_version_keywords: typeof relations__opportunities_v_version_keywords;
+  relations__opportunities_v_version_grades: typeof relations__opportunities_v_version_grades;
+  relations__opportunities_v_version_requirements: typeof relations__opportunities_v_version_requirements;
+  relations__opportunities_v_version_benefits: typeof relations__opportunities_v_version_benefits;
+  relations__opportunities_v_version_documents: typeof relations__opportunities_v_version_documents;
+  relations__opportunities_v: typeof relations__opportunities_v;
   relations_team_members_interests: typeof relations_team_members_interests;
   relations_team_members_skills: typeof relations_team_members_skills;
   relations_team_members_target_roles: typeof relations_team_members_target_roles;
   relations_team_members: typeof relations_team_members;
+  relations__team_members_v_version_interests: typeof relations__team_members_v_version_interests;
+  relations__team_members_v_version_skills: typeof relations__team_members_v_version_skills;
+  relations__team_members_v_version_target_roles: typeof relations__team_members_v_version_target_roles;
+  relations__team_members_v: typeof relations__team_members_v;
   relations_team_posts_required_skills: typeof relations_team_posts_required_skills;
   relations_team_posts_own_skills: typeof relations_team_posts_own_skills;
   relations_team_posts_interests: typeof relations_team_posts_interests;
@@ -2472,8 +4222,14 @@ type DatabaseSchema = {
   relations_notifications: typeof relations_notifications;
   relations_community_leads: typeof relations_community_leads;
   relations_contact_settings: typeof relations_contact_settings;
+  relations_operator_settings: typeof relations_operator_settings;
+  relations_audit_logs_changed_fields: typeof relations_audit_logs_changed_fields;
+  relations_audit_logs: typeof relations_audit_logs;
+  relations_content_localizations: typeof relations_content_localizations;
   relations_blog_posts_tags: typeof relations_blog_posts_tags;
   relations_blog_posts: typeof relations_blog_posts;
+  relations__blog_posts_v_version_tags: typeof relations__blog_posts_v_version_tags;
+  relations__blog_posts_v: typeof relations__blog_posts_v;
   relations_blog_post_localizations: typeof relations_blog_post_localizations;
   relations_blog_moderation_history: typeof relations_blog_moderation_history;
   relations_payload_kv: typeof relations_payload_kv;

@@ -9,6 +9,8 @@ import * as migration_20260729_123911 from './20260729_123911';
 import * as migration_20260729_170000_add_legacy_content_admin_fields from './20260729_170000_add_legacy_content_admin_fields';
 import * as migration_20260729_171500_add_operator_settings from './20260729_171500_add_operator_settings';
 import * as migration_20260729_191500_add_opportunity_card_fields from './20260729_191500_add_opportunity_card_fields';
+import * as migration_20260731_000000_add_team_posts_original_language from './20260731_000000_add_team_posts_original_language';
+import * as migration_20260731_000100_add_tournaments_slug_unique_index from './20260731_000100_add_tournaments_slug_unique_index';
 
 export const migrations = [
   {
@@ -65,5 +67,15 @@ export const migrations = [
     up: migration_20260729_191500_add_opportunity_card_fields.up,
     down: migration_20260729_191500_add_opportunity_card_fields.down,
     name: '20260729_191500_add_opportunity_card_fields',
+  },
+  {
+    up: migration_20260731_000000_add_team_posts_original_language.up,
+    down: migration_20260731_000000_add_team_posts_original_language.down,
+    name: '20260731_000000_add_team_posts_original_language',
+  },
+  {
+    up: migration_20260731_000100_add_tournaments_slug_unique_index.up,
+    down: migration_20260731_000100_add_tournaments_slug_unique_index.down,
+    name: '20260731_000100_add_tournaments_slug_unique_index',
   },
 ];
