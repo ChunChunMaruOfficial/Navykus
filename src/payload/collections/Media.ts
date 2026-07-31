@@ -1,8 +1,7 @@
-import path from 'node:path';
-
 import type { CollectionConfig } from 'payload';
 
 import { adminOrModerator, anyone } from '../access';
+import { mediaUploadDir } from '../paths';
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -11,7 +10,7 @@ export const Media: CollectionConfig = {
     group: 'System',
   },
   upload: {
-    staticDir: path.resolve(process.cwd(), 'uploads', 'media'),
+    staticDir: mediaUploadDir,
   },
   access: {
     read: anyone,

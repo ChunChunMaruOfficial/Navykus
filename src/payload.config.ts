@@ -33,6 +33,8 @@ import { Tournaments } from './payload/collections/Tournaments';
 import { TrustPoints } from './payload/collections/TrustPoints';
 import { Users } from './payload/collections/Users';
 
+import { databaseUrl } from './payload/paths';
+
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 const rootDir = path.resolve(dirname, '..');
@@ -114,7 +116,7 @@ export default buildConfig({
   db: sqliteAdapter({
     busyTimeout: 10000,
     client: {
-      url: process.env.DATABASE_URL || 'file:./payload.db',
+      url: databaseUrl,
     },
     push: false,
     wal: {

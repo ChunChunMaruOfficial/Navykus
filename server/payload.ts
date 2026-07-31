@@ -2,6 +2,7 @@ import { getPayload } from 'payload';
 import { createClient } from '@libsql/client';
 
 import config from '../src/payload.config';
+import { databaseUrl } from '../src/payload/paths';
 
 type PayloadInstance = Awaited<ReturnType<typeof getPayload>>;
 
@@ -11,7 +12,7 @@ let schemaClient: ReturnType<typeof createClient> | undefined;
 
 const getSchemaClient = () => {
   if (!schemaClient) {
-    schemaClient = createClient({ url: process.env.DATABASE_URL || 'file:./payload.db' });
+    schemaClient = createClient({ url: databaseUrl });
   }
   return schemaClient;
 };
