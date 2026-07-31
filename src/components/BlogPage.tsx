@@ -192,13 +192,6 @@ export default function BlogPage({ onCreateBlog }: BlogPageProps) {
 
         {articleState === 'success' && article && (
           <article className="relative z-10 mx-auto max-w-6xl px-[6%] pb-24 pt-28 md:px-[10%] md:pt-32">
-            {/* Subtle back link at top for long articles */}
-            <motion.div {...fadeUp} className="mx-auto mb-8 max-w-4xl">
-              <button onClick={navigateToList} className="inline-flex items-center gap-2 rounded-xl border border-[#d8d1cc] bg-white/55 px-4 py-2 text-xs font-semibold text-brand-slate backdrop-blur-sm transition-all hover:border-brand-dark hover:text-brand-dark cursor-pointer">
-                <ArrowRight className="h-3.5 w-3.5 rotate-180" />
-                <span>{t('ui.blogpage.backToList')}</span></button>
-            </motion.div>
-
             {/* Category + date — aligned with readable column */}
             <motion.div {...fadeUp} className="mx-auto mb-4 flex max-w-4xl flex-wrap items-center gap-3">
               <span className={`inline-flex items-center rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wide ${CATEGORY_META[article.category]?.chip || 'bg-brand-slate/10'}`}>
@@ -243,13 +236,11 @@ export default function BlogPage({ onCreateBlog }: BlogPageProps) {
               </motion.div>
             )}
 
-            {/* Back button — large, at the bottom */}
-            <motion.div {...fadeUp} className="mx-auto mt-16 max-w-4xl">
-              <div className="rounded-[1.75rem] border border-[#d8d1cc]/70 bg-white/45 px-6 py-8 text-center shadow-[0_18px_50px_rgba(17,17,17,0.06)] backdrop-blur-sm sm:px-10">
-                <button onClick={navigateToList} className="inline-flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-8 py-4 text-sm font-semibold text-white shadow-xl shadow-[#bc4638]/25 transition-all hover:scale-[1.03] hover:shadow-[#bc4638]/35 active:scale-[0.98] sm:text-base cursor-pointer">
-                  <ArrowRight className="h-5 w-5 rotate-180" />
-                  <span>{t('ui.blogpage.backToList')}</span></button>
-              </div>
+            {/* Back button — large, at the bottom, without the white card wrapper */}
+            <motion.div {...fadeUp} className="mt-16 flex justify-center">
+              <button onClick={navigateToList} className="inline-flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-8 py-4 text-sm font-semibold text-white shadow-xl shadow-[#bc4638]/25 transition-all hover:scale-[1.03] hover:shadow-[#bc4638]/35 active:scale-[0.98] sm:text-base cursor-pointer">
+                <ArrowRight className="h-5 w-5 rotate-180" />
+                <span>{t('ui.blogpage.backToList')}</span></button>
             </motion.div>
           </article>
         )}
