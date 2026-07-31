@@ -1039,7 +1039,38 @@ export const registerPlatformRoutes = (app: Express) => {
         return;
       }
 
-      // Generate JWT token directly using payload secret
+      // Generate JWT token directly using the secret Payload actually verifies with.
+      // CRITICAL: Payload hashes the configured PAYLOAD_SECRET (sha256 hex, first 32 chars)
+      // and validates tokens with that hashed value (payload.secret). Signing with the raw
+      // env secret produced a signature Payload rejected, so every authenticated request
+      // after a code login returned 401 and the login appeared broken. We must sign with
+      // payload.secret instead.
+      //
+      // CRITICAL: Payload enables useSessions by default, and its JWT strategy requires a
+      // `sid` claim that matches a session persisted on the user record. Without it,
+      // payload.auth() returns null even for a cryptographically valid token. So we create
+      // a session row on the user (mirroring Payload's addSessionToUser) and include sid.
+      const sessionSid = crypto.randomUUID();
+      const sessionExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      const existingSessions = Array.isArray(userDoc.sessions) ? (userDoc.sessions as Array<{ expiresAt?: string }>) : [];
+      const validSessions = existingSessions.filter(
+        (session) => !session.expiresAt || new Date(session.expiresAt).getTime() > Date.now(),
+      );
+
+      await payload.update({
+        collection: USER_COLLECTION,
+        id: userDoc.id,
+        data: {
+          verificationCode: '',
+          verificationCodeExpires: '',
+          emailVerified: true,
+          accountStatus: 'active',
+          sessions: [...validSessions, { id: sessionSid, createdAt: new Date(), expiresAt: sessionExpiresAt }],
+        } as any,
+        overrideAccess: true,
+      });
+
+      const payloadSecret = (payload as unknown as { secret: string }).secret;
       const jwt = await import('jsonwebtoken');
       const token = jwt.sign(
         {
@@ -1047,17 +1078,11 @@ export const registerPlatformRoutes = (app: Express) => {
           email: userDoc.email,
           collection: USER_COLLECTION,
           loginType: 'api',
+          sid: sessionSid,
         },
-        process.env.PAYLOAD_SECRET || '',
+        payloadSecret,
         { expiresIn: '7d' },
       );
-
-      await payload.update({
-        collection: USER_COLLECTION,
-        id: userDoc.id,
-        data: { verificationCode: '', verificationCodeExpires: '', emailVerified: true, accountStatus: 'active' } as any,
-        overrideAccess: true,
-      });
 
       setSessionCookie(res, token, Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60);
       res.json({ user, token });
