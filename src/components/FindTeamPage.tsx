@@ -680,7 +680,7 @@ function TeamProfileModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 15 }}
           transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-          className="relative max-h-[calc(100vh-2rem)] w-[96%] sm:w-full max-w-2xl bg-white/35 backdrop-blur-3xl border border-white/60 rounded-3xl shadow-[inset_0_1.5px_3px_rgba(255,255,255,0.45),0_40px_120px_rgba(27,24,22,0.12)] z-10 overflow-y-auto scrollbar-soft"
+          className="relative max-h-[calc(100vh-2rem)] w-[96%] sm:w-full max-w-4xl bg-white/35 backdrop-blur-3xl border border-white/60 rounded-3xl shadow-[inset_0_1.5px_3px_rgba(255,255,255,0.45),0_40px_120px_rgba(27,24,22,0.12)] z-10 overflow-y-auto scrollbar-soft lg:overflow-hidden"
         >
           <button
             onClick={onClose}
@@ -768,7 +768,8 @@ function TeamProfileModal({
                   <p className="text-xs sm:text-sm text-brand-slate mt-1 font-light">{t('ui.findteampage.registerDesc')}</p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+                <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 lg:gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 content-start">
                   <div>
                     <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">{t('ui.applicationmodal.34fda9e41a')}<span className="text-brand-terracotta">*</span></label>
                     <input type="text" required value={formName} onChange={(e) => setFormName(e.target.value)} placeholder={t('ui.applicationmodal.bd41d2e3e9')} className={FIND_TEAM_FIELD_CLASS} />
@@ -806,6 +807,8 @@ function TeamProfileModal({
                   </div>
                 </div>
 
+                <div className="space-y-3 content-start">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {/* Skills multi-tag */}
                 <div>
                   <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">{t('ui.findteampage.e4f6b0a2c1')}</label>
@@ -855,6 +858,7 @@ function TeamProfileModal({
                     </div>
                   )}
                 </div>
+                </div>
 
                 {/* Target roles */}
                 <div>
@@ -881,12 +885,14 @@ function TeamProfileModal({
                 <div>
                   <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase">{t('ui.findteampage.0d5ce0304e')}</label>
                   <textarea
-                    rows={3}
+                    rows={2}
                     value={formWhyLooking}
                     onChange={(e) => setFormWhyLooking(e.target.value)}
                     placeholder={t('ui.findteampage.b7c9d1e3f6')}
                     className={FIND_TEAM_FIELD_CLASS + ' resize-none'}
                   />
+                </div>
+                </div>
                 </div>
 
                 {formErrors.length > 0 && (
