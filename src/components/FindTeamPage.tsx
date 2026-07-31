@@ -48,7 +48,7 @@ const FIND_TEAM_SEARCH_CLASS =
   'w-full rounded-xl border border-[#d8d1cc] bg-white/70 py-3 pl-11 pr-4 text-xs text-brand-dark outline-none transition-colors placeholder:text-brand-slate/40 focus:border-brand-dark/45 focus:bg-white sm:text-sm';
 
 const FIND_TEAM_FIELD_CLASS =
-  'w-full rounded-xl border border-[#d8d1cc] bg-white/70 px-3 py-2.5 text-xs text-brand-dark outline-none transition-colors placeholder:text-brand-slate/40 focus:border-brand-dark/45 focus:bg-white';
+  'w-full min-h-11 rounded-xl border border-[#d8d1cc] bg-white/70 px-3 py-2.5 text-xs text-brand-dark outline-none transition-colors placeholder:text-brand-slate/40 focus:border-brand-dark/45 focus:bg-white';
 
 const FIND_TEAM_SELECT_CLASS = `${FIND_TEAM_FIELD_CLASS} cursor-pointer`;
 

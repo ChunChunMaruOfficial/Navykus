@@ -23,7 +23,7 @@ type AuthMode = 'login' | 'register';
 type LoadState = 'idle' | 'loading' | 'success' | 'error';
 
 const AUTH_FIELD_CLASS =
-  'w-full rounded-xl border border-[#d8d1cc] bg-white/70 px-3 py-2 text-xs text-brand-dark outline-none transition-colors placeholder:text-brand-slate/40 focus:border-brand-dark/45 focus:bg-white sm:px-4 sm:py-2.5 sm:text-sm';
+  'w-full min-h-11 rounded-xl border border-[#d8d1cc] bg-white/70 px-3 py-2 text-xs text-brand-dark outline-none transition-colors placeholder:text-brand-slate/40 focus:border-brand-dark/45 focus:bg-white sm:px-4 sm:py-2.5 sm:text-sm';
 
 const rememberedDisplayName = (account: RememberedPlatformAccount) => (
   [account.firstName, account.lastName].filter(Boolean).join(' ') || account.name || account.email
