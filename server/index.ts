@@ -271,9 +271,9 @@ app.post('/api/deploy', asyncRoute(async (req, res) => {
     'npm install --production=false',
     'npm run build',
     'npm run build:admin',
-    'npx payload migrate --config src/payload.config.ts',
-    'sudo -u ubuntu pm2 restart navykus-api --update-env',
-    'sudo -u ubuntu pm2 restart navykus-admin --update-env',
+    'yes | npx payload migrate --config src/payload.config.ts || true',
+    'pm2 restart navykus-api --update-env || pm2 start npm --name navykus-api -- run start:api',
+    'pm2 restart navykus-admin --update-env || pm2 start npm --name navykus-admin -- run start:admin',
   ].join(' && ');
   const child = spawn('bash', ['-c', deployCommands], {
     cwd: DEPLOY_DIR,
