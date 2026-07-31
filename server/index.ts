@@ -22,7 +22,7 @@ for (const key of requiredEnv) {
   }
 }
 
-import { execSync } from 'node:child_process';
+import { execSync, spawn } from 'node:child_process';
 
 import type { PageKey } from '../src/types';
 import { SUPPORTED_LANGUAGES } from '../src/i18n/languages';
@@ -254,6 +254,8 @@ const findApprovedTeamMembers = async () => {
 const GIT_HASH = process.env.GIT_HASH || (() => { try { return execSync('git rev-parse --short HEAD', { encoding: 'utf-8', timeout: 3000 }).trim(); } catch { return 'dev'; } })();
 
 const DEPLOY_SECRET = process.env.DEPLOY_SECRET || '';
+const DEPLOY_DIR = process.env.DEPLOY_DIR || '/root/Navykus';
+const DEPLOY_USER = process.env.DEPLOY_USER || 'ubuntu';
 
 app.post('/api/deploy', asyncRoute(async (req, res) => {
   const auth = req.headers['authorization'] || '';
@@ -262,7 +264,28 @@ app.post('/api/deploy', asyncRoute(async (req, res) => {
     return;
   }
   res.status(202).json({ status: 'deploy_started' });
-  execSync('cd ~/Navykus && git fetch origin main && git clean -fd -e .env -e payload.db -e payload.db-* -e payload.db.* -e uploads/ && git reset --hard origin/main && npm install --production=false && npm run build && npm run build:admin && npx payload migrate --config src/payload.config.ts && pm2 restart navykus-api --update-env && pm2 restart navykus-admin --update-env', { stdio: 'inherit', timeout: 300000 });
+  const deployCommands = [
+    'git fetch origin main',
+    'git clean -fd -e .env -e payload.db -e payload.db-* -e payload.db.* -e uploads/',
+    'git reset --hard origin/main',
+    'npm install --production=false',
+    'npm run build',
+    'npm run build:admin',
+    'npx payload migrate --config src/payload.config.ts',
+    'sudo -u ubuntu pm2 restart navykus-api --update-env',
+    'sudo -u ubuntu pm2 restart navykus-admin --update-env',
+  ].join(' && ');
+  const child = spawn('bash', ['-c', deployCommands], {
+    cwd: DEPLOY_DIR,
+    stdio: 'inherit',
+    timeout: 300000,
+  });
+  child.on('error', (err) => {
+    console.error('Deploy process error:', err.message);
+  });
+  child.on('exit', (code) => {
+    console.log(`Deploy process exited with code ${code}`);
+  });
 }));
 
 app.get('/api/health', asyncRoute(async (_req, res) => {
