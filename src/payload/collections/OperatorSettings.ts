@@ -44,6 +44,10 @@ export const OperatorSettings: CollectionConfig = {
       admin: {
         description: 'Taxpayer Identification Number (ИНН).',
       },
+      validate: (value: unknown) => {
+        if (typeof value !== 'string' || value.trim() === '') return true;
+        return /^\d{10}$|^\d{12}$/.test(value.trim()) ? true : 'INN must be 10 or 12 digits';
+      },
     },
     {
       name: 'operatorOgrn',
@@ -87,7 +91,7 @@ export const OperatorSettings: CollectionConfig = {
     },
     {
       name: 'contactsEmail',
-      type: 'text',
+      type: 'email',
       label: 'Contact Email for data subjects',
       defaultValue: 'info@navykus.online',
       admin: {

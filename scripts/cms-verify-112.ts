@@ -84,6 +84,8 @@ const optionsOf = (field: Field & { options?: Array<{ value: string } | string> 
 const leafValue = (field: Record<string, unknown>, rand: string): unknown => {
   switch (String(field.type)) {
     case 'text':
+      if (field.name === 'phone') return '+7 (900) 000-00-00';
+      if (field.name === 'operatorInn') return '1234567890';
       return `verify-${rand}`;
     case 'email':
       return `verify-${rand}@example.com`;
@@ -320,7 +322,9 @@ const relFieldsOf = (config: CollectionConfig): Array<{ name: string; relationTo
         continue;
       }
       if ((field.type === 'relationship' || field.type === 'upload') && field.name) {
-        out.push({ name: field.name, relationTo: (field as never as { relationTo: string | string[] }).relationTo });
+        const relMeta = field as never as { relationTo: string | string[]; hasMany?: boolean };
+        if (relMeta.hasMany) continue; // hasMany хранится в *_rels, а не в колонке *_id
+        out.push({ name: field.name, relationTo: relMeta.relationTo });
       }
     }
   };
@@ -403,7 +407,7 @@ const taskUpdate = async (num: number, slug: string, label: string, opts: { publ
         for (const field of fields) {
           if (field.type === 'tabs') { for (const tab of (field as never as { tabs: Array<{ fields: Field[] }> }).tabs) walk(tab.fields); continue; }
           if (field.type === 'row' || field.type === 'collapsible' || field.type === 'group') { walk((field as never as { fields: Field[] }).fields); continue; }
-          if ((field.type === 'text' || field.type === 'textarea') && field.name) textFields.push(field.name);
+          if ((field.type === 'text' || field.type === 'textarea') && field.name && !(field as { validate?: unknown }).validate) textFields.push(field.name);
         }
       };
       walk(config?.fields as Field[]);

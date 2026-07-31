@@ -79,6 +79,8 @@ const optionsOf = (field: Field & { options?: Array<{ value: string } | string> 
 const leafValue = (field: Record<string, unknown>, rand: string): unknown => {
   switch (String(field.type)) {
     case 'text':
+      if (field.name === 'phone') return '+7 (900) 000-00-00';
+      if (field.name === 'operatorInn') return '1234567890';
       return `verify-${rand}`;
     case 'email':
       return `verify-${rand}@example.com`;
@@ -540,7 +542,9 @@ const phaseRelations = async (collections: CollectionConfig[]) => {
           continue;
         }
         if ((field.type === 'relationship' || field.type === 'upload') && field.name) {
-          relFields.push({ name: field.name, relationTo: (field as never as { relationTo: string | string[] }).relationTo });
+          const relMeta = field as never as { relationTo: string | string[]; hasMany?: boolean };
+          if (relMeta.hasMany) continue; // hasMany хранится в *_rels, а не в колонке *_id
+          relFields.push({ name: field.name, relationTo: relMeta.relationTo });
         }
       }
     };
