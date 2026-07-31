@@ -265,6 +265,7 @@ app.post('/api/deploy', asyncRoute(async (req, res) => {
   }
   res.status(202).json({ status: 'deploy_started' });
   const deployCommands = [
+    'export NODE_OPTIONS="--max-old-space-size=3072"',
     'git fetch origin main',
     'git clean -fd -e .env -e payload.db -e payload.db-* -e payload.db.* -e uploads/',
     'git reset --hard origin/main',
