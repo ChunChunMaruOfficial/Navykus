@@ -1305,7 +1305,7 @@ export default function OpportunitiesPage({
       </section>
 
       <section className={catalogSectionClass}>
-        <motion.div {...fadeUp} className="flex gap-2 overflow-x-auto pb-3 scrollbar-soft" aria-label={pick(OPPORTUNITIES_NAV_LABELS, language)}>
+        <motion.div {...fadeUp} className="flex gap-2 overflow-x-auto pb-3" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} aria-label={pick(OPPORTUNITIES_NAV_LABELS, language)}>
           {CATEGORIES.map((category) => {
             const isActive = filters.category === category.id;
             return (

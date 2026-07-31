@@ -625,7 +625,8 @@
       "pagination": {
         "prev": "Prev",
         "next": "Next"
-      }
+      },
+      "backToList": "Back to blog"
     },
     "blogmoderation": {
       "title": "Blog moderation",
@@ -710,7 +711,8 @@
       "verifyAction": "Verify",
       "resendCode": "Resend code",
       "codeResent": "Code has been resent.",
-      "emailVerified": "Email verified. Welcome!"
+      "emailVerified": "Email verified. Welcome!",
+      "codeComingSoon": "Code login UI is ready. Sending and verification will be connected later."
     },
     "blogeditor": {
       "title": "Blog Editor",
@@ -1536,7 +1538,11 @@
       "INTERNAL_SERVER_ERROR": "Internal server error. Please try later.",
       "PARTICIPANT_NOT_FOUND": "Participant not found",
       "API_REQUEST_FAILED": "Could not reach the server. Check the site address and try again.",
-      "AUTH_EMAIL_SEND_FAILED": "Could not send the email code. SMTP is temporarily unavailable."
+      "AUTH_EMAIL_SEND_FAILED": "Could not send the email code. SMTP is temporarily unavailable.",
+      "AUTH_USER_NOT_FOUND": "User with this email was not found",
+      "AUTH_CODE_REQUIRED": "Enter email and code",
+      "AUTH_CODE_INVALID": "Invalid code",
+      "AUTH_CODE_EXPIRED": "Code expired, request a new one"
     },
     "placeholders": {
       "search": "Search..."

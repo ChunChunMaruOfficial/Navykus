@@ -1,10 +1,9 @@
 import type { CollectionConfig } from 'payload';
-import { APIError } from 'payload';
 
 import { adminOnly, isAdmin, ownUserOrAdmin } from '../access';
 import { textListField } from '../fields';
 import { localizedAfterChange, localizedAfterDelete } from '../localization';
-import { ADMIN_EMAIL, isAllowedAdminEmail, normalizeEmail } from '../../security/admin-auth';
+import { ADMIN_EMAIL, normalizeEmail } from '../../security/admin-auth';
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -21,19 +20,16 @@ export const Users: CollectionConfig = {
     listSearchableFields: ['email', 'firstName', 'lastName', 'country', 'city'],
   },
   access: {
+    // Restrict the Payload admin panel to staff accounts only. This gates only
+    // the admin UI — the platform's own login/register endpoints (which call
+    // payload.login for regular users) are intentionally not affected.
+    admin: ({ req: { user } }) => isAdmin(user),
     read: ownUserOrAdmin,
     create: ({ req: { user } }) => isAdmin(user),
     update: ownUserOrAdmin,
     delete: adminOnly,
   },
   hooks: {
-    beforeLogin: [
-      ({ user }) => {
-        if (!isAllowedAdminEmail((user as { email?: unknown })?.email)) {
-          throw new APIError('Only the primary Navykus admin account can sign in.', 403);
-        }
-      },
-    ],
     beforeChange: [
       ({ data }) => {
         const email = normalizeEmail(data?.email);

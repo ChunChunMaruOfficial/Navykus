@@ -772,13 +772,30 @@ export const registerPlatformRoutes = (app: Express) => {
         overrideAccess: true,
       }) as any;
 
-      await sendVerificationEmail(payload, email, created.verificationCode, 'Подтвердите вашу почту — Navykus');
+      // Registration must not fail if the confirmation email cannot be sent
+      // (e.g. a transient SMTP outage). The account is already created with
+      // emailVerified=true, so the user can proceed and retry the email later
+      // via the resend-verification endpoint.
+      await sendVerificationEmail(payload, email, created.verificationCode, 'Подтвердите вашу почту — Navykus')
+        .catch((emailError) => {
+          console.error('[register] Failed to send verification email:', emailError);
+        });
 
-      const login = await payload.login({
-        collection: USER_COLLECTION,
-        data: { email, password },
-        overrideAccess: true,
-      });
+      // A thrown login error (e.g. a transient DB issue) must not turn the
+      // freshly created account into a 500 for the user. The account exists,
+      // so report a login failure they can retry instead.
+      let login: Awaited<ReturnType<typeof payload.login>> | null = null;
+      try {
+        login = await payload.login({
+          collection: USER_COLLECTION,
+          data: { email, password },
+          overrideAccess: true,
+        });
+      } catch (loginError) {
+        console.error('[register] Auto-login after registration failed:', loginError);
+        res.status(401).json({ code: 'AUTH_LOGIN_FAILED' });
+        return;
+      }
 
       if (!login.token || !login.user) {
         res.status(401).json({ code: 'AUTH_LOGIN_FAILED' });
@@ -891,20 +908,17 @@ export const registerPlatformRoutes = (app: Express) => {
         res.status(400).json({ code: 'AUTH_EMAIL_REQUIRED' });
         return;
       }
-      let token: string | undefined;
-      try {
-        const fpResult = await payload.forgotPassword({
-          collection: USER_COLLECTION,
-          data: { email },
-          disableEmail: !process.env.SMTP_HOST,
-          overrideAccess: true,
-        });
-        token = fpResult || undefined;
-      } catch (_emailErr) {
-        // Email sending failed, but the token may still be generated.
-        // Return the reset token in dev, otherwise just report success.
-      }
-      res.json({ status: 'sent', resetToken: process.env.NODE_ENV === 'production' ? undefined : token || undefined });
+      // Always return {status:'sent'} to prevent email enumeration.
+      // If the user does not exist, Payload.forgotPassword will throw; we catch and still report success.
+      await payload.forgotPassword({
+        collection: USER_COLLECTION,
+        data: { email },
+        disableEmail: !process.env.SMTP_HOST,
+        overrideAccess: true,
+      }).catch((fpError) => {
+        console.error('[forgot-password] Failed to send reset email:', fpError);
+      });
+      res.json({ status: 'sent' });
     } catch (error) {
       next(error);
     }
@@ -941,6 +955,8 @@ export const registerPlatformRoutes = (app: Express) => {
         res.status(400).json({ code: 'AUTH_EMAIL_REQUIRED' });
         return;
       }
+      // Always return {status:'sent'} to prevent email enumeration.
+      // If the user exists and is not blocked, actually generate the code and send the email.
       const result = await payload.find({
         collection: USER_COLLECTION,
         where: { email: { equals: email } },
@@ -948,32 +964,31 @@ export const registerPlatformRoutes = (app: Express) => {
         overrideAccess: true,
       });
 
-      if (result.docs.length === 0) {
-        res.status(404).json({ code: 'AUTH_USER_NOT_FOUND' });
-        return;
-      }
-
       const userDoc = result.docs[0] as any;
-      if (userDoc.accountStatus === 'blocked') {
-        res.status(403).json({ code: 'ACCOUNT_BLOCKED' });
-        return;
-      }
+      if (userDoc && userDoc.accountStatus !== 'blocked') {
+        const code = generateCode();
+        const expired = new Date(Date.now() + CODE_TTL_MINUTES * 60 * 1000).toISOString();
 
-      const code = generateCode();
-      const expired = new Date(Date.now() + CODE_TTL_MINUTES * 60 * 1000).toISOString();
+        await payload.update({
+          collection: USER_COLLECTION,
+          id: userDoc.id,
+          data: { verificationCode: code, verificationCodeExpires: expired } as any,
+          overrideAccess: true,
+        });
 
-      await payload.update({
-        collection: USER_COLLECTION,
-        id: userDoc.id,
-        data: { verificationCode: code, verificationCodeExpires: expired } as any,
-        overrideAccess: true,
-      });
-
-      try {
-        await sendVerificationEmail(payload, email, code, 'Код для входа — Navykus');
-      } catch {
-        res.status(502).json({ code: 'AUTH_EMAIL_SEND_FAILED' });
-        return;
+        try {
+          await sendVerificationEmail(payload, email, code, 'Код для входа — Navykus');
+        } catch (sendError) {
+          // Deliberate tradeoff: surfacing a real SMTP failure (502) beats
+          // silently reporting "sent" (the bug this fix addresses). Known
+          // side effect: while SMTP is down, existing users get 502 and
+          // unknown emails get 200 — an enumeration signal. Acceptable while
+          // the mail outage is visible; do not "fix" this back into a silent
+          // success without an alternative way to surface the error.
+          console.error('[send-code] Failed to send verification email:', sendError);
+          res.status(502).json({ code: 'AUTH_EMAIL_SEND_FAILED' });
+          return;
+        }
       }
 
       res.json({ status: 'sent' });
@@ -1110,7 +1125,13 @@ export const registerPlatformRoutes = (app: Express) => {
         overrideAccess: true,
       });
 
-      await sendVerificationEmail(payload, user.email, code, 'Подтвердите вашу почту — Navykus');
+      try {
+        await sendVerificationEmail(payload, user.email, code, 'Подтвердите вашу почту — Navykus');
+      } catch (sendError) {
+        console.error('[resend-verification] Failed to send verification email:', sendError);
+        res.status(502).json({ code: 'AUTH_EMAIL_SEND_FAILED' });
+        return;
+      }
 
       res.json({ status: 'sent' });
     } catch (error) {

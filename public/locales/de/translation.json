@@ -51,6 +51,14 @@
     "notFound": {
       "description": "Запрошенная страница не найдена. Вернитесь на главную страницу Навыкус.",
       "title": "Страница не найдена — Навыкус"
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "description": "Informationen darüber, wie Navykus personenbezogene Daten erhebt und verarbeitet"
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "description": "Regeln für die Nutzung der Navykus-Plattform"
     }
   },
   "ui": {
@@ -625,7 +633,8 @@
       "pagination": {
         "prev": "Zurück",
         "next": "Weiter"
-      }
+      },
+      "backToList": "Zurück zum Blog"
     },
     "enhancements": {
       "proofCountries": "countries",
@@ -1427,7 +1436,11 @@
       "USER_SELF_BLOCK_FORBIDDEN": "You cannot block your own account",
       "USER_STATUS_INVALID": "Account status is invalid",
       "API_REQUEST_FAILED": "Der Server ist nicht erreichbar. Pruefe die Website-Adresse und versuche es erneut.",
-      "AUTH_EMAIL_SEND_FAILED": "Der E-Mail-Code konnte nicht gesendet werden. SMTP ist voruebergehend nicht verfuegbar."
+      "AUTH_EMAIL_SEND_FAILED": "Der E-Mail-Code konnte nicht gesendet werden. SMTP ist voruebergehend nicht verfuegbar.",
+      "AUTH_USER_NOT_FOUND": "Пользователь с таким email не найден",
+      "AUTH_CODE_REQUIRED": "Введите email и код",
+      "AUTH_CODE_INVALID": "Неверный код",
+      "AUTH_CODE_EXPIRED": "Код истёк, запросите новый"
     },
     "details": {
       "history": "History"

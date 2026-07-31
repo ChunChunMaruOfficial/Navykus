@@ -6,13 +6,17 @@ const LANGS = ['de', 'es', 'tr', 'kk', 'uz', 'ar'];
 // Read RU as reference
 const ru = JSON.parse(fs.readFileSync('src/i18n/locales/ru/translation.json', 'utf8'));
 
-// Deep merge: add missing keys from source to target
+// Deep merge: add missing keys from source to target.
+// An existing EMPTY STRING in target is also treated as missing and gets
+// overwritten from source — i18next's default `returnEmptyString: true` means
+// an empty value suppresses fallback, so empties are never intentional and
+// would otherwise show up as a blank UI string (or, if absent, a raw key).
 function deepMerge(target, source) {
   for (const [k, v] of Object.entries(source)) {
     if (typeof v === 'object' && v !== null && !Array.isArray(v)) {
       if (!target[k] || typeof target[k] !== 'object') target[k] = {};
       deepMerge(target[k], v);
-    } else if (!(k in target)) {
+    } else if (!(k in target) || (typeof target[k] === 'string' && target[k].trim() === '')) {
       target[k] = v;
     }
   }
@@ -68,16 +72,22 @@ for (const lang of LANGS) {
   console.log(`Updated ${filePath}`);
 }
 
-// Also sync to public/locales/
-for (const lang of LANGS) {
+// Also sync to public/locales/ — the browser loads translations from
+// public/locales, so every key present in src must also exist there (otherwise
+// the UI shows the raw key). A plain deep-merge (adding missing keys only)
+// keeps public a superset of src without clobbering any public-only keys.
+// All languages are covered, not just LANGS (en/ru are maintained directly in
+// src and previously never reached public).
+const ALL_LANGS = ['ru', 'en', 'de', 'es', 'tr', 'kk', 'uz', 'ar'];
+for (const lang of ALL_LANGS) {
   const srcPath = `src/i18n/locales/${lang}/translation.json`;
   const pubPath = `public/locales/${lang}/translation.json`;
-  
+
   if (!fs.existsSync(pubPath)) {
     console.log(`Skipping ${pubPath} - does not exist`);
     continue;
   }
-  
+
   const srcData = JSON.parse(fs.readFileSync(srcPath, 'utf8'));
   let pubData;
   try {
@@ -86,38 +96,11 @@ for (const lang of LANGS) {
     continue;
   }
 
-  // Merge platform from src to public
-  if (!pubData.platform) pubData.platform = {};
-  for (const [section, content] of Object.entries(srcData.platform || {})) {
-    if (typeof content === 'object' && content !== null) {
-      if (!pubData.platform[section] || typeof pubData.platform[section] !== 'object') {
-        pubData.platform[section] = {};
-      }
-      deepMerge(pubData.platform[section], content);
-    } else if (!(section in pubData.platform)) {
-      pubData.platform[section] = content;
-    }
-  }
-
-  // Merge meta privacy/terms
-  if (!pubData.meta) pubData.meta = {};
-  if (srcData.meta?.privacy && !pubData.meta.privacy) pubData.meta.privacy = srcData.meta.privacy;
-  if (srcData.meta?.terms && !pubData.meta.terms) pubData.meta.terms = srcData.meta.terms;
-
-  // Merge ui sections
-  if (!pubData.ui) pubData.ui = {};
-  if (srcData.ui?.legalpage && !pubData.ui.legalpage) {
-    pubData.ui.legalpage = {};
-    deepMerge(pubData.ui.legalpage, srcData.ui.legalpage);
-  }
-  if (srcData.ui?.cookieconsent && !pubData.ui.cookieconsent) {
-    pubData.ui.cookieconsent = {};
-    deepMerge(pubData.ui.cookieconsent, srcData.ui.cookieconsent);
-  }
+  deepMerge(pubData, srcData);
 
   fs.writeFileSync(pubPath, JSON.stringify(pubData, null, 2) + '\n', 'utf8');
   console.log(`Updated ${pubPath}`);
 }
 
 console.log('\nDone! All translations synced from RU reference.');
-console.log('Languages updated:', LANGS.join(', '));
+console.log('Languages updated:', ALL_LANGS.join(', '));

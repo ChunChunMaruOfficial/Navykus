@@ -56,17 +56,73 @@ interface BlogPageProps {
   onCreateBlog?: () => void;
 }
 
+const getSlugFromPath = () => {
+  if (typeof window === 'undefined') return '';
+  const segments = window.location.pathname.replace(/\/$/, '').split('/').filter(Boolean);
+  // segments[0] === 'blog', segments[1] is the slug if present
+  return segments[0] === 'blog' && segments[1] ? segments[1] : '';
+};
+
+const navigateToSlug = (slug: string) => {
+  window.history.pushState({}, '', `/blog/${encodeURIComponent(slug)}`);
+  window.dispatchEvent(new PopStateEvent('popstate'));
+};
+
+const navigateToList = () => {
+  window.history.pushState({}, '', '/blog');
+  window.dispatchEvent(new PopStateEvent('popstate'));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
 export default function BlogPage({ onCreateBlog }: BlogPageProps) {
   const { t, i18n } = useTranslation();
   const browserLang = (i18n.resolvedLanguage || i18n.language || 'ru').split('-')[0];
   const language = useMemo(() => (SUPPORTED_LANGUAGES as readonly string[]).includes(browserLang) ? browserLang as SupportedLanguage : 'ru', [browserLang]);
 
+  // Single article state
+  const currentSlug = getSlugFromPath();
+  const [articleSlug, setArticleSlug] = useState(currentSlug);
+  const [article, setArticle] = useState<BlogPostDoc | null>(null);
+  const [articleState, setArticleState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+  useEffect(() => {
+    const handlePop = () => {
+      const slug = getSlugFromPath();
+      setArticleSlug(slug);
+      if (!slug) setArticle(null);
+    };
+    window.addEventListener('popstate', handlePop);
+    return () => window.removeEventListener('popstate', handlePop);
+  }, []);
+
+  useEffect(() => {
+    if (!articleSlug) {
+      setArticle(null);
+      return;
+    }
+    let cancelled = false;
+    setArticleState('loading');
+    blogApi.get(articleSlug, language)
+      .then((result) => {
+        if (!cancelled) {
+          setArticle(result.post);
+          setArticleState('success');
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setArticle(null);
+          setArticleState('error');
+        }
+      });
+    return () => { cancelled = true; };
+  }, [articleSlug, language]);
+
+  // Listing state
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [search, setSearch] = useState('');
   const [submittedSearch, setSubmittedSearch] = useState('');
   const [page, setPage] = useState(1);
-
-  // Data state
   const [posts, setPosts] = useState<BlogPostDoc[]>([]);
   const [totalDocs, setTotalDocs] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -92,11 +148,11 @@ export default function BlogPage({ onCreateBlog }: BlogPageProps) {
   }, [language, page, selectedCategory, submittedSearch, t]);
 
   useEffect(() => {
-    document.title = t('meta.blog.title');
-  }, [t]);
+    document.title = articleSlug && article ? article.title : t('meta.blog.title');
+  }, [t, articleSlug, article]);
 
-  useEffect(() => { setPage(1); }, [selectedCategory, submittedSearch]);
-  useEffect(() => { fetchList(); }, [fetchList]);
+  useEffect(() => { if (!articleSlug) setPage(1); }, [selectedCategory, submittedSearch]);
+  useEffect(() => { if (!articleSlug) fetchList(); }, [fetchList, articleSlug]);
 
   const featuredPosts = useMemo(() => (posts || []).slice(0, 3), [posts]);
 
@@ -107,6 +163,92 @@ export default function BlogPage({ onCreateBlog }: BlogPageProps) {
     return counts;
   }, [posts]);
 
+  // ── Article View ──
+  if (articleSlug) {
+    return (
+      <div className="relative min-h-screen bg-gradient-to-b from-[#fff8f5] via-[#fffaf7] to-[#fdf6f4] text-[#111111]">
+        <div className="pointer-events-none absolute inset-0 z-0 opacity-[0.03] mix-blend-multiply" style={{ backgroundImage: 'radial-gradient(circle, #111 0.6px, transparent 0.8px)', backgroundSize: '18px 18px' }} />
+        <div className="pointer-events-none absolute inset-0 z-0 opacity-[0.25]" style={{ backgroundImage: 'linear-gradient(#d8d1cc 1px, transparent 1px), linear-gradient(90deg, #d8d1cc 1px, transparent 1px)', backgroundSize: '120px 120px' }} />
+        <StudyBackground />
+
+        {articleState === 'loading' && (
+          <div className="relative z-10 mx-auto max-w-3xl px-[6%] pt-32 md:px-[10%] md:pt-36">
+            <div className="rounded-2xl border border-white/60 bg-white/45 p-10 text-center backdrop-blur-xl">
+              <div className="mx-auto mb-4 h-8 w-8 animate-pulse rounded-full bg-brand-dark/10" />
+              <p className="text-sm text-brand-slate">{t('common.loading')}</p>
+            </div>
+          </div>
+        )}
+
+        {articleState === 'error' && (
+          <div className="relative z-10 mx-auto max-w-3xl px-[6%] pt-32 md:px-[10%] md:pt-36">
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-sm text-red-700">
+              <p>{t('common.notFound', { defaultValue: 'Article not found' })}</p>
+              <button onClick={navigateToList} className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-dark px-5 py-2.5 text-xs font-semibold text-white transition-all hover:bg-brand-dark/90 cursor-pointer">
+                <ArrowRight className="h-3.5 w-3.5 rotate-180" /><span>{t('ui.blogpage.backToList')}</span></button>
+            </div>
+          </div>
+        )}
+
+        {articleState === 'success' && article && (
+          <article className="relative z-10 mx-auto max-w-3xl px-[6%] pb-20 pt-28 md:px-[10%] md:pt-32">
+            {/* Back button */}
+            <motion.div {...fadeUp}>
+              <button onClick={navigateToList} className="mb-8 inline-flex items-center gap-2 rounded-xl border border-[#d8d1cc] bg-white/55 px-4 py-2 text-[11px] font-semibold text-brand-slate backdrop-blur-sm transition-all hover:border-brand-dark hover:text-brand-dark cursor-pointer">
+                <ArrowRight className="h-3.5 w-3.5 rotate-180" />
+                <span>{t('ui.blogpage.backToList')}</span></button>
+            </motion.div>
+
+            {/* Category + date */}
+            <motion.div {...fadeUp} className="mb-4 flex flex-wrap items-center gap-3">
+              <span className={`inline-flex items-center rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wide ${CATEGORY_META[article.category]?.chip || 'bg-brand-slate/10'}`}>
+                {CATEGORY_META[article.category] ? t(CATEGORY_META[article.category].label) : article.category}</span>
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-wider text-brand-slate">
+                <Calendar className="h-3.5 w-3.5" />{formatDate(article.publishedAt || article.createdAt, language)}</span>
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-wider text-brand-slate">
+                <Clock className="h-3.5 w-3.5" />{t('ui.blogpage.readingTime', { count: article.readingTime || 0 })}</span>
+            </motion.div>
+
+            {/* Title */}
+            <motion.h1 {...fadeUpLarge} className="text-3xl font-serif font-semibold leading-[1.1] tracking-tight text-brand-dark sm:text-4xl md:text-[42px]">
+              {article.title}</motion.h1>
+
+            {/* Author */}
+            <motion.div {...fadeUp} className="mt-4 flex items-center gap-3 text-sm text-brand-slate">
+              <User className="h-4 w-4 text-[#bd5b82]" />
+              <span>{typeof article.author === 'object' ? (article.author as { name: string }).name : String(article.author || '')}</span>
+            </motion.div>
+
+            {/* Cover */}
+            {article.cover && (
+              <motion.div {...fadeInScale} className="mt-8 overflow-hidden rounded-[1.5rem]">
+                <BrandImage src={article.cover} alt={article.coverAlt || article.title} aspectRatio="16 / 9" objectPosition="50% 42%" priority sizes="(min-width: 768px) 720px, 100vw" />
+              </motion.div>
+            )}
+
+            {/* Content */}
+            <motion.div {...fadeUp} className="prose prose-sm sm:prose-base max-w-none mt-10 text-brand-dark/85">
+              {article.excerpt && (
+                <p className="text-lg font-medium leading-relaxed text-brand-dark/75 sm:text-xl">{article.excerpt}</p>
+              )}
+              <div className="mt-6 leading-relaxed" dangerouslySetInnerHTML={{ __html: article.content || '' }} />
+            </motion.div>
+
+            {/* Tags */}
+            {article.tags?.length > 0 && (
+              <motion.div {...fadeUp} className="mt-10 flex flex-wrap gap-2">
+                {article.tags.map((tag) => (
+                  <span key={tag} className="rounded-full border border-[#d8d1cc] bg-white/50 px-3 py-1 text-[10px] font-mono uppercase tracking-wider text-brand-slate">{tag}</span>
+                ))}
+              </motion.div>
+            )}
+          </article>
+        )}
+      </div>
+    );
+  }
+
+  // ── Listing View ──
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#fff8f5] via-[#fffaf7] to-[#fdf6f4] text-[#111111]">
       <div className="pointer-events-none absolute inset-0 z-0 opacity-[0.03] mix-blend-multiply" style={{ backgroundImage: 'radial-gradient(circle, #111 0.6px, transparent 0.8px)', backgroundSize: '18px 18px' }} />
@@ -119,7 +261,7 @@ export default function BlogPage({ onCreateBlog }: BlogPageProps) {
       <StudyBackground />
 
       {/* HERO */}
-      <section className="relative z-10 mx-auto max-w-7xl px-[6%] pb-12 pt-24 md:px-[10%] md:pb-16 md:pt-28">
+      <section className="relative z-10 mx-auto max-w-6xl px-[6%] pb-12 pt-24 md:px-[10%] md:pb-16 md:pt-28">
         <motion.div {...heroFadeUpLarge} className="grid items-center gap-8 md:grid-cols-[minmax(0,1fr)_minmax(320px,0.85fr)]">
           <div className="space-y-6 text-left">
             <h1 className="text-3xl font-serif font-light leading-[1.05] tracking-tight text-brand-dark sm:text-4xl md:text-5xl lg:text-[52px]">{t('ui.blogpage.hero.title')}</h1>
@@ -132,7 +274,7 @@ export default function BlogPage({ onCreateBlog }: BlogPageProps) {
       </section>
 
       {/* SEARCH + CATEGORIES */}
-      <section className="relative z-10 mx-auto max-w-7xl px-[6%] py-8 md:px-[10%] md:py-10">
+      <section className="relative z-10 mx-auto max-w-6xl px-[6%] py-8 md:px-[10%] md:py-10">
         <motion.div {...fadeUp} className="space-y-6">
           <div className="flex gap-3">
             <label className="relative block flex-1">
@@ -186,12 +328,12 @@ export default function BlogPage({ onCreateBlog }: BlogPageProps) {
 
       {/* FEATURED */}
       {selectedCategory === '' && !submittedSearch && loadState === 'success' && featuredPosts.length > 0 && (
-      <section className="relative z-10 mx-auto max-w-7xl px-[6%] py-10 md:px-[10%] md:py-14">
+      <section className="relative z-10 mx-auto max-w-6xl px-[6%] py-10 md:px-[10%] md:py-14">
         <motion.div {...fadeUp} className="mb-8 flex items-center gap-3"><TrendingUp className="h-6 w-6 text-[#bc4638]" /><h2 className="text-2xl font-serif font-semibold tracking-tight text-brand-dark sm:text-3xl">{t('ui.blogpage.featured.title')}</h2></motion.div>
         <motion.div {...cardStaggerContainer} className="grid grid-cols-1 gap-5 md:grid-cols-3">{featuredPosts.map((post) => <FeaturedCard key={post.id} post={post} t={t} language={language} />)}</motion.div></section>)}
 
       {/* GRID */}
-      <section id="latest-posts" className="relative z-10 mx-auto max-w-7xl px-[6%] py-10 md:px-[10%] md:py-14">
+      <section id="latest-posts" className="relative z-10 mx-auto max-w-6xl px-[6%] py-10 md:px-[10%] md:py-14">
         <motion.div {...fadeUp} className="mb-8"><h2 className="text-2xl font-serif font-semibold tracking-tight text-brand-dark sm:text-3xl">{t('ui.blogpage.latest.title')}</h2><p className="mt-2 text-sm text-brand-slate">{t('ui.blogpage.results', { count: totalDocs })}</p></motion.div>
         {loadState === 'loading' && <div className="rounded-2xl border border-white/60 bg-white/45 p-10 text-center backdrop-blur-xl"><div className="mx-auto mb-4 h-8 w-8 animate-pulse rounded-full bg-brand-dark/10" /><p className="text-sm text-brand-slate">{t('common.loading')}</p></div>}
         {loadState === 'error' && <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-sm text-red-700">{errorMsg}</div>}
@@ -214,7 +356,7 @@ export default function BlogPage({ onCreateBlog }: BlogPageProps) {
       </section>
 
       {/* NEWSLETTER */}
-      <section className="relative z-10 mx-auto max-w-7xl px-[6%] py-14 md:px-[10%] md:py-20">
+      <section className="relative z-10 mx-auto max-w-6xl px-[6%] py-14 md:px-[10%] md:py-20">
         <motion.div {...fadeInScale} className="relative overflow-hidden rounded-[2rem] border border-white/60 bg-brand-dark px-6 py-10 text-center shadow-[0_30px_90px_rgba(17,17,17,0.16)] sm:px-10 sm:py-14">
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
           <div className="mx-auto mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-white"><Mail className="h-5 w-5" /></div>
@@ -232,8 +374,8 @@ function FeaturedCard({ post, t, language }: { post: BlogPostDoc; t: TFunction; 
   const src = post.cover || '/images/home/community-classroom.jpg';
   return (
     <motion.article variants={cardItemFadeUp.variants} data-preview-id={post.id || post.slug} className="group relative flex min-h-[420px] flex-col overflow-hidden rounded-[1.5rem] border border-white/60 bg-white/42 surface-elevated-soft backdrop-blur-sm transition-colors hover:bg-white/62">
-      <div className="overflow-hidden"><BrandImage src={src} alt={post.title} aspectRatio="16 / 10" objectPosition="50% 42%" sizes="33vw" className="rounded-none border-0 shadow-none" /></div>
-      <div className="flex min-w-0 flex-1 flex-col p-5">
+      <div className="overflow-hidden cursor-pointer" onClick={() => navigateToSlug(post.slug)}><BrandImage src={src} alt={post.title} aspectRatio="16 / 10" objectPosition="50% 42%" sizes="33vw" className="rounded-none border-0 shadow-none" /></div>
+      <div className="flex min-w-0 flex-1 flex-col p-5 cursor-pointer" onClick={() => navigateToSlug(post.slug)}>
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${meta?.chip || 'bg-brand-slate/10'}`}>{meta ? t(meta.label) : post.category}</span>
           <span className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider text-brand-slate"><Calendar className="h-3 w-3" />{formatDate(post.publishedAt || post.createdAt, language)}</span>
@@ -247,7 +389,7 @@ function FeaturedCard({ post, t, language }: { post: BlogPostDoc; t: TFunction; 
         <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-brand-slate">{post.excerpt}</p>
         <div className="mt-auto flex items-center justify-between pt-5">
           <span className="text-[11px] font-medium text-brand-slate">{capName(post)}</span>
-          <a href={`/blog/${post.slug}`} className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d8d1cc]/70 bg-white/55 text-[#8d3026] transition-all group-hover:border-[#bc4638]/35 group-hover:bg-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-label={post.title}><ArrowUpRight className="h-4 w-4" /></a></div></div></motion.article>);
+          <button onClick={() => navigateToSlug(post.slug)} className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d8d1cc]/70 bg-white/55 text-[#8d3026] transition-all group-hover:border-[#bc4638]/35 group-hover:bg-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 cursor-pointer" aria-label={post.title}><ArrowUpRight className="h-4 w-4" /></button></div></div></motion.article>);
 }
 
 function BlogCard({ post, t, language }: { post: BlogPostDoc; t: TFunction; language: string }) {
@@ -255,7 +397,7 @@ function BlogCard({ post, t, language }: { post: BlogPostDoc; t: TFunction; lang
   const capName = (p: BlogPostDoc) => (typeof p.author === 'object' ? (p.author as {name:string}).name : String(p.author || ''));
   const src = post.cover || '/images/home/community-classroom.jpg';
   return (
-    <motion.article variants={cardItemFadeUp.variants} data-preview-id={post.id || post.slug} tabIndex={0} className="group relative flex min-h-[370px] cursor-pointer flex-col overflow-hidden rounded-[1.5rem] border border-white/60 bg-white/48 surface-elevated-soft backdrop-blur-sm transition-colors hover:border-[#d8d1cc] hover:bg-white/62">
+    <motion.article variants={cardItemFadeUp.variants} data-preview-id={post.id || post.slug} tabIndex={0} className="group relative flex min-h-[370px] cursor-pointer flex-col overflow-hidden rounded-[1.5rem] border border-white/60 bg-white/48 surface-elevated-soft backdrop-blur-sm transition-colors hover:border-[#d8d1cc] hover:bg-white/62" onClick={() => navigateToSlug(post.slug)}>
       <div className="overflow-hidden bg-white/35"><BrandImage src={src} alt={post.title} aspectRatio="16 / 9" objectPosition="50% 42%" sizes="(max-width:639px) 100vw,45vw" className="rounded-none border-0 shadow-none" /></div>
       <div className="flex min-w-0 flex-1 flex-col p-5">
         <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -269,5 +411,5 @@ function BlogCard({ post, t, language }: { post: BlogPostDoc; t: TFunction; lang
           <span className="inline-flex items-center gap-1.5"><Calendar className="h-3 w-3 text-[#bc4638]" />{formatDate(post.publishedAt || post.createdAt, language)}</span>
           <span className="inline-flex items-center gap-1.5"><Clock className="h-3 w-3 text-[#3d6b8f]" />{t('ui.blogpage.readingTime', { count: post.readingTime || 0 })}</span></div>
         <div className="mt-auto flex justify-end pt-5">
-          <a href={`/blog/${post.slug}`} className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d8d1cc]/70 bg-white/55 text-[#8d3026] transition-all group-hover:border-[#bc4638]/35 group-hover:bg-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-label={`${t('common.details')}: ${post.title}`}><ArrowUpRight className="h-4 w-4" /></a></div></div></motion.article>);
+          <button onClick={(e) => { e.stopPropagation(); navigateToSlug(post.slug); }} className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d8d1cc]/70 bg-white/55 text-[#8d3026] transition-all group-hover:border-[#bc4638]/35 group-hover:bg-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 cursor-pointer" aria-label={`${t('common.details')}: ${post.title}`}><ArrowUpRight className="h-4 w-4" /></button></div></div></motion.article>);
 }

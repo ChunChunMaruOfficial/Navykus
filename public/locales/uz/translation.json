@@ -51,6 +51,14 @@
     "notFound": {
       "description": "Запрошенная страница не найдена. Вернитесь на главную страницу Навыкус.",
       "title": "Страница не найдена — Навыкус"
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "description": "Navykus platformasi shaxsiy ma'lumotlarni qanday to'plashi va qayta ishlashi haqida ma'lumot"
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "description": "Navykus platformasidan foydalanish qoidalari"
     }
   },
   "ui": {
@@ -625,7 +633,8 @@
       "pagination": {
         "prev": "Oldingi",
         "next": "Keyingi"
-      }
+      },
+      "backToList": "Blogga qaytish"
     },
     "enhancements": {
       "proofCountries": "countries",
@@ -1427,7 +1436,11 @@
       "USER_SELF_BLOCK_FORBIDDEN": "You cannot block your own account",
       "USER_STATUS_INVALID": "Account status is invalid",
       "API_REQUEST_FAILED": "Serverga ulanib bo‘lmadi. Sayt manzilini tekshiring va qayta urinib ko‘ring.",
-      "AUTH_EMAIL_SEND_FAILED": "Kodni email orqali yuborib bo‘lmadi. SMTP vaqtincha ishlamayapti."
+      "AUTH_EMAIL_SEND_FAILED": "Kodni email orqali yuborib bo‘lmadi. SMTP vaqtincha ishlamayapti.",
+      "AUTH_USER_NOT_FOUND": "Пользователь с таким email не найден",
+      "AUTH_CODE_REQUIRED": "Введите email и код",
+      "AUTH_CODE_INVALID": "Неверный код",
+      "AUTH_CODE_EXPIRED": "Код истёк, запросите новый"
     },
     "nav": {
       "home": "Home",

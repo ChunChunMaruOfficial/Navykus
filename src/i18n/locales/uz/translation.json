@@ -41,6 +41,14 @@
     },
     "findTeam": {
       "title": "Jamoa toping - Navykus"
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "description": "Navykus platformasi shaxsiy ma'lumotlarni qanday to'plashi va qayta ishlashi haqida ma'lumot"
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "description": "Navykus platformasidan foydalanish qoidalari"
     }
   },
   "ui": {
@@ -603,7 +611,8 @@
       "pagination": {
         "prev": "Oldingi",
         "next": "Keyingi"
-      }
+      },
+      "backToList": "Blogga qaytish"
     },
     "enhancements": {
       "proofCountries": "countries",
@@ -1261,11 +1270,246 @@
       "INTERNAL_SERVER_ERROR": "Ichki server xatosi",
       "AUTH_EMAIL_EXISTS": "Bu elektron pochta allaqachon ro'yxatdan o'tgan",
       "API_REQUEST_FAILED": "Serverga ulanib bo‘lmadi. Sayt manzilini tekshiring va qayta urinib ko‘ring.",
-      "AUTH_EMAIL_SEND_FAILED": "Kodni email orqali yuborib bo‘lmadi. SMTP vaqtincha ishlamayapti."
+      "AUTH_EMAIL_SEND_FAILED": "Kodni email orqali yuborib bo‘lmadi. SMTP vaqtincha ishlamayapti.",
+      "AUTH_REQUIRED": "Войдите, чтобы продолжить",
+      "AUTH_INVALID_REGISTRATION": "Проверьте поля регистрации",
+      "AUTH_AGREEMENT_REQUIRED": "Примите политику и условия",
+      "AUTH_LOGIN_FAILED": "Неверный email или пароль",
+      "AUTH_CREDENTIALS_REQUIRED": "Введите email и пароль",
+      "AUTH_EMAIL_REQUIRED": "Введите email",
+      "AUTH_USER_NOT_FOUND": "Пользователь с таким email не найден",
+      "AUTH_CODE_REQUIRED": "Введите email и код",
+      "AUTH_CODE_INVALID": "Неверный код",
+      "AUTH_CODE_EXPIRED": "Код истёк, запросите новый",
+      "AUTH_INVALID_RESET": "Некорректные данные сброса",
+      "FORBIDDEN": "Доступ запрещён",
+      "FAVORITE_INVALID": "Некорректные данные избранного",
+      "APPLICATION_STATUS_INVALID": "Некорректный статус заявки",
+      "APPLICATION_TARGET_REQUIRED": "Выберите цель заявки",
+      "APPLICATION_DUPLICATE": "У вас уже есть активная заявка на этот объект",
+      "PARTICIPANT_NOT_FOUND": "Участник не найден",
+      "TEAM_POST_INVALID": "Некорректные данные поста команды",
+      "TEAM_RESPONSE_INVALID": "Некорректный ответ команды",
+      "TEAM_RESPONSE_DUPLICATE": "Вы уже ответили на этот пост",
+      "TEAM_RESPONSE_STATUS_INVALID": "Некорректный статус ответа команды",
+      "ACCOUNT_BLOCKED": "Аккаунт заблокирован",
+      "USER_ROLE_INVALID": "Некорректная роль пользователя",
+      "USER_STATUS_INVALID": "Некорректный статус аккаунта",
+      "USER_SELF_BLOCK_FORBIDDEN": "Нельзя заблокировать собственный аккаунт",
+      "USER_LAST_ADMIN_FORBIDDEN": "Нужен хотя бы один активный администратор",
+      "AVATAR_REQUIRED": "Выбери файл аватара.",
+      "AVATAR_INVALID": "Загрузи корректное изображение JPG, PNG или WebP."
     },
     "auth": {
       "privacyAccepted": "Men shaxsiy ma'lumotlar siyosatini qabul qilaman",
-      "termsAccepted": "Men platforma shartlarini qabul qilaman"
+      "termsAccepted": "Men platforma shartlarini qabul qilaman",
+      "loginTitle": "Kirish",
+      "registerTitle": "Ro'yxatdan o'tish",
+      "loginAction": "Kirish",
+      "registerAction": "Ro'yxatdan o'tish",
+      "forgotTitle": "Parolni unutdingizmi?",
+      "resetTitle": "Parolni tiklash",
+      "forgotAction": "Havola yuborish",
+      "resetAction": "Tiklash",
+      "quickLoginTitle": "Tezkor kirish",
+      "quickLoginAction": "Davom etish",
+      "quickLoginHint": "{{name}} sifatida kirdingiz",
+      "forgotSuccess": "Agar ushbu email mavjud bo'lsa, havola yuborildi.",
+      "resetSuccess": "Parol muvaffaqiyatli tiklandi.",
+      "eyebrow": "Hisob",
+      "devResetToken": "Токен сброса для разработки:"
+    },
+    "fields": {
+      "firstName": "Ism",
+      "lastName": "Familiya",
+      "email": "E-mail",
+      "password": "Parol",
+      "passwordConfirmation": "Parolni tasdiqlash",
+      "country": "Страна",
+      "city": "Город",
+      "dateOfBirth": "Дата рождения",
+      "schoolGrade": "Класс",
+      "resetToken": "Токен сброса",
+      "school": "Школа",
+      "ageGroup": "Возраст",
+      "portfolio": "Портфолио",
+      "interests": "Интересы",
+      "skills": "Навыки",
+      "languages": "Языки",
+      "biography": "О себе",
+      "itemId": "ID",
+      "itemTitle": "Название",
+      "motivation": "Мотивация",
+      "title": "Заголовок",
+      "description": "Описание",
+      "requiredSkills": "Нужные навыки"
+    },
+    "nav": {
+      "home": "На главную",
+      "championships": "Чемпионаты",
+      "events": "События",
+      "opportunities": "Возможности",
+      "participants": "Участники",
+      "profile": "Профиль",
+      "admin": "Админ",
+      "login": "Войти"
+    },
+    "actions": {
+      "logout": "Выйти",
+      "save": "Сохранить",
+      "saveDraft": "Сохранить черновик",
+      "submit": "Отправить",
+      "markAllRead": "Прочитать все",
+      "publish": "Опубликовать",
+      "open": "Открыть",
+      "favorite": "В избранное",
+      "apply": "Подать заявку",
+      "remove": "Удалить"
+    },
+    "states": {
+      "loading": "Загрузка...",
+      "error": "Что-то пошло не так. Попробуйте еще раз.",
+      "empty": "Записей пока нет.",
+      "saving": "Сохранение...",
+      "saved": "Сохранено"
+    },
+    "dashboard": {
+      "profile": "Профиль",
+      "applications": "Заявки",
+      "favorites": "Избранное",
+      "notifications": "Уведомления",
+      "team": "Поиск команды",
+      "settings": "Настройки",
+      "overview": "Кабинет",
+      "blog": "Мои статьи"
+    },
+    "roles": {
+      "user": "Пользователь",
+      "moderator": "Модератор",
+      "admin": "Администратор"
+    },
+    "privacy": {
+      "publicProfile": "Показывать мой публичный профиль",
+      "teamSearchAvailable": "Доступен для поиска команды",
+      "showCity": "Показывать город",
+      "showSchool": "Показывать школу",
+      "showAge": "Показывать возраст",
+      "showEmail": "Показывать email",
+      "showSocialLinks": "Показывать социальные ссылки"
+    },
+    "itemTypes": {
+      "all": "Все",
+      "championship": "Чемпионат",
+      "event": "Событие",
+      "opportunity": "Возможность",
+      "participant": "Участник",
+      "team-post": "Пост команды"
+    },
+    "status": {
+      "draft": "Черновик",
+      "submitted": "Отправлено",
+      "under_review": "На проверке",
+      "clarification_required": "Нужно уточнение",
+      "approved": "Одобрено",
+      "rejected": "Отклонено",
+      "cancelled": "Отменено",
+      "new": "Новая",
+      "confirmed": "Подтверждено",
+      "contacted": "Связались",
+      "pending_review": "Ожидает модерации",
+      "needs_revision": "Нужна доработка",
+      "published": "Опубликовано",
+      "archived": "В архиве"
+    },
+    "notifications": {
+      "application_submitted": "Заявка отправлена",
+      "application_status_changed": "Статус заявки изменён",
+      "clarification_requested": "Запрошено уточнение",
+      "team_response_received": "Получен ответ команды",
+      "team_response_accepted": "Ответ команды принят",
+      "team_response_rejected": "Ответ команды отклонён",
+      "team_invitation_received": "Получено приглашение в команду",
+      "upcoming_deadline": "Скоро дедлайн",
+      "upcoming_event": "Скоро событие",
+      "announcement": "Объявление"
+    },
+    "placeholders": {
+      "search": "Поиск..."
+    },
+    "team": {
+      "myPost": "Мой пост",
+      "response": "Ответ"
+    },
+    "admin": {
+      "users": "Пользователи",
+      "applications": "Заявки",
+      "activeChampionships": "Активные чемпионаты",
+      "upcomingEvents": "Ближайшие события",
+      "publishedOpportunities": "Опубликованные возможности",
+      "teamPosts": "Посты команд",
+      "role": "Роль",
+      "accountStatus": "Статус аккаунта",
+      "adminOnly": "Только администраторы могут менять роли и статус аккаунта."
+    },
+    "accountStatus": {
+      "active": "Активен",
+      "pending": "Ожидает",
+      "blocked": "Заблокирован"
+    },
+    "dashboardHome": {
+      "eyebrow": "Личное пространство",
+      "title": "{{name}}, ваш кабинет Navykus",
+      "description": "Здесь собраны заявки, избранное, уведомления, командная активность и готовность профиля.",
+      "profileCompletion": "Заполнение профиля",
+      "activity": "Последняя активность",
+      "activeApplications": "{{count}} активных заявок",
+      "emptyActivity": "Активности пока нет. Начните с чемпионатов или сохраните возможность.",
+      "explore": "Изучить чемпионаты",
+      "stats": {
+        "applications": "Заявки",
+        "favorites": "Избранное",
+        "notifications": "Непрочитанные",
+        "team": "Команда"
+      },
+      "actions": {
+        "completeProfile": "Заполнить профиль",
+        "completeProfileText": "Добавьте навыки, интересы, школу, портфолио и настройки видимости.",
+        "findOpportunity": "Найти возможность",
+        "findOpportunityText": "Сохраняйте события, возможности и чемпионаты в избранное.",
+        "findTeam": "Найти команду",
+        "findTeamText": "Откройте участников и соберите свой поток поиска команды."
+      }
+    },
+    "avatar": {
+      "title": "Аватар",
+      "upload": "Загрузить фото",
+      "uploading": "Загрузка...",
+      "uploaded": "Аватар сохранён",
+      "positionX": "Горизонталь",
+      "positionY": "Вертикаль",
+      "scale": "Масштаб",
+      "help": "Выберите изображение из проводника, затем красиво кадрируйте его перед сохранением.",
+      "uploadError": "Не удалось загрузить аватар",
+      "cropHint": "Перетаскивайте фото внутри круга. Кнопками можно менять масштаб и поворот.",
+      "cropTitle": "Редактировать аватар",
+      "cropText": "Разместите лицо в круге и сохраните готовую версию как аватар.",
+      "zoomIn": "Увеличить",
+      "zoomOut": "Уменьшить",
+      "rotate": "Повернуть",
+      "reset": "Сбросить",
+      "saveCrop": "Сохранить фото"
+    },
+    "settings": {
+      "accountTitle": "Аккаунт",
+      "accountText": "Выйдите из сессии или удалите аккаунт вместе с данными профиля.",
+      "deleteAccount": "Удалить аккаунт",
+      "deleteConfirm": "Удалить аккаунт? Это действие нельзя отменить.",
+      "deleteError": "Не удалось удалить аккаунт.",
+      "languageTitle": "Язык интерфейса",
+      "languageText": "Выберите язык, который будет использоваться на сайте и в профиле."
+    },
+    "details": {
+      "history": "История изменений"
     }
   }
 }

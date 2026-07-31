@@ -51,6 +51,14 @@
     "notFound": {
       "description": "Запрошенная страница не найдена. Вернитесь на главную страницу Навыкус.",
       "title": "Страница не найдена — Навыкус"
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "description": "Navykus'un kişisel verileri nasıl topladığı ve işlediği hakkında bilgi"
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "description": "Navykus platformunu kullanma kuralları"
     }
   },
   "ui": {
@@ -625,7 +633,8 @@
       "pagination": {
         "prev": "Önceki",
         "next": "Sonraki"
-      }
+      },
+      "backToList": "Bloga geri dön"
     },
     "enhancements": {
       "proofCountries": "countries",
@@ -1427,7 +1436,11 @@
       "USER_SELF_BLOCK_FORBIDDEN": "You cannot block your own account",
       "USER_STATUS_INVALID": "Account status is invalid",
       "API_REQUEST_FAILED": "Sunucuya ulasilamadi. Site adresini kontrol edip tekrar deneyin.",
-      "AUTH_EMAIL_SEND_FAILED": "E-posta kodu gonderilemedi. SMTP gecici olarak kullanilamiyor."
+      "AUTH_EMAIL_SEND_FAILED": "E-posta kodu gonderilemedi. SMTP gecici olarak kullanilamiyor.",
+      "AUTH_USER_NOT_FOUND": "Пользователь с таким email не найден",
+      "AUTH_CODE_REQUIRED": "Введите email и код",
+      "AUTH_CODE_INVALID": "Неверный код",
+      "AUTH_CODE_EXPIRED": "Код истёк, запросите новый"
     },
     "nav": {
       "home": "Home",

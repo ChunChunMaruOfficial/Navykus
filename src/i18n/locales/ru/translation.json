@@ -672,7 +672,8 @@
       "pagination": {
         "prev": "Назад",
         "next": "Далее"
-      }
+      },
+      "backToList": "Назад к блогу"
     },
     "blogmoderation": {
       "title": "Модерация блога",

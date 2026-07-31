@@ -51,6 +51,14 @@
     "notFound": {
       "title": "Pagina no encontrada - Navykus",
       "description": "La pagina solicitada no existe. Vuelve a la pagina principal de Navykus."
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "description": "Información sobre cómo Navykus recopila y procesa datos personales"
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "description": "Reglas para usar la plataforma Navykus"
     }
   },
   "ui": {
@@ -625,7 +633,8 @@
       "pagination": {
         "prev": "Anterior",
         "next": "Siguiente"
-      }
+      },
+      "backToList": "Volver al blog"
     },
     "blogmoderation": {
       "title": "Moderación del blog",
@@ -710,7 +719,8 @@
       "verifyAction": "Verificar",
       "resendCode": "Reenviar código",
       "codeResent": "Código reenviado.",
-      "emailVerified": "Correo verificado. ¡Bienvenido!"
+      "emailVerified": "Correo verificado. ¡Bienvenido!",
+      "codeComingSoon": "Code login UI is ready. Sending and verification will be connected later."
     },
     "blogeditor": {
       "title": "Editor de blog",
@@ -1536,7 +1546,11 @@
       "INTERNAL_SERVER_ERROR": "Error interno del servidor. Intente más tarde.",
       "AUTH_RATE_LIMIT": "Too many requests. Please try again later.",
       "API_REQUEST_FAILED": "No se pudo conectar con el servidor. Revisa la direccion del sitio e intentalo de nuevo.",
-      "AUTH_EMAIL_SEND_FAILED": "No se pudo enviar el codigo por email. SMTP no esta disponible temporalmente."
+      "AUTH_EMAIL_SEND_FAILED": "No se pudo enviar el codigo por email. SMTP no esta disponible temporalmente.",
+      "AUTH_USER_NOT_FOUND": "Пользователь с таким email не найден",
+      "AUTH_CODE_REQUIRED": "Введите email и код",
+      "AUTH_CODE_INVALID": "Неверный код",
+      "AUTH_CODE_EXPIRED": "Код истёк, запросите новый"
     },
     "placeholders": {
       "search": "Buscar..."

@@ -51,6 +51,14 @@
     "notFound": {
       "description": "Запрошенная страница не найдена. Вернитесь на главную страницу Навыкус.",
       "title": "Страница не найдена — Навыкус"
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "description": "معلومات حول كيفية جمع منصة نافيكوس للبيانات الشخصية ومعالجتها"
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "description": "قواعد استخدام منصة نافيكوس"
     }
   },
   "ui": {
@@ -625,7 +633,8 @@
       "pagination": {
         "prev": "السابق",
         "next": "التالي"
-      }
+      },
+      "backToList": "العودة إلى المدونة"
     },
     "enhancements": {
       "proofCountries": "countries",
@@ -1427,7 +1436,11 @@
       "USER_SELF_BLOCK_FORBIDDEN": "You cannot block your own account",
       "USER_STATUS_INVALID": "Account status is invalid",
       "API_REQUEST_FAILED": "تعذر الاتصال بالخادم. تحقق من عنوان الموقع وحاول مرة أخرى.",
-      "AUTH_EMAIL_SEND_FAILED": "تعذر إرسال رمز البريد الإلكتروني. SMTP غير متاح مؤقتًا."
+      "AUTH_EMAIL_SEND_FAILED": "تعذر إرسال رمز البريد الإلكتروني. SMTP غير متاح مؤقتًا.",
+      "AUTH_USER_NOT_FOUND": "Пользователь с таким email не найден",
+      "AUTH_CODE_REQUIRED": "Введите email и код",
+      "AUTH_CODE_INVALID": "Неверный код",
+      "AUTH_CODE_EXPIRED": "Код истёк, запросите новый"
     },
     "details": {
       "history": "History"
