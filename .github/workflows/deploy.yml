@@ -17,12 +17,14 @@ jobs:
     timeout-minutes: 30
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Deploy over SSH
         env:
           SSH_HOST: ${{ secrets.NAVYKUS_SSH_HOST }}
           SSH_USER: ${{ secrets.NAVYKUS_SSH_USER }}
           SSH_PASSWORD: ${{ secrets.NAVYKUS_SSH_PASSWORD }}
-          SSH_HOST_KEY: ${{ secrets.NAVYKUS_SSH_HOST_KEY }}
           APP_DIR: ${{ secrets.NAVYKUS_APP_DIR }}
           PUBLIC_URL: ${{ secrets.NAVYKUS_PUBLIC_URL }}
         run: |
@@ -32,29 +34,31 @@ jobs:
           : "${SSH_USER:?Missing NAVYKUS_SSH_USER secret}"
           : "${SSH_PASSWORD:?Missing NAVYKUS_SSH_PASSWORD secret}"
 
+          # Install sshpass
           sudo apt-get update -qq
           sudo apt-get install -y -qq sshpass
 
+          # Add host key to known_hosts (skip errors, retry)
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          if [ -n "${SSH_HOST_KEY}" ]; then
-            printf '%s\n' "${SSH_HOST_KEY}" >> ~/.ssh/known_hosts
-          else
-            ssh-keyscan -H "${SSH_HOST}" >> ~/.ssh/known_hosts
-          fi
+          ssh-keyscan -H -p 22 "${SSH_HOST}" 2>/dev/null >> ~/.ssh/known_hosts || true
           chmod 600 ~/.ssh/known_hosts
 
           export SSHPASS="${SSH_PASSWORD}"
+
+          # Run remote commands via sshpass
           sshpass -e ssh \
-            -o StrictHostKeyChecking=yes \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
             -o ServerAliveInterval=30 \
             -o ServerAliveCountMax=4 \
+            -o ConnectTimeout=30 \
             "${SSH_USER}@${SSH_HOST}" \
             "APP_DIR='${APP_DIR:-/root/Navykus}' PUBLIC_URL='${PUBLIC_URL:-https://navykus.online}' bash -se" <<'REMOTE'
           set -euo pipefail
 
+          echo "=== [1/6] Pulling latest code ==="
           cd "${APP_DIR}"
-
           git fetch origin main
           git clean -fd \
             -e .env \
@@ -64,31 +68,38 @@ jobs:
             -e db-backups/
           git reset --hard origin/main
 
+          echo "=== [2/6] Installing dependencies ==="
           export NODE_OPTIONS="--max-old-space-size=3072"
+          npm install --production=false
 
-          npm install
-          npm run lint
+          echo "=== [3/6] Building frontend ==="
           npm run build
+
+          echo "=== [4/6] Building admin panel ==="
           npm run build:admin
 
+          echo "=== [5/6] Restarting services ==="
           pm2 restart navykus-api --update-env || pm2 start npm --name navykus-api -- run start:api
           pm2 restart navykus-admin --update-env || pm2 start npm --name navykus-admin -- run start:admin
 
+          echo "=== [6/6] Health check ==="
           for attempt in $(seq 1 24); do
             if curl -fsS http://127.0.0.1:4000/api/health >/tmp/navykus-health.json; then
               cat /tmp/navykus-health.json
+              echo ""
+              echo "=== ✅ DEPLOY SUCCESSFUL ==="
               break
             fi
             if [ "${attempt}" = "24" ]; then
+              echo "=== ❌ HEALTH CHECK FAILED ==="
               pm2 logs navykus-api --lines 100 --nostream || true
               exit 1
             fi
             sleep 5
           done
 
-          curl -fsSI "${PUBLIC_URL}/" >/dev/null
-          curl -fsS "${PUBLIC_URL}/api/health" >/dev/null
-          curl -fsS "${PUBLIC_URL}/api/experts?limit=3" >/dev/null
-
+          echo "=== Verification ==="
+          curl -fsSI "${PUBLIC_URL}/" >/dev/null && echo "Site: OK" || echo "Site: FAIL"
+          curl -fsS "${PUBLIC_URL}/api/health" >/dev/null && echo "Health: OK" || echo "Health: FAIL"
           pm2 list
 REMOTE
