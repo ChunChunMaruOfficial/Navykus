@@ -14,98 +14,53 @@ jobs:
   deploy:
     name: Deploy navykus.online
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Deploy over SSH
+      - name: Trigger deploy via webhook
         env:
-          SSH_HOST: ${{ secrets.NAVYKUS_SSH_HOST }}
-          SSH_USER: ${{ secrets.NAVYKUS_SSH_USER }}
-          SSH_PASSWORD: ${{ secrets.NAVYKUS_SSH_PASSWORD }}
-          APP_DIR: ${{ secrets.NAVYKUS_APP_DIR }}
-          PUBLIC_URL: ${{ secrets.NAVYKUS_PUBLIC_URL }}
+          DEPLOY_URL: ${{ secrets.NAVYKUS_DEPLOY_URL }}
+          DEPLOY_TOKEN: ${{ secrets.NAVYKUS_DEPLOY_TOKEN }}
         run: |
           set -euo pipefail
 
-          : "${SSH_HOST:?Missing NAVYKUS_SSH_HOST secret}"
-          : "${SSH_USER:?Missing NAVYKUS_SSH_USER secret}"
-          : "${SSH_PASSWORD:?Missing NAVYKUS_SSH_PASSWORD secret}"
+          : "${DEPLOY_URL:?Missing NAVYKUS_DEPLOY_URL secret}"
+          : "${DEPLOY_TOKEN:?Missing NAVYKUS_DEPLOY_TOKEN secret}"
 
-          # Install sshpass
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq sshpass
+          echo "Triggering deploy at ${DEPLOY_URL}..."
 
-          # Add host key to known_hosts (skip errors, retry)
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          ssh-keyscan -H -p 22 "${SSH_HOST}" 2>/dev/null >> ~/.ssh/known_hosts || true
-          chmod 600 ~/.ssh/known_hosts
+          curl -sf -X POST "${DEPLOY_URL}" \
+            -H "Authorization: Bearer ${DEPLOY_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d '{"ref": "'"${GITHUB_SHA}"'", "repo": "'"${GITHUB_REPOSITORY}"'"}' \
+            --max-time 10
 
-          export SSHPASS="${SSH_PASSWORD}"
+          echo ""
+          echo "=== ✅ Deploy triggered ==="
 
-          # Run remote commands via sshpass
-          sshpass -e ssh \
-            -o StrictHostKeyChecking=no \
-            -o UserKnownHostsFile=/dev/null \
-            -o ServerAliveInterval=30 \
-            -o ServerAliveCountMax=4 \
-            -o ConnectTimeout=30 \
-            "${SSH_USER}@${SSH_HOST}" \
-            "APP_DIR='${APP_DIR:-/root/Navykus}' PUBLIC_URL='${PUBLIC_URL:-https://navykus.online}' bash -se" <<'REMOTE'
-          set -euo pipefail
+      - name: Wait for deploy to complete
+        run: |
+          echo "Waiting for deploy to complete (60s)..."
+          sleep 60
 
-          echo "=== [1/6] Pulling latest code ==="
-          cd "${APP_DIR}"
-          git fetch origin main
-          git clean -fd \
-            -e .env \
-            -e payload.db \
-            -e 'payload.db*' \
-            -e uploads/ \
-            -e db-backups/
-          git reset --hard origin/main
+          echo "=== Checking health ==="
+          PUBLIC_URL="${{ secrets.NAVYKUS_PUBLIC_URL }}"
+          : "${PUBLIC_URL:?Missing NAVYKUS_PUBLIC_URL secret}"
 
-          echo "=== [2/6] Installing dependencies ==="
-          export NODE_OPTIONS="--max-old-space-size=3072"
-          npm install --production=false
-
-          echo "=== [3/6] TypeScript check ==="
-          npm run lint
-
-          echo "=== [4/6] Building frontend ==="
-          npm run build
-
-          echo "=== [5/6] Building admin panel ==="
-          npm run build:admin
-
-          echo "=== [5b/6] Database migrations ==="
-          npx payload migrate --config src/payload.config.ts || echo "Migration skipped (may be already applied)"
-
-          echo "=== [6/6] Restarting services ==="
-          pm2 restart navykus-api --update-env || pm2 start npm --name navykus-api -- run start:api
-          pm2 restart navykus-admin --update-env || pm2 start npm --name navykus-admin -- run start:admin
-
-          echo "=== [7/7] Health check ===
-          for attempt in $(seq 1 24); do
-            if curl -fsS http://127.0.0.1:4000/api/health >/tmp/navykus-health.json; then
-              cat /tmp/navykus-health.json
+          for attempt in $(seq 1 12); do
+            if curl -fsS "${PUBLIC_URL}/api/health" >/dev/null 2>&1; then
+              echo "Health check OK"
+              curl -s "${PUBLIC_URL}/api/health"
               echo ""
               echo "=== ✅ DEPLOY SUCCESSFUL ==="
-              break
+              exit 0
             fi
-            if [ "${attempt}" = "24" ]; then
-              echo "=== ❌ HEALTH CHECK FAILED ==="
-              pm2 logs navykus-api --lines 100 --nostream || true
-              exit 1
-            fi
-            sleep 5
+            echo "Attempt ${attempt}/12 - waiting..."
+            sleep 10
           done
 
-          echo "=== Verification ==="
-          curl -fsSI "${PUBLIC_URL}/" >/dev/null && echo "Site: OK" || echo "Site: FAIL"
-          curl -fsS "${PUBLIC_URL}/api/health" >/dev/null && echo "Health: OK" || echo "Health: FAIL"
-          pm2 list
-REMOTE
+          echo "=== ❌ Health check failed after deploy ==="
+          exit 1

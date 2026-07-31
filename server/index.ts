@@ -253,6 +253,18 @@ const findApprovedTeamMembers = async () => {
 
 const GIT_HASH = process.env.GIT_HASH || (() => { try { return execSync('git rev-parse --short HEAD', { encoding: 'utf-8', timeout: 3000 }).trim(); } catch { return 'dev'; } })();
 
+const DEPLOY_SECRET = process.env.DEPLOY_SECRET || '';
+
+app.post('/api/deploy', asyncRoute(async (req, res) => {
+  const auth = req.headers['authorization'] || '';
+  if (!DEPLOY_SECRET || auth !== `Bearer ${DEPLOY_SECRET}`) {
+    res.status(401).json({ code: 'DEPLOY_UNAUTHORIZED' });
+    return;
+  }
+  res.status(202).json({ status: 'deploy_started' });
+  execSync('cd ~/Navykus && git fetch origin main && git clean -fd -e .env -e payload.db -e payload.db-* -e payload.db.* -e uploads/ && git reset --hard origin/main && npm install --production=false && npm run build && npm run build:admin && npx payload migrate --config src/payload.config.ts && pm2 restart navykus-api --update-env && pm2 restart navykus-admin --update-env', { stdio: 'inherit', timeout: 300000 });
+}));
+
 app.get('/api/health', asyncRoute(async (_req, res) => {
   try {
     const payload = await getPayloadClient();
