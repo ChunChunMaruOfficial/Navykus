@@ -89,8 +89,8 @@ export default buildConfig({
   admin: {
     user: 'users',
     components: {
-      afterDashboard: ['../../../../src/admin/components/VersionBadge#VersionBadge'],
-      afterNavLinks: ['../../../../src/admin/components/VersionBadge#VersionBadge'],
+      afterDashboard: ['../../../src/admin/components/VersionBadge#VersionBadge'],
+      afterNavLinks: ['../../../src/admin/components/VersionBadge#VersionBadge'],
     },
     importMap: {
       baseDir: adminRouteGroupDir,
