@@ -346,9 +346,9 @@ export default function ActivitiesPage({
             </div>
           </motion.div>
 
+          {scenarios.length > 0 && (
           <motion.div {...cardStaggerContainer} className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            {(scenarios.length > 0
-              ? scenarios.map((s) => {
+            {scenarios.map((s) => {
                   const iconMap: Record<string, React.ReactNode> = {
                     apply: <Target className="h-5 w-5" />,
                     team: <Users className="h-5 w-5" />,
@@ -375,34 +375,7 @@ export default function ActivitiesPage({
                     cta: s.ctaText,
                     action: actionMap[s.actionType] || actionMap.general,
                   };
-                })
-              : [
-                  {
-                    icon: <Target className="h-5 w-5" />,
-                    tone: 'text-[#bc4638] bg-[#bc4638]/10',
-                    title: t('ui.activitiespage.af25d20b95'),
-                    desc: t('ui.activitiespage.4eb7854fc8'),
-                    cta: t('ui.activitiespage.cbce0b8085'),
-                    action: () => setSelectedCategory('workshop'),
-                  },
-                  {
-                    icon: <Users className="h-5 w-5" />,
-                    tone: 'text-[#bd5b82] bg-[#bd5b82]/10',
-                    title: t('ui.activitiespage.d5c86819d5'),
-                    desc: t('ui.activitiespage.0ef507d3b1'),
-                    cta: t('ui.app.d13f387e64'),
-                    action: () => onNavigateToSection('scenarios'),
-                  },
-                  {
-                    icon: <Trophy className="h-5 w-5" />,
-                    tone: 'text-[#7a5c21] bg-[#c9a96e]/16',
-                    title: t('ui.activitiespage.5c6f9ac901'),
-                    desc: t('ui.activitiespage.27354a5dbf'),
-                    cta: t('ui.activitiespage.4c788137bc'),
-                    action: () => onNavigateToSection('nearest-championship'),
-                  },
-                ]
-            ).map((card) => (
+                }).map((card) => (
               <motion.div
                 key={card.title}
                 variants={cardItemFadeUp.variants}
@@ -425,8 +398,9 @@ export default function ActivitiesPage({
                   <ArrowRight className="h-3.5 w-3.5" />
                 </button>
               </motion.div>
-            ))}
+             ))}
           </motion.div>
+          )}
         </section>
 
         <section className="py-10 md:py-16">
