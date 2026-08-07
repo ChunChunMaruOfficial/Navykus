@@ -11,7 +11,6 @@ import { getPayload } from 'payload';
 import config from '../../../../payload.config';
 import { getAdminContentTypeByCollection } from '../../../../../src/content-admin-registry';
 import {
-  syncBlogPublicationData,
   syncPublishedDraftData,
   syncTeamMemberPublicationData,
 } from '../../../../../src/payload/fields';
@@ -26,7 +25,6 @@ const payloadId = (value: string) => (/^\d+$/.test(value) ? Number(value) : valu
 
 const unpublishData = (collection: string, originalDoc: Record<string, unknown>) => {
   const data: Record<string, unknown> = { _status: 'draft' };
-  if (collection === 'blog-posts') return syncBlogPublicationData(data, originalDoc);
   if (collection === 'team-members') return syncTeamMemberPublicationData(data, originalDoc);
   return syncPublishedDraftData(data, originalDoc);
 };

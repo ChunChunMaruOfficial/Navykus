@@ -12,7 +12,6 @@ import {
 } from 'lucide-react';
 import GlassCrystal from './components/GlassCrystal';
 import ApplicationModal from './components/ApplicationModal';
-import AuthModal from './components/AuthModal';
 import BrandImage from './components/BrandImage';
 import PageSkeleton from './components/PageSkeletons';
 import StudyBackground from './components/StudyBackground';
@@ -26,7 +25,7 @@ import ScrollToTop from './components/ScrollToTop';
 import { I18nGate } from './components/I18nGate';
 import useScrollBehavior from './hooks/useScrollBehavior';
 import usePageMeta from './hooks/usePageMeta';
-import { apiUrl, fetchContactSettings, platformApi, type ContactSettings, type PlatformUser } from './api';
+import { apiUrl, fetchContactSettings, type ContactSettings } from './api';
 import {
   LANGUAGE_FLAGS,
   SUPPORTED_LANGUAGES,
@@ -48,26 +47,16 @@ import {
   fadeInScale,
   heroFadeUpLarge,
 } from './motion-animations';
+import type { TeamApplicationContext } from './types';
 
 const AboutProjectPage = lazy(() => import('./components/AboutProjectPage'));
 const ChampionshipPage = lazy(() => import('./components/ChampionshipPage'));
 const ActivitiesPage = lazy(() => import('./components/ActivitiesPage'));
 const FindTeamPage = lazy(() => import('./components/FindTeamPage'));
-const BlogPage = lazy(() => import('./components/BlogPage'));
-import PlatformPage from './components/PlatformPage';
 
-const PAGE_PATHS = ['about', 'championship', 'activities', 'find-team', 'blog'] as const;
+const PAGE_PATHS = ['about', 'championship', 'activities', 'find-team'] as const;
 type Page = 'home' | 'not-found' | 'legal' | typeof PAGE_PATHS[number];
-const PLATFORM_PATHS = [
-  '/login',
-  '/register',
-  '/forgot-password',
-  '/reset-password',
-  '/profile',
-  '/participants',
-  '/championships',
-  '/platform/admin',
-] as const;
+const REMOVED_PLATFORM_PATHS = ['/login', '/register', '/forgot-password', '/reset-password', '/profile', '/participants', '/championships', '/platform/admin'] as const;
 
 const ACTIVITIES_EVENTS_PATH = '/activities/events';
 const ACTIVITIES_OPPORTUNITIES_PATH = '/activities/opportunities';
@@ -133,7 +122,8 @@ const isPagePath = (value: string): value is typeof PAGE_PATHS[number] => {
 
 const getPageFromPath = (): Page => {
   if (typeof window === 'undefined') return 'home';
-  if (getIsPlatformRoute()) return 'home';
+  const normalizedPath = window.location.pathname.replace(/\/$/, '') || '/';
+  if (REMOVED_PLATFORM_PATHS.some((platformPath) => normalizedPath === platformPath || normalizedPath.startsWith(`${platformPath}/`))) return 'home';
   const path = window.location.pathname.replace(/\/$/, '');
   if (!path) return 'home';
   // Extract first path segment to support sub-routes like /activities/events
@@ -143,6 +133,12 @@ const getPageFromPath = (): Page => {
   return 'not-found';
 };
 
+const isRemovedPlatformPath = () => {
+  if (typeof window === 'undefined') return false;
+  const normalizedPath = window.location.pathname.replace(/\/$/, '') || '/';
+  return REMOVED_PLATFORM_PATHS.some((platformPath) => normalizedPath === platformPath || normalizedPath.startsWith(`${platformPath}/`));
+};
+
 const legalSubpageFromPath = (): 'privacy' | 'terms' | null => {
   if (typeof window === 'undefined') return null;
   const segments = window.location.pathname.replace(/\/$/, '').split('/').filter(Boolean);
@@ -150,12 +146,6 @@ const legalSubpageFromPath = (): 'privacy' | 'terms' | null => {
     return segments[1];
   }
   return null;
-};
-
-const getIsPlatformRoute = () => {
-  if (typeof window === 'undefined') return false;
-  const path = window.location.pathname.replace(/\/$/, '') || '/';
-  return PLATFORM_PATHS.some((platformPath) => path === platformPath || path.startsWith(`${platformPath}/`));
 };
 
 function PageFallback({ page }: { page: Page }) {
@@ -190,26 +180,26 @@ export default function App() {
   }, [experts, featuredTournament, featuredTournamentPublicId, cmsTournaments]);
   const [currentPage, setCurrentPage] = useState<Page>(getPageFromPath);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [selectedTourney, setSelectedTourney] = useState<string | undefined>(undefined);
+  const [applicationContext, setApplicationContext] = useState<TeamApplicationContext | undefined>(undefined);
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [legalPage, setLegalPage] = useState<'privacy' | 'terms' | null>(legalSubpageFromPath);
-  const [isPlatformRoute, setIsPlatformRoute] = useState(getIsPlatformRoute);
   const navRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const navContainerRef = useRef<HTMLElement | null>(null);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
-  const [authUser, setAuthUser] = useState<PlatformUser | null | undefined>(undefined);
   const [contactSettings, setContactSettings] = useState<ContactSettings | null>(null);
   const displayedTrustPoints = trustPoints || [];
 
   useEffect(() => {
     const handlePopState = () => {
+      if (isRemovedPlatformPath()) {
+        window.history.replaceState({}, '', '/');
+      }
       const page = getPageFromPath();
       setCurrentPage(page);
-      setIsPlatformRoute(getIsPlatformRoute());
       setLegalPage(page === 'legal' ? legalSubpageFromPath() : null);
     };
+    handlePopState();
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
@@ -224,29 +214,7 @@ export default function App() {
       target.classList.add('ring-2', 'ring-[#bc4638]', 'ring-offset-2', 'ring-offset-white');
     }, 500);
     return () => window.clearTimeout(timer);
-  }, [currentPage, isPlatformRoute]);
-
-  useEffect(() => {
-    let cancelled = false;
-    platformApi.me()
-      .then((result) => {
-        if (!cancelled) setAuthUser(result.user);
-      })
-      .catch(() => {
-        if (!cancelled) setAuthUser(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleAuthChange = (event: Event) => {
-      setAuthUser((event as CustomEvent<{ user: PlatformUser | null }>).detail?.user ?? null);
-    };
-    window.addEventListener('platform-auth-change', handleAuthChange);
-    return () => window.removeEventListener('platform-auth-change', handleAuthChange);
-  }, []);
+  }, [currentPage]);
 
   useEffect(() => {
     fetchContactSettings().then(setContactSettings);
@@ -287,7 +255,6 @@ export default function App() {
   const [formInterest, setFormInterest] = useState('projects');
   const [formSubmitStatus, setFormSubmitStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [formErrors, setFormErrors] = useState<InlineFormErrors>(createInlineFormErrors);
-  const [pendingInlineProfile, setPendingInlineProfile] = useState<{ firstName?: string; age?: string; city?: string; contact?: string; interest?: string } | null>(null);
 
   useEffect(() => {
     const handleOutsideClick = () => {
@@ -303,22 +270,9 @@ export default function App() {
     };
   }, [isLangDropdownOpen]);
 
-  const openApplyModal = (tournamentId?: string) => {
-    setSelectedTourney(tournamentId);
+  const openApplyModal = (context?: TeamApplicationContext | string) => {
+    setApplicationContext(typeof context === 'string' ? { tournamentId: context, sourceId: context, sourceType: 'championship' } : context);
     setIsModalOpen(true);
-  };
-
-  const openAuthModal = () => {
-    setIsMobileMenuOpen(false);
-    setIsAuthModalOpen(true);
-  };
-
-  const navigateToProfile = () => {
-    setIsMobileMenuOpen(false);
-    setIsAuthModalOpen(false);
-    window.history.pushState({}, '', '/profile');
-    window.dispatchEvent(new PopStateEvent('popstate'));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const updateNavIndicator = useCallback(() => {
@@ -444,97 +398,16 @@ export default function App() {
     }
 
     setFormErrors(createInlineFormErrors());
-    setPendingInlineProfile({
-      firstName: formName.trim(),
-      age: formAge.trim(),
-      city: formLocation.trim(),
-      contact: formContact.trim(),
-      interest: inlineInterestLabels[formInterest] || formInterest,
+    setApplicationContext({
+      sourceType: 'home',
+      sourceTitle: inlineInterestLabels[formInterest] || formInterest,
     });
-    setIsAuthModalOpen(true);
-  };
-
-  const applyPendingInlineProfile = async (user: PlatformUser | null) => {
-    if (!user) return;
-    const sourceLanguage = (i18n.resolvedLanguage || i18n.language || 'ru').split('-')[0];
-    const pendingChampionship = sessionStorage.getItem('navykus.pendingChampionshipProfile');
-    if (pendingChampionship) {
-      try {
-        const data = JSON.parse(pendingChampionship);
-        await platformApi.updateProfile({
-          firstName: data.name,
-          ageGroup: data.age,
-          city: data.city,
-          biography: data.coverLetter ? `Cover letter: ${data.coverLetter}\nContact: ${data.contact}` : `Contact: ${data.contact}`,
-          portfolio: data.portfolioLink,
-        });
-        sessionStorage.removeItem('navykus.pendingChampionshipProfile');
-      } catch {
-        // ignore profile update errors
-      }
-      return;
-    }
-    const pendingFindTeam = sessionStorage.getItem('navykus.pendingFindTeamProfile');
-    if (pendingFindTeam) {
-      try {
-        const data = JSON.parse(pendingFindTeam);
-        // Update user profile
-        await platformApi.updateProfile({
-          firstName: data.name,
-          email: data.email,
-          ageGroup: data.age,
-          country: data.country,
-          city: data.city,
-          skills: data.skills,
-          interests: data.interests,
-          biography: data.whyLooking || data.shortBio || '',
-          preferredLanguage: sourceLanguage,
-          preferredLanguageMode: 'manual',
-          publicProfile: true,
-          socialLinks: [{ label: data.contactType, url: data.contact }],
-        });
-        // Also create a TeamMembers entry in CMS so the participant appears on Find Team page
-        try {
-          await platformApi.createTeamMember({
-            name: data.name,
-            age: parseInt(data.age, 10) || 0,
-            country: data.country,
-            city: data.city || '',
-            shortBio: data.shortBio || data.whyLooking || '',
-            interests: data.interests || [],
-            skills: data.skills || [],
-            targetRoles: data.targetRoles || [],
-            whyLooking: data.whyLooking || '',
-            contact: data.contact,
-            contactType: data.contactType || 'telegram',
-            originalLanguage: sourceLanguage,
-            isApproved: true,
-          });
-        } catch {
-          // ignore team member creation errors (user profile update already succeeded)
-        }
-        sessionStorage.removeItem('navykus.pendingFindTeamProfile');
-      } catch {
-        // ignore profile update errors
-      }
-      return;
-    }
-    if (!pendingInlineProfile) return;
-    try {
-      await platformApi.updateProfile({
-        firstName: pendingInlineProfile.firstName,
-        ageGroup: pendingInlineProfile.age,
-        city: pendingInlineProfile.city,
-        biography: pendingInlineProfile.interest ? `Interest: ${pendingInlineProfile.interest}\nContact: ${pendingInlineProfile.contact}` : pendingInlineProfile.contact,
-      });
-    } catch {
-      // ignore profile update errors
-    }
-    setPendingInlineProfile(null);
+    setIsModalOpen(true);
     setFormName('');
     setFormAge('');
     setFormLocation('');
     setFormContact('');
+    setFormSubmitStatus('idle');
   };
 
   const firstCmsTournament = cmsTournaments[0];
@@ -638,11 +511,6 @@ export default function App() {
               onClick={() => navigateToPage('activities')}
               className={`transition-colors cursor-pointer py-1 ${currentPage === 'activities' ? 'text-[#bc4638]' : 'hover:text-[#bc4638]'}`}
             >{t('ui.app.814b71a2da')}</button>
-            <button
-              ref={(el) => { navRefs.current['blog'] = el; }}
-              onClick={() => navigateToPage('blog')}
-              className={`transition-colors cursor-pointer py-1 ${currentPage === 'blog' ? 'text-[#bc4638]' : 'hover:text-[#bc4638]'}`}
-            >{t('ui.blogpage.nav.label')}</button>
             <motion.div
               layoutId="nav-indicator"
               className="absolute bottom-0 h-0.5 bg-[#bc4638] rounded-full pointer-events-none"
@@ -733,10 +601,13 @@ export default function App() {
             </button>
 
             <button
-              onClick={authUser ? navigateToProfile : openAuthModal}
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                openApplyModal({ sourceType: 'home', sourceTitle: t('ui.app.762a52a7bb') });
+              }}
               className="hidden sm:block bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white px-3 sm:px-4 lg:px-5 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-[12px] font-medium shadow-lg shadow-[#bc4638]/20 hover:scale-[1.02] transition-transform cursor-pointer whitespace-nowrap"
             >
-              <span>{authUser ? t('platform.nav.profile') : t('ui.authmodal.headerButton')}</span>
+              <span>{t('ui.app.762a52a7bb')}</span>
             </button>
           </div>
         </div>
@@ -755,8 +626,7 @@ export default function App() {
                 <button onClick={() => navigateToPage('championship')} className={`rounded-2xl px-4 py-3 text-left transition-colors ${currentPage === 'championship' ? 'bg-brand-dark text-white' : 'hover:bg-white/60 hover:text-brand-dark'}`}>{t('ui.app.2f57076dbe')}</button>
                 <button onClick={() => navigateToPage('find-team')} className={`rounded-2xl px-4 py-3 text-left transition-colors ${currentPage === 'find-team' ? 'bg-brand-dark text-white' : 'hover:bg-white/60 hover:text-brand-dark'}`}>{t('ui.app.d13f387e64')}</button>
                 <button onClick={() => navigateToPage('activities')} className={`rounded-2xl px-4 py-3 text-left transition-colors ${currentPage === 'activities' ? 'bg-brand-dark text-white' : 'hover:bg-white/60 hover:text-brand-dark'}`}>{t('ui.app.814b71a2da')}</button>
-                <button onClick={() => navigateToPage('blog')} className={`rounded-2xl px-4 py-3 text-left transition-colors ${currentPage === 'blog' ? 'bg-brand-dark text-white' : 'hover:bg-white/60 hover:text-brand-dark'}`}>{t('ui.blogpage.nav.label')}</button>
-                <button onClick={authUser ? navigateToProfile : openAuthModal} className="mt-1 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-4 py-3 text-left font-semibold text-white shadow-lg shadow-[#bc4638]/15">{authUser ? t('platform.nav.profile') : t('ui.authmodal.headerButton')}</button>
+                <button onClick={() => { setIsMobileMenuOpen(false); openApplyModal({ sourceType: 'home', sourceTitle: t('ui.app.762a52a7bb') }); }} className="mt-1 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-4 py-3 text-left font-semibold text-white shadow-lg shadow-[#bc4638]/15">{t('ui.app.762a52a7bb')}</button>
               </div>
             </motion.div>
           )}
@@ -764,9 +634,7 @@ export default function App() {
       </motion.header>
 
       <Suspense fallback={<PageFallback page={currentPage} />}>
-      {isPlatformRoute ? (
-        <PlatformPage onLogin={openAuthModal} />
-      ) : currentPage === 'not-found' ? (
+      {currentPage === 'not-found' ? (
         <NotFoundPage onBackToHome={() => navigateToPage('home')} />
       ) : currentPage === 'home' ? (
         <>
@@ -940,7 +808,7 @@ export default function App() {
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-4">
-                  <button onClick={() => openApplyModal(nearestTournament.id)} className="px-6 py-3 bg-[#bc4638] text-white hover:bg-[#bc4638]/90 text-xs sm:text-sm font-mono tracking-wider rounded-xl transition-all shadow-md shadow-[#bc4638]/15 cursor-pointer text-center font-medium">{t('ui.app.762a52a7bb')}</button>
+                  <button onClick={() => openApplyModal({ sourceType: 'championship', sourceId: nearestTournament.id, tournamentId: nearestTournament.id, sourceTitle: nearestTournament.title })} className="px-6 py-3 bg-[#bc4638] text-white hover:bg-[#bc4638]/90 text-xs sm:text-sm font-mono tracking-wider rounded-xl transition-all shadow-md shadow-[#bc4638]/15 cursor-pointer text-center font-medium">{t('ui.app.762a52a7bb')}</button>
                   <button onClick={() => { setCurrentPage('championship'); updatePath('championship'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="px-6 py-3 bg-white/40 border border-[#d8d1cc] text-[#5b6472] hover:border-brand-dark/40 text-xs sm:text-sm font-mono tracking-wider rounded-xl transition-all cursor-pointer text-center">{t('ui.app.2f57076dbe')}</button>
                   <button onClick={() => { setCurrentPage('find-team'); updatePath('find-team'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="px-6 py-3 bg-white/40 border border-[#d8d1cc] text-[#5b6472] hover:border-brand-dark/40 text-xs sm:text-sm font-mono tracking-wider rounded-xl transition-all cursor-pointer text-center">{t('ui.app.d13f387e64')}</button>
                 </div>
@@ -1028,7 +896,7 @@ export default function App() {
 
                       <div className="pt-2">
                         <button type="submit" disabled={false} className="w-full bg-brand-dark hover:bg-[#bc4638] text-white text-xs font-mono tracking-widest py-3.5 rounded-xl transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 font-medium">
-                          <span>{t('platform.auth.registerAction')}</span>
+                          <span>{t('ui.app.762a52a7bb')}</span>
                         </button>
                       </div>
                     </form>
@@ -1100,33 +968,14 @@ export default function App() {
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             onNavigateToSection={scrollToSection}
-            onOpenApplyModal={() => openApplyModal()}
-            onOpenAuthModal={() => setIsAuthModalOpen(true)}
+            onOpenApplyModal={(context) => openApplyModal(context)}
           />
         </div>
       ) : currentPage === 'find-team' ? (
         <div className="w-full">
           <FindTeamPage
             onNavigateToSection={scrollToSection}
-            onOpenApplyModal={() => openApplyModal()}
-            authUser={authUser}
-            onOpenAuthModal={() => setIsAuthModalOpen(true)}
-          />
-        </div>
-      ) : currentPage === 'blog' ? (
-        <div className="w-full">
-          <BlogPage
-            onCreateBlog={() => {
-              if (authUser) {
-                setIsMobileMenuOpen(false);
-                setIsAuthModalOpen(false);
-                window.history.pushState({}, '', '/profile/blog/new');
-                window.dispatchEvent(new PopStateEvent('popstate'));
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              } else {
-                openAuthModal();
-              }
-            }}
+            onOpenApplyModal={(context) => openApplyModal(context)}
           />
         </div>
       ) : legalPage ? (
@@ -1135,7 +984,7 @@ export default function App() {
         <div className="w-full">
           <ActivitiesPage
             onNavigateToSection={scrollToSection}
-            onOpenApplyModal={() => openApplyModal()}
+            onOpenApplyModal={(context) => openApplyModal(context)}
           />
         </div>
       )}
@@ -1148,13 +997,7 @@ export default function App() {
       <ApplicationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        selectedTournamentId={selectedTourney}
-      />
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        onAuthChange={(user) => { setAuthUser(user); void applyPendingInlineProfile(user); }}
-        onNavigateLegal={(page) => { setIsAuthModalOpen(false); setLegalPage(page); setCurrentPage('legal'); window.history.pushState({}, '', `/legal/${page}`); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+        context={applicationContext}
       />
       </I18nGate>
     </div>

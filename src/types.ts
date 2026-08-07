@@ -24,12 +24,31 @@ export interface Tournament {
 export interface ApplicationForm {
   name: string;
   email: string;
-  grade: string;
+  age: string;
+  country: string;
   city: string;
-  interest: string;
+  contact: string;
+  contactType: 'telegram' | 'email' | 'discord';
+  shortBio: string;
+  interests: string[];
+  skills: string[];
+  targetRoles: TeamRole[];
+  targetProject?: string;
+  whyLooking: string;
+  portfolioLink?: string;
+  sourceContext?: string;
+  sourceType?: 'modal' | 'championship' | 'event' | 'opportunity' | 'find-team' | 'home' | 'about' | 'activities';
+  sourceId?: string;
   tournamentId?: string;
-  projectFile?: File | null;
+  portfolioFiles?: File[];
 }
+
+export type TeamApplicationContext = {
+  sourceType?: ApplicationForm['sourceType'];
+  sourceTitle?: string;
+  sourceId?: string;
+  tournamentId?: string;
+};
 
 export interface Ticket {
   ticketId: string;
@@ -135,6 +154,8 @@ export interface TeamMember {
   whyLooking: string;
   contact: string;
   contactType: 'telegram' | 'email' | 'discord';
+  portfolioLink?: string;
+  sourceContext?: string;
   createdAt: string;
   isApproved: boolean;
 }

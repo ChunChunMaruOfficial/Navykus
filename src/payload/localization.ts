@@ -8,10 +8,8 @@ export const TRANSLATION_STATUSES = ['pending', 'in_progress', 'ready', 'failed'
 export type TranslationStatus = (typeof TRANSLATION_STATUSES)[number];
 
 export const SUPPORTED_CONTENT_COLLECTIONS = [
-  'users',
   'team-members',
   'activities',
-  'blog-posts',
   'events',
   'experts',
   'faqs',
@@ -21,8 +19,6 @@ export const SUPPORTED_CONTENT_COLLECTIONS = [
   'stats',
   'trust-points',
   'tournaments',
-  'team-posts',
-  'team-responses',
 ] as const;
 
 export type SupportedContentCollection = (typeof SUPPORTED_CONTENT_COLLECTIONS)[number];
@@ -64,12 +60,6 @@ export const originalLanguageField: Field = {
 };
 
 const LOCALIZATION_CONFIGS: Record<SupportedContentCollection, LocalizationConfig> = {
-  users: {
-    collection: 'users',
-    sourceLanguageField: 'preferredLanguage',
-    onlyWhen: (doc) => Boolean(doc.publicProfile),
-    fields: ['country', 'city', 'ageGroup', 'school', 'schoolGrade', 'biography', 'interests', 'skills', 'languages', 'avatarAlt'],
-  },
   'team-members': {
     collection: 'team-members',
     sourceLanguageField: 'originalLanguage',
@@ -79,11 +69,6 @@ const LOCALIZATION_CONFIGS: Record<SupportedContentCollection, LocalizationConfi
     collection: 'activities',
     sourceLanguageField: 'originalLanguage',
     fields: ['title', 'shortDescription', 'fullDescription', 'format', 'date', 'category', 'status', 'who', 'benefits', 'prerequisites', 'ctaText', 'seoTitle', 'seoDescription'],
-  },
-  'blog-posts': {
-    collection: 'blog-posts',
-    sourceLanguageField: 'originalLanguage',
-    fields: ['title', 'excerpt', 'content', 'slug', 'coverAlt', 'seoTitle', 'seoDescription', 'tags'],
   },
   events: {
     collection: 'events',
@@ -129,16 +114,6 @@ const LOCALIZATION_CONFIGS: Record<SupportedContentCollection, LocalizationConfi
     collection: 'tournaments',
     sourceLanguageField: 'originalLanguage',
     fields: ['title', 'slug', 'type', 'description', 'pitch', 'date', 'registrationDeadline', 'skills', 'suitableFor', 'format', 'targetAudience', 'ageLimit', 'teamsAllowed', 'language', 'expectedResult', 'themesText', 'evaluationCriteriaText', 'seoTitle', 'seoDescription'],
-  },
-  'team-posts': {
-    collection: 'team-posts',
-    sourceLanguageField: 'originalLanguage',
-    fields: ['title', 'description', 'projectName', 'communicationLanguage', 'workingFormat', 'requiredSkills', 'ownSkills', 'interests'],
-  },
-  'team-responses': {
-    collection: 'team-responses',
-    sourceLanguageField: 'originalLanguage',
-    fields: ['message'],
   },
 };
 

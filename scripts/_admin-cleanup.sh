@@ -17,7 +17,7 @@ if [ -f admin/payload.db ]; then
 import sqlite3, sys
 try:
     db = sqlite3.connect('admin/payload.db')
-    for t in ('users','tournaments','events','blog_posts','activities','faqs','opportunities','team_members'):
+    for t in ('users','tournaments','events','activities','faqs','opportunities','team_members'):
         try:
             n = db.execute('SELECT COUNT(*) FROM ' + t).fetchone()[0]
             if n and n > 0:

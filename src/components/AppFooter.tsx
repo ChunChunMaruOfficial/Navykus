@@ -3,7 +3,7 @@ import type { ContactSettings } from '../api';
 
 interface AppFooterProps {
   contactSettings: ContactSettings | null;
-  /** Navigation callback: page name string ('about' | 'championship' | 'activities' | 'find-team' | 'blog') */
+  /** Navigation callback: page name string ('about' | 'championship' | 'activities' | 'find-team') */
   onNavigate: (page: string) => void;
 }
 
@@ -50,11 +50,6 @@ const AppFooter = ({ contactSettings, onNavigate }: AppFooterProps) => {
                   {t('ui.app.d13f387e64')}
                 </button>
               </li>
-              <li>
-                <button onClick={() => onNavigate('blog')} className="hover:text-[#bc4638] transition-colors cursor-pointer">
-                  {t('ui.blogpage.nav.label')}
-                </button>
-              </li>
             </ul>
           </div>
 
@@ -72,24 +67,6 @@ const AppFooter = ({ contactSettings, onNavigate }: AppFooterProps) => {
                   {contactSettings?.email || 'info@navykus.org'}
                 </a>
               </li>
-              <li>
-                Telegram:{' '}
-                <a
-                  href={`https://t.me/${(contactSettings?.telegram || '@navykus_com').replace('@', '')}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="hover:text-[#bc4638] transition-colors"
-                >
-                  {contactSettings?.telegram || '@navykus_com'}
-                </a>
-              </li>
-              <li>
-                {t('ui.app.ed16b5adfc')}
-                <span className="text-brand-dark/80">{contactSettings?.phone || '+7 (999) 000-00-00'}</span>
-              </li>
-              {contactSettings?.address && (
-                <li className="text-brand-dark/80">{contactSettings.address}</li>
-              )}
             </ul>
           </div>
         </div>

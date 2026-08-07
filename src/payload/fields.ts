@@ -169,50 +169,9 @@ export const syncTeamMemberPublicationData = (
   return data;
 };
 
-export const syncBlogPublicationData = (
-  data: PublicationRecord,
-  originalDoc?: PublicationRecord,
-) => {
-  const hasStatus = hasOwn(data, 'status');
-  const hasDraftStatus = hasOwn(data, '_status');
-  const hasPublishedFlag = hasOwn(data, 'isPublished');
-  if (!hasStatus && !hasDraftStatus && !hasPublishedFlag) return data;
-
-  const originalStatus = statusValue(originalDoc?.status) || 'draft';
-  let nextStatus = statusValue(data.status) || originalStatus;
-  const statusChanged = hasStatus && (!originalDoc || nextStatus !== originalStatus);
-  const draftStatus = statusValue(data._status);
-  const publishedFlag = booleanValue(data.isPublished);
-  const originalDraftStatus = statusValue(originalDoc?._status);
-  const originalPublishedFlag = booleanValue(originalDoc?.isPublished);
-  const draftChanged = hasDraftStatus && (!originalDoc || draftStatus !== originalDraftStatus);
-  const publishedChanged = hasPublishedFlag && (!originalDoc || publishedFlag !== originalPublishedFlag);
-  const flagsRequestHidden = draftChanged && draftStatus === 'draft' || publishedChanged && publishedFlag === false;
-  const flagsRequestPublished = draftChanged && draftStatus === 'published' || publishedChanged && publishedFlag === true;
-
-  if (!statusChanged && flagsRequestHidden && nextStatus === 'published') {
-    nextStatus = 'draft';
-  } else if (!statusChanged && flagsRequestPublished) {
-    nextStatus = 'published';
-  }
-
-  const shouldPublish = nextStatus === 'published' && !flagsRequestHidden;
-  if (hasStatus || hasDraftStatus || hasPublishedFlag) data.status = shouldPublish ? 'published' : nextStatus === 'published' ? 'draft' : nextStatus;
-  data._status = shouldPublish ? 'published' : 'draft';
-  data.isPublished = shouldPublish;
-  data.isApproved = data.status === 'approved' || data.status === 'published';
-  if (shouldPublish && !data.publishedAt && !originalDoc?.publishedAt) {
-    data.publishedAt = new Date().toISOString();
-  }
-  return data;
-};
-
 export const syncPublishedDraftBeforeChange: CollectionBeforeChangeHook = ({ data, originalDoc }) =>
   syncPublishedDraftData(data as PublicationRecord, originalDoc as PublicationRecord | undefined);
 
 export const syncTeamMemberPublicationBeforeChange: CollectionBeforeChangeHook = ({ data, originalDoc }) =>
   syncTeamMemberPublicationData(data as PublicationRecord, originalDoc as PublicationRecord | undefined);
-
-export const syncBlogPublicationBeforeChange: CollectionBeforeChangeHook = ({ data, originalDoc }) =>
-  syncBlogPublicationData(data as PublicationRecord, originalDoc as PublicationRecord | undefined);
 

@@ -90,6 +90,8 @@ export const normalizeTeamMember = (doc: any): TeamMember => ({
   whyLooking: doc.whyLooking,
   contact: doc.contact,
   contactType: doc.contactType,
+  portfolioLink: doc.portfolioLink,
+  sourceContext: doc.sourceContext,
   createdAt: doc.createdAt,
   isApproved: Boolean(doc.isApproved),
 });

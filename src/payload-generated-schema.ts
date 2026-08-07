@@ -18,83 +18,6 @@ import {
 } from "@payloadcms/db-sqlite/drizzle/sqlite-core";
 import { sql, relations } from "@payloadcms/db-sqlite/drizzle";
 
-export const users_interests = sqliteTable(
-  "users_interests",
-  {
-    _order: integer("_order").notNull(),
-    _parentID: integer("_parent_id").notNull(),
-    id: text("id").primaryKey(),
-    value: text("value").notNull(),
-  },
-  (columns) => [
-    index("users_interests_order_idx").on(columns._order),
-    index("users_interests_parent_id_idx").on(columns._parentID),
-    foreignKey({
-      columns: [columns["_parentID"]],
-      foreignColumns: [users.id],
-      name: "users_interests_parent_id_fk",
-    }).onDelete("cascade"),
-  ],
-);
-
-export const users_skills = sqliteTable(
-  "users_skills",
-  {
-    _order: integer("_order").notNull(),
-    _parentID: integer("_parent_id").notNull(),
-    id: text("id").primaryKey(),
-    value: text("value").notNull(),
-  },
-  (columns) => [
-    index("users_skills_order_idx").on(columns._order),
-    index("users_skills_parent_id_idx").on(columns._parentID),
-    foreignKey({
-      columns: [columns["_parentID"]],
-      foreignColumns: [users.id],
-      name: "users_skills_parent_id_fk",
-    }).onDelete("cascade"),
-  ],
-);
-
-export const users_languages = sqliteTable(
-  "users_languages",
-  {
-    _order: integer("_order").notNull(),
-    _parentID: integer("_parent_id").notNull(),
-    id: text("id").primaryKey(),
-    value: text("value").notNull(),
-  },
-  (columns) => [
-    index("users_languages_order_idx").on(columns._order),
-    index("users_languages_parent_id_idx").on(columns._parentID),
-    foreignKey({
-      columns: [columns["_parentID"]],
-      foreignColumns: [users.id],
-      name: "users_languages_parent_id_fk",
-    }).onDelete("cascade"),
-  ],
-);
-
-export const users_social_links = sqliteTable(
-  "users_social_links",
-  {
-    _order: integer("_order").notNull(),
-    _parentID: integer("_parent_id").notNull(),
-    id: text("id").primaryKey(),
-    label: text("label").notNull(),
-    url: text("url").notNull(),
-  },
-  (columns) => [
-    index("users_social_links_order_idx").on(columns._order),
-    index("users_social_links_parent_id_idx").on(columns._parentID),
-    foreignKey({
-      columns: [columns["_parentID"]],
-      foreignColumns: [users.id],
-      name: "users_social_links_parent_id_fk",
-    }).onDelete("cascade"),
-  ],
-);
-
 export const users_sessions = sqliteTable(
   "users_sessions",
   {
@@ -123,69 +46,16 @@ export const users = sqliteTable(
   "users",
   {
     id: integer("id").primaryKey(),
-    name: text("name"),
     firstName: text("first_name"),
     lastName: text("last_name"),
-    avatar: integer("avatar_id").references(() => media.id, {
-      onDelete: "set null",
-    }),
-    avatarUrl: text("avatar_url"),
-    avatarAlt: text("avatar_alt"),
-    avatarPositionX: numeric("avatar_position_x", { mode: "number" }).default(
-      50,
-    ),
-    avatarPositionY: numeric("avatar_position_y", { mode: "number" }).default(
-      50,
-    ),
-    avatarScale: numeric("avatar_scale", { mode: "number" }).default(1),
-    biography: text("biography"),
-    portfolio: text("portfolio"),
-    country: text("country"),
-    city: text("city"),
-    dateOfBirth: text("date_of_birth"),
-    ageGroup: text("age_group"),
-    school: text("school"),
-    schoolGrade: text("school_grade"),
-    preferredLanguage: text("preferred_language", {
-      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
-    }),
-    preferredLanguageMode: text("preferred_language_mode", {
-      enum: ["auto", "manual"],
-    }).default("auto"),
-    teamSearchAvailable: integer("team_search_available", {
-      mode: "boolean",
-    }).default(false),
-    publicProfile: integer("public_profile", { mode: "boolean" }).default(
-      false,
-    ),
-    privacy_showCity: integer("privacy_show_city", { mode: "boolean" }).default(
-      true,
-    ),
-    privacy_showSchool: integer("privacy_show_school", {
-      mode: "boolean",
-    }).default(false),
-    privacy_showAge: integer("privacy_show_age", { mode: "boolean" }).default(
-      true,
-    ),
-    privacy_showEmail: integer("privacy_show_email", {
-      mode: "boolean",
-    }).default(false),
-    privacy_showSocialLinks: integer("privacy_show_social_links", {
-      mode: "boolean",
-    }).default(true),
     accountStatus: text("account_status", {
       enum: ["active", "blocked", "pending"],
     })
       .notNull()
       .default("active"),
-    emailVerified: integer("email_verified", { mode: "boolean" }).default(
-      false,
-    ),
-    verificationCode: text("verification_code"),
-    verificationCodeExpires: text("verification_code_expires"),
-    role: text("role", { enum: ["user", "moderator", "admin"] })
+    role: text("role", { enum: ["moderator", "admin"] })
       .notNull()
-      .default("user"),
+      .default("moderator"),
     updatedAt: text("updated_at")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
@@ -205,13 +75,6 @@ export const users = sqliteTable(
     ),
   },
   (columns) => [
-    index("users_avatar_idx").on(columns.avatar),
-    index("users_country_idx").on(columns.country),
-    index("users_city_idx").on(columns.city),
-    index("users_age_group_idx").on(columns.ageGroup),
-    index("users_school_grade_idx").on(columns.schoolGrade),
-    index("users_team_search_available_idx").on(columns.teamSearchAvailable),
-    index("users_public_profile_idx").on(columns.publicProfile),
     index("users_updated_at_idx").on(columns.updatedAt),
     index("users_created_at_idx").on(columns.createdAt),
     uniqueIndex("users_email_idx").on(columns.email),
@@ -828,6 +691,7 @@ export const events = sqliteTable(
     country: text("country"),
     venue: text("venue"),
     onlineLink: text("online_link"),
+    registrationUrl: text("registration_url"),
     speaker: text("speaker"),
     seoTitle: text("seo_title"),
     seoDescription: text("seo_description"),
@@ -933,6 +797,7 @@ export const _events_v = sqliteTable(
     version_country: text("version_country"),
     version_venue: text("version_venue"),
     version_onlineLink: text("version_online_link"),
+    version_registrationUrl: text("version_registration_url"),
     version_speaker: text("version_speaker"),
     version_seoTitle: text("version_seo_title"),
     version_seoDescription: text("version_seo_description"),
@@ -1576,6 +1441,7 @@ export const team_members = sqliteTable(
       enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
     }).default("ru"),
     name: text("name"),
+    email: text("email"),
     age: numeric("age", { mode: "number" }),
     country: text("country"),
     city: text("city"),
@@ -1594,6 +1460,23 @@ export const team_members = sqliteTable(
       sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
     ),
     isApproved: integer("is_approved", { mode: "boolean" }).default(false),
+    portfolioLink: text("portfolio_link"),
+    sourceType: text("source_type", {
+      enum: [
+        "modal",
+        "championship",
+        "event",
+        "opportunity",
+        "find-team",
+        "home",
+        "about",
+        "activities",
+        "api",
+      ],
+    }).default("modal"),
+    sourceId: text("source_id"),
+    sourceContext: text("source_context"),
+    tournamentId: text("tournament_id"),
     seoTitle: text("seo_title"),
     seoDescription: text("seo_description"),
     updatedAt: text("updated_at")
@@ -1607,10 +1490,38 @@ export const team_members = sqliteTable(
   (columns) => [
     index("team_members_legacy_id_idx").on(columns.legacyId),
     index("team_members_original_language_idx").on(columns.originalLanguage),
+    index("team_members_email_idx").on(columns.email),
     index("team_members_moderation_status_idx").on(columns.moderationStatus),
     index("team_members_updated_at_idx").on(columns.updatedAt),
     index("team_members_created_at_idx").on(columns.createdAt),
     index("team_members__status_idx").on(columns._status),
+  ],
+);
+
+export const team_members_rels = sqliteTable(
+  "team_members_rels",
+  {
+    id: integer("id").primaryKey(),
+    order: integer("order"),
+    parent: integer("parent_id").notNull(),
+    path: text("path").notNull(),
+    mediaID: integer("media_id"),
+  },
+  (columns) => [
+    index("team_members_rels_order_idx").on(columns.order),
+    index("team_members_rels_parent_idx").on(columns.parent),
+    index("team_members_rels_path_idx").on(columns.path),
+    index("team_members_rels_media_id_idx").on(columns.mediaID),
+    foreignKey({
+      columns: [columns["parent"]],
+      foreignColumns: [team_members.id],
+      name: "team_members_rels_parent_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["mediaID"]],
+      foreignColumns: [media.id],
+      name: "team_members_rels_media_fk",
+    }).onDelete("cascade"),
   ],
 );
 
@@ -1701,6 +1612,7 @@ export const _team_members_v = sqliteTable(
       enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
     }).default("ru"),
     version_name: text("version_name"),
+    version_email: text("version_email"),
     version_age: numeric("version_age", { mode: "number" }),
     version_country: text("version_country"),
     version_city: text("version_city"),
@@ -1721,6 +1633,23 @@ export const _team_members_v = sqliteTable(
     version_isApproved: integer("version_is_approved", {
       mode: "boolean",
     }).default(false),
+    version_portfolioLink: text("version_portfolio_link"),
+    version_sourceType: text("version_source_type", {
+      enum: [
+        "modal",
+        "championship",
+        "event",
+        "opportunity",
+        "find-team",
+        "home",
+        "about",
+        "activities",
+        "api",
+      ],
+    }).default("modal"),
+    version_sourceId: text("version_source_id"),
+    version_sourceContext: text("version_source_context"),
+    version_tournamentId: text("version_tournament_id"),
     version_seoTitle: text("version_seo_title"),
     version_seoDescription: text("version_seo_description"),
     version_updatedAt: text("version_updated_at").default(
@@ -1748,6 +1677,9 @@ export const _team_members_v = sqliteTable(
     index("_team_members_v_version_version_original_language_idx").on(
       columns.version_originalLanguage,
     ),
+    index("_team_members_v_version_version_email_idx").on(
+      columns.version_email,
+    ),
     index("_team_members_v_version_version_moderation_status_idx").on(
       columns.version_moderationStatus,
     ),
@@ -1766,153 +1698,30 @@ export const _team_members_v = sqliteTable(
   ],
 );
 
-export const team_posts_required_skills = sqliteTable(
-  "team_posts_required_skills",
-  {
-    _order: integer("_order").notNull(),
-    _parentID: integer("_parent_id").notNull(),
-    id: text("id").primaryKey(),
-    value: text("value").notNull(),
-  },
-  (columns) => [
-    index("team_posts_required_skills_order_idx").on(columns._order),
-    index("team_posts_required_skills_parent_id_idx").on(columns._parentID),
-    foreignKey({
-      columns: [columns["_parentID"]],
-      foreignColumns: [team_posts.id],
-      name: "team_posts_required_skills_parent_id_fk",
-    }).onDelete("cascade"),
-  ],
-);
-
-export const team_posts_own_skills = sqliteTable(
-  "team_posts_own_skills",
-  {
-    _order: integer("_order").notNull(),
-    _parentID: integer("_parent_id").notNull(),
-    id: text("id").primaryKey(),
-    value: text("value").notNull(),
-  },
-  (columns) => [
-    index("team_posts_own_skills_order_idx").on(columns._order),
-    index("team_posts_own_skills_parent_id_idx").on(columns._parentID),
-    foreignKey({
-      columns: [columns["_parentID"]],
-      foreignColumns: [team_posts.id],
-      name: "team_posts_own_skills_parent_id_fk",
-    }).onDelete("cascade"),
-  ],
-);
-
-export const team_posts_interests = sqliteTable(
-  "team_posts_interests",
-  {
-    _order: integer("_order").notNull(),
-    _parentID: integer("_parent_id").notNull(),
-    id: text("id").primaryKey(),
-    value: text("value").notNull(),
-  },
-  (columns) => [
-    index("team_posts_interests_order_idx").on(columns._order),
-    index("team_posts_interests_parent_id_idx").on(columns._parentID),
-    foreignKey({
-      columns: [columns["_parentID"]],
-      foreignColumns: [team_posts.id],
-      name: "team_posts_interests_parent_id_fk",
-    }).onDelete("cascade"),
-  ],
-);
-
-export const team_posts = sqliteTable(
-  "team_posts",
+export const _team_members_v_rels = sqliteTable(
+  "_team_members_v_rels",
   {
     id: integer("id").primaryKey(),
-    originalLanguage: text("original_language", {
-      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
-    })
-      .notNull()
-      .default("ru"),
-    user: integer("user_id")
-      .notNull()
-      .references(() => users.id, {
-        onDelete: "set null",
-      }),
-    title: text("title").notNull(),
-    description: text("description").notNull(),
-    status: text("status", { enum: ["draft", "published", "hidden"] }).default(
-      "draft",
-    ),
-    championshipId: text("championship_id"),
-    projectName: text("project_name"),
-    communicationLanguage: text("communication_language"),
-    timeZone: text("time_zone"),
-    workingFormat: text("working_format", {
-      enum: ["online", "offline", "hybrid"],
-    }),
-    openPositions: numeric("open_positions", { mode: "number" }).default(1),
-    updatedAt: text("updated_at")
-      .notNull()
-      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
-    createdAt: text("created_at")
-      .notNull()
-      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    order: integer("order"),
+    parent: integer("parent_id").notNull(),
+    path: text("path").notNull(),
+    mediaID: integer("media_id"),
   },
   (columns) => [
-    index("team_posts_original_language_idx").on(columns.originalLanguage),
-    index("team_posts_user_idx").on(columns.user),
-    index("team_posts_status_idx").on(columns.status),
-    index("team_posts_updated_at_idx").on(columns.updatedAt),
-    index("team_posts_created_at_idx").on(columns.createdAt),
-  ],
-);
-
-export const team_responses = sqliteTable(
-  "team_responses",
-  {
-    id: integer("id").primaryKey(),
-    originalLanguage: text("original_language", {
-      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
-    })
-      .notNull()
-      .default("ru"),
-    post: integer("post_id")
-      .notNull()
-      .references(() => team_posts.id, {
-        onDelete: "set null",
-      }),
-    sender: integer("sender_id")
-      .notNull()
-      .references(() => users.id, {
-        onDelete: "set null",
-      }),
-    recipient: integer("recipient_id")
-      .notNull()
-      .references(() => users.id, {
-        onDelete: "set null",
-      }),
-    kind: text("kind", { enum: ["response", "invitation"] }).default(
-      "response",
-    ),
-    message: text("message").notNull(),
-    status: text("status", {
-      enum: ["pending", "accepted", "rejected"],
-    }).default("pending"),
-    updatedAt: text("updated_at")
-      .notNull()
-      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
-    createdAt: text("created_at")
-      .notNull()
-      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
-  },
-  (columns) => [
-    index("team_responses_original_language_idx").on(columns.originalLanguage),
-    index("team_responses_post_idx").on(columns.post),
-    index("team_responses_sender_idx").on(columns.sender),
-    index("team_responses_recipient_idx").on(columns.recipient),
-    index("team_responses_kind_idx").on(columns.kind),
-    index("team_responses_status_idx").on(columns.status),
-    index("team_responses_updated_at_idx").on(columns.updatedAt),
-    index("team_responses_created_at_idx").on(columns.createdAt),
+    index("_team_members_v_rels_order_idx").on(columns.order),
+    index("_team_members_v_rels_parent_idx").on(columns.parent),
+    index("_team_members_v_rels_path_idx").on(columns.path),
+    index("_team_members_v_rels_media_id_idx").on(columns.mediaID),
+    foreignKey({
+      columns: [columns["parent"]],
+      foreignColumns: [_team_members_v.id],
+      name: "_team_members_v_rels_parent_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["mediaID"]],
+      foreignColumns: [media.id],
+      name: "_team_members_v_rels_media_fk",
+    }).onDelete("cascade"),
   ],
 );
 
@@ -2048,266 +1857,12 @@ export const stats = sqliteTable(
   ],
 );
 
-export const applications = sqliteTable(
-  "applications",
-  {
-    id: integer("id").primaryKey(),
-    ticketId: text("ticket_id").notNull(),
-    user: integer("user_id").references(() => users.id, {
-      onDelete: "set null",
-    }),
-    itemType: text("item_type", {
-      enum: ["championship", "event", "opportunity", "program", "team-post"],
-    }).default("championship"),
-    itemId: text("item_id"),
-    itemTitle: text("item_title"),
-    status: text("status", {
-      enum: [
-        "draft",
-        "submitted",
-        "under_review",
-        "clarification_required",
-        "approved",
-        "rejected",
-        "cancelled",
-        "new",
-        "confirmed",
-        "contacted",
-      ],
-    })
-      .notNull()
-      .default("draft"),
-    name: text("name").notNull(),
-    email: text("email").notNull(),
-    grade: text("grade"),
-    age: text("age"),
-    city: text("city"),
-    contact: text("contact"),
-    interest: text("interest"),
-    tournamentId: text("tournament_id"),
-    hasTeam: text("has_team"),
-    teamSize: text("team_size"),
-    portfolioLink: text("portfolio_link"),
-    coverLetter: text("cover_letter"),
-    customAnswers: text("custom_answers", { mode: "json" }),
-    adminComment: text("admin_comment"),
-    internalNotes: text("internal_notes"),
-    submittedAt: text("submitted_at"),
-    cancelledAt: text("cancelled_at"),
-    source: text("source", {
-      enum: ["modal", "inline", "championship", "find-team", "api"],
-    }).default("modal"),
-    updatedAt: text("updated_at")
-      .notNull()
-      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
-    createdAt: text("created_at")
-      .notNull()
-      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
-  },
-  (columns) => [
-    index("applications_ticket_id_idx").on(columns.ticketId),
-    index("applications_user_idx").on(columns.user),
-    index("applications_item_type_idx").on(columns.itemType),
-    index("applications_item_id_idx").on(columns.itemId),
-    index("applications_status_idx").on(columns.status),
-    index("applications_updated_at_idx").on(columns.updatedAt),
-    index("applications_created_at_idx").on(columns.createdAt),
-  ],
-);
-
-export const applications_rels = sqliteTable(
-  "applications_rels",
-  {
-    id: integer("id").primaryKey(),
-    order: integer("order"),
-    parent: integer("parent_id").notNull(),
-    path: text("path").notNull(),
-    mediaID: integer("media_id"),
-  },
-  (columns) => [
-    index("applications_rels_order_idx").on(columns.order),
-    index("applications_rels_parent_idx").on(columns.parent),
-    index("applications_rels_path_idx").on(columns.path),
-    index("applications_rels_media_id_idx").on(columns.mediaID),
-    foreignKey({
-      columns: [columns["parent"]],
-      foreignColumns: [applications.id],
-      name: "applications_rels_parent_fk",
-    }).onDelete("cascade"),
-    foreignKey({
-      columns: [columns["mediaID"]],
-      foreignColumns: [media.id],
-      name: "applications_rels_media_fk",
-    }).onDelete("cascade"),
-  ],
-);
-
-export const application_status_history = sqliteTable(
-  "application_status_history",
-  {
-    id: integer("id").primaryKey(),
-    application: integer("application_id")
-      .notNull()
-      .references(() => applications.id, {
-        onDelete: "set null",
-      }),
-    user: integer("user_id")
-      .notNull()
-      .references(() => users.id, {
-        onDelete: "set null",
-      }),
-    actor: integer("actor_id").references(() => users.id, {
-      onDelete: "set null",
-    }),
-    previousStatus: text("previous_status"),
-    status: text("status").notNull(),
-    comment: text("comment"),
-    updatedAt: text("updated_at")
-      .notNull()
-      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
-    createdAt: text("created_at")
-      .notNull()
-      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
-  },
-  (columns) => [
-    index("application_status_history_application_idx").on(columns.application),
-    index("application_status_history_user_idx").on(columns.user),
-    index("application_status_history_actor_idx").on(columns.actor),
-    index("application_status_history_updated_at_idx").on(columns.updatedAt),
-    index("application_status_history_created_at_idx").on(columns.createdAt),
-  ],
-);
-
-export const favorites = sqliteTable(
-  "favorites",
-  {
-    id: integer("id").primaryKey(),
-    user: integer("user_id")
-      .notNull()
-      .references(() => users.id, {
-        onDelete: "set null",
-      }),
-    itemType: text("item_type", {
-      enum: [
-        "championship",
-        "event",
-        "opportunity",
-        "participant",
-        "team-post",
-      ],
-    }).notNull(),
-    itemId: text("item_id").notNull(),
-    itemTitle: text("item_title").notNull(),
-    href: text("href").notNull(),
-    updatedAt: text("updated_at")
-      .notNull()
-      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
-    createdAt: text("created_at")
-      .notNull()
-      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
-  },
-  (columns) => [
-    index("favorites_user_idx").on(columns.user),
-    index("favorites_item_type_idx").on(columns.itemType),
-    index("favorites_item_id_idx").on(columns.itemId),
-    index("favorites_updated_at_idx").on(columns.updatedAt),
-    index("favorites_created_at_idx").on(columns.createdAt),
-  ],
-);
-
-export const notifications = sqliteTable(
-  "notifications",
-  {
-    id: integer("id").primaryKey(),
-    user: integer("user_id")
-      .notNull()
-      .references(() => users.id, {
-        onDelete: "set null",
-      }),
-    type: text("type", {
-      enum: [
-        "application_submitted",
-        "application_status_changed",
-        "clarification_requested",
-        "team_response_received",
-        "team_response_accepted",
-        "team_response_rejected",
-        "team_invitation_received",
-        "upcoming_deadline",
-        "upcoming_event",
-        "announcement",
-        "blog_post_submitted",
-        "blog_post_pending_review",
-        "blog_post_approved",
-        "blog_post_published",
-        "blog_post_rejected",
-        "blog_post_needs_revision",
-      ],
-    }).notNull(),
-    relatedType: text("related_type", {
-      enum: [
-        "application",
-        "championship",
-        "event",
-        "opportunity",
-        "participant",
-        "team-post",
-        "team-response",
-        "blog-post",
-      ],
-    }),
-    relatedId: text("related_id"),
-    href: text("href"),
-    data: text("data", { mode: "json" }),
-    readAt: text("read_at"),
-    updatedAt: text("updated_at")
-      .notNull()
-      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
-    createdAt: text("created_at")
-      .notNull()
-      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
-  },
-  (columns) => [
-    index("notifications_user_idx").on(columns.user),
-    index("notifications_type_idx").on(columns.type),
-    index("notifications_read_at_idx").on(columns.readAt),
-    index("notifications_updated_at_idx").on(columns.updatedAt),
-    index("notifications_created_at_idx").on(columns.createdAt),
-  ],
-);
-
-export const community_leads = sqliteTable(
-  "community_leads",
-  {
-    id: integer("id").primaryKey(),
-    name: text("name").notNull(),
-    age: text("age").notNull(),
-    location: text("location").notNull(),
-    contact: text("contact").notNull(),
-    interest: text("interest"),
-    source: text("source").default("home-inline"),
-    updatedAt: text("updated_at")
-      .notNull()
-      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
-    createdAt: text("created_at")
-      .notNull()
-      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
-  },
-  (columns) => [
-    index("community_leads_updated_at_idx").on(columns.updatedAt),
-    index("community_leads_created_at_idx").on(columns.createdAt),
-  ],
-);
-
 export const contact_settings = sqliteTable(
   "contact_settings",
   {
     id: integer("id").primaryKey(),
     label: text("label").notNull().default("Site Contacts"),
     email: text("email").default("info@navykus.org"),
-    phone: text("phone").default("+7 (999) 000-00-00"),
-    telegram: text("telegram").default("@navykus_com"),
-    address: text("address").default(""),
     updatedAt: text("updated_at")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
@@ -2400,10 +1955,8 @@ export const content_localizations = sqliteTable(
     id: integer("id").primaryKey(),
     sourceCollection: text("source_collection", {
       enum: [
-        "users",
         "team-members",
         "activities",
-        "blog-posts",
         "events",
         "experts",
         "faqs",
@@ -2413,8 +1966,6 @@ export const content_localizations = sqliteTable(
         "stats",
         "trust-points",
         "tournaments",
-        "team-posts",
-        "team-responses",
       ],
     }).notNull(),
     sourceId: text("source_id").notNull(),
@@ -2454,319 +2005,6 @@ export const content_localizations = sqliteTable(
     index("content_localizations_content_hash_idx").on(columns.contentHash),
     index("content_localizations_updated_at_idx").on(columns.updatedAt),
     index("content_localizations_created_at_idx").on(columns.createdAt),
-  ],
-);
-
-export const blog_posts_tags = sqliteTable(
-  "blog_posts_tags",
-  {
-    _order: integer("_order").notNull(),
-    _parentID: integer("_parent_id").notNull(),
-    id: text("id").primaryKey(),
-    value: text("value"),
-  },
-  (columns) => [
-    index("blog_posts_tags_order_idx").on(columns._order),
-    index("blog_posts_tags_parent_id_idx").on(columns._parentID),
-    foreignKey({
-      columns: [columns["_parentID"]],
-      foreignColumns: [blog_posts.id],
-      name: "blog_posts_tags_parent_id_fk",
-    }).onDelete("cascade"),
-  ],
-);
-
-export const blog_posts = sqliteTable(
-  "blog_posts",
-  {
-    id: integer("id").primaryKey(),
-    legacyId: text("legacy_id"),
-    sortOrder: numeric("sort_order", { mode: "number" }).default(0),
-    title: text("title"),
-    excerpt: text("excerpt"),
-    content: text("content"),
-    cover: integer("cover_id").references(() => media.id, {
-      onDelete: "set null",
-    }),
-    coverAlt: text("cover_alt"),
-    category: text("category", {
-      enum: [
-        "news",
-        "championships",
-        "activities",
-        "opportunities",
-        "stories",
-        "interviews",
-        "tips",
-        "education",
-        "projects",
-      ],
-    }),
-    status: text("status", {
-      enum: [
-        "draft",
-        "pending_review",
-        "needs_revision",
-        "approved",
-        "published",
-        "rejected",
-        "archived",
-      ],
-    }).default("draft"),
-    author: integer("author_id").references(() => users.id, {
-      onDelete: "set null",
-    }),
-    originalLanguage: text("original_language", {
-      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
-    }).default("ru"),
-    slug: text("slug"),
-    seoTitle: text("seo_title"),
-    seoDescription: text("seo_description"),
-    readingTime: numeric("reading_time", { mode: "number" }),
-    views: numeric("views", { mode: "number" }).default(0),
-    likes: numeric("likes", { mode: "number" }).default(0),
-    publishedAt: text("published_at").default(
-      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
-    ),
-    moderationComment: text("moderation_comment"),
-    isApproved: integer("is_approved", { mode: "boolean" }).default(false),
-    isPublished: integer("is_published", { mode: "boolean" }).default(false),
-    updatedAt: text("updated_at")
-      .notNull()
-      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
-    createdAt: text("created_at")
-      .notNull()
-      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
-    _status: text("_status", { enum: ["draft", "published"] }).default("draft"),
-  },
-  (columns) => [
-    index("blog_posts_legacy_id_idx").on(columns.legacyId),
-    index("blog_posts_cover_idx").on(columns.cover),
-    index("blog_posts_category_idx").on(columns.category),
-    index("blog_posts_status_idx").on(columns.status),
-    index("blog_posts_author_idx").on(columns.author),
-    index("blog_posts_original_language_idx").on(columns.originalLanguage),
-    uniqueIndex("blog_posts_slug_idx").on(columns.slug),
-    index("blog_posts_updated_at_idx").on(columns.updatedAt),
-    index("blog_posts_created_at_idx").on(columns.createdAt),
-    index("blog_posts__status_idx").on(columns._status),
-  ],
-);
-
-export const _blog_posts_v_version_tags = sqliteTable(
-  "_blog_posts_v_version_tags",
-  {
-    _order: integer("_order").notNull(),
-    _parentID: integer("_parent_id").notNull(),
-    id: integer("id").primaryKey(),
-    value: text("value"),
-    _uuid: text("_uuid"),
-  },
-  (columns) => [
-    index("_blog_posts_v_version_tags_order_idx").on(columns._order),
-    index("_blog_posts_v_version_tags_parent_id_idx").on(columns._parentID),
-    foreignKey({
-      columns: [columns["_parentID"]],
-      foreignColumns: [_blog_posts_v.id],
-      name: "_blog_posts_v_version_tags_parent_id_fk",
-    }).onDelete("cascade"),
-  ],
-);
-
-export const _blog_posts_v = sqliteTable(
-  "_blog_posts_v",
-  {
-    id: integer("id").primaryKey(),
-    parent: integer("parent_id").references(() => blog_posts.id, {
-      onDelete: "set null",
-    }),
-    version_legacyId: text("version_legacy_id"),
-    version_sortOrder: numeric("version_sort_order", {
-      mode: "number",
-    }).default(0),
-    version_title: text("version_title"),
-    version_excerpt: text("version_excerpt"),
-    version_content: text("version_content"),
-    version_cover: integer("version_cover_id").references(() => media.id, {
-      onDelete: "set null",
-    }),
-    version_coverAlt: text("version_cover_alt"),
-    version_category: text("version_category", {
-      enum: [
-        "news",
-        "championships",
-        "activities",
-        "opportunities",
-        "stories",
-        "interviews",
-        "tips",
-        "education",
-        "projects",
-      ],
-    }),
-    version_status: text("version_status", {
-      enum: [
-        "draft",
-        "pending_review",
-        "needs_revision",
-        "approved",
-        "published",
-        "rejected",
-        "archived",
-      ],
-    }).default("draft"),
-    version_author: integer("version_author_id").references(() => users.id, {
-      onDelete: "set null",
-    }),
-    version_originalLanguage: text("version_original_language", {
-      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
-    }).default("ru"),
-    version_slug: text("version_slug"),
-    version_seoTitle: text("version_seo_title"),
-    version_seoDescription: text("version_seo_description"),
-    version_readingTime: numeric("version_reading_time", { mode: "number" }),
-    version_views: numeric("version_views", { mode: "number" }).default(0),
-    version_likes: numeric("version_likes", { mode: "number" }).default(0),
-    version_publishedAt: text("version_published_at").default(
-      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
-    ),
-    version_moderationComment: text("version_moderation_comment"),
-    version_isApproved: integer("version_is_approved", {
-      mode: "boolean",
-    }).default(false),
-    version_isPublished: integer("version_is_published", {
-      mode: "boolean",
-    }).default(false),
-    version_updatedAt: text("version_updated_at").default(
-      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
-    ),
-    version_createdAt: text("version_created_at").default(
-      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
-    ),
-    version__status: text("version__status", {
-      enum: ["draft", "published"],
-    }).default("draft"),
-    createdAt: text("created_at")
-      .notNull()
-      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
-    updatedAt: text("updated_at")
-      .notNull()
-      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
-    latest: integer("latest", { mode: "boolean" }),
-  },
-  (columns) => [
-    index("_blog_posts_v_parent_idx").on(columns.parent),
-    index("_blog_posts_v_version_version_legacy_id_idx").on(
-      columns.version_legacyId,
-    ),
-    index("_blog_posts_v_version_version_cover_idx").on(columns.version_cover),
-    index("_blog_posts_v_version_version_category_idx").on(
-      columns.version_category,
-    ),
-    index("_blog_posts_v_version_version_status_idx").on(
-      columns.version_status,
-    ),
-    index("_blog_posts_v_version_version_author_idx").on(
-      columns.version_author,
-    ),
-    index("_blog_posts_v_version_version_original_language_idx").on(
-      columns.version_originalLanguage,
-    ),
-    index("_blog_posts_v_version_version_slug_idx").on(columns.version_slug),
-    index("_blog_posts_v_version_version_updated_at_idx").on(
-      columns.version_updatedAt,
-    ),
-    index("_blog_posts_v_version_version_created_at_idx").on(
-      columns.version_createdAt,
-    ),
-    index("_blog_posts_v_version_version__status_idx").on(
-      columns.version__status,
-    ),
-    index("_blog_posts_v_created_at_idx").on(columns.createdAt),
-    index("_blog_posts_v_updated_at_idx").on(columns.updatedAt),
-    index("_blog_posts_v_latest_idx").on(columns.latest),
-  ],
-);
-
-export const blog_post_localizations = sqliteTable(
-  "blog_post_localizations",
-  {
-    id: integer("id").primaryKey(),
-    post: integer("post_id")
-      .notNull()
-      .references(() => blog_posts.id, {
-        onDelete: "set null",
-      }),
-    language: text("language", {
-      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
-    }).notNull(),
-    title: text("title").notNull(),
-    excerpt: text("excerpt").notNull(),
-    content: text("content").notNull(),
-    slug: text("slug").notNull(),
-    coverAlt: text("cover_alt"),
-    seoTitle: text("seo_title"),
-    seoDescription: text("seo_description"),
-    translationStatus: text("translation_status", {
-      enum: ["pending", "in_progress", "ready", "failed"],
-    })
-      .notNull()
-      .default("pending"),
-    errorMessage: text("error_message"),
-    generatedAt: text("generated_at").default(
-      sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
-    ),
-    attempts: numeric("attempts", { mode: "number" }).default(0),
-    updatedAt: text("updated_at")
-      .notNull()
-      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
-    createdAt: text("created_at")
-      .notNull()
-      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
-  },
-  (columns) => [
-    index("blog_post_localizations_post_idx").on(columns.post),
-    index("blog_post_localizations_language_idx").on(columns.language),
-    index("blog_post_localizations_slug_idx").on(columns.slug),
-    index("blog_post_localizations_translation_status_idx").on(
-      columns.translationStatus,
-    ),
-    index("blog_post_localizations_updated_at_idx").on(columns.updatedAt),
-    index("blog_post_localizations_created_at_idx").on(columns.createdAt),
-  ],
-);
-
-export const blog_moderation_history = sqliteTable(
-  "blog_moderation_history",
-  {
-    id: integer("id").primaryKey(),
-    post: integer("post_id")
-      .notNull()
-      .references(() => blog_posts.id, {
-        onDelete: "set null",
-      }),
-    author: integer("author_id").references(() => users.id, {
-      onDelete: "set null",
-    }),
-    actor: integer("actor_id").references(() => users.id, {
-      onDelete: "set null",
-    }),
-    previousStatus: text("previous_status"),
-    status: text("status").notNull(),
-    comment: text("comment"),
-    updatedAt: text("updated_at")
-      .notNull()
-      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
-    createdAt: text("created_at")
-      .notNull()
-      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
-  },
-  (columns) => [
-    index("blog_moderation_history_post_idx").on(columns.post),
-    index("blog_moderation_history_author_idx").on(columns.author),
-    index("blog_moderation_history_actor_idx").on(columns.actor),
-    index("blog_moderation_history_updated_at_idx").on(columns.updatedAt),
-    index("blog_moderation_history_created_at_idx").on(columns.createdAt),
   ],
 );
 
@@ -2815,24 +2053,14 @@ export const payload_locked_documents_rels = sqliteTable(
     eventsID: integer("events_id"),
     opportunitiesID: integer("opportunities_id"),
     "team-membersID": integer("team_members_id"),
-    "team-postsID": integer("team_posts_id"),
-    "team-responsesID": integer("team_responses_id"),
     "trust-pointsID": integer("trust_points_id"),
     pillarsID: integer("pillars_id"),
     scenariosID: integer("scenarios_id"),
     statsID: integer("stats_id"),
-    applicationsID: integer("applications_id"),
-    "application-status-historyID": integer("application_status_history_id"),
-    favoritesID: integer("favorites_id"),
-    notificationsID: integer("notifications_id"),
-    "community-leadsID": integer("community_leads_id"),
     "contact-settingsID": integer("contact_settings_id"),
     "operator-settingsID": integer("operator_settings_id"),
     "audit-logsID": integer("audit_logs_id"),
     "content-localizationsID": integer("content_localizations_id"),
-    "blog-postsID": integer("blog_posts_id"),
-    "blog-post-localizationsID": integer("blog_post_localizations_id"),
-    "blog-moderation-historyID": integer("blog_moderation_history_id"),
   },
   (columns) => [
     index("payload_locked_documents_rels_order_idx").on(columns.order),
@@ -2855,12 +2083,6 @@ export const payload_locked_documents_rels = sqliteTable(
     index("payload_locked_documents_rels_team_members_id_idx").on(
       columns["team-membersID"],
     ),
-    index("payload_locked_documents_rels_team_posts_id_idx").on(
-      columns["team-postsID"],
-    ),
-    index("payload_locked_documents_rels_team_responses_id_idx").on(
-      columns["team-responsesID"],
-    ),
     index("payload_locked_documents_rels_trust_points_id_idx").on(
       columns["trust-pointsID"],
     ),
@@ -2869,21 +2091,6 @@ export const payload_locked_documents_rels = sqliteTable(
       columns.scenariosID,
     ),
     index("payload_locked_documents_rels_stats_id_idx").on(columns.statsID),
-    index("payload_locked_documents_rels_applications_id_idx").on(
-      columns.applicationsID,
-    ),
-    index("payload_locked_documents_rels_application_status_history_idx").on(
-      columns["application-status-historyID"],
-    ),
-    index("payload_locked_documents_rels_favorites_id_idx").on(
-      columns.favoritesID,
-    ),
-    index("payload_locked_documents_rels_notifications_id_idx").on(
-      columns.notificationsID,
-    ),
-    index("payload_locked_documents_rels_community_leads_id_idx").on(
-      columns["community-leadsID"],
-    ),
     index("payload_locked_documents_rels_contact_settings_id_idx").on(
       columns["contact-settingsID"],
     ),
@@ -2895,15 +2102,6 @@ export const payload_locked_documents_rels = sqliteTable(
     ),
     index("payload_locked_documents_rels_content_localizations_id_idx").on(
       columns["content-localizationsID"],
-    ),
-    index("payload_locked_documents_rels_blog_posts_id_idx").on(
-      columns["blog-postsID"],
-    ),
-    index("payload_locked_documents_rels_blog_post_localizations_id_idx").on(
-      columns["blog-post-localizationsID"],
-    ),
-    index("payload_locked_documents_rels_blog_moderation_history_id_idx").on(
-      columns["blog-moderation-historyID"],
     ),
     foreignKey({
       columns: [columns["parent"]],
@@ -2956,16 +2154,6 @@ export const payload_locked_documents_rels = sqliteTable(
       name: "payload_locked_documents_rels_team_members_fk",
     }).onDelete("cascade"),
     foreignKey({
-      columns: [columns["team-postsID"]],
-      foreignColumns: [team_posts.id],
-      name: "payload_locked_documents_rels_team_posts_fk",
-    }).onDelete("cascade"),
-    foreignKey({
-      columns: [columns["team-responsesID"]],
-      foreignColumns: [team_responses.id],
-      name: "payload_locked_documents_rels_team_responses_fk",
-    }).onDelete("cascade"),
-    foreignKey({
       columns: [columns["trust-pointsID"]],
       foreignColumns: [trust_points.id],
       name: "payload_locked_documents_rels_trust_points_fk",
@@ -2986,31 +2174,6 @@ export const payload_locked_documents_rels = sqliteTable(
       name: "payload_locked_documents_rels_stats_fk",
     }).onDelete("cascade"),
     foreignKey({
-      columns: [columns["applicationsID"]],
-      foreignColumns: [applications.id],
-      name: "payload_locked_documents_rels_applications_fk",
-    }).onDelete("cascade"),
-    foreignKey({
-      columns: [columns["application-status-historyID"]],
-      foreignColumns: [application_status_history.id],
-      name: "payload_locked_documents_rels_application_status_history_fk",
-    }).onDelete("cascade"),
-    foreignKey({
-      columns: [columns["favoritesID"]],
-      foreignColumns: [favorites.id],
-      name: "payload_locked_documents_rels_favorites_fk",
-    }).onDelete("cascade"),
-    foreignKey({
-      columns: [columns["notificationsID"]],
-      foreignColumns: [notifications.id],
-      name: "payload_locked_documents_rels_notifications_fk",
-    }).onDelete("cascade"),
-    foreignKey({
-      columns: [columns["community-leadsID"]],
-      foreignColumns: [community_leads.id],
-      name: "payload_locked_documents_rels_community_leads_fk",
-    }).onDelete("cascade"),
-    foreignKey({
       columns: [columns["contact-settingsID"]],
       foreignColumns: [contact_settings.id],
       name: "payload_locked_documents_rels_contact_settings_fk",
@@ -3029,21 +2192,6 @@ export const payload_locked_documents_rels = sqliteTable(
       columns: [columns["content-localizationsID"]],
       foreignColumns: [content_localizations.id],
       name: "payload_locked_documents_rels_content_localizations_fk",
-    }).onDelete("cascade"),
-    foreignKey({
-      columns: [columns["blog-postsID"]],
-      foreignColumns: [blog_posts.id],
-      name: "payload_locked_documents_rels_blog_posts_fk",
-    }).onDelete("cascade"),
-    foreignKey({
-      columns: [columns["blog-post-localizationsID"]],
-      foreignColumns: [blog_post_localizations.id],
-      name: "payload_locked_documents_rels_blog_post_localizations_fk",
-    }).onDelete("cascade"),
-    foreignKey({
-      columns: [columns["blog-moderation-historyID"]],
-      foreignColumns: [blog_moderation_history.id],
-      name: "payload_locked_documents_rels_blog_moderation_history_fk",
     }).onDelete("cascade"),
   ],
 );
@@ -3114,43 +2262,6 @@ export const payload_migrations = sqliteTable(
   ],
 );
 
-export const relations_users_interests = relations(
-  users_interests,
-  ({ one }) => ({
-    _parentID: one(users, {
-      fields: [users_interests._parentID],
-      references: [users.id],
-      relationName: "interests",
-    }),
-  }),
-);
-export const relations_users_skills = relations(users_skills, ({ one }) => ({
-  _parentID: one(users, {
-    fields: [users_skills._parentID],
-    references: [users.id],
-    relationName: "skills",
-  }),
-}));
-export const relations_users_languages = relations(
-  users_languages,
-  ({ one }) => ({
-    _parentID: one(users, {
-      fields: [users_languages._parentID],
-      references: [users.id],
-      relationName: "languages",
-    }),
-  }),
-);
-export const relations_users_social_links = relations(
-  users_social_links,
-  ({ one }) => ({
-    _parentID: one(users, {
-      fields: [users_social_links._parentID],
-      references: [users.id],
-      relationName: "socialLinks",
-    }),
-  }),
-);
 export const relations_users_sessions = relations(
   users_sessions,
   ({ one }) => ({
@@ -3161,24 +2272,7 @@ export const relations_users_sessions = relations(
     }),
   }),
 );
-export const relations_users = relations(users, ({ one, many }) => ({
-  avatar: one(media, {
-    fields: [users.avatar],
-    references: [media.id],
-    relationName: "avatar",
-  }),
-  interests: many(users_interests, {
-    relationName: "interests",
-  }),
-  skills: many(users_skills, {
-    relationName: "skills",
-  }),
-  languages: many(users_languages, {
-    relationName: "languages",
-  }),
-  socialLinks: many(users_social_links, {
-    relationName: "socialLinks",
-  }),
+export const relations_users = relations(users, ({ many }) => ({
   sessions: many(users_sessions, {
     relationName: "sessions",
   }),
@@ -3585,6 +2679,21 @@ export const relations_team_members_target_roles = relations(
     }),
   }),
 );
+export const relations_team_members_rels = relations(
+  team_members_rels,
+  ({ one }) => ({
+    parent: one(team_members, {
+      fields: [team_members_rels.parent],
+      references: [team_members.id],
+      relationName: "_rels",
+    }),
+    mediaID: one(media, {
+      fields: [team_members_rels.mediaID],
+      references: [media.id],
+      relationName: "media",
+    }),
+  }),
+);
 export const relations_team_members = relations(team_members, ({ many }) => ({
   interests: many(team_members_interests, {
     relationName: "interests",
@@ -3594,6 +2703,9 @@ export const relations_team_members = relations(team_members, ({ many }) => ({
   }),
   targetRoles: many(team_members_target_roles, {
     relationName: "targetRoles",
+  }),
+  _rels: many(team_members_rels, {
+    relationName: "_rels",
   }),
 }));
 export const relations__team_members_v_version_interests = relations(
@@ -3626,6 +2738,21 @@ export const relations__team_members_v_version_target_roles = relations(
     }),
   }),
 );
+export const relations__team_members_v_rels = relations(
+  _team_members_v_rels,
+  ({ one }) => ({
+    parent: one(_team_members_v, {
+      fields: [_team_members_v_rels.parent],
+      references: [_team_members_v.id],
+      relationName: "_rels",
+    }),
+    mediaID: one(media, {
+      fields: [_team_members_v_rels.mediaID],
+      references: [media.id],
+      relationName: "media",
+    }),
+  }),
+);
 export const relations__team_members_v = relations(
   _team_members_v,
   ({ one, many }) => ({
@@ -3643,71 +2770,8 @@ export const relations__team_members_v = relations(
     version_targetRoles: many(_team_members_v_version_target_roles, {
       relationName: "version_targetRoles",
     }),
-  }),
-);
-export const relations_team_posts_required_skills = relations(
-  team_posts_required_skills,
-  ({ one }) => ({
-    _parentID: one(team_posts, {
-      fields: [team_posts_required_skills._parentID],
-      references: [team_posts.id],
-      relationName: "requiredSkills",
-    }),
-  }),
-);
-export const relations_team_posts_own_skills = relations(
-  team_posts_own_skills,
-  ({ one }) => ({
-    _parentID: one(team_posts, {
-      fields: [team_posts_own_skills._parentID],
-      references: [team_posts.id],
-      relationName: "ownSkills",
-    }),
-  }),
-);
-export const relations_team_posts_interests = relations(
-  team_posts_interests,
-  ({ one }) => ({
-    _parentID: one(team_posts, {
-      fields: [team_posts_interests._parentID],
-      references: [team_posts.id],
-      relationName: "interests",
-    }),
-  }),
-);
-export const relations_team_posts = relations(team_posts, ({ one, many }) => ({
-  user: one(users, {
-    fields: [team_posts.user],
-    references: [users.id],
-    relationName: "user",
-  }),
-  requiredSkills: many(team_posts_required_skills, {
-    relationName: "requiredSkills",
-  }),
-  ownSkills: many(team_posts_own_skills, {
-    relationName: "ownSkills",
-  }),
-  interests: many(team_posts_interests, {
-    relationName: "interests",
-  }),
-}));
-export const relations_team_responses = relations(
-  team_responses,
-  ({ one }) => ({
-    post: one(team_posts, {
-      fields: [team_responses.post],
-      references: [team_posts.id],
-      relationName: "post",
-    }),
-    sender: one(users, {
-      fields: [team_responses.sender],
-      references: [users.id],
-      relationName: "sender",
-    }),
-    recipient: one(users, {
-      fields: [team_responses.recipient],
-      references: [users.id],
-      relationName: "recipient",
+    _rels: many(_team_members_v_rels, {
+      relationName: "_rels",
     }),
   }),
 );
@@ -3715,69 +2779,6 @@ export const relations_trust_points = relations(trust_points, () => ({}));
 export const relations_pillars = relations(pillars, () => ({}));
 export const relations_scenarios = relations(scenarios, () => ({}));
 export const relations_stats = relations(stats, () => ({}));
-export const relations_applications_rels = relations(
-  applications_rels,
-  ({ one }) => ({
-    parent: one(applications, {
-      fields: [applications_rels.parent],
-      references: [applications.id],
-      relationName: "_rels",
-    }),
-    mediaID: one(media, {
-      fields: [applications_rels.mediaID],
-      references: [media.id],
-      relationName: "media",
-    }),
-  }),
-);
-export const relations_applications = relations(
-  applications,
-  ({ one, many }) => ({
-    user: one(users, {
-      fields: [applications.user],
-      references: [users.id],
-      relationName: "user",
-    }),
-    _rels: many(applications_rels, {
-      relationName: "_rels",
-    }),
-  }),
-);
-export const relations_application_status_history = relations(
-  application_status_history,
-  ({ one }) => ({
-    application: one(applications, {
-      fields: [application_status_history.application],
-      references: [applications.id],
-      relationName: "application",
-    }),
-    user: one(users, {
-      fields: [application_status_history.user],
-      references: [users.id],
-      relationName: "user",
-    }),
-    actor: one(users, {
-      fields: [application_status_history.actor],
-      references: [users.id],
-      relationName: "actor",
-    }),
-  }),
-);
-export const relations_favorites = relations(favorites, ({ one }) => ({
-  user: one(users, {
-    fields: [favorites.user],
-    references: [users.id],
-    relationName: "user",
-  }),
-}));
-export const relations_notifications = relations(notifications, ({ one }) => ({
-  user: one(users, {
-    fields: [notifications.user],
-    references: [users.id],
-    relationName: "user",
-  }),
-}));
-export const relations_community_leads = relations(community_leads, () => ({}));
 export const relations_contact_settings = relations(
   contact_settings,
   () => ({}),
@@ -3804,94 +2805,6 @@ export const relations_audit_logs = relations(audit_logs, ({ many }) => ({
 export const relations_content_localizations = relations(
   content_localizations,
   () => ({}),
-);
-export const relations_blog_posts_tags = relations(
-  blog_posts_tags,
-  ({ one }) => ({
-    _parentID: one(blog_posts, {
-      fields: [blog_posts_tags._parentID],
-      references: [blog_posts.id],
-      relationName: "tags",
-    }),
-  }),
-);
-export const relations_blog_posts = relations(blog_posts, ({ one, many }) => ({
-  cover: one(media, {
-    fields: [blog_posts.cover],
-    references: [media.id],
-    relationName: "cover",
-  }),
-  tags: many(blog_posts_tags, {
-    relationName: "tags",
-  }),
-  author: one(users, {
-    fields: [blog_posts.author],
-    references: [users.id],
-    relationName: "author",
-  }),
-}));
-export const relations__blog_posts_v_version_tags = relations(
-  _blog_posts_v_version_tags,
-  ({ one }) => ({
-    _parentID: one(_blog_posts_v, {
-      fields: [_blog_posts_v_version_tags._parentID],
-      references: [_blog_posts_v.id],
-      relationName: "version_tags",
-    }),
-  }),
-);
-export const relations__blog_posts_v = relations(
-  _blog_posts_v,
-  ({ one, many }) => ({
-    parent: one(blog_posts, {
-      fields: [_blog_posts_v.parent],
-      references: [blog_posts.id],
-      relationName: "parent",
-    }),
-    version_cover: one(media, {
-      fields: [_blog_posts_v.version_cover],
-      references: [media.id],
-      relationName: "version_cover",
-    }),
-    version_tags: many(_blog_posts_v_version_tags, {
-      relationName: "version_tags",
-    }),
-    version_author: one(users, {
-      fields: [_blog_posts_v.version_author],
-      references: [users.id],
-      relationName: "version_author",
-    }),
-  }),
-);
-export const relations_blog_post_localizations = relations(
-  blog_post_localizations,
-  ({ one }) => ({
-    post: one(blog_posts, {
-      fields: [blog_post_localizations.post],
-      references: [blog_posts.id],
-      relationName: "post",
-    }),
-  }),
-);
-export const relations_blog_moderation_history = relations(
-  blog_moderation_history,
-  ({ one }) => ({
-    post: one(blog_posts, {
-      fields: [blog_moderation_history.post],
-      references: [blog_posts.id],
-      relationName: "post",
-    }),
-    author: one(users, {
-      fields: [blog_moderation_history.author],
-      references: [users.id],
-      relationName: "author",
-    }),
-    actor: one(users, {
-      fields: [blog_moderation_history.actor],
-      references: [users.id],
-      relationName: "actor",
-    }),
-  }),
 );
 export const relations_payload_kv = relations(payload_kv, () => ({}));
 export const relations_payload_locked_documents_rels = relations(
@@ -3947,16 +2860,6 @@ export const relations_payload_locked_documents_rels = relations(
       references: [team_members.id],
       relationName: "team-members",
     }),
-    "team-postsID": one(team_posts, {
-      fields: [payload_locked_documents_rels["team-postsID"]],
-      references: [team_posts.id],
-      relationName: "team-posts",
-    }),
-    "team-responsesID": one(team_responses, {
-      fields: [payload_locked_documents_rels["team-responsesID"]],
-      references: [team_responses.id],
-      relationName: "team-responses",
-    }),
     "trust-pointsID": one(trust_points, {
       fields: [payload_locked_documents_rels["trust-pointsID"]],
       references: [trust_points.id],
@@ -3977,31 +2880,6 @@ export const relations_payload_locked_documents_rels = relations(
       references: [stats.id],
       relationName: "stats",
     }),
-    applicationsID: one(applications, {
-      fields: [payload_locked_documents_rels.applicationsID],
-      references: [applications.id],
-      relationName: "applications",
-    }),
-    "application-status-historyID": one(application_status_history, {
-      fields: [payload_locked_documents_rels["application-status-historyID"]],
-      references: [application_status_history.id],
-      relationName: "application-status-history",
-    }),
-    favoritesID: one(favorites, {
-      fields: [payload_locked_documents_rels.favoritesID],
-      references: [favorites.id],
-      relationName: "favorites",
-    }),
-    notificationsID: one(notifications, {
-      fields: [payload_locked_documents_rels.notificationsID],
-      references: [notifications.id],
-      relationName: "notifications",
-    }),
-    "community-leadsID": one(community_leads, {
-      fields: [payload_locked_documents_rels["community-leadsID"]],
-      references: [community_leads.id],
-      relationName: "community-leads",
-    }),
     "contact-settingsID": one(contact_settings, {
       fields: [payload_locked_documents_rels["contact-settingsID"]],
       references: [contact_settings.id],
@@ -4021,21 +2899,6 @@ export const relations_payload_locked_documents_rels = relations(
       fields: [payload_locked_documents_rels["content-localizationsID"]],
       references: [content_localizations.id],
       relationName: "content-localizations",
-    }),
-    "blog-postsID": one(blog_posts, {
-      fields: [payload_locked_documents_rels["blog-postsID"]],
-      references: [blog_posts.id],
-      relationName: "blog-posts",
-    }),
-    "blog-post-localizationsID": one(blog_post_localizations, {
-      fields: [payload_locked_documents_rels["blog-post-localizationsID"]],
-      references: [blog_post_localizations.id],
-      relationName: "blog-post-localizations",
-    }),
-    "blog-moderation-historyID": one(blog_moderation_history, {
-      fields: [payload_locked_documents_rels["blog-moderation-historyID"]],
-      references: [blog_moderation_history.id],
-      relationName: "blog-moderation-history",
     }),
   }),
 );
@@ -4076,10 +2939,6 @@ export const relations_payload_migrations = relations(
 );
 
 type DatabaseSchema = {
-  users_interests: typeof users_interests;
-  users_skills: typeof users_skills;
-  users_languages: typeof users_languages;
-  users_social_links: typeof users_social_links;
   users_sessions: typeof users_sessions;
   users: typeof users;
   media: typeof media;
@@ -4121,46 +2980,27 @@ type DatabaseSchema = {
   team_members_skills: typeof team_members_skills;
   team_members_target_roles: typeof team_members_target_roles;
   team_members: typeof team_members;
+  team_members_rels: typeof team_members_rels;
   _team_members_v_version_interests: typeof _team_members_v_version_interests;
   _team_members_v_version_skills: typeof _team_members_v_version_skills;
   _team_members_v_version_target_roles: typeof _team_members_v_version_target_roles;
   _team_members_v: typeof _team_members_v;
-  team_posts_required_skills: typeof team_posts_required_skills;
-  team_posts_own_skills: typeof team_posts_own_skills;
-  team_posts_interests: typeof team_posts_interests;
-  team_posts: typeof team_posts;
-  team_responses: typeof team_responses;
+  _team_members_v_rels: typeof _team_members_v_rels;
   trust_points: typeof trust_points;
   pillars: typeof pillars;
   scenarios: typeof scenarios;
   stats: typeof stats;
-  applications: typeof applications;
-  applications_rels: typeof applications_rels;
-  application_status_history: typeof application_status_history;
-  favorites: typeof favorites;
-  notifications: typeof notifications;
-  community_leads: typeof community_leads;
   contact_settings: typeof contact_settings;
   operator_settings: typeof operator_settings;
   audit_logs_changed_fields: typeof audit_logs_changed_fields;
   audit_logs: typeof audit_logs;
   content_localizations: typeof content_localizations;
-  blog_posts_tags: typeof blog_posts_tags;
-  blog_posts: typeof blog_posts;
-  _blog_posts_v_version_tags: typeof _blog_posts_v_version_tags;
-  _blog_posts_v: typeof _blog_posts_v;
-  blog_post_localizations: typeof blog_post_localizations;
-  blog_moderation_history: typeof blog_moderation_history;
   payload_kv: typeof payload_kv;
   payload_locked_documents: typeof payload_locked_documents;
   payload_locked_documents_rels: typeof payload_locked_documents_rels;
   payload_preferences: typeof payload_preferences;
   payload_preferences_rels: typeof payload_preferences_rels;
   payload_migrations: typeof payload_migrations;
-  relations_users_interests: typeof relations_users_interests;
-  relations_users_skills: typeof relations_users_skills;
-  relations_users_languages: typeof relations_users_languages;
-  relations_users_social_links: typeof relations_users_social_links;
   relations_users_sessions: typeof relations_users_sessions;
   relations_users: typeof relations_users;
   relations_media: typeof relations_media;
@@ -4201,37 +3041,22 @@ type DatabaseSchema = {
   relations_team_members_interests: typeof relations_team_members_interests;
   relations_team_members_skills: typeof relations_team_members_skills;
   relations_team_members_target_roles: typeof relations_team_members_target_roles;
+  relations_team_members_rels: typeof relations_team_members_rels;
   relations_team_members: typeof relations_team_members;
   relations__team_members_v_version_interests: typeof relations__team_members_v_version_interests;
   relations__team_members_v_version_skills: typeof relations__team_members_v_version_skills;
   relations__team_members_v_version_target_roles: typeof relations__team_members_v_version_target_roles;
+  relations__team_members_v_rels: typeof relations__team_members_v_rels;
   relations__team_members_v: typeof relations__team_members_v;
-  relations_team_posts_required_skills: typeof relations_team_posts_required_skills;
-  relations_team_posts_own_skills: typeof relations_team_posts_own_skills;
-  relations_team_posts_interests: typeof relations_team_posts_interests;
-  relations_team_posts: typeof relations_team_posts;
-  relations_team_responses: typeof relations_team_responses;
   relations_trust_points: typeof relations_trust_points;
   relations_pillars: typeof relations_pillars;
   relations_scenarios: typeof relations_scenarios;
   relations_stats: typeof relations_stats;
-  relations_applications_rels: typeof relations_applications_rels;
-  relations_applications: typeof relations_applications;
-  relations_application_status_history: typeof relations_application_status_history;
-  relations_favorites: typeof relations_favorites;
-  relations_notifications: typeof relations_notifications;
-  relations_community_leads: typeof relations_community_leads;
   relations_contact_settings: typeof relations_contact_settings;
   relations_operator_settings: typeof relations_operator_settings;
   relations_audit_logs_changed_fields: typeof relations_audit_logs_changed_fields;
   relations_audit_logs: typeof relations_audit_logs;
   relations_content_localizations: typeof relations_content_localizations;
-  relations_blog_posts_tags: typeof relations_blog_posts_tags;
-  relations_blog_posts: typeof relations_blog_posts;
-  relations__blog_posts_v_version_tags: typeof relations__blog_posts_v_version_tags;
-  relations__blog_posts_v: typeof relations__blog_posts_v;
-  relations_blog_post_localizations: typeof relations_blog_post_localizations;
-  relations_blog_moderation_history: typeof relations_blog_moderation_history;
   relations_payload_kv: typeof relations_payload_kv;
   relations_payload_locked_documents_rels: typeof relations_payload_locked_documents_rels;
   relations_payload_locked_documents: typeof relations_payload_locked_documents;

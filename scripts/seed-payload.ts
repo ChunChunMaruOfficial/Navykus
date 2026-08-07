@@ -14,8 +14,8 @@ import { OPPORTUNITIES } from '../src/components/OpportunitiesPage';
 import { getPayloadClient } from '../server/payload';
 
 const list = (items: string[] = []) => items.map((value) => ({ value }));
-const DRAFT_COLLECTIONS = new Set(['team-members', 'tournaments', 'events', 'opportunities', 'experts', 'faqs', 'blog-posts']);
-const PUBLISHED_FLAG_COLLECTIONS = new Set(['tournaments', 'events', 'opportunities', 'experts', 'faqs', 'blog-posts']);
+const DRAFT_COLLECTIONS = new Set(['team-members', 'tournaments', 'events', 'opportunities', 'experts', 'faqs']);
+const PUBLISHED_FLAG_COLLECTIONS = new Set(['tournaments', 'events', 'opportunities', 'experts', 'faqs']);
 const pickRu = (value: Record<string, string> | string | undefined) => {
   if (!value) return '';
   if (typeof value === 'string') return value;
@@ -452,84 +452,6 @@ const seed = async () => {
       isPublished: true,
       originalLanguage: 'ru',
     });
-  }
-
-  // Seed 3 mock blog posts
-  const adminUser = await payload.find({
-    collection: 'users' as any,
-    where: { email: { equals: adminEmail } },
-    limit: 1,
-    overrideAccess: true,
-  });
-  const adminId = adminUser.docs[0]?.id;
-
-  const BLOG_SEED = [
-    {
-      title: 'Как подготовиться к международному чемпионату',
-      slug: 'kak-podgotovitsya-k-mezhdunarodnomu-chempionatu',
-      excerpt: 'Пошаговый план подготовки: от выбора направления до финальной защиты проекта перед жюри.',
-      content: 'Участие в международном чемпионате — это не только про победу, но и про ценный опыт, новые знакомства и возможность заявить о себе.\n\n## Шаг 1: Выберите направление\n\nОпределитесь, какая тема вам ближе всего: экология, урбанистика, IT-решения или социальное проектирование. Изучите кейсы прошлых сезонов, чтобы понять формат и уровень требований.\n\n## Шаг 2: Соберите команду\n\nЕсли у вас ещё нет команды, воспользуйтесь разделом «Найти команду» на платформе. Ищите людей с complementary навыками: аналитик, дизайнер, разработчик, презентатор.\n\n## Шаг 3: Исследуйте проблему\n\nПогрузитесь в контекст выбранного кейса. Соберите данные, проведите интервью с потенциальными пользователями, изучите существующие решения.\n\n## Шаг 4: Разработайте решение\n\nСформулируйте гипотезу, создайте прототип и протестируйте его на фокус-группе. Убедитесь, что ваше решение реально решает проблему, а не является просто красивой идеей.\n\n## Шаг 5: Подготовьте защиту\n\nСтруктурируйте презентацию: проблема → исследование → решение → результаты. Готовьтесь отвечать на вопросы жюри. Репетируйте защиту с командой не менее трёх раз.\n\nУдачи на чемпионате!',
-      category: 'championships',
-      status: 'published',
-      originalLanguage: 'ru',
-      readingTime: 7,
-      publishedAt: '2026-07-12T10:00:00.000Z',
-      tags: ['чемпионат', 'подготовка', 'жюри', 'советы'],
-    },
-    {
-      title: 'История победителя прошлого сезона',
-      slug: 'istoriya-pobeditelya-proshlogo-sezona',
-      excerpt: 'Интервью с участником, который занял первое место и запустил свой проект после чемпионата.',
-      content: 'Мы поговорили с Артёмом, победителем Navykus Global Case Cup 2025. Его проект «Умный парк» получил высокую оценку жюри и сейчас тестируется в одном из районов Казани.\n\n— Артём, расскажи, с чего всё началось?\n\n— Всё началось с того, что я увидел объявление о чемпионате в школьном чате. Тема устойчивого развития городов меня давно интересовала, и я решил попробовать. Собрал команду из трёх одноклассников, и мы начали работать.\n\n— Какая была основная сложность?\n\n— Самое сложное — правильно сформулировать проблему. Мы хотели объять необъятное, но менторы помогли нам сузить фокус. В итоге мы сосредоточились на проблеме недостатка зелёных зон в спальных районах.\n\n— Что дала тебе победа?\n\n— Во-первых, уверенность в своих силах. Во-вторых, реальные контакты: к нам обратились из городской администрации с предложением пилотировать проект. Сейчас «Умный парк» — это не просто школьный проект, а настоящий стартап.\n\n— Что посоветуешь новым участникам?\n\n— Не бойтесь начинать. Даже если кажется, что идея сырая — берите и делайте. Жюри ценит не столько идеальный продукт, сколько логику мышления и потенциал развития.',
-      category: 'stories',
-      status: 'published',
-      originalLanguage: 'ru',
-      readingTime: 6,
-      publishedAt: '2026-07-10T10:00:00.000Z',
-      tags: ['история', 'победа', 'интервью', 'стартап'],
-    },
-    {
-      title: 'Что такое soft skills и как их развивать',
-      slug: 'chto-takoe-soft-skills',
-      excerpt: 'Объясняем, почему гибкие навыки важнее жёстких и как развивать их через школьные проектные активности.',
-      content: 'В современном мире работодатели всё чаще обращают внимание не только на профессиональные знания, но и на так называемые «гибкие навыки» (soft skills). Что это такое и почему они так важны?\n\n## Что входит в soft skills?\n\n— **Коммуникация**: умение ясно выражать мысли, слушать собеседника, аргументировать свою позицию.\n— **Командная работа**: способность эффективно взаимодействовать с другими людьми для достижения общей цели.\n— **Критическое мышление**: умение анализировать информацию, замечать противоречия и делать обоснованные выводы.\n— **Тайм-менеджмент**: навык планировать своё время и соблюдать дедлайны.\n— **Адаптивность**: готовность меняться и учиться новому в быстро меняющихся условиях.\n\n## Как развивать soft skills через проекты Навыкус?\n\nУчастие в чемпионатах и активностях платформы — отличный способ прокачать гибкие навыки на практике.\n\n1. **Работа в команде** над кейсом учит договариваться, распределять задачи и нести ответственность за общий результат.\n2. **Презентация проекта** перед жюри тренирует навыки публичных выступлений и самопрезентации.\n3. **Работа с дедлайнами** чемпионата помогает освоить тайм-менеджмент.\n4. **Решение нестандартных кейсов** развивает критическое мышление и креативность.\n\nНачните с малого: запишитесь на ближайший воркшоп или соберите команду для участия в чемпионате. Каждый проект — это шаг к вашему развитию!',
-      category: 'education',
-      status: 'published',
-      originalLanguage: 'ru',
-      readingTime: 5,
-      publishedAt: '2026-07-08T10:00:00.000Z',
-      tags: ['soft skills', 'навыки', 'развитие', 'образование'],
-    },
-  ];
-
-  for (const post of BLOG_SEED) {
-    const existing = await payload.find({
-      collection: 'blog-posts' as any,
-      where: { slug: { equals: post.slug } },
-      limit: 1,
-      overrideAccess: true,
-    });
-
-    const existingPost = existing.docs[0] as Record<string, unknown> | undefined;
-    if (!existingPost) {
-      await payload.create({
-        collection: 'blog-posts' as any,
-        data: {
-          ...post,
-          ...seedVisibility('blog-posts'),
-          author: adminId,
-          tags: list(post.tags),
-        },
-        overrideAccess: true,
-      });
-    } else if (existingPost._status !== 'published' || existingPost.isPublished !== true) {
-      await payload.update({
-        collection: 'blog-posts' as any,
-        id: existingPost.id as any,
-        data: seedVisibility('blog-posts'),
-        overrideAccess: true,
-      });
-    }
   }
 
   console.log('Payload seed complete.');

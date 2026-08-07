@@ -31,27 +31,5 @@ export const ContactSettings: CollectionConfig = {
       label: 'Email',
       defaultValue: 'info@navykus.org',
     },
-    {
-      name: 'phone',
-      type: 'text',
-      label: 'Phone',
-      defaultValue: '+7 (999) 000-00-00',
-      validate: (value: unknown) => {
-        if (typeof value !== 'string' || value.trim() === '') return true;
-        return /^(?=.*\d)[\d\s()\-+.]{7,}$/.test(value.trim()) ? true : 'Invalid phone number';
-      },
-    },
-    {
-      name: 'telegram',
-      type: 'text',
-      label: 'Telegram',
-      defaultValue: '@navykus_com',
-    },
-    {
-      name: 'address',
-      type: 'textarea',
-      label: 'Address',
-      defaultValue: '',
-    },
   ],
 };

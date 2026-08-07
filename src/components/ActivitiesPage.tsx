@@ -26,7 +26,7 @@ import {
   fadeUp,
 } from '../motion-animations';
 import BrandImage from './BrandImage';
-import { ActivityCategory, ActivityItem, ActivityStatus, ParticipationScenario } from '../types';
+import { ActivityCategory, ActivityItem, ActivityStatus, ParticipationScenario, type TeamApplicationContext } from '../types';
 import { useCmsEvents } from '../hooks/useCmsEvents';
 import { useCmsOpportunities } from '../hooks/useCmsOpportunities';
 import { useCmsScenarios } from '../hooks/useCmsScenarios';
@@ -42,7 +42,7 @@ const OpportunitiesPage = lazy(() => import('./OpportunitiesPage'));
 
 interface ActivitiesPageProps {
   onNavigateToSection: (sectionId: string) => void;
-  onOpenApplyModal: () => void;
+  onOpenApplyModal: (context?: TeamApplicationContext) => void;
 }
 
 const CATEGORY_MAP: Record<ActivityCategory, { label: string; icon: React.ReactNode; accent: string; chip: string }> = {
@@ -362,7 +362,7 @@ export default function ActivitiesPage({
                     general: 'text-[#7a5c21] bg-[#c9a96e]/16',
                   };
                   const actionMap: Record<string, () => void> = {
-                    apply: () => onOpenApplyModal(),
+                    apply: () => onOpenApplyModal({ sourceType: 'activities', sourceTitle: s.title, sourceId: s.id }),
                     team: () => onNavigateToSection('scenarios'),
                     activity: () => setSelectedCategory('workshop'),
                     general: () => onNavigateToSection('nearest-championship'),
@@ -415,7 +415,7 @@ export default function ActivitiesPage({
             <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-white/70">{t('ui.activitiespage.4dbca5f4b0')}</p>
             <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <button
-                onClick={onOpenApplyModal}
+                onClick={() => onOpenApplyModal({ sourceType: 'activities', sourceTitle: t('ui.activitiespage.97446fff') })}
                 className="inline-flex min-h-12 w-full items-center justify-center rounded-2xl bg-white px-7 py-3 text-[11px] font-bold uppercase tracking-widest text-brand-dark shadow-lg shadow-black/15 transition-all hover:bg-[#f7f3ef] sm:w-auto"
               >
                 {t('ui.app.24cd8dc78d')}
@@ -438,7 +438,7 @@ export default function ActivitiesPage({
           </>
         ) : (
           <Suspense fallback={<div className="rounded-[1.5rem] border border-white/60 bg-white/42 p-8 text-sm text-brand-slate surface-elevated-soft backdrop-blur-xl">{t('common.loading')}</div>}>
-            <OpportunitiesPage embedded />
+            <OpportunitiesPage embedded onOpenApplyModal={onOpenApplyModal} />
           </Suspense>
         )}
       </div>
@@ -448,10 +448,7 @@ export default function ActivitiesPage({
           <ActivityDetailsModal
             activity={selectedActivity}
             onClose={() => setSelectedActivity(null)}
-            onOpenApplyModal={() => {
-              setSelectedActivity(null);
-              onOpenApplyModal();
-            }}
+            onOpenApplyModal={onOpenApplyModal}
           />
         )}
       </AnimatePresence>
@@ -560,11 +557,17 @@ function ActivityDetailsModal({
 }: {
   activity: ActivityItem;
   onClose: () => void;
-  onOpenApplyModal: () => void;
+  onOpenApplyModal: (context?: TeamApplicationContext) => void;
 }) {
   const { t } = useTranslation();
   const categoryInfo = CATEGORY_MAP[activity.category];
   const isCompleted = activity.status === 'completed';
+  const canRegister = !isCompleted;
+  const openActivityApplication = () => onOpenApplyModal({
+    sourceType: 'event',
+    sourceId: activity.id,
+    sourceTitle: activity.title,
+  });
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -635,13 +638,14 @@ function ActivityDetailsModal({
             <h2 id="activity-details-title" className="text-2xl font-serif font-semibold leading-tight text-brand-dark sm:text-4xl">
               {activity.title}
             </h2>
-            {!isCompleted && (
+            {canRegister && (
               <button
-                onClick={onOpenApplyModal}
+                type="button"
+                onClick={openActivityApplication}
                 className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-[11px] font-bold uppercase tracking-widest text-white shadow-lg shadow-[#bc4638]/12 transition-all hover:opacity-95"
               >
                 <span>{t('ui.aboutprojectpage.2805697540')}</span>
-                <ArrowUpRight className="h-3.5 w-3.5" />
+                <ArrowRight className="h-3.5 w-3.5" />
               </button>
             )}
           </div>
@@ -680,13 +684,14 @@ function ActivityDetailsModal({
             <p>{activity.prerequisites}</p>
           </DetailBlock>
 
-          {!isCompleted && (
+          {canRegister && (
             <button
-              onClick={onOpenApplyModal}
+              type="button"
+              onClick={openActivityApplication}
               className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-[11px] font-bold uppercase tracking-widest text-white shadow-lg shadow-[#bc4638]/12 transition-all hover:opacity-95"
             >
               <span>{t('ui.aboutprojectpage.2805697540')}</span>
-              <ArrowUpRight className="h-3.5 w-3.5" />
+              <ArrowRight className="h-3.5 w-3.5" />
             </button>
           )}
         </div>

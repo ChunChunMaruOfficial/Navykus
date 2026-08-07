@@ -27,7 +27,9 @@ import {
 } from 'lucide-react';
 import { useCmsFaqs } from '../hooks/useCmsFaqs';
 import { useCmsTournamentsState } from '../hooks/useCmsTournaments';
+import type { TeamApplicationContext } from '../types';
 import BrandImage from './BrandImage';
+import TeamMemberApplicationForm from './TeamMemberApplicationForm';
 
 interface ChampionshipData {
   id: string;
@@ -52,15 +54,13 @@ interface ChampionshipData {
 interface ChampionshipPageProps {
   onBackToHome: () => void;
   onNavigateToSection: (sectionId: string) => void;
-  onOpenApplyModal: () => void;
-  onOpenAuthModal?: () => void;
+  onOpenApplyModal: (context?: TeamApplicationContext) => void;
 }
 
 const SUITABILITY_TABS = [
   { id: 'all', label: 'ui.championshippage.228a84235a' },
   { id: 'teamless', label: 'ui.championshippage.a950b9ee19' },
   { id: 'creative', label: 'ui.championshippage.ca26c61c13' },
-  { id: 'ambitious', label: 'ui.championshippage.97e139a69f' },
 ] as const;
 
 type SuitabilityTab = typeof SUITABILITY_TABS[number]['id'];
@@ -81,7 +81,6 @@ export default function ChampionshipPage({
   onBackToHome, 
   onNavigateToSection, 
   onOpenApplyModal,
-  onOpenAuthModal,
 }: ChampionshipPageProps) {
   const { t } = useTranslation();
   const {
@@ -120,105 +119,6 @@ export default function ChampionshipPage({
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [selectedSuitabilityTab, setSelectedSuitabilityTab] = useState<SuitabilityTab>('all');
 
-  // Application Form submission state
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    age: '',
-    city: '',
-    contact: '',
-    hasTeam: 'no', // 'no' (no team, wants matching), 'yes' (has team), 'solo' (wants to participate alone)
-    teamSize: '1',
-    interests: 'urbanism',
-    portfolioLink: '',
-    coverLetter: ''
-  });
-  const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
-  const [formErrorMsg, setFormErrorMsg] = useState('');
-  const [generatedTicket, setGeneratedTicket] = useState<{
-    ticketId: string;
-    seatNum: number;
-    regTime: string;
-  } | null>(null);
-
-  // Form submit simulator
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.name.trim()) {
-      setFormErrorMsg(t('ui.app.02ce21d910'));
-      setFormStatus('error');
-      return;
-    }
-    if (!formData.email.trim() || !formData.email.includes('@')) {
-      setFormErrorMsg(t('ui.championshippage.7dab316a67'));
-      setFormStatus('error');
-      return;
-    }
-    const ageNum = Number(formData.age);
-    if (!formData.age.trim() || isNaN(ageNum) || ageNum < 10 || ageNum > 24) {
-      setFormErrorMsg(t('ui.championshippage.7b04173c40'));
-      setFormStatus('error');
-      return;
-    }
-    if (!formData.contact.trim()) {
-      setFormErrorMsg(t('ui.championshippage.a79744eacf'));
-      setFormStatus('error');
-      return;
-    }
-
-    setFormErrorMsg('');
-    sessionStorage.setItem('navykus.pendingChampionshipProfile', JSON.stringify({
-      name: formData.name.trim(),
-      email: formData.email.trim(),
-      age: formData.age.trim(),
-      city: formData.city.trim(),
-      contact: formData.contact.trim(),
-      hasTeam: formData.hasTeam,
-      teamSize: formData.teamSize,
-      interests: formData.interests,
-      portfolioLink: formData.portfolioLink,
-      coverLetter: formData.coverLetter,
-    }));
-
-    if (onOpenAuthModal) {
-      onOpenAuthModal();
-    } else {
-      setFormStatus('submitting');
-      setTimeout(() => {
-        const ticketId = 'NV-CUP-' + Math.floor(100000 + Math.random() * 900000);
-        const seatNum = Math.floor(12 + Math.random() * 98);
-        const regTime = new Date().toLocaleString('ru-RU', { 
-          day: 'numeric', 
-          month: 'short', 
-          year: 'numeric', 
-          hour: '2-digit', 
-          minute: '2-digit' 
-        });
-
-        setGeneratedTicket({ ticketId, seatNum, regTime });
-        setFormStatus('success');
-      }, 1500);
-    }
-  };
-
-  // Reset form
-  const handleResetForm = () => {
-    setFormData({
-      name: '',
-      email: '',
-      age: '',
-      city: '',
-      contact: '',
-      hasTeam: 'no',
-      teamSize: '1',
-      interests: 'urbanism',
-      portfolioLink: '',
-      coverLetter: ''
-    });
-    setFormStatus('idle');
-    setGeneratedTicket(null);
-  };
-
   const handleNavigateFromChampionship = (sectionId: string) => {
     onBackToHome();
     setTimeout(() => {
@@ -233,7 +133,7 @@ export default function ChampionshipPage({
       <div className="relative w-full text-brand-dark pb-16 pt-24">
         <div className="mx-auto max-w-7xl px-[6%] md:px-[10%]">
           <div className="rounded-3xl border border-white/[0.15] bg-white/[0.12] p-8 text-center text-sm text-brand-slate glass-xl surface-elevated">
-            {isCmsLoading ? t('platform.states.loading') : hasCmsLoadError ? t('platform.states.error') : t('platform.states.empty')}
+            {isCmsLoading ? t('common.loading') : hasCmsLoadError ? t('common.error') : t('common.empty')}
           </div>
         </div>
       </div>
@@ -587,337 +487,38 @@ export default function ChampionshipPage({
                   </>
                 )}
 
-                {selectedSuitabilityTab === 'ambitious' && (
-                  <>
-                    <div className="space-y-4">
-                      <h4 className="font-serif font-semibold text-lg text-brand-dark">{t('ui.championshippage.1d5616ef28')}</h4>
-                      <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">{t('ui.championshippage.fae9e0f0cb')}</p>
-                      <ul className="space-y-2">
-                        <li className="flex items-center gap-2.5 text-xs text-brand-slate font-light">
-                          <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <span>{t('ui.championshippage.30c0440342')}</span>
-                        </li>
-                        <li className="flex items-center gap-2.5 text-xs text-brand-slate font-light">
-                          <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <span>{t('ui.championshippage.e399db7c21')}</span>
-                        </li>
-                      </ul>
-                    </div>
-                    <div className="bg-gradient-to-br from-brand-dark/5 to-[#bd5b82]/5 rounded-xl p-5 border border-white/60 flex flex-col justify-between">
-                      <div>
-                        <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-brand-dark font-bold">{t('ui.championshippage.64c107dcac')}</span>
-                        <p className="text-xs text-brand-slate mt-1.5 font-light leading-relaxed">{t('ui.championshippage.26ed71e452')}</p>
-                      </div>
-                      <a href="#apply-form-section" className="text-xs font-mono font-bold text-brand-dark hover:underline inline-flex items-center gap-1 mt-4">{t('ui.championshippage.b4c596db9d')}<ArrowRight className="w-3 h-3" />
-                      </a>
-                    </div>
-                  </>
-                )}
               </motion.div>
             </AnimatePresence>
           </div>
         </section>
 
-        {/* 9. EMBEDDED FORM & UX STATES */}
+        {/* 9. APPLICATION FORM */}
         <section id="apply-form-section" className="relative z-10 w-[88vw] md:w-[80vw] max-w-4xl mx-auto scroll-mt-24">
           <div className="bg-white/[0.10] glass-xl surface-elevated border border-white/[0.15] rounded-3xl p-6 sm:p-10 space-y-8">
-            
-             <div className="text-center space-y-2 pb-5">
-               <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark">{t('ui.championshippage.795d6a19a2')}</h2>
-               <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed max-w-md mx-auto">{t('ui.championshippage.5788077ace')}</p>
+            <div className="text-center space-y-2 pb-5">
+              <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark">{t('ui.championshippage.795d6a19a2')}</h2>
+              <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed max-w-md mx-auto">{t('ui.championshippage.5788077ace')}</p>
             </div>
 
-            {/* SUCCESS OR INPUT STATE */}
-            <AnimatePresence mode="wait">
-              {formStatus === 'success' && generatedTicket ? (
-                <motion.div
-                  key="form-success"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="space-y-6 py-6"
-                >
-                  <div className="w-16 h-16 bg-emerald-100 border border-emerald-200 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-sm">
-                    <Check className="w-8 h-8 stroke-[2.5]" />
-                  </div>
-
-                  <div className="text-center space-y-1.5">
-                    <h3 className="text-xl sm:text-2xl font-serif text-brand-dark">{t('ui.championshippage.a93a7a5c05')}</h3>
-                    <p className="text-xs sm:text-sm text-brand-slate font-light max-w-md mx-auto leading-relaxed">{t('ui.championshippage.06c9f79607')}</p>
-                  </div>
-
-                  {/* Virtual Ticket UX Prototype display */}
-                  <div className="bg-white border border-[#d8d1cc] rounded-2xl overflow-hidden shadow-md max-w-md mx-auto relative">
-                    
-                    {/* Ticket Header */}
-                    <div className="bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white p-4 text-left flex justify-between items-center">
-                      <div>
-                        <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-widest text-white/80">{t('ui.championshippage.41799b91ae')}</span>
-                        <h4 className="text-xs sm:text-sm font-serif font-semibold mt-0.5 truncate max-w-[200px]">{cmsData.title}</h4>
-                      </div>
-                      <span className="text-[10px] font-mono px-2 py-0.5 bg-white/10 rounded uppercase font-bold text-white border border-white/20">{t('ui.championshippage.7c2aa283')}</span>
-                    </div>
-
-                    {/* Ticket Content */}
-                    <div className="p-5 text-left grid grid-cols-2 gap-4 text-xs bg-brand-pink-dust/10">
-                      <div>
-                        <span className="text-[8px] font-mono uppercase text-brand-slate block">{t('ui.championshippage.e5c77ea763')}</span>
-                        <span className="font-serif font-bold text-brand-dark">{formData.name}</span>
-                      </div>
-                      <div>
-                        <span className="text-[8px] font-mono uppercase text-brand-slate block">{t('ui.championshippage.279e46ae7c')}</span>
-                        <span className="font-mono text-[11px] font-bold text-[#bc4638]">{generatedTicket.ticketId}</span>
-                      </div>
-                      <div>
-                        <span className="text-[8px] font-mono uppercase text-brand-slate block">{t('ui.championshippage.9b7d543115')}</span>
-                        <span className="font-serif font-medium text-brand-dark">{t('ui.championshippage.a5ddb876dd')}{formData.hasTeam === 'no' ? t('ui.championshippage.709d488ed6') : t('ui.championshippage.b6ebd71540')})</span>
-                      </div>
-                      <div>
-                        <span className="text-[8px] font-mono uppercase text-brand-slate block">{t('ui.championshippage.496a7539fc')}</span>
-                        <span className="font-serif font-medium text-brand-dark">{formData.age}{t('ui.championshippage.b47dce337d')}</span>
-                      </div>
-                      <div>
-                        <span className="text-[8px] font-mono uppercase text-brand-slate block">{t('ui.applicationmodal.61bd187017')}</span>
-                        <span className="font-mono text-[10px] text-brand-slate">{generatedTicket.regTime}</span>
-                      </div>
-                      <div>
-                        <span className="text-[8px] font-mono uppercase text-brand-slate block">{t('ui.championshippage.46803131c4')}</span>
-                        <span className="font-serif font-bold text-brand-dark">№ {generatedTicket.seatNum}</span>
-                      </div>
-                    </div>
-
-                    {/* Ticket footer helpful links */}
-                    <div className="p-3 bg-white text-center text-[10px] text-brand-slate font-mono">
-                      <span>{t('ui.championshippage.0e95df1685')}</span>
-                      <a href="https://t.me/navykus_com" target="_blank" rel="noreferrer" className="text-[#bc4638] font-bold underline">@navykus_com</a>
-                    </div>
-                  </div>
-
-                  {/* Teamless helper logic trigger if user says they don't have a team */}
-                  {formData.hasTeam === 'no' && (
-                    <div className="bg-amber-500/5 border border-amber-500/20 p-4 rounded-xl text-left max-w-md mx-auto space-y-2.5">
-                      <div className="flex gap-2 items-center text-amber-800">
-                        <Users className="w-4 h-4 shrink-0" />
-                        <span className="text-xs font-mono uppercase tracking-wider font-bold">{t('ui.championshippage.c3ab55c9b3')}</span>
-                      </div>
-                      <p className="text-xs text-brand-slate font-light leading-relaxed">{t('ui.championshippage.949a42b4b3')}</p>
-                      <button
-                        onClick={() => handleNavigateFromChampionship('scenarios')}
-                        className="text-xs font-mono font-bold text-[#bc4638] hover:underline inline-flex items-center gap-1 cursor-pointer"
-                      >{t('ui.championshippage.5ab1637802')}<ArrowRight className="w-3 h-3" />
-                      </button>
-                    </div>
-                  )}
-
-                  <div className="flex justify-center pt-2">
-                    <button
-                      onClick={handleResetForm}
-                      className="inline-flex items-center gap-1.5 px-5 py-2 border border-[#d8d1cc] hover:border-brand-dark rounded-xl text-xs font-mono uppercase tracking-wider cursor-pointer transition-all bg-white"
-                    >
-                      <RefreshCw className="w-3 h-3" />
-                      <span>{t('ui.championshippage.b7429d2f06')}</span>
-                    </button>
-                  </div>
-                </motion.div>
-              ) : (
-                <form onSubmit={handleFormSubmit} className="space-y-4">
-                  {cmsData.registrationStatus === 'closed' && (
-                    <div className="bg-rose-50 border border-rose-100 rounded-2xl p-5 text-center text-rose-800 space-y-2">
-                      <Lock className="w-8 h-8 text-rose-500 mx-auto" />
-                      <h4 className="font-serif font-semibold text-base">{t('ui.championshippage.d2be300a17')}</h4>
-                      <p className="text-xs text-rose-700/80 max-w-sm mx-auto leading-relaxed">{t('ui.championshippage.098019329a')}</p>
-                    </div>
-                  )}
-
-                  {cmsData.registrationStatus !== 'closed' && (
-                    <>
-                      {/* Form inputs fields */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-1 text-left">
-                          <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">{t('ui.championshippage.78a613a53e')}<span className="text-[#bc4638]">*</span></label>
-                          <input 
-                            type="text" 
-                            required
-                            placeholder={t('ui.championshippage.c77e86cc10')}
-                            value={formData.name}
-                            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                            className="w-full bg-white border border-[#d8d1cc] focus:border-[#8f99a8] focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
-                          />
-                        </div>
-
-                        <div className="space-y-1 text-left">
-                          <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">{t('ui.championshippage.e3a43c135f')}<span className="text-[#bc4638]">*</span></label>
-                          <input 
-                            type="email" 
-                            required
-                            placeholder="mail@example.com"
-                            value={formData.email}
-                            onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                            className="w-full bg-white border border-[#d8d1cc] focus:border-[#8f99a8] focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
-                          />
-                        </div>
-
-                        <div className="space-y-1 text-left">
-                          <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">{t('ui.championshippage.b520139c06')}<span className="text-[#bc4638]">*</span></label>
-                          <input 
-                            type="text" 
-                            required
-                            placeholder={t('ui.championshippage.7a94346b9f')}
-                            value={formData.age}
-                            onChange={(e) => setFormData(prev => ({ ...prev, age: e.target.value }))}
-                            className="w-full bg-white border border-[#d8d1cc] focus:border-[#8f99a8] focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
-                          />
-                        </div>
-
-                        <div className="space-y-1 text-left">
-                          <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">{t('ui.championshippage.450778ada1')}</label>
-                          <input 
-                            type="text" 
-                            placeholder={t('ui.championshippage.6dfb2adc1d')}
-                            value={formData.city}
-                            onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
-                            className="w-full bg-white border border-[#d8d1cc] focus:border-[#8f99a8] focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Contact and team radio logic */}
-                      <div className="space-y-4 pt-2">
-                        <div className="space-y-1 text-left">
-                          <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">{t('ui.championshippage.e3a7a765c6')}<span className="text-[#bc4638]">*</span></label>
-                          <input 
-                            type="text" 
-                            required
-                            placeholder={t('ui.championshippage.d178b30c2a')}
-                            value={formData.contact}
-                            onChange={(e) => setFormData(prev => ({ ...prev, contact: e.target.value }))}
-                            className="w-full bg-white border border-[#d8d1cc] focus:border-[#8f99a8] focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
-                          />
-                        </div>
-
-                        {/* Interactive Scenario Selection in the form */}
-                        <div className="space-y-2 text-left">
-                          <label className="block text-xs font-mono uppercase tracking-wider text-brand-slate">{t('ui.championshippage.d0dd2427')}</label>
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                            {[
-                              { id: 'no', label: t('ui.championshippage.9c2f9e9c80'), sub: t('ui.championshippage.273e4c328e') },
-                              { id: 'yes', label: t('ui.championshippage.4e57303db7'), sub: t('ui.championshippage.51fb6ef174') },
-                              { id: 'solo', label: t('ui.championshippage.76ad5775dc'), sub: t('ui.championshippage.d53bbd733d') }
-                            ].map((opt) => (
-                              <button
-                                key={opt.id}
-                                type="button"
-                                onClick={() => setFormData(prev => ({ ...prev, hasTeam: opt.id }))}
-                                className={`p-4 text-left rounded-xl border transition-all cursor-pointer ${
-                                  formData.hasTeam === opt.id 
-                                    ? 'bg-[#bc4638]/5 border-[#bc4638]/50 ring-1 ring-[#bc4638]/30' 
-                                    : 'bg-white/50 border-[#d8d1cc]/60 hover:bg-white'
-                                }`}
-                              >
-                                <span className="block text-sm sm:text-base font-serif font-bold text-brand-dark leading-tight">{opt.label}</span>
-                                <span className="block text-xs sm:text-sm text-brand-slate font-normal md:font-light mt-1 leading-snug">{opt.sub}</span>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {formData.hasTeam === 'yes' && (
-                          <motion.div 
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            className="space-y-1.5 text-left border-l-2 border-[#bc4638]/40 pl-3.5"
-                          >
-                            <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">{t('ui.championshippage.06f875a6')}</label>
-                            <select 
-                              value={formData.teamSize}
-                              onChange={(e) => setFormData(prev => ({ ...prev, teamSize: e.target.value }))}
-                              className="bg-white border border-[#d8d1cc] rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#8f99a8]"
-                            >
-                              <option value="2">{t('ui.championshippage.6d9e8346c4')}</option>
-                              <option value="3">{t('ui.championshippage.a6cf1eb47b')}</option>
-                              <option value="4">{t('ui.championshippage.09ace79e1e')}</option>
-                              <option value="5">{t('ui.championshippage.42bc95b75f')}</option>
-                            </select>
-                          </motion.div>
-                        )}
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div className="space-y-1 text-left">
-                            <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">{t('ui.championshippage.d8157e79ff')}</label>
-                            <select 
-                              value={formData.interests}
-                              onChange={(e) => setFormData(prev => ({ ...prev, interests: e.target.value }))}
-                              className="w-full bg-white border border-[#d8d1cc] rounded-xl px-3 py-2.5 text-xs text-brand-dark focus:outline-none"
-                            >
-                              <option value="urbanism">{t('ui.championshippage.30c7cb1a24')}</option>
-                              <option value="smart-city-it">{t('ui.championshippage.a5822ac213')}</option>
-                              <option value="design-creative">{t('ui.championshippage.d31fab3305')}</option>
-                              <option value="business-management">{t('ui.championshippage.8ec0f58d42')}</option>
-                            </select>
-                          </div>
-
-                          <div className="space-y-1 text-left">
-                            <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">{t('ui.championshippage.40aa3bf48b')}</label>
-                            <input 
-                              type="text" 
-                              placeholder="Behance, GitHub, Google Drive..."
-                              value={formData.portfolioLink}
-                              onChange={(e) => setFormData(prev => ({ ...prev, portfolioLink: e.target.value }))}
-                              className="w-full bg-white border border-[#d8d1cc] focus:border-[#8f99a8] focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="space-y-1 text-left">
-                          <label className="block text-[10px] font-mono uppercase tracking-wider text-brand-slate">{t('ui.championshippage.0149330653')}</label>
-                          <textarea 
-                            rows={3}
-                            placeholder={t('ui.championshippage.bacaeee8')}
-                            value={formData.coverLetter}
-                            onChange={(e) => setFormData(prev => ({ ...prev, coverLetter: e.target.value }))}
-                            className="w-full bg-white border border-[#d8d1cc] focus:border-[#8f99a8] focus:outline-none rounded-xl px-4 py-2.5 text-xs text-brand-dark transition-all"
-                          />
-                        </div>
-
-                      </div>
-
-                      {/* Submit status displays */}
-                      {formStatus === 'error' && formErrorMsg && (
-                        <div className="p-3 bg-rose-50 border border-rose-100 text-rose-800 text-xs text-left rounded-xl font-medium">
-                          {formErrorMsg}
-                        </div>
-                      )}
-
-                      <div className="pt-4 flex flex-col items-center justify-center space-y-3">
-                        <button
-                          type="submit"
-                          disabled={formStatus === 'submitting'}
-                          className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white hover:opacity-95 disabled:opacity-50 text-xs font-mono tracking-widest uppercase font-bold rounded-xl transition-all shadow-lg shadow-[#bc4638]/15 cursor-pointer flex items-center justify-center gap-2"
-                        >
-                          {formStatus === 'submitting' ? (
-                            <>
-                              <RefreshCw className="w-4 h-4 animate-spin" />
-                              <span>{t('ui.championshippage.c14d9af631')}</span>
-                            </>
-                          ) : (
-                            <>
-                              <span>{t('platform.auth.registerAction')}</span>
-                              <ArrowRight className="w-4 h-4" />
-                            </>
-                          )}
-                        </button>
-                        <p className="text-[10px] text-brand-slate font-light">{t('ui.championshippage.b21fd1fe62')}</p>
-                      </div>
-                    </>
-                  )}
-                </form>
-              )}
-            </AnimatePresence>
-
+            {cmsData.registrationStatus === 'closed' ? (
+              <div className="space-y-2 rounded-2xl border border-rose-100 bg-rose-50 p-5 text-center text-rose-800">
+                <Lock className="mx-auto h-8 w-8 text-rose-500" />
+                <h4 className="font-serif text-base font-semibold">{t('ui.championshippage.d2be300a17')}</h4>
+                <p className="mx-auto max-w-sm text-xs leading-relaxed text-rose-700/80">{t('ui.championshippage.098019329a')}</p>
+              </div>
+            ) : (
+              <TeamMemberApplicationForm
+                compact
+                context={{
+                  sourceType: 'championship',
+                  sourceId: cmsData.id,
+                  sourceTitle: cmsData.title,
+                  tournamentId: cmsData.id,
+                }}
+              />
+            )}
           </div>
         </section>
-
         {/* 10. FAQ ACCORDION BLOCK */}
         <motion.section
           {...fadeUp}

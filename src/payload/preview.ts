@@ -9,7 +9,6 @@ export const publicPreview = (collection: string) => (doc: Record<string, unknow
   const slug = value(doc, 'slug') || id;
   const previewId = encodeURIComponent(id || slug);
 
-  if (collection === 'blog-posts') return `${origin}/blog/${encodeURIComponent(slug)}?previewId=${previewId}`;
   if (collection === 'opportunities') return `${origin}/activities/opportunities/${encodeURIComponent(slug)}?previewId=${previewId}`;
   if (collection === 'events') return `${origin}/activities/events?previewId=${previewId}`;
   if (collection === 'tournaments') return `${origin}/championship?previewId=${previewId}`;

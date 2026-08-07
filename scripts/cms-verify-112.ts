@@ -16,8 +16,6 @@ import { createClient } from '@libsql/client';
 import type { CollectionConfig, Field } from 'payload';
 
 import { getPayloadClient } from '../server/payload';
-import { registerPlatformRoutes } from '../server/platform';
-import { registerBlogRoutes } from '../server/blog';
 
 type TaskResult = 'OK' | 'FAIL' | 'WARN' | 'SKIP' | 'N/A';
 type Row = { num: number; entity: string; action: string; result: TaskResult; detail: string };
@@ -235,8 +233,6 @@ const PUBLIC_ENDPOINTS: Record<string, string> = {
   'team-members': '/api/team-members',
   'contact-settings': '/api/contact-settings',
   'operator-settings': '/api/operator-settings',
-  'blog-posts': '/api/blog/posts',
-  'users': '/api/participants',
 };
 
 const findDocIn = (data: unknown, id: string | number): boolean => {
@@ -574,8 +570,6 @@ const main = async () => {
     if (_req.method === 'OPTIONS') { res.sendStatus(204); return; }
     next();
   });
-  registerPlatformRoutes(app);
-  registerBlogRoutes(app);
   const server = await new Promise<ReturnType<typeof app.listen>>((resolve) => {
     const s = app.listen(0, '127.0.0.1', () => resolve(s));
   });
@@ -765,13 +759,13 @@ const main = async () => {
     }
     // 11: фильтрация
     try {
-      const where = { collection: { equals: 'blog-posts' }, action: { equals: 'create' } };
+      const where = { collection: { equals: 'activities' }, action: { equals: 'create' } };
       const filtered = await globalPayload.find({ collection: 'audit-logs', where, limit: 10, overrideAccess: true, depth: 0 });
-      const dbCount = await countWhere('audit_logs', "collection = 'blog-posts' AND action = 'create'", []);
+      const dbCount = await countWhere('audit_logs', "collection = 'activities' AND action = 'create'", []);
       const match = dbCount === -1 || filtered.totalDocs === dbCount;
       const dateFiltered = await globalPayload.find({ collection: 'audit-logs', where: { createdAt: { greater_than: new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString() } }, limit: 5, overrideAccess: true, depth: 0 });
       taskRecord(11, 'Audit Logs', 'Фильтрация', match ? 'OK' : 'FAIL',
-        `фильтр collection=blog-posts&action=create: API=${filtered.totalDocs}, БД=${dbCount}${match ? ' (совпадает ✓)' : ' (РАСХОЖДЕНИЕ)'}; фильтр по дате (30 дней) вернул ${dateFiltered.totalDocs}`);
+        `фильтр collection=activities&action=create: API=${filtered.totalDocs}, БД=${dbCount}${match ? ' (совпадает ✓)' : ' (РАСХОЖДЕНИЕ)'}; фильтр по дате (30 дней) вернул ${dateFiltered.totalDocs}`);
     } catch (error) {
       taskRecord(11, 'Audit Logs', 'Фильтрация', 'FAIL', errMsg(error));
     }
@@ -804,7 +798,7 @@ const main = async () => {
       try {
         await globalPayload.create({
           collection: locSlug,
-          data: { sourceCollection: 'blog-posts', sourceId: `v-${rand}`, localizedData: { test: 1 } },
+          data: { sourceCollection: 'activities', sourceId: `v-${rand}`, localizedData: { test: 1 } },
           overrideAccess: true,
         });
         return { result: 'FAIL', detail: 'локализация без языка (language) создана — валидация не сработала' };
@@ -846,138 +840,6 @@ const main = async () => {
   await taskUpdate(62, 'team-members', 'Team Members', { publish: true });
   await taskDelete(63, 'team-members', 'Team Members', { publish: true });
   await taskValidate(64, 'team-members', 'Team Members');
-
-  await taskCreate(65, 'team-posts', 'Team Posts', { publish: true });
-  await taskUpdate(66, 'team-posts', 'Team Posts', { publish: true });
-  await taskDelete(67, 'team-posts', 'Team Posts', { publish: true });
-  await taskValidate(68, 'team-posts', 'Team Posts');
-
-  await taskCreate(69, 'team-responses', 'Team Responses', { publish: true });
-  await taskUpdate(70, 'team-responses', 'Team Responses', { publish: true });
-  await taskDelete(71, 'team-responses', 'Team Responses', { publish: true });
-  await taskValidate(72, 'team-responses', 'Team Responses');
-
-  // Favorites 73–76
-  await taskCreate(73, 'favorites', 'Favorites', { publish: true });
-  await taskUpdate(74, 'favorites', 'Favorites', { publish: true });
-  await taskDelete(75, 'favorites', 'Favorites', { publish: true });
-  await taskValidate(76, 'favorites', 'Favorites', {
-    custom: async () => {
-      try {
-        const usersRes = await globalPayload.find({ collection: 'users', limit: 1, overrideAccess: true, depth: 0 });
-        const userId = usersRes.docs[0]?.id;
-        if (!userId) return { result: 'SKIP', detail: 'нет пользователей для проверки уникальности' };
-        const itemId = `item-${mkRand()}`;
-        const fav1 = await globalPayload.create({
-          collection: 'favorites',
-          data: { user: userId, itemType: 'event', itemId, itemTitle: 'T', href: '/x' },
-          overrideAccess: true,
-        });
-        try {
-          await globalPayload.create({
-            collection: 'favorites',
-            data: { user: userId, itemType: 'event', itemId, itemTitle: 'T2', href: '/y' },
-            overrideAccess: true,
-          });
-          await globalPayload.delete({ collection: 'favorites', id: fav1.id, overrideAccess: true }).catch(() => undefined);
-          return { result: 'FAIL', detail: 'дубликат пары user+itemType+itemId создан — уникальность не enforced (нет unique-индекса)' };
-        } catch {
-          await globalPayload.delete({ collection: 'favorites', id: fav1.id, overrideAccess: true }).catch(() => undefined);
-          return { result: 'OK', detail: 'дубликат пары отклонён ✓' };
-        }
-      } catch (error) {
-        return { result: 'FAIL', detail: errMsg(error) };
-      }
-    },
-  });
-
-  // Notifications 77–80
-  await taskCreate(77, 'notifications', 'Notifications', { publish: true });
-  await taskUpdate(78, 'notifications', 'Notifications', { publish: true });
-  await taskDelete(79, 'notifications', 'Notifications', { publish: true });
-  await taskValidate(80, 'notifications', 'Notifications');
-
-  // ── Заявки: 81–92 ──
-  await taskCreate(81, 'applications', 'Applications', { publish: true });
-  await taskUpdate(82, 'applications', 'Applications', { publish: true });
-  await taskDelete(83, 'applications', 'Applications', { publish: true });
-  await taskValidate(84, 'applications', 'Applications');
-
-  // Application Status Histories 85–88 (автосоздание при смене статуса через API)
-  try {
-    const usersRes = await globalPayload.find({ collection: 'users', limit: 1, overrideAccess: true, depth: 0 });
-    const app = await globalPayload.create({
-      collection: 'applications',
-      data: { ticketId: `NVK-${mkRand()}`, status: 'submitted', name: 'Verify User', email: `verify-${mkRand()}@example.com`, user: usersRes.docs[0]?.id },
-      overrideAccess: true,
-      depth: 0,
-    });
-    const adminEmail = `verify-admin-${mkRand()}@example.com`;
-    const admin = await globalPayload.create({
-      collection: 'users',
-      data: { email: adminEmail, password: 'VerifyPass123!', role: 'admin', accountStatus: 'active' },
-      overrideAccess: true,
-      depth: 0,
-    });
-    const login = await http('POST', '/api/auth/login', { email: adminEmail, password: 'VerifyPass123!' });
-    const token = (login.json as Record<string, unknown>)?.token as string | undefined;
-    if (!token) {
-      taskRecord(85, 'Application Status Histories', 'Создание (авто)', 'FAIL', `не удалось залогиниться админом (${login.status})`);
-    } else {
-      const before = await countWhere('application_status_history', 'application_id = ?', [String(app.id)]);
-      const change = await http('PATCH', `/api/admin/applications/${app.id}/status`, { status: 'approved', adminComment: 'verify' }, token);
-      await new Promise((resolve) => setTimeout(resolve, 200));
-      const after = await countWhere('application_status_history', 'application_id = ?', [String(app.id)]);
-      taskRecord(85, 'Application Status Histories', 'Создание (авто)', change.status === 200 && after > before ? 'OK' : 'FAIL',
-        `PATCH /api/admin/applications/:id/status → ${change.status}; история в БД: было ${before}, стало ${after}${after > before ? ' (автосоздана ✓)' : ' (НЕ создана)'}`);
-      // 86: просмотр
-      try {
-        const hist = await globalPayload.find({ collection: 'application-status-history', where: { application: { equals: String(app.id) } }, limit: 10, overrideAccess: true, depth: 0 });
-        const row = hist.docs[0] as Record<string, unknown> | undefined;
-        taskRecord(86, 'Application Status Histories', 'Просмотр', hist.docs.length > 0 && row ? 'OK' : 'FAIL',
-          `история для заявки: ${hist.docs.length} записей; status=${row?.status}, previousStatus=${row?.previousStatus}`);
-      } catch (error) {
-        taskRecord(86, 'Application Status Histories', 'Просмотр', 'FAIL', errMsg(error));
-      }
-      // 87: удаление (каскад)
-      try {
-        const histId = (await globalPayload.find({ collection: 'application-status-history', where: { application: { equals: String(app.id) } }, limit: 1, overrideAccess: true, depth: 0 })).docs[0]?.id;
-        if (histId) {
-          await globalPayload.delete({ collection: 'application-status-history', id: String(histId), overrideAccess: true });
-          const gone = await getRow('application_status_history', String(histId));
-          taskRecord(87, 'Application Status Histories', 'Удаление', !gone ? 'OK' : 'FAIL', gone ? 'запись осталась в БД' : 'запись удалена ✓');
-        } else {
-          taskRecord(87, 'Application Status Histories', 'Удаление', 'SKIP', 'нет истории для удаления');
-        }
-      } catch (error) {
-        taskRecord(87, 'Application Status Histories', 'Удаление', 'FAIL', errMsg(error));
-      }
-    }
-    await globalPayload.delete({ collection: 'applications', id: app.id, overrideAccess: true }).catch(() => undefined);
-    await globalPayload.delete({ collection: 'users', id: admin.id, overrideAccess: true }).catch(() => undefined);
-  } catch (error) {
-    taskRecord(85, 'Application Status Histories', 'Создание (авто)', 'FAIL', errMsg(error));
-    taskRecord(86, 'Application Status Histories', 'Просмотр', 'SKIP', errMsg(error));
-    taskRecord(87, 'Application Status Histories', 'Удаление', 'SKIP', errMsg(error));
-  }
-  await taskValidate(88, 'application-status-history', 'Application Status Histories', {
-    custom: async () => {
-      try {
-        await globalPayload.create({ collection: 'application-status-history', data: { status: 'submitted' }, overrideAccess: true });
-        return { result: 'FAIL', detail: 'история без заявки (application) создана — валидация не сработала' };
-      } catch {
-        return { result: 'OK', detail: 'без application — ошибка валидации ✓' };
-      }
-    },
-  });
-
-  // Community Leads 89–92
-  await taskCreate(89, 'community-leads', 'Community Leads', { publish: true });
-  await taskUpdate(90, 'community-leads', 'Community Leads', { publish: true });
-  await taskDelete(91, 'community-leads', 'Community Leads', { publish: true });
-  await taskValidate(92, 'community-leads', 'Community Leads');
-
-  // ── Настройки: 93–100 ──
   await taskCreate(93, 'contact-settings', 'Contact Settings', { publish: true });
   await taskUpdate(94, 'contact-settings', 'Contact Settings', { publish: true });
   await taskDelete(95, 'contact-settings', 'Contact Settings', { publish: true });
@@ -986,14 +848,14 @@ const main = async () => {
       try {
         const s = await globalPayload.create({
           collection: 'contact-settings',
-          data: { label: `verify-${mkRand()}`, email: 'не-валидный-email', phone: 'abc' },
+          data: { label: `verify-${mkRand()}`, email: 'invalid-email' },
           overrideAccess: true,
         });
-        const note = 'поля email/phone — тип text, формат НЕ валидируется (недопустимый email/телефон приняты)';
+        const note = 'email accepted invalid value';
         await globalPayload.delete({ collection: 'contact-settings', id: s.id, overrideAccess: true }).catch(() => undefined);
         return { result: 'WARN', detail: note };
       } catch (error) {
-        return { result: 'OK', detail: `невалидный email/phone отклонены ✓ (${errMsg(error)})` };
+        return { result: 'OK', detail: `invalid email rejected (${errMsg(error)})` };
       }
     },
   });
@@ -1018,114 +880,6 @@ const main = async () => {
     },
   });
 
-  // ── Блог: 101–112 ──
-  await taskCreate(101, 'blog-posts', 'Blog Posts', { publish: true });
-  await taskUpdate(102, 'blog-posts', 'Blog Posts', { publish: true });
-  await taskDelete(103, 'blog-posts', 'Blog Posts', { publish: true });
-  await taskValidate(104, 'blog-posts', 'Blog Posts', { checkUniqueSlug: true });
-
-  // Blog Post Localizations 105–108
-  await taskCreate(105, 'blog-post-localizations', 'Blog Post Localizations', { publish: true });
-  await taskUpdate(106, 'blog-post-localizations', 'Blog Post Localizations', { publish: true });
-  try {
-    const usersRes = await globalPayload.find({ collection: 'users', limit: 1, overrideAccess: true, depth: 0 });
-    const author = usersRes.docs[0]?.id;
-    const post = await globalPayload.create({
-      collection: 'blog-posts',
-      data: { title: `verify-${mkRand()}`, excerpt: 'e', content: 'c', category: 'news', author, originalLanguage: 'ru', status: 'draft', slug: `verify-${mkRand()}` },
-      overrideAccess: true,
-      depth: 0,
-    });
-    const loc = await globalPayload.create({
-      collection: 'blog-post-localizations',
-      data: { post: post.id, language: 'en', title: 'Title', excerpt: 'Ex', content: 'Cont', slug: `verify-${mkRand()}` },
-      overrideAccess: true,
-      depth: 0,
-    });
-    await globalPayload.delete({ collection: 'blog-post-localizations', id: String(loc.id), overrideAccess: true });
-    const postStill = await getRow('blog_posts', String(post.id));
-    taskRecord(107, 'Blog Post Localizations', 'Удаление', postStill ? 'OK' : 'FAIL',
-      postStill ? 'локализация удалена ✓; пост остался на основном языке ✓' : 'удаление локализации удалило пост (каскад/ошибка)');
-    await globalPayload.delete({ collection: 'blog-posts', id: post.id, overrideAccess: true }).catch(() => undefined);
-  } catch (error) {
-    taskRecord(107, 'Blog Post Localizations', 'Удаление', 'FAIL', errMsg(error));
-  }
-  await taskValidate(108, 'blog-post-localizations', 'Blog Post Localizations', {
-    custom: async () => {
-      try {
-        await globalPayload.create({ collection: 'blog-post-localizations', data: { title: 'T', excerpt: 'E', content: 'C', slug: `v-${mkRand()}` }, overrideAccess: true });
-        return { result: 'FAIL', detail: 'локализация без языка/post создана — валидация не сработала' };
-      } catch {
-        return { result: 'OK', detail: 'без language/post — ошибка валидации ✓' };
-      }
-    },
-  });
-
-  // Blog Moderation Histories 109–112
-  try {
-    const authorEmail = `verify-author-${mkRand()}@example.com`;
-    const reg = await http('POST', '/api/auth/register', {
-      email: authorEmail, password: 'VerifyPass123!', passwordConfirmation: 'VerifyPass123!',
-      privacyAccepted: true, termsAccepted: true, firstName: 'V', lastName: 'A',
-    });
-    const regJson = (reg.json || {}) as Record<string, unknown>;
-    const authorToken = (regJson.token || '') as string;
-    if (!authorToken) {
-      taskRecord(109, 'Blog Moderation Histories', 'Создание (авто)', 'FAIL', `регистрация автора не удалась (${reg.status} ${JSON.stringify(regJson).slice(0, 120)})`);
-    } else {
-      const created = await http('POST', '/api/blog/posts', {
-        title: `verify-${mkRand()}`, excerpt: 'excerpt', content: 'content', category: 'news', originalLanguage: 'ru', status: 'draft',
-      }, authorToken);
-      const postJson = (created.json || {}) as Record<string, unknown>;
-      const postId = (postJson as { post?: Record<string, unknown> })?.post?.id || (postJson as { post?: Record<string, unknown> })?.post?.id;
-      if (created.status !== 201 || !postId) {
-        taskRecord(109, 'Blog Moderation Histories', 'Создание (авто)', 'FAIL', `создание поста не удалось (${created.status})`);
-      } else {
-        const before = await countWhere('blog_moderation_history', 'post_id = ?', [String(postId)]);
-        const patch = await http('PATCH', `/api/blog/posts/${postId}`, { status: 'pending_review' }, authorToken);
-        await new Promise((resolve) => setTimeout(resolve, 200));
-        const after = await countWhere('blog_moderation_history', 'post_id = ?', [String(postId)]);
-        taskRecord(109, 'Blog Moderation Histories', 'Создание (авто)', patch.status === 200 && after > before ? 'OK' : 'FAIL',
-          `PATCH status draft→pending_review → ${patch.status}; история: было ${before}, стало ${after}${after > before ? ' (автосоздана ✓)' : ' (НЕ создана)'}`);
-        // 110: просмотр
-        try {
-          const view = await http('GET', `/api/blog/posts/${postId}/history`, undefined, authorToken);
-          const hist = (view.json as { docs?: Array<Record<string, unknown>> })?.docs || [];
-          taskRecord(110, 'Blog Moderation Histories', 'Просмотр', view.status === 200 && hist.length > 0 ? 'OK' : 'FAIL',
-            `GET /api/blog/posts/:id/history → ${view.status}, записей: ${hist.length}`);
-        } catch (error) {
-          taskRecord(110, 'Blog Moderation Histories', 'Просмотр', 'FAIL', errMsg(error));
-        }
-        // 111: синхронизация
-        try {
-          const dbCount = await countWhere('blog_moderation_history', 'post_id = ?', [String(postId)]);
-          taskRecord(111, 'Blog Moderation Histories', 'Синхронизация', dbCount > 0 ? 'OK' : 'FAIL',
-            `после модерации история в БД: ${dbCount} записей${dbCount > 0 ? ' ✓' : ''}`);
-        } catch (error) {
-          taskRecord(111, 'Blog Moderation Histories', 'Синхронизация', 'FAIL', errMsg(error));
-        }
-        await globalPayload.delete({ collection: 'blog-posts', id: String(postId), overrideAccess: true }).catch(() => undefined);
-      }
-      await http('POST', '/api/auth/logout', {}, authorToken);
-      await globalPayload.delete({ collection: 'users', where: { email: { equals: authorEmail } }, overrideAccess: true }).catch(() => undefined);
-    }
-  } catch (error) {
-    taskRecord(109, 'Blog Moderation Histories', 'Создание (авто)', 'FAIL', errMsg(error));
-    taskRecord(110, 'Blog Moderation Histories', 'Просмотр', 'SKIP', errMsg(error));
-    taskRecord(111, 'Blog Moderation Histories', 'Синхронизация', 'SKIP', errMsg(error));
-  }
-  await taskValidate(112, 'blog-moderation-history', 'Blog Moderation Histories', {
-    custom: async () => {
-      try {
-        await globalPayload.create({ collection: 'blog-moderation-history', data: { status: 'published' }, overrideAccess: true });
-        return { result: 'FAIL', detail: 'история модерации без поста (post) создана — валидация не сработала' };
-      } catch {
-        return { result: 'OK', detail: 'без post — ошибка валидации ✓' };
-      }
-    },
-  });
-
-  // ── Отчёт ──
   server.close();
   const lines: string[] = [];
   lines.push('| № | Сущность | Действие | Результат | Описание расхождения |');

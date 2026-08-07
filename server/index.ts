@@ -28,8 +28,6 @@ import type { PageKey } from '../src/types';
 import { SUPPORTED_LANGUAGES } from '../src/i18n/languages';
 import { getAdminContentTypeByCollection } from '../src/content-admin-registry';
 import { getPayloadClient } from './payload';
-import { registerPlatformRoutes } from './platform';
-import { registerBlogRoutes } from './blog';
 import { startTranslationWorker } from './translation-worker';
 import { applyLocalizations, languageFromRequest } from './content-localizations';
 import {
@@ -64,7 +62,6 @@ const publicReadOnlyApiPrefixes = [
   '/api/stats',
   '/api/contact-settings',
   '/api/operator-settings',
-  '/api/blog/posts',
 ];
 
 const isPublicReadOnlyApiRequest = (req: Request) => {
@@ -118,6 +115,24 @@ const isExpectedFileContent = async (file: Express.Multer.File) => {
 const removeUploadedFile = async (file?: Express.Multer.File) => {
   if (!file) return;
   await fs.promises.unlink(file.path).catch(() => undefined);
+};
+
+const removeUploadedFiles = async (files?: Express.Multer.File[]) => {
+  await Promise.all((files || []).map((file) => removeUploadedFile(file)));
+};
+
+const listFromBody = (value: unknown): string[] => {
+  if (Array.isArray(value)) return value.map(String).map((item) => item.trim()).filter(Boolean);
+  if (typeof value !== 'string') return [];
+  const trimmed = value.trim();
+  if (!trimmed) return [];
+  try {
+    const parsed = JSON.parse(trimmed);
+    if (Array.isArray(parsed)) return parsed.map(String).map((item) => item.trim()).filter(Boolean);
+  } catch {
+    // Fall back to comma-separated input.
+  }
+  return trimmed.split(',').map((item) => item.trim()).filter(Boolean);
 };
 
 const upload = multer({
@@ -195,8 +210,6 @@ app.use((_req, res, next) => {
 app.use(express.json({ limit: '1mb' }));
 app.use('/media', express.static(path.resolve(process.cwd(), 'uploads', 'media')));
 
-registerPlatformRoutes(app);
-registerBlogRoutes(app);
 startTranslationWorker(getPayloadClient);
 
 export const publicCollectionWhere = (collection: string, where: Record<string, unknown> = {}) => {
@@ -228,6 +241,12 @@ const findPublished = async (collection: string, where: Record<string, unknown> 
   });
 
   return result.docs;
+};
+
+const queryLimit = (value: unknown, fallback = 50) => {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.min(200, Math.max(1, parsed));
 };
 
 const findApprovedTeamMembers = async () => {
@@ -340,6 +359,67 @@ app.get('/api/tournaments', asyncRoute(async (req, res) => {
   res.json(docs.map(normalizeTournament));
 }));
 
+app.get('/api/championships', asyncRoute(async (req, res) => {
+  const payload = await getPayloadClient();
+  const result = await payload.find({
+    collection: 'tournaments' as any,
+    depth: 1,
+    limit: queryLimit(req.query.limit),
+    sort: req.query.sort === 'oldest' ? 'createdAt' : '-createdAt',
+    where: publicCollectionWhere('tournaments'),
+    overrideAccess: true,
+  });
+  await applyLocalizations(payload, 'tournaments', result.docs as Array<Record<string, unknown>>, languageFromRequest(req));
+  res.json(result);
+}));
+
+app.get('/api/championships/featured', asyncRoute(async (req, res) => {
+  const payload = await getPayloadClient();
+  const result = await payload.find({
+    collection: 'tournaments' as any,
+    depth: 1,
+    limit: 1,
+    where: publicCollectionWhere('tournaments', { isFeatured: { equals: true } }),
+    overrideAccess: true,
+  });
+  if (result.docs.length === 0) {
+    res.status(404).json({ code: 'NO_FEATURED_CHAMPIONSHIP' });
+    return;
+  }
+  await applyLocalizations(payload, 'tournaments', result.docs as Array<Record<string, unknown>>, languageFromRequest(req));
+  res.json({ doc: result.docs[0] });
+}));
+
+app.get('/api/events', asyncRoute(async (req, res) => {
+  const payload = await getPayloadClient();
+  const where = publicCollectionWhere('events', req.query.format ? { format: { equals: req.query.format } } : {});
+  const result = await payload.find({
+    collection: 'events' as any,
+    depth: 1,
+    limit: queryLimit(req.query.limit),
+    sort: req.query.sort === 'oldest' ? 'eventDate' : '-eventDate',
+    where,
+    overrideAccess: true,
+  });
+  await applyLocalizations(payload, 'events', result.docs as Array<Record<string, unknown>>, languageFromRequest(req));
+  res.json(result);
+}));
+
+app.get('/api/opportunities', asyncRoute(async (req, res) => {
+  const payload = await getPayloadClient();
+  const where = publicCollectionWhere('opportunities', req.query.format ? { format: { equals: req.query.format } } : {});
+  const result = await payload.find({
+    collection: 'opportunities' as any,
+    depth: 1,
+    limit: queryLimit(req.query.limit),
+    sort: req.query.sort === 'deadline' ? 'deadline' : '-createdAt',
+    where,
+    overrideAccess: true,
+  });
+  await applyLocalizations(payload, 'opportunities', result.docs as Array<Record<string, unknown>>, languageFromRequest(req));
+  res.json(result);
+}));
+
 app.get('/api/activities', asyncRoute(async (req, res) => {
   const payload = await getPayloadClient();
   const docs = await findPublished('activities');
@@ -437,130 +517,97 @@ app.get('/api/team-members', asyncRoute(async (req, res) => {
   res.json(docs.map(normalizeTeamMember));
 }));
 
-app.post('/api/applications', upload.single('projectFile'), asyncRoute(async (req, res) => {
+app.post('/api/team-members', upload.array('portfolioFiles', 5), asyncRoute(async (req, res) => {
   const payload = await getPayloadClient();
   const body = req.body || {};
+  const files = Array.isArray(req.files) ? req.files : [];
 
-  if (!body.name || !body.email) {
-    await removeUploadedFile(req.file);
-    res.status(400).json({ code: 'APPLICATION_REQUIRED_FIELDS' });
-    return;
-  }
-
-  const attachmentIds: Array<string | number> = [];
-
-  if (req.file) {
-    if (!(await isExpectedFileContent(req.file))) {
-      await removeUploadedFile(req.file);
-      res.status(415).json({ code: 'UNSUPPORTED_FILE_TYPE' });
-      return;
-    }
-
-    const media = await payload.create({
-      collection: 'media' as any,
-      data: {
-        alt: req.file.originalname,
-      },
-      filePath: req.file.path,
-      overrideAccess: true,
-    });
-
-    attachmentIds.push(media.id);
-  }
-
-  const ticketId = `NVK-${Math.floor(10000 + Math.random() * 90000)}-${String(body.city || 'WEB').slice(0, 3).toUpperCase()}`;
-
-  const application = await payload.create({
-    collection: 'applications' as any,
-    data: {
-      ticketId,
-      status: 'confirmed',
-      name: body.name,
-      email: body.email,
-      grade: body.grade,
-      age: body.age,
-      city: body.city,
-      contact: body.contact,
-      interest: body.interest,
-      tournamentId: body.tournamentId,
-      hasTeam: body.hasTeam,
-      teamSize: body.teamSize,
-      portfolioLink: body.portfolioLink,
-      coverLetter: body.coverLetter,
-      attachments: attachmentIds,
-      source: body.source || 'api',
-    },
-    overrideAccess: true,
-  });
-
-  res.status(201).json({
-    id: application.id,
-    ticketId,
-    status: 'confirmed',
-  });
-}));
-
-app.post('/api/community-leads', asyncRoute(async (req, res) => {
-  const payload = await getPayloadClient();
-  const body = req.body || {};
-
-  if (!body.name || !body.age || !body.location || !body.contact) {
-    res.status(400).json({ code: 'COMMUNITY_LEAD_REQUIRED_FIELDS' });
-    return;
-  }
-
-  const lead = await payload.create({
-    collection: 'community-leads' as any,
-    data: {
-      name: body.name,
-      age: body.age,
-      location: body.location,
-      contact: body.contact,
-      interest: body.interest,
-      source: body.source || 'home-inline',
-    },
-    overrideAccess: true,
-  });
-
-  res.status(201).json({ id: lead.id, status: 'received' });
-}));
-
-app.post('/api/team-members', asyncRoute(async (req, res) => {
-  const payload = await getPayloadClient();
-  const body = req.body || {};
-
-  if (!body.name || !body.age || !body.country || !body.shortBio || !body.contact) {
+  if (!body.name || !body.email || !body.age || !body.country || !body.shortBio || !body.contact || !body.whyLooking) {
+    await removeUploadedFiles(files);
     res.status(400).json({ code: 'TEAM_MEMBER_REQUIRED_FIELDS' });
     return;
   }
+  for (const file of files) {
+    if (!(await isExpectedFileContent(file))) {
+      await removeUploadedFiles(files);
+      res.status(415).json({ code: 'UNSUPPORTED_FILE_TYPE' });
+      return;
+    }
+  }
+
+  const age = Number(body.age);
+  if (!Number.isFinite(age) || age < 10 || age > 24) {
+    await removeUploadedFiles(files);
+    res.status(400).json({ code: 'TEAM_MEMBER_INVALID_AGE' });
+    return;
+  }
+
+  const portfolioFileIds: Array<string | number> = [];
+  try {
+    for (const file of files) {
+      const media = await payload.create({
+        collection: 'media' as any,
+        data: {
+          alt: file.originalname,
+        },
+        filePath: file.path,
+        overrideAccess: true,
+      });
+      portfolioFileIds.push(media.id);
+    }
+  } catch (error) {
+    await removeUploadedFiles(files);
+    throw error;
+  }
+
   const originalLanguage = typeof body.originalLanguage === 'string' && (SUPPORTED_LANGUAGES as readonly string[]).includes(body.originalLanguage)
     ? body.originalLanguage
     : 'ru';
 
-  const member = await payload.create({
-    collection: 'team-members' as any,
-    data: {
-      name: body.name,
-      age: Number(body.age),
-      country: body.country,
-      city: body.city,
-      shortBio: body.shortBio,
-      interests: (body.interests || []).map((value: string) => ({ value })),
-      skills: (body.skills || []).map((value: string) => ({ value })),
-      targetRoles: body.targetRoles || ['other'],
-      targetProject: body.targetProject,
-      whyLooking: body.whyLooking || body.shortBio,
-      contact: body.contact,
-      contactType: body.contactType || 'telegram',
-      originalLanguage,
-      moderationStatus: 'pending',
-      isApproved: false,
-    },
-    overrideAccess: true,
-  });
+  try {
+    const member = await payload.create({
+      collection: 'team-members' as any,
+      data: {
+        name: String(body.name).trim(),
+        email: String(body.email).trim(),
+        age,
+        country: String(body.country).trim(),
+        city: typeof body.city === 'string' ? body.city.trim() : undefined,
+        shortBio: String(body.shortBio).trim(),
+        interests: listFromBody(body.interests).map((value) => ({ value })),
+        skills: listFromBody(body.skills).map((value) => ({ value })),
+        targetRoles: listFromBody(body.targetRoles).length ? listFromBody(body.targetRoles) : ['other'],
+        targetProject: typeof body.targetProject === 'string' ? body.targetProject.trim() : undefined,
+        whyLooking: String(body.whyLooking).trim(),
+        contact: String(body.contact).trim(),
+        contactType: ['telegram', 'email', 'discord'].includes(body.contactType) ? body.contactType : 'telegram',
+        portfolioLink: typeof body.portfolioLink === 'string' ? body.portfolioLink.trim() : undefined,
+        portfolioFiles: portfolioFileIds,
+        sourceType: typeof body.sourceType === 'string' ? body.sourceType : 'api',
+        sourceContext: typeof body.sourceContext === 'string' ? body.sourceContext.trim() : undefined,
+        sourceId: typeof body.sourceId === 'string' ? body.sourceId.trim() : undefined,
+        tournamentId: typeof body.tournamentId === 'string' ? body.tournamentId.trim() : undefined,
+        originalLanguage,
+        moderationStatus: 'pending',
+        isApproved: false,
+      },
+      overrideAccess: true,
+    });
 
-  res.status(201).json({ id: member.id, status: 'moderation' });
+    await removeUploadedFiles(files);
+    res.status(201).json({ id: member.id, ticketId: `NVK-${member.id}`, status: 'moderation' });
+  } catch (error) {
+    await removeUploadedFiles(files);
+    throw error;
+  }
 }));
+
+app.use(
+  ['/api/auth', '/api/profile', '/api/participants', '/api/admin', '/api/team-posts', '/api/applications', '/api/community-leads'],
+  (_req, res) => {
+    res.status(410).json({ code: 'PUBLIC_PLATFORM_REMOVED' });
+  },
+);
 
 const distPath = path.resolve(process.cwd(), 'dist');
 if (fs.existsSync(distPath)) {

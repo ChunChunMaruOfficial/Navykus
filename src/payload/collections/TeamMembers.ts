@@ -12,7 +12,7 @@ export const TeamMembers: CollectionConfig = {
     useAsTitle: 'name',
     group: 'Community',
     preview: publicPreview('team-members'),
-    defaultColumns: ['name', 'country', 'moderationStatus', 'isApproved', 'updatedAt'],
+    defaultColumns: ['name', 'email', 'country', 'moderationStatus', 'isApproved', 'publishAction', 'updatedAt'],
   },
   versions: publicContentVersions,
   access: {
@@ -35,6 +35,7 @@ export const TeamMembers: CollectionConfig = {
     sortOrderField,
     originalLanguageField,
     { name: 'name', type: 'text', required: true },
+    { name: 'email', type: 'email', required: true, index: true },
     { name: 'age', type: 'number', required: true },
     { name: 'country', type: 'text', required: true },
     { name: 'city', type: 'text' },
@@ -77,6 +78,65 @@ export const TeamMembers: CollectionConfig = {
     { name: 'moderationComment', type: 'textarea', admin: { position: 'sidebar' } },
     { name: 'reviewedAt', type: 'date', admin: { position: 'sidebar' } },
     { name: 'isApproved', type: 'checkbox', defaultValue: false },
+    {
+      name: 'publishAction',
+      type: 'ui',
+      label: 'Publication',
+      admin: {
+        disableListColumn: false,
+        components: {
+          Cell: '../../../src/admin/components/PublishTeamMemberCell#PublishTeamMemberCell',
+        },
+      },
+    },
+    {
+      name: 'portfolioLink',
+      type: 'text',
+      admin: {
+        description: 'External portfolio link submitted with the questionnaire.',
+      },
+    },
+    {
+      name: 'portfolioFiles',
+      type: 'relationship',
+      relationTo: 'media',
+      hasMany: true,
+      admin: {
+        description: 'Portfolio files uploaded from the public questionnaire.',
+      },
+    },
+    {
+      name: 'sourceType',
+      type: 'select',
+      defaultValue: 'modal',
+      options: ['modal', 'championship', 'event', 'opportunity', 'find-team', 'home', 'about', 'activities', 'api'],
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'sourceId',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        description: 'Source entity id from the public CTA, when available.',
+      },
+    },
+    {
+      name: 'sourceContext',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        description: 'Human-readable source title/context.',
+      },
+    },
+    {
+      name: 'tournamentId',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+      },
+    },
     ...seoFields,
   ],
 };

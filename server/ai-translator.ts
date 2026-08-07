@@ -197,22 +197,3 @@ export const translateStructuredContent = async ({
 
 export const targetLocales = (source: SupportedLanguage): SupportedLanguage[] =>
   (SUPPORTED_LANGUAGES as readonly SupportedLanguage[]).filter((language) => language !== source);
-
-type ArticleFields = {
-  title: string;
-  excerpt: string;
-  content: string;
-  slug: string;
-  seoTitle?: string;
-  seoDescription?: string;
-  coverAlt?: string;
-};
-
-export const translateArticle = async (
-  source: ArticleFields,
-  from: SupportedLanguage,
-  to: SupportedLanguage,
-) => ({
-  ...await translateStructuredContent({ content: source, from, to, context: 'blog article' }),
-  language: to,
-}) as ArticleFields & { language: SupportedLanguage };

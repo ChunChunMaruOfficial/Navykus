@@ -20,6 +20,7 @@ type CmsEventDoc = {
   country?: string;
   venue?: string;
   onlineLink?: string;
+  registrationUrl?: string;
   speaker?: string;
   languages?: Array<{ value: string }> | string[];
   materials?: Array<{ value: string }> | string[];
@@ -86,7 +87,7 @@ const mapCmsEvent = (doc: CmsEventDoc, language: string): ActivityItem => {
     benefits: [...languages, ...materials],
     prerequisites: registrationLine ? `Registration deadline: ${registrationLine}` : '',
     ctaText: 'Apply',
-    ctaLink: doc.onlineLink,
+    ctaLink: doc.registrationUrl,
   };
 };
 

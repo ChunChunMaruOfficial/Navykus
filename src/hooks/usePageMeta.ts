@@ -7,7 +7,6 @@ const TITLE_KEYS: Record<string, string> = {
   championship: 'meta.championship.title',
   activities: 'meta.activities.title',
   'find-team': 'meta.findTeam.title',
-  blog: 'meta.blog.title',
   'not-found': 'meta.notFound.title',
 };
 
@@ -17,7 +16,6 @@ const DESCRIPTION_KEYS: Record<string, string> = {
   championship: 'meta.home.description',
   activities: 'meta.home.description',
   'find-team': 'meta.home.description',
-  blog: 'meta.blog.description',
   'not-found': 'meta.notFound.description',
 };
 

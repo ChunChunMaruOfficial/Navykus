@@ -11,6 +11,9 @@ import * as migration_20260729_171500_add_operator_settings from './20260729_171
 import * as migration_20260729_191500_add_opportunity_card_fields from './20260729_191500_add_opportunity_card_fields';
 import * as migration_20260731_000000_add_team_posts_original_language from './20260731_000000_add_team_posts_original_language';
 import * as migration_20260731_000100_add_tournaments_slug_unique_index from './20260731_000100_add_tournaments_slug_unique_index';
+import * as migration_20260806_000000_add_event_registration_url from './20260806_000000_add_event_registration_url';
+import * as migration_20260807_000000_remove_blog from './20260807_000000_remove_blog';
+import * as migration_20260807_010000_fix_team_member_version_fields from './20260807_010000_fix_team_member_version_fields';
 
 export const migrations = [
   {
@@ -77,5 +80,20 @@ export const migrations = [
     up: migration_20260731_000100_add_tournaments_slug_unique_index.up,
     down: migration_20260731_000100_add_tournaments_slug_unique_index.down,
     name: '20260731_000100_add_tournaments_slug_unique_index',
+  },
+  {
+    up: migration_20260806_000000_add_event_registration_url.up,
+    down: migration_20260806_000000_add_event_registration_url.down,
+    name: '20260806_000000_add_event_registration_url',
+  },
+  {
+    up: migration_20260807_000000_remove_blog.up,
+    down: migration_20260807_000000_remove_blog.down,
+    name: '20260807_000000_remove_blog',
+  },
+  {
+    up: migration_20260807_010000_fix_team_member_version_fields.up,
+    down: migration_20260807_010000_fix_team_member_version_fields.down,
+    name: '20260807_010000_fix_team_member_version_fields',
   },
 ];

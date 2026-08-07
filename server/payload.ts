@@ -87,49 +87,14 @@ const reconcileTeamMemberPublicationColumns = async () => {
   await executeSafe("UPDATE team_members SET is_approved = 1, _status = 'published' WHERE moderation_status = 'approved';");
 };
 
-const reconcileBlogPublicationColumns = async () => {
-  if (!(await hasTable('blog_posts'))) return;
-  await executeSafe("UPDATE blog_posts SET status = 'draft' WHERE _status = 'draft' AND status = 'published';");
-  await executeSafe("UPDATE blog_posts SET _status = 'draft' WHERE status <> 'published' OR is_published = 0;");
-  await executeSafe("UPDATE blog_posts SET is_published = 0 WHERE status <> 'published' OR _status = 'draft';");
-  await executeSafe("UPDATE blog_posts SET is_approved = CASE WHEN status IN ('approved', 'published') THEN 1 ELSE 0 END;");
-  await executeSafe("UPDATE blog_posts SET _status = 'published', is_published = 1, is_approved = 1 WHERE status = 'published' AND (_status IS NULL OR _status = '' OR _status = 'published');");
-};
-
 const ensureDevelopmentSchema = async () => {
   if (process.env.NODE_ENV === 'production') {
     // In production, run schema push once to add new columns
   }
 
-  await ensureColumn('users', 'avatar_id', 'text');
-  await ensureColumn('users', 'avatar_url', 'text');
-  await ensureColumn('users', 'avatar_alt', 'text');
-  await ensureColumn('users', 'avatar_position_x', 'numeric DEFAULT 50');
-  await ensureColumn('users', 'avatar_position_y', 'numeric DEFAULT 50');
-  await ensureColumn('users', 'avatar_scale', 'numeric DEFAULT 1');
-  await ensureColumn('users', 'email_verified', 'boolean DEFAULT FALSE');
-  await ensureColumn('users', 'verification_code', 'text');
-  await ensureColumn('users', 'verification_code_expires', 'text');
   await ensureColumn('users', 'first_name', 'text');
   await ensureColumn('users', 'last_name', 'text');
-  await ensureColumn('users', 'date_of_birth', 'text');
-  await ensureColumn('users', 'age_group', 'text');
-  await ensureColumn('users', 'school', 'text');
-  await ensureColumn('users', 'school_grade', 'text');
-  await ensureColumn('users', 'preferred_language', 'text');
-  await ensureColumn('users', 'preferred_language_mode', 'text');
-  await ensureColumn('users', 'team_search_available', 'boolean DEFAULT FALSE');
-  await ensureColumn('users', 'public_profile', 'boolean DEFAULT FALSE');
-  await ensureColumn('users', 'privacy_show_city', 'boolean DEFAULT FALSE');
-  await ensureColumn('users', 'privacy_show_school', 'boolean DEFAULT FALSE');
-  await ensureColumn('users', 'privacy_show_age', 'boolean DEFAULT FALSE');
-  await ensureColumn('users', 'privacy_show_email', 'boolean DEFAULT FALSE');
-  await ensureColumn('users', 'privacy_show_social_links', 'boolean DEFAULT FALSE');
   await ensureColumn('users', 'account_status', 'text');
-  await ensureColumn('users', 'biography', 'text');
-  await ensureColumn('users', 'portfolio', 'text');
-  await ensureColumn('users', 'country', 'text');
-  await ensureColumn('users', 'city', 'text');
 
   await executeSafe(`CREATE TABLE IF NOT EXISTS experts (
     id integer PRIMARY KEY NOT NULL,
@@ -285,14 +250,31 @@ const ensureDevelopmentSchema = async () => {
     await ensureColumn(table, 'seo_description', 'text');
   }
   await ensureColumn('team_members', 'original_language', "text DEFAULT 'ru'");
+  await ensureColumn('team_members', 'email', 'text');
+  await ensureColumn('team_members', 'portfolio_link', 'text');
+  await ensureColumn('team_members', 'source_type', 'text');
+  await ensureColumn('team_members', 'source_id', 'text');
+  await ensureColumn('team_members', 'source_context', 'text');
+  await ensureColumn('team_members', 'tournament_id', 'text');
   await ensureColumn('team_members', 'seo_title', 'text');
   await ensureColumn('team_members', 'seo_description', 'text');
   await ensureColumn('team_members', '_status', "text DEFAULT 'published'");
   await ensureColumn('team_members', 'moderation_status', "text DEFAULT 'pending' NOT NULL");
   await ensureColumn('team_members', 'moderation_comment', 'text');
   await ensureColumn('team_members', 'reviewed_at', 'text');
-  await ensureColumn('team_posts', 'original_language', "text DEFAULT 'ru'");
-  await ensureColumn('team_responses', 'original_language', "text DEFAULT 'ru'");
+  await executeSafe(`CREATE TABLE IF NOT EXISTS team_members_rels (
+    id integer PRIMARY KEY,
+    \`order\` integer,
+    parent_id integer NOT NULL,
+    path text NOT NULL,
+    media_id integer,
+    FOREIGN KEY (parent_id) REFERENCES team_members(id) ON DELETE cascade,
+    FOREIGN KEY (media_id) REFERENCES media(id) ON DELETE cascade
+  );`);
+  await executeSafe('CREATE INDEX IF NOT EXISTS team_members_rels_order_idx ON team_members_rels (`order`);');
+  await executeSafe('CREATE INDEX IF NOT EXISTS team_members_rels_parent_idx ON team_members_rels (parent_id);');
+  await executeSafe('CREATE INDEX IF NOT EXISTS team_members_rels_path_idx ON team_members_rels (path);');
+  await executeSafe('CREATE INDEX IF NOT EXISTS team_members_rels_media_id_idx ON team_members_rels (media_id);');
   await ensureColumn('experts', 'original_language', "text DEFAULT 'ru'");
   await ensureColumn('experts', 'seo_title', 'text');
   await ensureColumn('experts', 'seo_description', 'text');
@@ -301,14 +283,12 @@ const ensureDevelopmentSchema = async () => {
   await ensureColumn('faqs', 'seo_title', 'text');
   await ensureColumn('faqs', 'seo_description', 'text');
   await ensureColumn('faqs', '_status', "text DEFAULT 'published'");
-  await ensureColumn('blog_posts', '_status', "text DEFAULT 'published'");
   await executeSafe('CREATE INDEX IF NOT EXISTS team_members_moderation_status_idx ON team_members (moderation_status);');
   await executeSafe("UPDATE team_members SET moderation_status = 'approved' WHERE is_approved = 1 AND (moderation_status IS NULL OR moderation_status = '' OR moderation_status = 'pending');");
   for (const table of ['tournaments', 'events', 'opportunities', 'experts', 'faqs']) {
     await reconcileDraftPublishedColumns(table);
   }
   await reconcileTeamMemberPublicationColumns();
-  await reconcileBlogPublicationColumns();
   await executeSafe(`CREATE TABLE IF NOT EXISTS content_localizations (
     id integer PRIMARY KEY NOT NULL,
     source_collection text NOT NULL,

@@ -55,8 +55,8 @@ export const Tournaments: CollectionConfig = {
             { name: 'title', type: 'text', required: true },
             { name: 'slug', type: 'text', unique: true, index: true, admin: { description: 'Auto-generated from title when empty.' } },
             { name: 'type', type: 'text', required: true, admin: { description: 'e.g. "Кейс-чемпионат", "Хакатон"' } },
-            { name: 'description', type: 'textarea', required: true },
-            { name: 'pitch', type: 'textarea', admin: { description: 'Short hero text. Falls back to description.' } },
+            { name: 'description', type: 'textarea', required: true, admin: { rows: 10 } },
+            { name: 'pitch', type: 'textarea', admin: { rows: 6, description: 'Short hero text. Falls back to description.' } },
           ],
         },
         {

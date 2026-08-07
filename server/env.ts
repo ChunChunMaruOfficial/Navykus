@@ -1,8 +1,7 @@
 // Ensure SMTP settings from the .env file always win over stale process
-// environment variables. Without this, a leftover SMTP_PASS (e.g. cached by
+// environment variables. Without this, a leftover SMTP_PASS (for example from
 // PM2 or a shell export) shadows the correct value from .env, which makes the
-// SMTP server reject login (535) — and login-by-code emails never arrive while
-// the UI still reports "sent".
+// SMTP server reject authentication (535), while the UI still reports "sent".
 //
 // This module must be imported FIRST, before any config module reads
 // process.env (src/payload.config.ts builds its SMTP adapter at import time).

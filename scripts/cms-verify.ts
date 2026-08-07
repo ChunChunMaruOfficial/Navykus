@@ -28,8 +28,8 @@ const snake = (name: string) => name.replace(/([A-Z])/g, '_$1').replace(/[-\s]/g
 
 // Коллекции, у которых в конфиге подключены хуки аудита (auditAfterChange/auditAfterDelete).
 const AUDITED_COLLECTIONS = new Set([
-  'activities', 'blog-posts', 'events', 'experts', 'faqs', 'opportunities',
-  'pillars', 'scenarios', 'stats', 'team-members', 'team-posts', 'team-responses',
+  'activities', 'events', 'experts', 'faqs', 'opportunities',
+  'pillars', 'scenarios', 'stats', 'team-members',
   'tournaments', 'trust-points',
 ]);
 

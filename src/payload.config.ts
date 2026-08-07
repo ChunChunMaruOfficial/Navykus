@@ -6,28 +6,18 @@ import { sqliteAdapter } from '@payloadcms/db-sqlite';
 import { buildConfig } from 'payload';
 
 import { Activities } from './payload/collections/Activities';
-import { ApplicationStatusHistory } from './payload/collections/ApplicationStatusHistory';
-import { Applications } from './payload/collections/Applications';
 import { AuditLogs } from './payload/collections/AuditLogs';
-import { BlogModerationHistory } from './payload/collections/BlogModerationHistory';
-import { BlogPostLocalizations } from './payload/collections/BlogPostLocalizations';
-import { BlogPosts } from './payload/collections/BlogPosts';
-import { CommunityLeads } from './payload/collections/CommunityLeads';
 import { ContactSettings } from './payload/collections/ContactSettings';
 import { ContentLocalizations } from './payload/collections/ContentLocalizations';
 import { Events } from './payload/collections/Events';
 import { Experts } from './payload/collections/Experts';
 import { Faqs } from './payload/collections/Faqs';
-import { Favorites } from './payload/collections/Favorites';
 import { Media } from './payload/collections/Media';
-import { Notifications } from './payload/collections/Notifications';
 import { OperatorSettings } from './payload/collections/OperatorSettings';
 import { Opportunities } from './payload/collections/Opportunities';
 import { Pillars } from './payload/collections/Pillars';
 import { Scenarios } from './payload/collections/Scenarios';
 import { Stats } from './payload/collections/Stats';
-import { TeamPosts } from './payload/collections/TeamPosts';
-import { TeamResponses } from './payload/collections/TeamResponses';
 import { TeamMembers } from './payload/collections/TeamMembers';
 import { Tournaments } from './payload/collections/Tournaments';
 import { TrustPoints } from './payload/collections/TrustPoints';
@@ -134,23 +124,13 @@ export default buildConfig({
     Events,
     Opportunities,
     TeamMembers,
-    TeamPosts,
-    TeamResponses,
     TrustPoints,
     Pillars,
     Scenarios,
     Stats,
-    Applications,
-    ApplicationStatusHistory,
-    Favorites,
-    Notifications,
-    CommunityLeads,
     ContactSettings,
     OperatorSettings,
     AuditLogs,
     ContentLocalizations,
-    BlogPosts,
-    BlogPostLocalizations,
-    BlogModerationHistory,
   ],
 });

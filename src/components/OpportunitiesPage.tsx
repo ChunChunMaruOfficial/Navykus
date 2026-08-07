@@ -9,16 +9,13 @@ import {
   BookOpen,
   BriefcaseBusiness,
   CalendarClock,
-  Check,
   CheckCircle2,
   ChevronDown,
   CircleDollarSign,
   Code2,
   Compass,
-  FilePlus2,
   Filter,
   GraduationCap,
-  Heart,
   Landmark,
   Languages,
   MapPin,
@@ -44,6 +41,7 @@ import {
 } from '../motion-animations';
 import type { SupportedLanguage } from '../i18n/languages';
 import { useCmsOpportunities } from '../hooks/useCmsOpportunities';
+import type { TeamApplicationContext } from '../types';
 import BrandImage from './BrandImage';
 
 const catalogStaggerContainer = {
@@ -75,8 +73,7 @@ type CostId = 'free' | 'paid' | 'scholarship';
 type SourceId = 'navykus' | 'verified' | 'partner';
 type ParticipationId = 'individual' | 'team' | 'both';
 type SortId = 'recommended' | 'deadline' | 'newest' | 'popular';
-type RouteMode = 'catalog' | 'detail' | 'favorites' | 'compare' | 'submit' | 'profile';
-type ApplicationStatus = 'draft' | 'submitted' | 'review' | 'accepted' | 'completed';
+type RouteMode = 'catalog' | 'detail' | 'compare' | 'submit';
 
 type LText = Record<SupportedLanguage, string>;
 
@@ -117,22 +114,6 @@ type Opportunity = {
   publishedAt: string;
 };
 
-type UserApplication = {
-  id: string;
-  opportunityId: string;
-  status: ApplicationStatus;
-  submittedAt: string;
-  note: string;
-};
-
-type PortfolioRecord = {
-  id: string;
-  opportunityId: string;
-  title: string;
-  result: string;
-  createdAt: string;
-};
-
 type Filters = {
   q: string;
   category: CategoryId | 'all';
@@ -152,10 +133,7 @@ type Filters = {
 };
 
 const STORAGE_KEYS = {
-  favorites: 'navykus.opportunities.favorites',
   compare: 'navykus.opportunities.compare',
-  applications: 'navykus.opportunities.applications',
-  portfolio: 'navykus.opportunities.portfolio',
   proposals: 'navykus.opportunities.proposals',
 };
 
@@ -225,7 +203,6 @@ const UI = {
   sort: lt({ ru: '\u0421\u043e\u0440\u0442\u0438\u0440\u043e\u0432\u043a\u0430', en: 'Sort', kk: '\u0421\u04b1\u0440\u044b\u043f\u0442\u0430\u0443', uz: 'Saralash', ar: 'الترتيب', de: 'Sortieren', es: 'Ordenar', tr: 'Sırala' }),
   loadMore: lt({ ru: '\u041f\u043e\u043a\u0430\u0437\u0430\u0442\u044c \u0435\u0449\u0451', en: 'Show more', kk: '\u0422\u0430\u0493\u044b \u043a\u04e9\u0440\u0441\u0435\u0442\u0443', uz: 'Yana korsatish', ar: 'عرض المزيد', de: 'Mehr anzeigen', es: 'Mostrar más', tr: 'Daha fazla göster' }),
   details: lt({ ru: '\u041f\u043e\u0434\u0440\u043e\u0431\u043d\u0435\u0435', en: 'Details', kk: '\u0422\u043e\u043b\u044b\u0493\u044b\u0440\u0430\u049b', uz: 'Batafsil', ar: 'تفاصيل', de: 'Details', es: 'Detalles', tr: 'Detaylar' }),
-  favorite: lt({ ru: '\u0418\u0437\u0431\u0440\u0430\u043d\u043d\u043e\u0435', en: 'Favorite', kk: '\u0422\u0430\u04a3\u0434\u0430\u0443\u043b\u044b', uz: 'Sevimli', ar: 'المفضلة', de: 'Favorit', es: 'Favorito', tr: 'Favori' }),
   compare: lt({ ru: '\u0421\u0440\u0430\u0432\u043d\u0438\u0442\u044c', en: 'Compare', kk: '\u0421\u0430\u043b\u044b\u0441\u0442\u044b\u0440\u0443', uz: 'Solishtirish', ar: 'قارن', de: 'Vergleichen', es: 'Comparar', tr: 'Karşılaştır' }),
   fromNavykus: lt({ ru: '\u041e\u0442 \u041d\u0430\u0432\u044b\u043a\u0443\u0441', en: 'By Navykus', kk: '\u041d\u0430\u0432\u044b\u043a\u0443\u0441\u0442\u0430\u043d', uz: 'Navykusdan', ar: 'من Navykus', de: 'Von Navykus', es: 'De Navykus', tr: 'Navykus tarafından' }),
   verified: lt({ ru: '\u041f\u0440\u043e\u0432\u0435\u0440\u0435\u043d\u043e', en: 'Verified', kk: '\u0422\u0435\u043a\u0441\u0435\u0440\u0456\u043b\u0433\u0435\u043d', uz: 'Tekshirilgan', ar: 'موثّق', de: 'Geprüft', es: 'Verificado', tr: 'Doğrulandı' }),
@@ -236,19 +213,13 @@ const UI = {
   registrationOpen: lt({ ru: '\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044f \u043e\u0442\u043a\u0440\u044b\u0442\u0430', en: 'Registration open', kk: '\u0422\u0456\u0440\u043a\u0435\u0443 \u0430\u0448\u044b\u049b', uz: 'Royxatdan otish ochiq', ar: 'التسجيل مفتوح', de: 'Anmeldung offen', es: 'Inscripción abierta', tr: 'Kayıt açık' }),
   registrationClosed: lt({ ru: '\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044f \u0437\u0430\u043a\u0440\u044b\u0442\u0430', en: 'Registration closed', kk: '\u0422\u0456\u0440\u043a\u0435\u0443 \u0436\u0430\u0431\u044b\u049b', uz: 'Royxatdan otish yopiq', ar: 'التسجيل مغلق', de: 'Anmeldung geschlossen', es: 'Inscripción cerrada', tr: 'Kayıt kapalı' }),
   apply: lt({ ru: '\u041f\u043e\u0434\u0430\u0442\u044c \u0437\u0430\u044f\u0432\u043a\u0443', en: 'Apply', kk: '\u04e8\u0442\u0456\u043d\u0456\u043c \u0431\u0435\u0440\u0443', uz: 'Ariza berish', ar: 'تقديم', de: 'Bewerben', es: 'Postular', tr: 'Başvur' }),
-  externalApply: lt({ ru: '\u041f\u0435\u0440\u0435\u0439\u0442\u0438 \u043d\u0430 \u0441\u0430\u0439\u0442', en: 'Open website', kk: '\u0421\u0430\u0439\u0442\u049b\u0430 \u04e9\u0442\u0443', uz: 'Saytga otish', ar: 'افتح الموقع', de: 'Website öffnen', es: 'Abrir sitio', tr: 'Siteyi aç' }),
+  externalApply: lt({ ru: '\u041f\u0435\u0440\u0435\u0439\u0442\u0438', en: 'Go', kk: '\u04e8\u0442\u0443', uz: 'Otish', ar: 'اذهب', de: 'Öffnen', es: 'Ir', tr: 'Git' }),
   noResults: lt({ ru: '\u041d\u0438\u0447\u0435\u0433\u043e \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e', en: 'No results', kk: '\u0415\u0448\u0442\u0435\u04a3\u0435 \u0442\u0430\u0431\u044b\u043b\u043c\u0430\u0434\u044b', uz: 'Natija topilmadi', ar: 'لا توجد نتائج', de: 'Keine Ergebnisse', es: 'Sin resultados', tr: 'Sonuç yok' }),
   clearFilters: lt({ ru: '\u041e\u0447\u0438\u0441\u0442\u0438\u0442\u044c \u0444\u0438\u043b\u044c\u0442\u0440\u044b', en: 'Clear filters', kk: '\u0421\u04af\u0437\u0433\u0456\u043b\u0435\u0440\u0434\u0456 \u0442\u0430\u0437\u0430\u043b\u0430\u0443', uz: 'Filtrlarni tozalash', ar: 'مسح الفلاتر', de: 'Filter löschen', es: 'Limpiar filtros', tr: 'Filtreleri temizle' }),
-  favoritesTitle: lt({ ru: '\u0418\u0437\u0431\u0440\u0430\u043d\u043d\u044b\u0435 \u0432\u043e\u0437\u043c\u043e\u0436\u043d\u043e\u0441\u0442\u0438', en: 'Favorite opportunities', kk: '\u0422\u0430\u04a3\u0434\u0430\u0443\u043b\u044b \u043c\u04af\u043c\u043a\u0456\u043d\u0434\u0456\u043a\u0442\u0435\u0440', uz: 'Sevimli imkoniyatlar', ar: 'الفرص المفضلة', de: 'Favorisierte Chancen', es: 'Oportunidades favoritas', tr: 'Favori fırsatlar' }),
   compareTitle: lt({ ru: '\u0421\u0440\u0430\u0432\u043d\u0435\u043d\u0438\u0435 \u0432\u043e\u0437\u043c\u043e\u0436\u043d\u043e\u0441\u0442\u0435\u0439', en: 'Opportunity comparison', kk: '\u041c\u04af\u043c\u043a\u0456\u043d\u0434\u0456\u043a\u0442\u0435\u0440\u0434\u0456 \u0441\u0430\u043b\u044b\u0441\u0442\u044b\u0440\u0443', uz: 'Imkoniyatlarni solishtirish', ar: 'مقارنة الفرص', de: 'Chancenvergleich', es: 'Comparación de oportunidades', tr: 'Fırsat karşılaştırması' }),
   submitTitle: lt({ ru: '\u041f\u0440\u0435\u0434\u043b\u043e\u0436\u0438\u0442\u044c \u0432\u043e\u0437\u043c\u043e\u0436\u043d\u043e\u0441\u0442\u044c', en: 'Submit an opportunity', kk: '\u041c\u04af\u043c\u043a\u0456\u043d\u0434\u0456\u043a \u04b1\u0441\u044b\u043d\u0443', uz: 'Imkoniyat taklif qilish', ar: 'اقترح فرصة', de: 'Chance einreichen', es: 'Proponer oportunidad', tr: 'Fırsat öner' }),
-  profileTitle: lt({ ru: '\u041c\u043e\u0438 \u0432\u043e\u0437\u043c\u043e\u0436\u043d\u043e\u0441\u0442\u0438', en: 'My opportunities', kk: '\u041c\u0435\u043d\u0456\u04a3 \u043c\u04af\u043c\u043a\u0456\u043d\u0434\u0456\u043a\u0442\u0435\u0440\u0456\u043c', uz: 'Mening imkoniyatlarim', ar: 'فرصي', de: 'Meine Chancen', es: 'Mis oportunidades', tr: 'Fırsatlarım' }),
-  tracker: lt({ ru: '\u0422\u0440\u0435\u043a\u0435\u0440 \u0437\u0430\u044f\u0432\u043e\u043a', en: 'Application tracker', kk: '\u04e8\u0442\u0456\u043d\u0456\u043c \u0442\u0440\u0435\u043a\u0435\u0440\u0456', uz: 'Ariza trekeri', ar: 'متتبع الطلبات', de: 'Bewerbungsstatus', es: 'Seguimiento', tr: 'Başvuru takibi' }),
   portfolio: lt({ ru: '\u041f\u043e\u0440\u0442\u0444\u043e\u043b\u0438\u043e', en: 'Portfolio', kk: '\u041f\u043e\u0440\u0442\u0444\u043e\u043b\u0438\u043e', uz: 'Portfolio', ar: 'الملف الشخصي', de: 'Portfolio', es: 'Portafolio', tr: 'Portfolyo' }),
-  addResult: lt({ ru: '\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0440\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442', en: 'Add result', kk: '\u041d\u04d9\u0442\u0438\u0436\u0435 \u049b\u043e\u0441\u0443', uz: 'Natija qoshish', ar: 'إضافة نتيجة', de: 'Ergebnis hinzufügen', es: 'Añadir resultado', tr: 'Sonuç ekle' }),
   findTeam: lt({ ru: '\u041d\u0430\u0439\u0442\u0438 \u043a\u043e\u043c\u0430\u043d\u0434\u0443', en: 'Find a team', kk: '\u041a\u043e\u043c\u0430\u043d\u0434\u0430 \u0442\u0430\u0431\u0443', uz: 'Jamoa topish', ar: 'ابحث عن فريق', de: 'Team finden', es: 'Encontrar equipo', tr: 'Takım bul' }),
-  saved: lt({ ru: '\u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u043e', en: 'Saved', kk: '\u0421\u0430\u049b\u0442\u0430\u043b\u0434\u044b', uz: 'Saqlandi', ar: 'تم الحفظ', de: 'Gespeichert', es: 'Guardado', tr: 'Kaydedildi' }),
-  applicationSaved: lt({ ru: '\u0417\u0430\u044f\u0432\u043a\u0430 \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0430 \u0432 \u0442\u0440\u0435\u043a\u0435\u0440\u0435', en: 'Application saved to tracker', kk: '\u04e8\u0442\u0456\u043d\u0456\u043c \u0442\u0440\u0435\u043a\u0435\u0440\u0433\u0435 \u0441\u0430\u049b\u0442\u0430\u043b\u0434\u044b', uz: 'Ariza trekerga saqlandi', ar: 'تم حفظ الطلب', de: 'Bewerbung gespeichert', es: 'Solicitud guardada', tr: 'Başvuru kaydedildi' }),
   proposalSaved: lt({ ru: '\u041f\u0440\u0435\u0434\u043b\u043e\u0436\u0435\u043d\u0438\u0435 \u043e\u0442\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u043e \u043d\u0430 \u043c\u043e\u0434\u0435\u0440\u0430\u0446\u0438\u044e', en: 'Proposal sent to moderation', kk: '\u04b0\u0441\u044b\u043d\u044b\u0441 \u043c\u043e\u0434\u0435\u0440\u0430\u0446\u0438\u044f\u0493\u0430 \u0436\u0456\u0431\u0435\u0440\u0456\u043b\u0434\u0456', uz: 'Taklif moderatsiyaga yuborildi', ar: 'تم إرسال الاقتراح للمراجعة', de: 'Vorschlag zur Prüfung gesendet', es: 'Propuesta enviada a moderación', tr: 'Öneri moderasyona gönderildi' }),
   all: lt({ ru: '\u0412\u0441\u0435', en: 'All', kk: '\u0411\u0430\u0440\u043b\u044b\u0493\u044b', uz: 'Hammasi', ar: '\u0627\u0644\u0643\u0644', de: 'Alle', es: 'Todo', tr: 'Tumu' }),
   any: lt({ ru: '\u041b\u044e\u0431\u043e\u0439', en: 'Any', kk: '\u041a\u0435\u0437 \u043a\u0435\u043b\u0433\u0435\u043d', uz: 'Istalgan', ar: '\u0623\u064a', de: 'Beliebig', es: 'Cualquiera', tr: 'Herhangi' }),
@@ -649,10 +620,8 @@ const getRoute = (): { mode: RouteMode; slug?: string } => {
   if (typeof window === 'undefined') return { mode: 'catalog' };
   const path = window.location.pathname.replace(/\/$/, '') || '/';
   if (path === '/activities/opportunities/recommendations') return { mode: 'catalog' };
-  if (path === '/activities/opportunities/favorites') return { mode: 'favorites' };
   if (path === '/activities/opportunities/compare') return { mode: 'compare' };
   if (path === '/activities/opportunities/submit') return { mode: 'submit' };
-  if (path === '/profile/opportunities') return { mode: 'profile' };
   if (path.startsWith('/activities/opportunities/')) {
     return { mode: 'detail', slug: decodeURIComponent(path.replace('/activities/opportunities/', '')) };
   }
@@ -673,10 +642,8 @@ const getSourceLabel = (source: SourceId, language: SupportedLanguage) => {
 
 const routeTitle = (mode: RouteMode, language: SupportedLanguage, opportunity?: Opportunity) => {
   if (opportunity) return `${pick(opportunity.title, language)} — ${pick(OPPORTUNITIES_NAV_LABELS, language)}`;
-  if (mode === 'favorites') return `${pick(UI.favoritesTitle, language)} — Navykus`;
   if (mode === 'compare') return `${pick(UI.compareTitle, language)} — Navykus`;
   if (mode === 'submit') return `${pick(UI.submitTitle, language)} — Navykus`;
-  if (mode === 'profile') return `${pick(UI.profileTitle, language)} — Navykus`;
   return `${pick(UI.title, language)} — Navykus`;
 };
 
@@ -724,16 +691,12 @@ function Metric({ icon, value, label }: { icon: React.ReactNode; value: string |
 function OpportunityCard({
   opportunity,
   language,
-  isFavorite,
   isCompared,
-  onFavorite,
   onCompare,
 }: {
   opportunity: Opportunity;
   language: SupportedLanguage;
-  isFavorite: boolean;
   isCompared: boolean;
-  onFavorite: () => void;
   onCompare: () => void;
 }) {
   const daysLeft = getDaysLeft(opportunity.deadline);
@@ -813,17 +776,6 @@ function OpportunityCard({
           </button>
           <button
             type="button"
-            onClick={onFavorite}
-            aria-pressed={isFavorite}
-            title={pick(UI.favorite, language)}
-            className={`inline-flex h-11 w-11 items-center justify-center rounded-xl border transition-colors ${
-              isFavorite ? 'border-[#bd5b82]/30 bg-[#bd5b82]/12 text-[#bd5b82]' : 'border-white/60 bg-white/45 text-brand-slate hover:text-[#bd5b82]'
-            }`}
-          >
-            <Heart className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
-          </button>
-          <button
-            type="button"
             onClick={onCompare}
             aria-pressed={isCompared}
             title={pick(UI.compare, language)}
@@ -861,8 +813,10 @@ function SkeletonGrid() {
 
 export default function OpportunitiesPage({
   embedded = false,
+  onOpenApplyModal,
 }: {
   embedded?: boolean;
+  onOpenApplyModal?: (context?: TeamApplicationContext) => void;
 }) {
   const { i18n } = useTranslation();
   const language = getLanguage(i18n.resolvedLanguage || i18n.language || 'ru');
@@ -873,11 +827,7 @@ export default function OpportunitiesPage({
   const [visibleCount, setVisibleCount] = useState(6);
   const [showFilters, setShowFilters] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
-  const [favorites, setFavorites] = useState<string[]>(() => readJson<string[]>(STORAGE_KEYS.favorites, []));
   const [compare, setCompare] = useState<string[]>(() => readJson<string[]>(STORAGE_KEYS.compare, []));
-  const [applications, setApplications] = useState<UserApplication[]>(() => readJson<UserApplication[]>(STORAGE_KEYS.applications, []));
-  const [portfolio, setPortfolio] = useState<PortfolioRecord[]>(() => readJson<PortfolioRecord[]>(STORAGE_KEYS.portfolio, []));
-  const [applicationNote, setApplicationNote] = useState('');
   const [proposal, setProposal] = useState({ title: '', organizer: '', link: '', note: '' });
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success'>('idle');
   const searchInputRef = useRef<HTMLInputElement | null>(null);
@@ -964,10 +914,7 @@ export default function OpportunitiesPage({
     return () => window.clearTimeout(timer);
   }, [filters.q]);
 
-  useEffect(() => writeJson(STORAGE_KEYS.favorites, favorites), [favorites]);
   useEffect(() => writeJson(STORAGE_KEYS.compare, compare), [compare]);
-  useEffect(() => writeJson(STORAGE_KEYS.applications, applications), [applications]);
-  useEffect(() => writeJson(STORAGE_KEYS.portfolio, portfolio), [portfolio]);
 
   const selectedOpportunity = route.slug
     ? allOpportunities.find((opportunity) => opportunity.slug === route.slug)
@@ -1108,10 +1055,6 @@ export default function OpportunitiesPage({
     if (route.mode === 'catalog') syncFiltersToUrl(next, 'recommended');
   };
 
-  const toggleFavorite = (id: string) => {
-    setFavorites((items) => items.includes(id) ? items.filter((item) => item !== id) : [...items, id]);
-  };
-
   const toggleCompare = (id: string) => {
     setCompare((items) => {
       if (items.includes(id)) return items.filter((item) => item !== id);
@@ -1119,36 +1062,12 @@ export default function OpportunitiesPage({
     });
   };
 
-  const applyToOpportunity = (opportunityId: string) => {
-    setApplications((items) => {
-      if (items.some((item) => item.opportunityId === opportunityId)) return items;
-      return [
-        {
-          id: `app-${Date.now()}`,
-          opportunityId,
-          status: 'submitted',
-          submittedAt: new Date().toISOString(),
-          note: applicationNote.trim(),
-        },
-        ...items,
-      ];
+  const openOpportunityApplication = (opportunity: Opportunity) => {
+    onOpenApplyModal?.({
+      sourceType: 'opportunity',
+      sourceId: opportunity.id,
+      sourceTitle: pick(opportunity.title, language),
     });
-    setApplicationNote('');
-    setSubmitStatus('success');
-    window.setTimeout(() => setSubmitStatus('idle'), 2400);
-  };
-
-  const addPortfolioResult = (opportunity: Opportunity) => {
-    setPortfolio((items) => [
-      {
-        id: `portfolio-${Date.now()}`,
-        opportunityId: opportunity.id,
-        title: pick(opportunity.title, language),
-        result: pick(opportunity.outcomes[0], language),
-        createdAt: new Date().toISOString(),
-      },
-      ...items,
-    ]);
   };
 
   const renderCard = (opportunity: Opportunity) => (
@@ -1156,19 +1075,13 @@ export default function OpportunitiesPage({
       key={opportunity.id}
       opportunity={opportunity}
       language={language}
-      isFavorite={favorites.includes(opportunity.id)}
       isCompared={compare.includes(opportunity.id)}
-      onFavorite={() => toggleFavorite(opportunity.id)}
       onCompare={() => toggleCompare(opportunity.id)}
     />
   );
 
   const renderHeaderActions = () => (
     <div className="flex flex-wrap gap-2">
-      <button onClick={() => navigate('/activities/opportunities/favorites')} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/60 bg-white/45 px-4 py-2 text-xs font-semibold text-brand-slate">
-        <Heart className="h-4 w-4" />
-        {favorites.length}
-      </button>
       <button onClick={() => navigate('/activities/opportunities/compare')} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/60 bg-white/45 px-4 py-2 text-xs font-semibold text-brand-slate">
         <Scale className="h-4 w-4" />
         {compare.length}
@@ -1373,7 +1286,6 @@ export default function OpportunitiesPage({
       );
     }
 
-    const application = applications.find((item) => item.opportunityId === selectedOpportunity.id);
     const schema = {
       '@context': 'https://schema.org',
       '@type': selectedOpportunity.category === 'scholarships' ? 'Scholarship' : selectedOpportunity.category === 'internships' ? 'Internship' : selectedOpportunity.category === 'research' ? 'EducationalOccupationalProgram' : 'Event',
@@ -1437,21 +1349,10 @@ export default function OpportunitiesPage({
               </div>
               {selectedOpportunity.source === 'navykus' ? (
                 <div className="space-y-3">
-                  <label className="grid gap-2 text-[10px] font-mono uppercase tracking-widest text-brand-dark/70">
-                    {pick(UI.motivationLabel, language)}
-                    <textarea value={applicationNote} onChange={(event) => setApplicationNote(event.target.value)} rows={4} className="rounded-xl border border-[#d8d1cc] bg-white/70 p-3 text-xs normal-case tracking-normal outline-none" />
-                  </label>
-                  <button disabled={Boolean(application)} onClick={() => applyToOpportunity(selectedOpportunity.id)} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60">
-                    {application ? <Check className="h-4 w-4" /> : <Send className="h-4 w-4" />}
-                    {application ? pick(UI.applicationSaved, language) : pick(UI.apply, language)}
+                  <button type="button" onClick={() => openOpportunityApplication(selectedOpportunity)} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-xs font-semibold text-white transition-opacity hover:opacity-95">
+                    <Send className="h-4 w-4" />
+                    {pick(UI.apply, language)}
                   </button>
-                  <AnimatePresence>
-                    {submitStatus === 'success' && (
-                      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="rounded-xl bg-emerald-500/10 px-3 py-2 text-xs text-emerald-700">
-                        {pick(UI.applicationSaved, language)}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
                 </div>
               ) : (
                 <a href={selectedOpportunity.externalUrl || '#'} target="_blank" rel="noreferrer" className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-xs font-semibold text-white">
@@ -1459,54 +1360,18 @@ export default function OpportunitiesPage({
                   <ArrowUpRight className="h-4 w-4" />
                 </a>
               )}
-              <div className="mt-3 grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => toggleFavorite(selectedOpportunity.id)}
-                  className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold shadow-sm transition-all hover:-translate-y-0.5 ${
-                    favorites.includes(selectedOpportunity.id)
-                      ? 'border-[#bd5b82]/25 bg-[#bd5b82]/12 text-[#8a3859]'
-                      : 'border-white/65 bg-white/62 text-brand-slate hover:border-[#bd5b82]/25 hover:text-[#8a3859]'
-                  }`}
-                >
-                  <Heart className={`h-4 w-4 ${favorites.includes(selectedOpportunity.id) ? 'fill-current' : ''}`} />
-                  {pick(UI.favorite, language)}
-                </button>
-                <button
-                  onClick={() => toggleCompare(selectedOpportunity.id)}
-                  className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold shadow-sm transition-all hover:-translate-y-0.5 ${
-                    compare.includes(selectedOpportunity.id)
-                      ? 'border-[#3d6b8f]/25 bg-[#3d6b8f]/12 text-[#274d68]'
-                      : 'border-white/65 bg-white/62 text-brand-slate hover:border-[#3d6b8f]/25 hover:text-[#274d68]'
-                  }`}
-                >
-                  <Scale className="h-4 w-4" />
-                  {pick(UI.compare, language)}
-                </button>
+              <div className="mt-3 grid gap-2">
                 <button
                   onClick={() => navigate('/find-team')}
-                  className="col-span-2 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#6b8f71]/25 bg-[#6b8f71]/12 px-3 py-2 text-xs font-semibold text-[#355a40] shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#6b8f71]/16"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#6b8f71]/25 bg-[#6b8f71]/12 px-3 py-2 text-xs font-semibold text-[#355a40] shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#6b8f71]/16"
                 >
                   <Users className="h-4 w-4" />
                   {pick(UI.findTeam, language)}
                 </button>
               </div>
             </div>
-            <button onClick={() => addPortfolioResult(selectedOpportunity)} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#c9a96e]/25 bg-[#c9a96e]/10 px-5 py-3 text-xs font-semibold text-[#7a5c21]">
-              <FilePlus2 className="h-4 w-4" />
-              {pick(UI.addResult, language)}
-            </button>
           </aside>
         </div>
-      </section>
-    );
-  };
-
-  const renderFavorites = () => {
-    const items = allOpportunities.filter((opportunity) => favorites.includes(opportunity.id));
-    return (
-      <section className={pageShellClass}>
-        <Header title={pick(UI.favoritesTitle, language)} language={language} />
-        {items.length ? <motion.div {...cardStaggerContainer} className="grid items-stretch gap-5 lg:grid-cols-2">{items.map(renderCard)}</motion.div> : <EmptyState language={language} />}
       </section>
     );
   };
@@ -1575,47 +1440,12 @@ export default function OpportunitiesPage({
     );
   };
 
-  const renderProfile = () => (
-    <section className={pageShellClass}>
-      <Header title={pick(UI.profileTitle, language)} language={language} />
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-[1.5rem] border border-white/60 bg-white/42 p-5 surface-elevated-soft backdrop-blur-xl">
-          <h2 className="mb-4 font-serif text-2xl font-semibold text-brand-dark">{pick(UI.tracker, language)}</h2>
-          <div className="grid gap-3">
-            {applications.length ? applications.map((application) => {
-              const opportunity = allOpportunities.find((item) => item.id === application.opportunityId);
-              return (
-                <div key={application.id} className="rounded-2xl bg-white/55 p-4 text-sm text-brand-slate">
-                  <div className="font-semibold text-brand-dark">{opportunity ? pick(opportunity.title, language) : application.opportunityId}</div>
-                  <div className="mt-1 inline-flex rounded-full bg-[#bc4638]/10 px-2.5 py-1 text-[10px] font-semibold uppercase text-[#8d3026]">{application.status}</div>
-                </div>
-              );
-            }) : <EmptyState language={language} />}
-          </div>
-        </div>
-        <div className="rounded-[1.5rem] border border-white/60 bg-white/42 p-5 surface-elevated-soft backdrop-blur-xl">
-          <h2 className="mb-4 font-serif text-2xl font-semibold text-brand-dark">{pick(UI.portfolio, language)}</h2>
-          <div className="grid gap-3">
-            {portfolio.length ? portfolio.map((record) => (
-              <div key={record.id} className="rounded-2xl bg-white/55 p-4 text-sm text-brand-slate">
-                <div className="font-semibold text-brand-dark">{record.title}</div>
-                <div className="mt-1">{record.result}</div>
-              </div>
-            )) : <EmptyState language={language} />}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-
   return (
     <div className="relative w-full overflow-hidden pb-6 text-brand-dark">
       {route.mode === 'catalog' && renderCatalog()}
       {route.mode === 'detail' && renderDetail()}
-      {route.mode === 'favorites' && renderFavorites()}
       {route.mode === 'compare' && renderCompare()}
       {route.mode === 'submit' && renderSubmit()}
-      {route.mode === 'profile' && renderProfile()}
     </div>
   );
 }
