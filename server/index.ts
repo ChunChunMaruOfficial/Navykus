@@ -283,8 +283,16 @@ app.post('/api/deploy', asyncRoute(async (req, res) => {
     return;
   }
   res.status(202).json({ status: 'deploy_started' });
+  // The admin panel is a separate Next.js process that may run from a DIFFERENT
+  // checkout directory or under a different pm2 app name than the Express API.
+  // A plain `pm2 restart navykus-admin` silently misses it (fallback start then
+  // fails with EADDRINUSE because the real admin process still holds :3001),
+  // which left the admin serving STALE code after deploys. This chain therefore
+  // (1) updates every known Navykus checkout, (2) restarts the API, and
+  // (3) discovers & restarts ANY pm2 admin process whose cwd is a Navykus dir.
   const deployCommands = [
     'export NODE_OPTIONS="--max-old-space-size=3072"',
+    `echo "=== [1/5] Updating primary checkout ${DEPLOY_DIR} ==="`,
     'git fetch origin main',
     'git clean -fd -e .env -e payload.db -e payload.db-* -e payload.db.* -e uploads/',
     'git reset --hard origin/main',
@@ -292,13 +300,26 @@ app.post('/api/deploy', asyncRoute(async (req, res) => {
     'npm run build',
     'npm run build:admin',
     'yes | npx payload migrate --config src/payload.config.ts || true',
-    'pm2 restart navykus-api --update-env || pm2 start npm --name navykus-api -- run start:api',
-    'pm2 restart navykus-admin --update-env || pm2 start npm --name navykus-admin -- run start:admin',
+    'echo "=== [2/5] Updating alternate Navykus checkouts ==="',
+    'for dir in /home/ubuntu/navykus /root/Navykus; do',
+    `  if [ "$dir" != "${DEPLOY_DIR}" ] && [ -d "$dir/.git" ]; then`,
+    '    echo "--- updating $dir ---"',
+    '    (cd "$dir" && git fetch origin main && git clean -fd -e .env -e payload.db -e payload.db-* -e payload.db.* -e uploads/ && git reset --hard origin/main && npm install --production=false && npm run build:admin) || echo "WARN: failed to update $dir"',
+    '  fi',
+    'done',
+    'echo "=== [3/5] Restarting API ==="',
+    'pm2 restart navykus-api --update-env || pm2 start npm --name navykus-api -- run start:api || true',
+    'echo "=== [4/5] Restarting admin process ==="',
+    'ADMIN_APPS=$(pm2 jlist 2>/dev/null | node -e "let d=\'\';process.stdin.on(\'data\',c=>d+=c).on(\'end\',()=>{try{for(const p of JSON.parse(d)){const nm=(p.name||\'\').toLowerCase();const cwd=(p.pm2_env&&p.pm2_env.pm_cwd)||\'\';if(/navykus/i.test(cwd)&&/admin/.test(nm))console.log(p.name)}}catch(e){}})")',
+    'if [ -n "$ADMIN_APPS" ]; then for app in $ADMIN_APPS; do echo "--- pm2 restart $app ---"; pm2 restart "$app" --update-env || true; done',
+    'else echo "--- no admin app found by discovery; trying navykus-admin ---"; pm2 restart navykus-admin --update-env 2>/dev/null || pm2 start npm --name navykus-admin -- run start:admin || true; fi',
+    'pm2 save || true',
+    'echo "=== [5/5] Deploy finished ==="',
   ].join(' && ');
-  const child = spawn('bash', ['-c', deployCommands], {
+  const child = spawn('bash', ['-c', `( ${deployCommands} ) 2>&1 | tee /tmp/navykus-deploy.log`], {
     cwd: DEPLOY_DIR,
     stdio: 'inherit',
-    timeout: 300000,
+    timeout: 600000,
   });
   child.on('error', (err) => {
     console.error('Deploy process error:', err.message);
@@ -306,6 +327,31 @@ app.post('/api/deploy', asyncRoute(async (req, res) => {
   child.on('exit', (code) => {
     console.log(`Deploy process exited with code ${code}`);
   });
+}));
+
+// Read-only diagnostics so the deploy can be verified remotely without SSH.
+app.get('/api/deploy/log', asyncRoute(async (_req, res) => {
+  const content = await fs.promises.readFile('/tmp/navykus-deploy.log', 'utf-8').catch(() => '');
+  res.type('text/plain').send(content.slice(-30000));
+}));
+
+app.get('/api/deploy/status', asyncRoute(async (_req, res) => {
+  try {
+    const raw = execSync('pm2 jlist 2>/dev/null', { encoding: 'utf-8', timeout: 8000 });
+    const apps = (JSON.parse(raw) as Array<{
+      name?: string;
+      pm2_env?: { status?: string; restart_time?: number; pm_cwd?: string; pm_exec_path?: string };
+    }>).map((p) => ({
+      name: p.name,
+      status: p.pm2_env?.status,
+      restarts: p.pm2_env?.restart_time ?? 0,
+      cwd: p.pm2_env?.pm_cwd,
+      script: p.pm2_env?.pm_exec_path,
+    }));
+    res.json({ apps });
+  } catch (error) {
+    res.status(500).json({ error: String(error) });
+  }
 }));
 
 app.get('/api/health', asyncRoute(async (_req, res) => {
