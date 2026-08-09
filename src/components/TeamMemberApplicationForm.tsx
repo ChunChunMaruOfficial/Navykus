@@ -13,6 +13,17 @@ const UPLOAD_CLASS =
 
 const CONTACT_TYPES = ['telegram', 'email', 'discord'] as const;
 const ROLE_OPTIONS: TeamRole[] = ['developer', 'designer', 'researcher', 'product_manager', 'marketer', 'team_lead', 'analyst', 'other'];
+
+const ROLE_LABELS: Record<TeamRole, string> = {
+  developer: 'ui.findteampage.19b22472b1',
+  designer: 'ui.findteampage.2b4d128aaa',
+  researcher: 'ui.findteampage.e3ca2f8474',
+  product_manager: 'ui.findteampage.112b3c45fd',
+  marketer: 'ui.findteampage.e825746a47',
+  team_lead: 'ui.findteampage.93bb4d70fe',
+  analyst: 'ui.findteampage.ff8ca90dda',
+  other: 'ui.findteampage.5994c1f5c8',
+};
 const MAX_FILES = 5;
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_FILE_TYPES = new Set([
@@ -247,7 +258,7 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
                     setField('targetRoles', next.length ? next : ['other']);
                   }}
                 />
-                {role.replace('_', ' ')}
+                {t(ROLE_LABELS[role])}
               </label>
             ))}
           </div>
