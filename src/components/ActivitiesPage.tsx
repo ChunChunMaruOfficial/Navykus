@@ -279,7 +279,7 @@ export default function ActivitiesPage({
         </section>
 
         <section className="mb-8">
-          <motion.div {...fadeUp} className="flex gap-2 overflow-x-auto pb-3 scrollbar-soft" aria-label={t('ui.app.814b71a2da')}>
+          <motion.div {...fadeUp} className="flex gap-2 overflow-x-auto pb-3 scrollbar-none" aria-label={t('ui.app.814b71a2da')}>
             {VISIBLE_CATEGORY_ORDER.map((category) => {
               const isActive = selectedCategory === category;
               const categoryInfo = CATEGORY_MAP[category];
