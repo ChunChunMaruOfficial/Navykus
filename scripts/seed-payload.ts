@@ -66,6 +66,7 @@ const EVENT_SEED = [
     registrationDeadline: '2026-09-10T20:59:00.000Z',
     languages: list(['ru', 'en']),
     materials: list(['slides', 'checklist']),
+    registrationUrl: 'https://example.org/register/public-speaking-lab',
   },
   {
     legacyId: 'event-youth-connect',
@@ -83,6 +84,7 @@ const EVENT_SEED = [
     registrationDeadline: '2026-10-01T20:59:00.000Z',
     languages: list(['ru', 'kk', 'en']),
     materials: list(['participant guide']),
+    registrationUrl: 'https://example.org/register/asian-youth-connect',
   },
   {
     legacyId: 'event-code-marathon',
@@ -100,6 +102,7 @@ const EVENT_SEED = [
     registrationDeadline: '2026-08-15T20:59:00.000Z',
     languages: list(['ru', 'en']),
     materials: list(['starter kit', 'API docs']),
+    registrationUrl: 'https://example.org/register/code-marathon-web-dev',
   },
   {
     legacyId: 'event-leadership-forum',
@@ -117,6 +120,7 @@ const EVENT_SEED = [
     registrationDeadline: '2026-10-20T20:59:00.000Z',
     languages: list(['ru', 'kk', 'en']),
     materials: list(['program', 'notebook']),
+    registrationUrl: 'https://example.org/register/youth-leadership-forum-2026',
   },
 ];
 
@@ -151,7 +155,7 @@ const OPPORTUNITY_SEED = OPPORTUNITIES.map((item) => ({
   funding: item.cost === 'scholarship',
   portfolioValue: item.portfolioValue,
   publishedAt: asDate(item.publishedAt),
-  officialUrl: item.externalUrl,
+  officialUrl: item.externalUrl || 'https://example.org/apply',
   internalApplicationsEnabled: item.source === 'navykus',
   languages: list(item.languages),
   skills: list(item.skills.map(pickRu)),

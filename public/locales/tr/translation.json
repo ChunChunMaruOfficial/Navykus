@@ -8,7 +8,7 @@
     "de": "German",
     "es": "Spanish",
     "tr": "Turkish",
-    "auto": "Авто"
+    "auto": "Otomatik"
   },
   "common": {
     "brand": "Navykus",
@@ -25,7 +25,7 @@
     "loading": "Yükleniyor",
     "details": "Daha fazla ayrıntı",
     "collapse": "Daralt",
-    "cancel": "Отмена",
+    "cancel": "İptal",
     "error": "Bir sorun oluştu. Tekrar deneyin.",
     "empty": "Henüz kayıt yok.",
     "contacted": "İletişime geçildi"
@@ -48,8 +48,8 @@
       "title": "Bir takım bulun - Navykus"
     },
     "notFound": {
-      "description": "Запрошенная страница не найдена. Вернитесь на главную страницу Навыкус.",
-      "title": "Страница не найдена — Навыкус"
+      "description": "İstenen sayfa bulunamadı. Navykus ana sayfasına dönün.",
+      "title": "Sayfa bulunamadı — Navykus"
     },
     "privacy": {
       "title": "Privacy Policy",
@@ -67,8 +67,8 @@
       "aacca2db": "Navykus nedir?",
       "19816f01": "Ebeveynler ve uzmanlar neden Navykus'u seçiyor?",
       "e07687c4": "Yolculuğunuza başlamaya hazır mısınız?",
-      "a5307558": "mailto:info@navykus.org?subject=Запрос%20политики%20конфиденциальности",
-      "4d9e7853": "mailto:info@navykus.org?subject=Запрос%20пользовательского%20соглашения",
+      "a5307558": "mailto:info@navykus.org?subject=Gizlilik%20politikas%C4%B1%20talebi",
+      "4d9e7853": "mailto:info@navykus.org?subject=Kullan%C4%B1c%C4%B1%20s%C3%B6zle%C5%9Fmesi%20talebi",
       "02ce21d910": "Lütfen adınızı girin",
       "1c3299a85e": "Lütfen doğru yaşı girin (10 ila 22 yaş arası)",
       "92ca287f55": "Lütfen ülkenizi veya şehrinizi belirtin",
@@ -118,7 +118,7 @@
       "7acec174f3": "Ülke / Şehir *",
       "1734a8f063": "Kazakistan, Almatı",
       "0751cc5d9c": "Posta veya Telgraf *",
-      "7d521595ce": "@username или e-mail",
+      "7d521595ce": "@username veya e-posta",
       "d3e56289ef": "İlgi yönü",
       "d52e1ae8a0": "Proje geliştirme",
       "852dca4487": "Vaka çözümü",
@@ -140,14 +140,14 @@
       "3a86197ba3": "Anlaşma",
       "2060fe9f62": "Kupa jürisi ve mentorlar",
       "copyright": "© 2026 Navikus Global Education",
-      "madeBy": "сделано Dioxoid Digital",
-      "notFoundCodeLabel": "страница 404",
-      "notFoundDescription": "Похоже, ссылка устарела или адрес введен с ошибкой. Вернитесь на главную и продолжите путь в сообществе Навыкус.",
-      "notFoundEyebrow": "Маршрут не найден",
-      "notFoundTitle": "Эта страница ушла с маршрута",
-      "scrollTop": "Наверх",
-      "trustGrowthDescription": "Участник видит следующий шаг: от первой идеи и командной работы до защиты проекта, сертификата и портфолио.",
-      "trustGrowthTitle": "Понятная траектория роста"
+      "madeBy": "Dioxoid Digital tarafından yapıldı",
+      "notFoundCodeLabel": "404 sayfası",
+      "notFoundDescription": "Bağlantı eski olabilir veya adreste yazım hatası olabilir. Ana sayfaya dönün ve Navykus topluluğunda yolunuza devam edin.",
+      "notFoundEyebrow": "Rota bulunamadı",
+      "notFoundTitle": "Bu sayfa rotadan saptı",
+      "scrollTop": "Yukarı",
+      "trustGrowthDescription": "Katılımcı bir sonraki adımı görür: ilk fikirden ve ekip çalışmasından proje savunmasına, sertifikaya ve portfolyoya kadar.",
+      "trustGrowthTitle": "Net büyüme yolu"
     },
     "aboutprojectpage": {
       "2805697540": "Katıl",
@@ -288,6 +288,9 @@
       "792b92b447": "Program/etkinlik seçin",
       "0570fbe337": "Topluluğa genel istek",
       "a1534409f2": "Projeleri içeren bir dosya ekleyin",
+      "portfolioSection": "Portfolyo ve projeler",
+      "portfolioTabFiles": "Dosyalar",
+      "portfolioTabLink": "Bağlantı",
       "f5717f85ba": "Dosyayı indirmek için tıklayın",
       "6272f20d22": "PDF, DOC, PPT, TXT, ZIP, PNG (10 MB'a kadar)",
       "b55a7aad35": "Kontrol ediliyor...",

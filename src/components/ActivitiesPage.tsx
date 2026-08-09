@@ -26,6 +26,7 @@ import {
   fadeUp,
 } from '../motion-animations';
 import BrandImage from './BrandImage';
+import { toExternalUrl } from '../api';
 import { ActivityCategory, ActivityItem, ActivityStatus, ParticipationScenario, type TeamApplicationContext } from '../types';
 import { useCmsEvents } from '../hooks/useCmsEvents';
 import { useCmsOpportunities } from '../hooks/useCmsOpportunities';
@@ -569,6 +570,30 @@ function ActivityDetailsModal({
     sourceTitle: activity.title,
   });
 
+  const externalRegistrationUrl = toExternalUrl(activity.ctaLink);
+
+  const renderParticipateCta = (className: string) =>
+    externalRegistrationUrl ? (
+      <a
+        href={externalRegistrationUrl}
+        target="_blank"
+        rel="noreferrer"
+        className={className}
+      >
+        <span>{t('ui.aboutprojectpage.2805697540')}</span>
+        <ArrowUpRight className="h-3.5 w-3.5" />
+      </a>
+    ) : (
+      <button
+        type="button"
+        onClick={openActivityApplication}
+        className={className}
+      >
+        <span>{t('ui.aboutprojectpage.2805697540')}</span>
+        <ArrowRight className="h-3.5 w-3.5" />
+      </button>
+    );
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose();
@@ -638,16 +663,7 @@ function ActivityDetailsModal({
             <h2 id="activity-details-title" className="text-2xl font-serif font-semibold leading-tight text-brand-dark sm:text-4xl">
               {activity.title}
             </h2>
-            {canRegister && (
-              <button
-                type="button"
-                onClick={openActivityApplication}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-[11px] font-bold uppercase tracking-widest text-white shadow-lg shadow-[#bc4638]/12 transition-all hover:opacity-95"
-              >
-                <span>{t('ui.aboutprojectpage.2805697540')}</span>
-                <ArrowRight className="h-3.5 w-3.5" />
-              </button>
-            )}
+            {canRegister && renderParticipateCta("inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-[11px] font-bold uppercase tracking-widest text-white shadow-lg shadow-[#bc4638]/12 transition-all hover:opacity-95")}
           </div>
         </div>
 
@@ -684,16 +700,7 @@ function ActivityDetailsModal({
             <p>{activity.prerequisites}</p>
           </DetailBlock>
 
-          {canRegister && (
-            <button
-              type="button"
-              onClick={openActivityApplication}
-              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-[11px] font-bold uppercase tracking-widest text-white shadow-lg shadow-[#bc4638]/12 transition-all hover:opacity-95"
-            >
-              <span>{t('ui.aboutprojectpage.2805697540')}</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </button>
-          )}
+          {canRegister && renderParticipateCta("inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-[11px] font-bold uppercase tracking-widest text-white shadow-lg shadow-[#bc4638]/12 transition-all hover:opacity-95")}
         </div>
       </motion.div>
     </div>

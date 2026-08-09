@@ -86,7 +86,7 @@ export const Opportunities: CollectionConfig = {
         {
           label: 'Links & SEO',
           fields: [
-            { name: 'officialUrl', type: 'text', admin: { description: 'External application link' } },
+            { name: 'officialUrl', type: 'text', required: true, admin: { description: 'External application link' } },
             { name: 'internalApplicationsEnabled', type: 'checkbox', defaultValue: false },
             { name: 'seoTitle', type: 'text' },
             { name: 'seoDescription', type: 'textarea' },

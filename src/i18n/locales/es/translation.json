@@ -288,6 +288,9 @@
       "792b92b447": "Seleccionar programa/evento",
       "0570fbe337": "Solicitud general a la comunidad.",
       "a1534409f2": "Adjuntar un archivo con proyectos",
+      "portfolioSection": "Portafolio y proyectos",
+      "portfolioTabFiles": "Archivos",
+      "portfolioTabLink": "Enlace",
       "f5717f85ba": "Haga clic para descargar el archivo",
       "6272f20d22": "PDF, DOC, PPT, TXT, ZIP, PNG (hasta 10 MB)",
       "b55a7aad35": "Comprobando...",
@@ -574,12 +577,12 @@
       "a4b6c8d0e2": "Cuestionarios más antiguos primero",
       "b5c7d9e1f3": "Nombre (A–Z)",
       "c1d2e3f4a5b": "Búsqueda avanzada",
+      "myProfile": "Mi cuestionario",
+      "myProfileDesc": "Cuestionario para encontrar equipo",
       "registerDesc": "Completa el cuestionario para encontrar equipo. Después de la moderación aparecerá en la búsqueda de equipo.",
       "bioRequired": "Agrega una breve descripción",
       "whyRequired": "Explica por qué buscas equipo",
-      "rolesRequired": "Elige un rol",
-      "myProfile": "Mi cuestionario",
-      "myProfileDesc": "Cuestionario para encontrar equipo"
+      "rolesRequired": "Elige un rol"
     },
     "enhancements": {
       "proofCountries": "countries",

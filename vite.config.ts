@@ -1,7 +1,27 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import {defineConfig} from 'vite';
+import {defineConfig, type Plugin} from 'vite';
+
+import {syncLocaleFile, syncLocales} from './scripts/sync-locales';
+
+const syncLocalesPlugin = (): Plugin => ({
+  name: 'sync-locales',
+  buildStart() {
+    // Keep public/locales generated from src/i18n/locales (single source of truth)
+    // on every build and dev server start.
+    syncLocales();
+  },
+  configureServer(server) {
+    // Live-regenerate public/locales while editing src/i18n/locales in dev.
+    // Only the changed language is synced to keep the writes minimal.
+    server.watcher.add(path.join(__dirname, 'src', 'i18n', 'locales'));
+    const sync = (file: string) => syncLocaleFile(file);
+    server.watcher.on('change', sync);
+    server.watcher.on('add', sync);
+    server.watcher.on('unlink', sync);
+  },
+});
 
 const moveEntryScriptAfterRoot = () => ({
   name: 'move-entry-script-after-root',
@@ -16,7 +36,7 @@ const moveEntryScriptAfterRoot = () => ({
 
 export default defineConfig(() => {
   return {
-    plugins: [react(), tailwindcss(), moveEntryScriptAfterRoot()],
+    plugins: [react(), tailwindcss(), moveEntryScriptAfterRoot(), syncLocalesPlugin()],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

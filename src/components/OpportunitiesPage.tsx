@@ -42,6 +42,7 @@ import {
 import type { SupportedLanguage } from '../i18n/languages';
 import { useCmsOpportunities } from '../hooks/useCmsOpportunities';
 import type { TeamApplicationContext } from '../types';
+import { toExternalUrl } from '../api';
 import BrandImage from './BrandImage';
 
 const catalogStaggerContainer = {
@@ -213,7 +214,6 @@ const UI = {
   registrationOpen: lt({ ru: '\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044f \u043e\u0442\u043a\u0440\u044b\u0442\u0430', en: 'Registration open', kk: '\u0422\u0456\u0440\u043a\u0435\u0443 \u0430\u0448\u044b\u049b', uz: 'Royxatdan otish ochiq', ar: 'التسجيل مفتوح', de: 'Anmeldung offen', es: 'Inscripción abierta', tr: 'Kayıt açık' }),
   registrationClosed: lt({ ru: '\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044f \u0437\u0430\u043a\u0440\u044b\u0442\u0430', en: 'Registration closed', kk: '\u0422\u0456\u0440\u043a\u0435\u0443 \u0436\u0430\u0431\u044b\u049b', uz: 'Royxatdan otish yopiq', ar: 'التسجيل مغلق', de: 'Anmeldung geschlossen', es: 'Inscripción cerrada', tr: 'Kayıt kapalı' }),
   apply: lt({ ru: '\u041f\u043e\u0434\u0430\u0442\u044c \u0437\u0430\u044f\u0432\u043a\u0443', en: 'Apply', kk: '\u04e8\u0442\u0456\u043d\u0456\u043c \u0431\u0435\u0440\u0443', uz: 'Ariza berish', ar: 'تقديم', de: 'Bewerben', es: 'Postular', tr: 'Başvur' }),
-  externalApply: lt({ ru: '\u041f\u0435\u0440\u0435\u0439\u0442\u0438', en: 'Go', kk: '\u04e8\u0442\u0443', uz: 'Otish', ar: 'اذهب', de: 'Öffnen', es: 'Ir', tr: 'Git' }),
   noResults: lt({ ru: '\u041d\u0438\u0447\u0435\u0433\u043e \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e', en: 'No results', kk: '\u0415\u0448\u0442\u0435\u04a3\u0435 \u0442\u0430\u0431\u044b\u043b\u043c\u0430\u0434\u044b', uz: 'Natija topilmadi', ar: 'لا توجد نتائج', de: 'Keine Ergebnisse', es: 'Sin resultados', tr: 'Sonuç yok' }),
   clearFilters: lt({ ru: '\u041e\u0447\u0438\u0441\u0442\u0438\u0442\u044c \u0444\u0438\u043b\u044c\u0442\u0440\u044b', en: 'Clear filters', kk: '\u0421\u04af\u0437\u0433\u0456\u043b\u0435\u0440\u0434\u0456 \u0442\u0430\u0437\u0430\u043b\u0430\u0443', uz: 'Filtrlarni tozalash', ar: 'مسح الفلاتر', de: 'Filter löschen', es: 'Limpiar filtros', tr: 'Filtreleri temizle' }),
   compareTitle: lt({ ru: '\u0421\u0440\u0430\u0432\u043d\u0435\u043d\u0438\u0435 \u0432\u043e\u0437\u043c\u043e\u0436\u043d\u043e\u0441\u0442\u0435\u0439', en: 'Opportunity comparison', kk: '\u041c\u04af\u043c\u043a\u0456\u043d\u0434\u0456\u043a\u0442\u0435\u0440\u0434\u0456 \u0441\u0430\u043b\u044b\u0441\u0442\u044b\u0440\u0443', uz: 'Imkoniyatlarni solishtirish', ar: 'مقارنة الفرص', de: 'Chancenvergleich', es: 'Comparación de oportunidades', tr: 'Fırsat karşılaştırması' }),
@@ -1296,6 +1296,8 @@ export default function OpportunitiesPage({
       applicationDeadline: selectedOpportunity.deadline,
     };
 
+    const detailExternalUrl = toExternalUrl(selectedOpportunity.externalUrl);
+
     return (
       <section className={pageShellClass}>
         <script type="application/ld+json">{JSON.stringify(schema)}</script>
@@ -1347,18 +1349,23 @@ export default function OpportunitiesPage({
                 <span className="inline-flex items-center gap-2"><Users className="h-4 w-4 text-[#6b8f71]" />{pick(PARTICIPATION[selectedOpportunity.participation], language)}</span>
                 <span className="inline-flex items-center gap-2"><CircleDollarSign className="h-4 w-4 text-[#c9a96e]" />{pick(COSTS[selectedOpportunity.cost], language)}</span>
               </div>
-              {selectedOpportunity.source === 'navykus' ? (
+              {detailExternalUrl ? (
+                <a
+                  href={detailExternalUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-xs font-semibold text-white transition-opacity hover:opacity-95"
+                >
+                  {pick(UI.apply, language)}
+                  <ArrowUpRight className="h-4 w-4" />
+                </a>
+              ) : (
                 <div className="space-y-3">
                   <button type="button" onClick={() => openOpportunityApplication(selectedOpportunity)} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-xs font-semibold text-white transition-opacity hover:opacity-95">
                     <Send className="h-4 w-4" />
                     {pick(UI.apply, language)}
                   </button>
                 </div>
-              ) : (
-                <a href={selectedOpportunity.externalUrl || '#'} target="_blank" rel="noreferrer" className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-xs font-semibold text-white">
-                  {pick(UI.externalApply, language)}
-                  <ArrowUpRight className="h-4 w-4" />
-                </a>
               )}
               <div className="mt-3 grid gap-2">
                 <button

@@ -59,7 +59,7 @@ export const Events: CollectionConfig = {
             { name: 'country', type: 'text', index: true },
             { name: 'venue', type: 'text', admin: { condition: (_, siblingData) => siblingData?.format !== 'online', description: 'Physical location' } },
             { name: 'onlineLink', type: 'text', admin: { condition: (_, siblingData) => siblingData?.format !== 'offline', description: 'Zoom/Google Meet link' } },
-            { name: 'registrationUrl', type: 'text', admin: { description: 'External registration/application link' } },
+            { name: 'registrationUrl', type: 'text', required: true, admin: { description: 'External registration/application link' } },
           ],
         },
         {

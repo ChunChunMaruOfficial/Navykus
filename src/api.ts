@@ -54,6 +54,12 @@ export const apiAssetUrl = (path?: string) => {
   return apiUrl(path);
 };
 
+export const toExternalUrl = (value?: string): string => {
+  const trimmed = (value || '').trim();
+  if (!trimmed) return '';
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+};
+
 export interface ApplicationResponse {
   id: string;
   ticketId: string;

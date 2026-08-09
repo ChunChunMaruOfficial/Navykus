@@ -1,6 +1,6 @@
 import { useMemo, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowRight, Check, Upload, X } from 'lucide-react';
+import { ArrowRight, Check, Link2, Upload, X } from 'lucide-react';
 
 import { submitTeamMemberApplication } from '../api';
 import type { ApplicationForm, TeamApplicationContext, TeamRole } from '../types';
@@ -64,9 +64,15 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
   const [interestsInput, setInterestsInput] = useState('');
   const [errors, setErrors] = useState<string[]>([]);
   const [fileError, setFileError] = useState('');
+  const [portfolioMode, setPortfolioMode] = useState<'files' | 'link'>('files');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success'>('idle');
 
   const sourceLabel = useMemo(() => context?.sourceTitle || form.sourceContext || '', [context?.sourceTitle, form.sourceContext]);
+
+  const isParticipationForm =
+    context?.sourceType === 'event' ||
+    context?.sourceType === 'opportunity' ||
+    context?.sourceType === 'activities';
 
   const setField = <K extends keyof ApplicationForm>(key: K, value: ApplicationForm[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -101,8 +107,8 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
     if (!form.country.trim()) nextErrors.push(t('ui.app.92ca287f55'));
     if (!form.contact.trim()) nextErrors.push(t('ui.app.a4bae5e597'));
     if (!form.shortBio.trim()) nextErrors.push(t('ui.findteampage.bioRequired', { defaultValue: 'Add a short bio' }));
-    if (!form.whyLooking.trim()) nextErrors.push(t('ui.findteampage.whyRequired', { defaultValue: 'Explain why you are looking for a team' }));
-    if (!form.targetRoles.length) nextErrors.push(t('ui.findteampage.rolesRequired', { defaultValue: 'Choose a role' }));
+    if (!isParticipationForm && !form.whyLooking.trim()) nextErrors.push(t('ui.findteampage.whyRequired', { defaultValue: 'Explain why you are looking for a team' }));
+    if (!isParticipationForm && !form.targetRoles.length) nextErrors.push(t('ui.findteampage.rolesRequired', { defaultValue: 'Choose a role' }));
     setErrors(nextErrors);
     return nextErrors.length === 0;
   };
@@ -124,6 +130,7 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
       setForm(emptyForm(context));
       setSkillsInput('');
       setInterestsInput('');
+      setPortfolioMode('files');
       onSubmitted?.();
     } catch {
       setErrors([t('ui.applicationmodal.submitError', { defaultValue: 'Could not send the form. Try again.' })]);
@@ -205,94 +212,131 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
         <textarea rows={3} value={form.shortBio} onChange={(event) => setField('shortBio', event.target.value)} className={FIELD_CLASS} required />
       </label>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
-          {t('ui.findteampage.e4f6b0a2c1')}
-          <input value={skillsInput} onChange={(event) => {
-            setSkillsInput(event.target.value);
-            setField('skills', splitList(event.target.value));
-          }} placeholder="React, design, research" className={FIELD_CLASS} />
-        </label>
-        <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
-          {t('ui.findteampage.a6b8c0d2e5')}
-          <input value={interestsInput} onChange={(event) => {
-            setInterestsInput(event.target.value);
-            setField('interests', splitList(event.target.value));
-          }} placeholder="urbanism, tech, social" className={FIELD_CLASS} />
-        </label>
-      </div>
-
-      <div className="space-y-2">
-        <div className="text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">{t('ui.findteampage.20be1bd637')}*</div>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {ROLE_OPTIONS.map((role) => (
-            <label key={role} className="flex min-h-10 items-center gap-2 rounded-xl border border-[#d8d1cc] bg-white/60 px-3 text-[11px] text-brand-slate">
-              <input
-                type="checkbox"
-                checked={form.targetRoles.includes(role)}
-                onChange={(event) => {
-                  const next = event.target.checked
-                    ? [...form.targetRoles.filter((item) => item !== 'other'), role]
-                    : form.targetRoles.filter((item) => item !== role);
-                  setField('targetRoles', next.length ? next : ['other']);
-                }}
-              />
-              {role.replace('_', ' ')}
-            </label>
-          ))}
+      {!isParticipationForm && (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
+            {t('ui.findteampage.e4f6b0a2c1')}
+            <input value={skillsInput} onChange={(event) => {
+              setSkillsInput(event.target.value);
+              setField('skills', splitList(event.target.value));
+            }} placeholder="React, design, research" className={FIELD_CLASS} />
+          </label>
+          <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
+            {t('ui.findteampage.a6b8c0d2e5')}
+            <input value={interestsInput} onChange={(event) => {
+              setInterestsInput(event.target.value);
+              setField('interests', splitList(event.target.value));
+            }} placeholder="urbanism, tech, social" className={FIELD_CLASS} />
+          </label>
         </div>
-      </div>
+      )}
 
-      <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
-        {t('ui.findteampage.43584e6c75')}
-        <input value={form.targetProject || ''} onChange={(event) => setField('targetProject', event.target.value)} className={FIELD_CLASS} />
-      </label>
-
-      <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
-        {t('ui.findteampage.0d5ce0304e')}*
-        <textarea rows={3} value={form.whyLooking} onChange={(event) => setField('whyLooking', event.target.value)} className={FIELD_CLASS} required />
-      </label>
-
-      <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
-        {t('ui.championshippage.40aa3bf48b')}
-        <input value={form.portfolioLink || ''} onChange={(event) => setField('portfolioLink', event.target.value)} placeholder="Behance, GitHub, Google Drive..." className={FIELD_CLASS} />
-      </label>
-
-      <div>
-        <div className="mb-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">{t('ui.applicationmodal.a1534409f2')}</div>
-        <label className={UPLOAD_CLASS}>
-          <input
-            type="file"
-            multiple
-            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
-            onChange={(event) => handleFiles(event.target.files)}
-            className="sr-only"
-          />
-          <div className="flex flex-col items-center gap-1.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/60 bg-gradient-to-br from-[#bc4638]/5 to-[#bd5b82]/5">
-              <Upload className="h-4 w-4 text-brand-slate/60 transition-colors group-hover:text-brand-rose-deep" />
-            </div>
-            <span className="text-[11px] text-brand-slate/70 transition-colors group-hover:text-brand-dark">{t('ui.applicationmodal.f5717f85ba')}</span>
-            <span className="text-[9px] text-brand-slate/40">{t('ui.applicationmodal.6272f20d22')}</span>
-          </div>
-        </label>
-        {form.portfolioFiles && form.portfolioFiles.length > 0 && (
-          <div className="mt-2 grid gap-1.5">
-            {form.portfolioFiles.map((file) => (
-              <div key={`${file.name}-${file.size}`} className="flex items-center justify-between rounded-xl bg-white/55 px-3 py-2 text-xs text-brand-slate">
-                <span className="truncate">{file.name}</span>
-                <button
-                  type="button"
-                  onClick={() => setField('portfolioFiles', form.portfolioFiles?.filter((item) => item !== file) || [])}
-                  className="p-1 text-brand-slate/50 hover:text-brand-terracotta"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              </div>
+      {!isParticipationForm && (
+        <div className="space-y-2">
+          <div className="text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">{t('ui.findteampage.20be1bd637')}*</div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {ROLE_OPTIONS.map((role) => (
+              <label key={role} className="flex min-h-10 items-center gap-2 rounded-xl border border-[#d8d1cc] bg-white/60 px-3 text-[11px] text-brand-slate">
+                <input
+                  type="checkbox"
+                  checked={form.targetRoles.includes(role)}
+                  onChange={(event) => {
+                    const next = event.target.checked
+                      ? [...form.targetRoles.filter((item) => item !== 'other'), role]
+                      : form.targetRoles.filter((item) => item !== role);
+                    setField('targetRoles', next.length ? next : ['other']);
+                  }}
+                />
+                {role.replace('_', ' ')}
+              </label>
             ))}
           </div>
+        </div>
+      )}
+
+      {!isParticipationForm && (
+        <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
+          {t('ui.findteampage.43584e6c75')}
+          <input value={form.targetProject || ''} onChange={(event) => setField('targetProject', event.target.value)} className={FIELD_CLASS} />
+        </label>
+      )}
+
+      {!isParticipationForm && (
+        <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
+          {t('ui.findteampage.0d5ce0304e')}*
+          <textarea rows={3} value={form.whyLooking} onChange={(event) => setField('whyLooking', event.target.value)} className={FIELD_CLASS} required />
+        </label>
+      )}
+
+      <div className="space-y-2">
+        <div className="text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">{t('ui.applicationmodal.portfolioSection')}</div>
+        <div className="flex rounded-xl border border-[#d8d1cc] bg-white/55 p-1">
+          <button
+            type="button"
+            onClick={() => setPortfolioMode('files')}
+            aria-pressed={portfolioMode === 'files'}
+            className={`inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide transition-all ${
+              portfolioMode === 'files' ? 'bg-brand-dark text-white shadow-md' : 'text-brand-slate hover:bg-white/70 hover:text-brand-dark'
+            }`}
+          >
+            <Upload className="h-3.5 w-3.5" />
+            {t('ui.applicationmodal.portfolioTabFiles')}
+          </button>
+          <button
+            type="button"
+            onClick={() => setPortfolioMode('link')}
+            aria-pressed={portfolioMode === 'link'}
+            className={`inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide transition-all ${
+              portfolioMode === 'link' ? 'bg-brand-dark text-white shadow-md' : 'text-brand-slate hover:bg-white/70 hover:text-brand-dark'
+            }`}
+          >
+            <Link2 className="h-3.5 w-3.5" />
+            {t('ui.applicationmodal.portfolioTabLink')}
+          </button>
+        </div>
+
+        {portfolioMode === 'files' ? (
+          <div>
+            <label className={UPLOAD_CLASS}>
+              <input
+                type="file"
+                multiple
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
+                onChange={(event) => handleFiles(event.target.files)}
+                className="sr-only"
+              />
+              <div className="flex flex-col items-center gap-1.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/60 bg-gradient-to-br from-[#bc4638]/5 to-[#bd5b82]/5">
+                  <Upload className="h-4 w-4 text-brand-slate/60 transition-colors group-hover:text-brand-rose-deep" />
+                </div>
+                <span className="text-[11px] text-brand-slate/70 transition-colors group-hover:text-brand-dark">{t('ui.applicationmodal.f5717f85ba')}</span>
+                <span className="text-[9px] text-brand-slate/40">{t('ui.applicationmodal.6272f20d22')}</span>
+              </div>
+            </label>
+            {form.portfolioFiles && form.portfolioFiles.length > 0 && (
+              <div className="mt-2 grid gap-1.5">
+                {form.portfolioFiles.map((file) => (
+                  <div key={`${file.name}-${file.size}`} className="flex items-center justify-between rounded-xl bg-white/55 px-3 py-2 text-xs text-brand-slate">
+                    <span className="truncate">{file.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => setField('portfolioFiles', form.portfolioFiles?.filter((item) => item !== file) || [])}
+                      className="p-1 text-brand-slate/50 hover:text-brand-terracotta"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {fileError && <p className="mt-2 text-xs text-rose-700">{fileError}</p>}
+          </div>
+        ) : (
+          <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
+            {t('ui.championshippage.40aa3bf48b')}
+            <input value={form.portfolioLink || ''} onChange={(event) => setField('portfolioLink', event.target.value)} placeholder="Behance, GitHub, Google Drive..." className={FIELD_CLASS} />
+          </label>
         )}
-        {fileError && <p className="mt-2 text-xs text-rose-700">{fileError}</p>}
       </div>
 
       {errors.length > 0 && (

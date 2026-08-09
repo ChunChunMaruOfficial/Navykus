@@ -5,7 +5,8 @@ import { DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES } from '../src/i18n/languages';
 
 type JsonObject = Record<string, unknown>;
 
-const localesDir = path.resolve(process.cwd(), 'public', 'locales');
+// src/i18n/locales is the single source of truth; public/locales is generated from it.
+const localesDir = path.resolve(process.cwd(), 'src', 'i18n', 'locales');
 const shouldFix = process.argv.includes('--fix');
 const reportExtraKeys = process.env.I18N_REPORT_EXTRA === 'true';
 

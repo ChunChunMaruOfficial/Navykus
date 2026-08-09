@@ -7,7 +7,8 @@
     "ar": "Arabcha",
     "de": "Nemischa",
     "es": "Ispancha",
-    "tr": "Turkcha"
+    "tr": "Turkcha",
+    "auto": "Avtomatik"
   },
   "common": {
     "brand": "Navykus",
@@ -24,6 +25,7 @@
     "loading": "Yuklanmoqda",
     "details": "Batafsil ma'lumot",
     "collapse": "Yiqilish",
+    "cancel": "Bekor qilish",
     "error": "Nimadir xato ketdi. Qayta urinib ko'ring.",
     "empty": "Hozircha yozuvlar yo'q.",
     "contacted": "Bog'lanildi"
@@ -45,6 +47,10 @@
     "findTeam": {
       "title": "Jamoa toping - Navykus"
     },
+    "notFound": {
+      "description": "So'ralgan sahifa topilmadi. Navykus bosh sahifasiga qayting.",
+      "title": "Sahifa topilmadi — Navykus"
+    },
     "privacy": {
       "title": "Privacy Policy",
       "description": "Navykus platformasi shaxsiy ma'lumotlarni qanday to'plashi va qayta ishlashi haqida ma'lumot"
@@ -61,8 +67,8 @@
       "aacca2db": "Navykus nima?",
       "19816f01": "Nima uchun ota-onalar va mutaxassislar Navykusni tanlashadi?",
       "e07687c4": "Sayohatingizni boshlashga tayyormisiz?",
-      "a5307558": "mailto:info@navykus.org?subject=Запрос%20политики%20конфиденциальности",
-      "4d9e7853": "mailto:info@navykus.org?subject=Запрос%20пользовательского%20соглашения",
+      "a5307558": "mailto:info@navykus.org?subject=Maxfiylik%20siyosati%20so%27rovi",
+      "4d9e7853": "mailto:info@navykus.org?subject=Foydalanuvchi%20kelishuvi%20so%27rovi",
       "02ce21d910": "Iltimos, ismingizni kiriting",
       "1c3299a85e": "To'g'ri yoshni kiriting (10 yoshdan 22 yoshgacha)",
       "92ca287f55": "Iltimos, mamlakatingiz yoki shaharingizni ko'rsating",
@@ -112,7 +118,7 @@
       "7acec174f3": "Mamlakat / shahar *",
       "1734a8f063": "Qozog'iston, Olmaota",
       "0751cc5d9c": "Pochta yoki Telegram *",
-      "7d521595ce": "@username или e-mail",
+      "7d521595ce": "@username yoki e-mail",
       "d3e56289ef": "Qiziqish yo'nalishi",
       "d52e1ae8a0": "Loyihani ishlab chiqish",
       "852dca4487": "Vaziyatni hal qilish",
@@ -132,7 +138,16 @@
       "ed16b5adfc": "Koordinator:",
       "9e059272f1": "Maxfiylik",
       "3a86197ba3": "Shartnoma",
-      "2060fe9f62": "Kubok hakamlar hay'ati va mentorlar"
+      "2060fe9f62": "Kubok hakamlar hay'ati va mentorlar",
+      "copyright": "© 2026 Navikus Global Education",
+      "madeBy": "Dioxoid Digital tomonidan yaratilgan",
+      "notFoundCodeLabel": "404 sahifa",
+      "notFoundDescription": "Ko'rinishidan, havola eskirgan yoki manzil xato kiritilgan. Bosh sahifaga qayting va Navykus hamjamiyatida yo'lingizni davom eting.",
+      "notFoundEyebrow": "Yo'nalish topilmadi",
+      "notFoundTitle": "Bu sahifa yo'nalishdan chiqib ketdi",
+      "scrollTop": "Yuqoriga",
+      "trustGrowthDescription": "Ishtirokchi keyingi qadamni ko'radi: birinchi g'oya va jamoaviy ishdan loyihani himoya qilish, sertifikat va portfeliogacha.",
+      "trustGrowthTitle": "Tushunarli o'sish yo'nalishi"
     },
     "aboutprojectpage": {
       "2805697540": "Ishtirok eting",
@@ -273,6 +288,9 @@
       "792b92b447": "Dastur/tadbirni tanlang",
       "0570fbe337": "Jamiyatga umumiy so'rov",
       "a1534409f2": "Loyihalar bilan faylni biriktiring",
+      "portfolioSection": "Portfolio va loyihalar",
+      "portfolioTabFiles": "Fayllar",
+      "portfolioTabLink": "Havola",
       "f5717f85ba": "Faylni yuklab olish uchun bosing",
       "6272f20d22": "PDF, DOC, PPT, TXT, ZIP, PNG (10 MB gacha)",
       "b55a7aad35": "Imtihon...",
@@ -559,12 +577,12 @@
       "a4b6c8d0e2": "Eski anketalar birinchi",
       "b5c7d9e1f3": "Ism (A–Z)",
       "c1d2e3f4a5b": "Kengaytirilgan qidiruv",
+      "myProfile": "Mening anketam",
+      "myProfileDesc": "Jamoa qidirish anketasi",
       "registerDesc": "Jamoa topish uchun anketani to‘ldiring. Moderatsiyadan keyin u jamoa qidiruv sahifasida ko‘rinadi.",
       "bioRequired": "Qisqa tavsif qo‘shing",
       "whyRequired": "Nima uchun jamoa izlayotganingizni yozing",
-      "rolesRequired": "Rolni tanlang",
-      "myProfile": "Mening anketam",
-      "myProfileDesc": "Jamoa qidirish anketasi"
+      "rolesRequired": "Rolni tanlang"
     },
     "enhancements": {
       "proofCountries": "countries",

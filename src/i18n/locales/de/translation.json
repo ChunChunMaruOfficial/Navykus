@@ -7,7 +7,8 @@
     "ar": "Arabic",
     "de": "German",
     "es": "Spanish",
-    "tr": "Turkish"
+    "tr": "Turkish",
+    "auto": "Automatisch"
   },
   "common": {
     "brand": "Navykus",
@@ -24,6 +25,7 @@
     "loading": "Laden",
     "details": "Weitere Details",
     "collapse": "Zusammenbruch",
+    "cancel": "Abbrechen",
     "error": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
     "empty": "Noch keine Einträge.",
     "contacted": "Kontaktiert"
@@ -45,6 +47,10 @@
     "findTeam": {
       "title": "Finden Sie ein Team – Navykus"
     },
+    "notFound": {
+      "description": "Die angeforderte Seite wurde nicht gefunden. Kehren Sie zur Startseite von Navykus zurück.",
+      "title": "Seite nicht gefunden — Navykus"
+    },
     "privacy": {
       "title": "Privacy Policy",
       "description": "Informationen darüber, wie Navykus personenbezogene Daten erhebt und verarbeitet"
@@ -61,8 +67,8 @@
       "aacca2db": "Was ist Navykus?",
       "19816f01": "Warum entscheiden sich Eltern und Experten für Navykus?",
       "e07687c4": "Sind Sie bereit, Ihre Reise zu beginnen?",
-      "a5307558": "mailto:info@navykus.org?subject=Запрос%20политики%20конфиденциальности",
-      "4d9e7853": "mailto:info@navykus.org?subject=Запрос%20пользовательского%20соглашения",
+      "a5307558": "mailto:info@navykus.org?subject=Anfrage%20zur%20Datenschutzrichtlinie",
+      "4d9e7853": "mailto:info@navykus.org?subject=Anfrage%20zu%20den%20Nutzungsbedingungen",
       "02ce21d910": "Bitte geben Sie Ihren Namen ein",
       "1c3299a85e": "Bitte geben Sie das richtige Alter ein (von 10 bis 22 Jahren)",
       "92ca287f55": "Bitte geben Sie Ihr Land oder Ihre Stadt an",
@@ -112,7 +118,7 @@
       "7acec174f3": "Land / Stadt *",
       "1734a8f063": "Kasachstan, Almaty",
       "0751cc5d9c": "Mail oder Telegramm *",
-      "7d521595ce": "@username или e-mail",
+      "7d521595ce": "@username oder E-Mail",
       "d3e56289ef": "Richtung des Interesses",
       "d52e1ae8a0": "Projektentwicklung",
       "852dca4487": "Falllösung",
@@ -132,7 +138,16 @@
       "ed16b5adfc": "Koordinator:",
       "9e059272f1": "Privatsphäre",
       "3a86197ba3": "Vereinbarung",
-      "2060fe9f62": "Jury und Mentoren des Cups"
+      "2060fe9f62": "Jury und Mentoren des Cups",
+      "copyright": "© 2026 Navikus Global Education",
+      "madeBy": "erstellt von Dioxoid Digital",
+      "notFoundCodeLabel": "404-Seite",
+      "notFoundDescription": "Der Link ist möglicherweise veraltet oder die Adresse enthält einen Tippfehler. Kehren Sie zur Startseite zurück und setzen Sie Ihren Weg in der Navykus-Community fort.",
+      "notFoundEyebrow": "Route nicht gefunden",
+      "notFoundTitle": "Diese Seite ist vom Kurs abgekommen",
+      "scrollTop": "Nach oben",
+      "trustGrowthDescription": "Teilnehmer sehen den nächsten Schritt: von der ersten Idee und Teamarbeit bis zur Projektverteidigung, Zertifikat und Portfolio.",
+      "trustGrowthTitle": "Klarer Wachstumspfad"
     },
     "aboutprojectpage": {
       "2805697540": "Machen Sie mit",
@@ -273,6 +288,9 @@
       "792b92b447": "Programm/Veranstaltung auswählen",
       "0570fbe337": "Allgemeine Bitte an die Community",
       "a1534409f2": "Hängen Sie eine Datei mit Projekten an",
+      "portfolioSection": "Portfolio & Projekte",
+      "portfolioTabFiles": "Dateien",
+      "portfolioTabLink": "Link",
       "f5717f85ba": "Klicken Sie hier, um die Datei herunterzuladen",
       "6272f20d22": "PDF, DOC, PPT, TXT, ZIP, PNG (bis zu 10 MB)",
       "b55a7aad35": "Überprüfen...",
@@ -559,12 +577,12 @@
       "a4b6c8d0e2": "Älteste Fragebögen zuerst",
       "b5c7d9e1f3": "Name (A–Z)",
       "c1d2e3f4a5b": "Erweiterte Suche",
+      "myProfile": "Mein Fragebogen",
+      "myProfileDesc": "Fragebogen zur Teamsuche",
       "registerDesc": "Füllen Sie den Fragebogen aus, um ein Team zu finden. Nach der Moderation erscheint er in der Teamsuche.",
       "bioRequired": "Fügen Sie eine kurze Beschreibung hinzu",
       "whyRequired": "Erklären Sie, warum Sie ein Team suchen",
-      "rolesRequired": "Wählen Sie eine Rolle",
-      "myProfile": "Mein Fragebogen",
-      "myProfileDesc": "Fragebogen zur Teamsuche"
+      "rolesRequired": "Wählen Sie eine Rolle"
     },
     "enhancements": {
       "proofCountries": "countries",
