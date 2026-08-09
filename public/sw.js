@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v6';
+const CACHE_VERSION = 'v7';
 const STATIC_CACHE = `navykus-static-${CACHE_VERSION}`;
 const IMAGES_CACHE = `navykus-images-${CACHE_VERSION}`;
 const LOCALES_CACHE = `navykus-locales-${CACHE_VERSION}`;
@@ -72,9 +72,10 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Locales: Stale While Revalidate
+  // Locales: Network First (fall back to cache when offline) so translation
+  // updates reach users without bumping CACHE_VERSION.
   if (url.pathname.startsWith('/locales/')) {
-    event.respondWith(staleWhileRevalidate(request, LOCALES_CACHE));
+    event.respondWith(networkFirst(request, LOCALES_CACHE));
     return;
   }
 
