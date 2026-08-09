@@ -17,7 +17,6 @@ import {
   Filter,
   GraduationCap,
   Landmark,
-  Languages,
   MapPin,
   Medal,
   Plus,
@@ -31,6 +30,7 @@ import {
   Target,
   Trophy,
   Users,
+  X,
 } from 'lucide-react';
 import {
   cardItemFadeUp,
@@ -676,28 +676,18 @@ function SelectField({
   );
 }
 
-function Metric({ icon, value, label }: { icon: React.ReactNode; value: string | number; label: string }) {
-  return (
-    <div className="rounded-2xl border border-white/60 bg-white/40 p-4 backdrop-blur-md">
-      <div className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/60 text-[#bc4638]">
-        {icon}
-      </div>
-      <div className="text-2xl font-serif font-semibold text-brand-dark">{value}</div>
-      <div className="mt-1 text-[11px] text-brand-slate">{label}</div>
-    </div>
-  );
-}
-
 function OpportunityCard({
   opportunity,
   language,
   isCompared,
   onCompare,
+  onOpenDetails,
 }: {
   opportunity: Opportunity;
   language: SupportedLanguage;
   isCompared: boolean;
   onCompare: () => void;
+  onOpenDetails: () => void;
 }) {
   const daysLeft = getDaysLeft(opportunity.deadline);
   const deadlineText = opportunity.deadline
@@ -768,7 +758,7 @@ function OpportunityCard({
         <div className="mt-auto flex flex-wrap items-center gap-2 pt-6">
           <button
             type="button"
-            onClick={() => navigate(`/activities/opportunities/${opportunity.slug}`)}
+            onClick={onOpenDetails}
             className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-brand-dark px-4 py-2.5 text-xs font-semibold text-white transition-transform hover:scale-[1.01]"
           >
             {pick(UI.details, language)}
@@ -821,6 +811,7 @@ export default function OpportunitiesPage({
   const { i18n } = useTranslation();
   const language = getLanguage(i18n.resolvedLanguage || i18n.language || 'ru');
   const [route, setRoute] = useState(getRoute);
+  const [modalSlug, setModalSlug] = useState<string | null>(null);
   const [filters, setFilters] = useState<Filters>(createEmptyFilters);
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortId>('recommended');
@@ -884,6 +875,14 @@ export default function OpportunitiesPage({
     return () => window.removeEventListener('popstate', onPop);
   }, []);
 
+  // Direct link to /activities/opportunities/:slug (e.g. CMS preview) opens
+  // the catalog with the opportunity details modal instead of a full page.
+  useEffect(() => {
+    if (route.mode === 'detail' && route.slug) {
+      setModalSlug(route.slug);
+    }
+  }, [route.mode, route.slug]);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setFilters({
@@ -919,6 +918,21 @@ export default function OpportunitiesPage({
   const selectedOpportunity = route.slug
     ? allOpportunities.find((opportunity) => opportunity.slug === route.slug)
     : undefined;
+  const modalOpportunity = modalSlug
+    ? allOpportunities.find((opportunity) => opportunity.slug === modalSlug)
+    : undefined;
+
+  const openOpportunityDetails = (opportunity: Opportunity) => {
+    setModalSlug(opportunity.slug);
+  };
+
+  const closeOpportunityModal = () => {
+    setModalSlug(null);
+    // If we arrived via a direct detail URL, return to the clean catalog path.
+    if (route.mode === 'detail') {
+      navigate('/activities/opportunities');
+    }
+  };
   const catalogHeroClass = embedded
     ? "relative z-10 w-full overflow-hidden pb-8"
     : "relative z-10 w-full overflow-hidden pb-8 -mt-6";
@@ -1077,6 +1091,7 @@ export default function OpportunitiesPage({
       language={language}
       isCompared={compare.includes(opportunity.id)}
       onCompare={() => toggleCompare(opportunity.id)}
+      onOpenDetails={() => openOpportunityDetails(opportunity)}
     />
   );
 
@@ -1126,7 +1141,7 @@ export default function OpportunitiesPage({
               </h2>
               <div className="grid gap-3 md:grid-cols-3">
                 {urgent.slice(0, 3).map((opportunity) => (
-                  <button key={opportunity.id} data-preview-id={opportunity.id} onClick={() => navigate(`/activities/opportunities/${opportunity.slug}`)} className="rounded-2xl bg-white/55 p-4 text-left text-xs text-brand-slate">
+                  <button key={opportunity.id} data-preview-id={opportunity.id} onClick={() => openOpportunityDetails(opportunity)} className="rounded-2xl bg-white/55 p-4 text-left text-xs text-brand-slate">
                     <span className="font-semibold text-[#bc4638]">{getDaysLeft(opportunity.deadline)} {pick(UI.daysLeft, language)}</span>
                     <div className="mt-1 font-serif text-base font-semibold text-brand-dark">{pick(opportunity.title, language)}</div>
                     <div className="mt-1">{opportunity.registrationOpen ? pick(UI.registrationOpen, language) : pick(UI.registrationClosed, language)}</div>
@@ -1260,7 +1275,7 @@ export default function OpportunitiesPage({
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {recommended.map((opportunity) => (
               <button
-                key={opportunity.id} data-preview-id={opportunity.id} onClick={() => navigate(`/activities/opportunities/${opportunity.slug}`)} className="rounded-2xl border border-white/60 bg-white/40 p-4 text-left surface-elevated-soft backdrop-blur-md transition-transform hover:-translate-y-0.5"
+                key={opportunity.id} data-preview-id={opportunity.id} onClick={() => openOpportunityDetails(opportunity)} className="rounded-2xl border border-white/60 bg-white/40 p-4 text-left surface-elevated-soft backdrop-blur-md transition-transform hover:-translate-y-0.5"
               >
                 <span className="mb-3 inline-flex rounded-full bg-[#bc4638]/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#8d3026]">
                   {getSourceLabel(opportunity.source, language)}
@@ -1276,110 +1291,17 @@ export default function OpportunitiesPage({
     </>
   );
 
-  const renderDetail = () => {
-    if (!selectedOpportunity) {
-      return (
-        <section className={`${pageShellClass} text-center`}>
-          <h1 className="font-serif text-4xl font-semibold text-brand-dark">{pick(UI.noResults, language)}</h1>
-          <button onClick={() => navigate('/activities/opportunities')} className="mt-6 rounded-xl bg-brand-dark px-5 py-3 text-xs font-semibold text-white">{pick(OPPORTUNITIES_NAV_LABELS, language)}</button>
-        </section>
-      );
-    }
-
-    const schema = {
-      '@context': 'https://schema.org',
-      '@type': selectedOpportunity.category === 'scholarships' ? 'Scholarship' : selectedOpportunity.category === 'internships' ? 'Internship' : selectedOpportunity.category === 'research' ? 'EducationalOccupationalProgram' : 'Event',
-      name: pick(selectedOpportunity.title, language),
-      description: pick(selectedOpportunity.summary, language),
-      organizer: pick(selectedOpportunity.organizer, language),
-      startDate: selectedOpportunity.startDate,
-      applicationDeadline: selectedOpportunity.deadline,
-    };
-
-    const detailExternalUrl = toExternalUrl(selectedOpportunity.externalUrl);
-
+  const renderOpportunityModal = () => {
+    if (!modalOpportunity) return null;
     return (
-      <section className={pageShellClass}>
-        <script type="application/ld+json">{JSON.stringify(schema)}</script>
-        <button onClick={() => navigate('/opportunities')} className="mb-8 inline-flex items-center gap-2 rounded-xl border border-white/60 bg-white/35 px-4 py-2 text-xs font-mono uppercase tracking-wider text-brand-slate backdrop-blur-md">
-          <ArrowRight className="h-3.5 w-3.5 rotate-180" />
-          {pick(OPPORTUNITIES_NAV_LABELS, language)}
-        </button>
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
-          <motion.article {...fadeUpLarge} className="overflow-hidden rounded-[2rem] border border-white/65 bg-white/42 surface-elevated backdrop-blur-xl">
-            <div className="relative h-56 overflow-hidden bg-gradient-to-br from-[#bc4638]/15 to-[#bd5b82]/15 sm:h-72">
-              <img src={selectedOpportunity.imageUrl} alt={pick(selectedOpportunity.title, language)} className="h-full w-full object-cover opacity-45" loading="lazy" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#fffaf7] via-[#fffaf7]/40 to-transparent" />
-              <div className="absolute bottom-6 left-6 right-6">
-                <span className="mb-3 inline-flex rounded-full bg-white/65 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-[#bc4638] backdrop-blur-md">
-                  {getSourceLabel(selectedOpportunity.source, language)}
-                </span>
-                <h1 className="max-w-4xl text-4xl font-serif font-semibold leading-tight text-brand-dark sm:text-5xl">{pick(selectedOpportunity.title, language)}</h1>
-              </div>
-            </div>
-            <div className="space-y-8 p-6 sm:p-8">
-              <p className="text-base leading-relaxed text-brand-slate">{pick(selectedOpportunity.description, language)}</p>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Metric icon={<CalendarClock className="h-4 w-4" />} value={selectedOpportunity.deadline || '∞'} label={pick(UI.deadline, language)} />
-                <Metric icon={<Languages className="h-4 w-4" />} value={selectedOpportunity.languages.map((item) => item.toUpperCase()).join(', ')} label={pick(UI.languagesLabel, language)} />
-              </div>
-              <section>
-                <h2 className="mb-3 font-serif text-2xl font-semibold text-brand-dark">{pick(UI.requirementsLabel, language)}</h2>
-                <ul className="grid gap-2">
-                  {selectedOpportunity.requirements.map((item) => (
-                    <li key={pick(item, language)} className="flex gap-2 text-sm text-brand-slate"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#6b8f71]" />{pick(item, language)}</li>
-                  ))}
-                </ul>
-              </section>
-              <section>
-                <h2 className="mb-3 font-serif text-2xl font-semibold text-brand-dark">{pick(UI.portfolio, language)}</h2>
-                <ul className="grid gap-2">
-                  {selectedOpportunity.outcomes.map((item) => (
-                    <li key={pick(item, language)} className="flex gap-2 text-sm text-brand-slate"><Award className="mt-0.5 h-4 w-4 shrink-0 text-[#c9a96e]" />{pick(item, language)}</li>
-                  ))}
-                </ul>
-              </section>
-            </div>
-          </motion.article>
-
-          <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
-            <div className="rounded-[1.5rem] border border-white/65 bg-white/48 p-5 surface-elevated-soft backdrop-blur-xl">
-              <div className="mb-4 grid gap-2 text-xs text-brand-slate">
-                <span className="inline-flex items-center gap-2"><MapPin className="h-4 w-4 text-[#bd5b82]" />{pick(selectedOpportunity.country, language)}, {pick(selectedOpportunity.city, language)}</span>
-                <span className="inline-flex items-center gap-2"><Users className="h-4 w-4 text-[#6b8f71]" />{pick(PARTICIPATION[selectedOpportunity.participation], language)}</span>
-                <span className="inline-flex items-center gap-2"><CircleDollarSign className="h-4 w-4 text-[#c9a96e]" />{pick(COSTS[selectedOpportunity.cost], language)}</span>
-              </div>
-              {detailExternalUrl ? (
-                <a
-                  href={detailExternalUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-xs font-semibold text-white transition-opacity hover:opacity-95"
-                >
-                  {pick(UI.apply, language)}
-                  <ArrowUpRight className="h-4 w-4" />
-                </a>
-              ) : (
-                <div className="space-y-3">
-                  <button type="button" onClick={() => openOpportunityApplication(selectedOpportunity)} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-xs font-semibold text-white transition-opacity hover:opacity-95">
-                    <Send className="h-4 w-4" />
-                    {pick(UI.apply, language)}
-                  </button>
-                </div>
-              )}
-              <div className="mt-3 grid gap-2">
-                <button
-                  onClick={() => navigate('/find-team')}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#6b8f71]/25 bg-[#6b8f71]/12 px-3 py-2 text-xs font-semibold text-[#355a40] shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#6b8f71]/16"
-                >
-                  <Users className="h-4 w-4" />
-                  {pick(UI.findTeam, language)}
-                </button>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </section>
+      <AnimatePresence>
+        <OpportunityDetailsModal
+          opportunity={modalOpportunity}
+          language={language}
+          onClose={closeOpportunityModal}
+          onOpenApplyModal={onOpenApplyModal}
+        />
+      </AnimatePresence>
     );
   };
 
@@ -1449,10 +1371,10 @@ export default function OpportunitiesPage({
 
   return (
     <div className="relative w-full overflow-hidden pb-6 text-brand-dark">
-      {route.mode === 'catalog' && renderCatalog()}
-      {route.mode === 'detail' && renderDetail()}
+      {(route.mode === 'catalog' || route.mode === 'detail') && renderCatalog()}
       {route.mode === 'compare' && renderCompare()}
       {route.mode === 'submit' && renderSubmit()}
+      {renderOpportunityModal()}
     </div>
   );
 }
@@ -1476,6 +1398,15 @@ function Header({ title, description, language }: { title: string; description?:
   );
 }
 
+function DetailBlock({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <h4 className="mb-2 text-[10px] font-bold uppercase tracking-widest text-brand-dark/70">{title}</h4>
+      <div className="text-xs leading-relaxed text-brand-slate">{children}</div>
+    </div>
+  );
+}
+
 function EmptyState({ language }: { language: SupportedLanguage }) {
   return (
     <div className="rounded-[1.5rem] border border-white/60 bg-white/42 p-8 text-center surface-elevated-soft backdrop-blur-xl">
@@ -1484,3 +1415,173 @@ function EmptyState({ language }: { language: SupportedLanguage }) {
     </div>
   );
 }
+
+function OpportunityDetailsModal({
+  opportunity,
+  language,
+  onClose,
+  onOpenApplyModal,
+}: {
+  opportunity: Opportunity;
+  language: SupportedLanguage;
+  onClose: () => void;
+  onOpenApplyModal?: (context?: TeamApplicationContext) => void;
+}) {
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [onClose]);
+
+  const detailExternalUrl = toExternalUrl(opportunity.externalUrl);
+
+  const applyContent = (className: string) =>
+    detailExternalUrl ? (
+      <a href={detailExternalUrl} target="_blank" rel="noreferrer" className={className}>
+        <span>{pick(UI.apply, language)}</span>
+        <ArrowUpRight className="h-3.5 w-3.5" />
+      </a>
+    ) : (
+      <button
+        type="button"
+        onClick={() => onOpenApplyModal?.({ sourceType: 'opportunity', sourceId: opportunity.id, sourceTitle: pick(opportunity.title, language) })}
+        className={className}
+      >
+        <span>{pick(UI.apply, language)}</span>
+        <ArrowRight className="h-3.5 w-3.5" />
+      </button>
+    );
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="absolute inset-0 bg-brand-dark/25 backdrop-blur-md"
+      />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 22 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: 22 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="opportunity-details-title"
+        className="relative z-10 max-h-[88vh] w-[94vw] max-w-5xl overflow-y-auto scrollbar-soft rounded-[1.75rem] border border-white/60 bg-[#fffaf7]/90 shadow-[0_35px_110px_rgba(17,17,17,0.2)] backdrop-blur-2xl"
+      >
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-white/60 bg-white/70 text-brand-dark shadow-sm transition-colors hover:bg-white"
+          aria-label={pick(UI.details, language)}
+        >
+          <X className="h-5 w-5" />
+        </button>
+
+        <div className="grid gap-5 p-5 pr-16 sm:p-8 sm:pr-20 md:grid-cols-[240px_minmax(0,1fr)] md:items-start">
+          <div className="overflow-hidden rounded-[1.25rem] border border-white/60 bg-white/36">
+            {opportunity.imageUrl ? (
+              <BrandImage
+                src={opportunity.imageUrl}
+                alt={pick(opportunity.title, language)}
+                aspectRatio="4 / 3"
+                objectPosition={opportunity.category === 'volunteering' ? '50% 48%' : '50% 50%'}
+                loading="eager"
+                sizes="(min-width: 768px) 240px, 100vw"
+                className="rounded-none border-0 shadow-none"
+              />
+            ) : (
+              <div className="aspect-[4/3] w-full bg-gradient-to-br from-[#bc4638]/15 to-[#bd5b82]/15" />
+            )}
+          </div>
+
+          <div className="space-y-4 text-left">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wider ${
+                opportunity.source === 'navykus' ? 'bg-[#bc4638]/10 text-[#8d3026]' : 'bg-emerald-500/10 text-emerald-700'
+              }`}>
+                {opportunity.source === 'navykus' ? <Sparkles className="h-3 w-3" /> : <BadgeCheck className="h-3 w-3" />}
+                {getSourceLabel(opportunity.source, language)}
+              </span>
+              {opportunity.editorPick && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#bd5b82]/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#8a3859]">
+                  <Star className="h-3 w-3" />
+                  editor
+                </span>
+              )}
+            </div>
+            <h2 id="opportunity-details-title" className="text-2xl font-serif font-semibold leading-tight text-brand-dark sm:text-4xl">
+              {pick(opportunity.title, language)}
+            </h2>
+            <p className="text-xs font-medium text-brand-slate">{pick(opportunity.organizer, language)}</p>
+            {applyContent("inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-[11px] font-bold uppercase tracking-widest text-white shadow-lg shadow-[#bc4638]/12 transition-all hover:opacity-95")}
+          </div>
+        </div>
+
+        <div className="space-y-6 px-5 pb-5 sm:px-8 sm:pb-8">
+          <div className="grid grid-cols-1 gap-2 text-[11px] font-medium text-brand-slate sm:grid-cols-2">
+            <span className="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-white/60 bg-white/55 px-3 py-2">
+              <CalendarClock className="h-3.5 w-3.5 shrink-0 text-[#bc4638]" />
+              <span>{opportunity.deadline || pick(UI.rolling, language)}</span>
+            </span>
+            <span className="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-white/60 bg-white/55 px-3 py-2">
+              <MapPin className="h-3.5 w-3.5 shrink-0 text-[#bd5b82]" />
+              <span>{pick(opportunity.city, language) || pick(opportunity.country, language)}</span>
+            </span>
+            <span className="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-white/60 bg-white/55 px-3 py-2">
+              <Users className="h-3.5 w-3.5 shrink-0 text-[#6b8f71]" />
+              <span>{pick(PARTICIPATION[opportunity.participation], language)}</span>
+            </span>
+            <span className="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-white/60 bg-white/55 px-3 py-2">
+              <CircleDollarSign className="h-3.5 w-3.5 shrink-0 text-[#c9a96e]" />
+              <span>{pick(COSTS[opportunity.cost], language)}</span>
+            </span>
+          </div>
+
+          <p className="text-sm leading-relaxed text-brand-slate sm:text-base">{pick(opportunity.description, language)}</p>
+
+          <DetailBlock title={pick(UI.requirementsLabel, language)}>
+            <ul className="space-y-2">
+              {opportunity.requirements.map((item) => (
+                <li key={pick(item, language)} className="flex items-start gap-2">
+                  <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#6b8f71]" />
+                  <span>{pick(item, language)}</span>
+                </li>
+              ))}
+            </ul>
+          </DetailBlock>
+
+          <DetailBlock title={pick(UI.portfolio, language)}>
+            <ul className="space-y-2">
+              {opportunity.outcomes.map((item) => (
+                <li key={pick(item, language)} className="flex items-start gap-2">
+                  <Award className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#c9a96e]" />
+                  <span>{pick(item, language)}</span>
+                </li>
+              ))}
+            </ul>
+          </DetailBlock>
+
+          {applyContent("inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-[11px] font-bold uppercase tracking-widest text-white shadow-lg shadow-[#bc4638]/12 transition-all hover:opacity-95")}
+
+          <button
+            onClick={() => navigate('/find-team')}
+            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-[#6b8f71]/25 bg-[#6b8f71]/12 px-3 py-2 text-xs font-semibold text-[#355a40] shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#6b8f71]/16"
+          >
+            <Users className="h-4 w-4" />
+            {pick(UI.findTeam, language)}
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
