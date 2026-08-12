@@ -26,6 +26,7 @@ const ROLE_LABELS: Record<TeamRole, string> = {
 };
 const MAX_FILES = 5;
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const PARTICIPATION_SOURCE_TYPES: Array<ApplicationForm['sourceType']> = ['championship', 'event', 'opportunity', 'activities'];
 const ALLOWED_FILE_TYPES = new Set([
   'application/pdf',
   'application/msword',
@@ -68,6 +69,9 @@ const splitList = (value: string) => value
   .map((item) => item.trim())
   .filter(Boolean);
 
+const isParticipationSourceType = (sourceType?: ApplicationForm['sourceType']) =>
+  PARTICIPATION_SOURCE_TYPES.includes(sourceType);
+
 export default function TeamMemberApplicationForm({ context, compact = false, onSubmitted }: Props) {
   const { t, i18n } = useTranslation();
   const [form, setForm] = useState<ApplicationForm>(() => emptyForm(context));
@@ -80,10 +84,7 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
 
   const sourceLabel = useMemo(() => context?.sourceTitle || form.sourceContext || '', [context?.sourceTitle, form.sourceContext]);
 
-  const isParticipationForm =
-    context?.sourceType === 'event' ||
-    context?.sourceType === 'opportunity' ||
-    context?.sourceType === 'activities';
+  const isParticipationForm = isParticipationSourceType(context?.sourceType);
 
   const setField = <K extends keyof ApplicationForm>(key: K, value: ApplicationForm[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -131,10 +132,12 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
     setStatus('submitting');
     try {
       const language = (i18n.resolvedLanguage || i18n.language || 'ru').split('-')[0];
+      const participationReason = sourceLabel || t('ui.applicationmodal.6b0f724b4e');
       await submitTeamMemberApplication({
         ...form,
         skills: form.skills.length ? form.skills : splitList(skillsInput),
         interests: form.interests.length ? form.interests : splitList(interestsInput),
+        whyLooking: isParticipationForm && !form.whyLooking.trim() ? participationReason : form.whyLooking,
         sourceContext: sourceLabel || form.sourceContext,
       }, language);
       setStatus('success');
@@ -159,7 +162,9 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
           <div>
             <h2 className="text-lg font-serif tracking-tight text-brand-dark">{t('ui.app.0d65b9d27c')}</h2>
             <p className="mt-1.5 max-w-sm text-sm text-brand-slate">
-              {t('ui.applicationmodal.moderationSuccess', { defaultValue: 'The form was sent for moderation. After review it will appear on the team search page.' })}
+              {isParticipationForm
+                ? t('ui.applicationmodal.15cd01515e', { defaultValue: 'Questionnaire sent for moderation.' })
+                : t('ui.applicationmodal.moderationSuccess', { defaultValue: 'The form was sent for moderation. After review it will appear on the team search page.' })}
             </p>
           </div>
         </div>

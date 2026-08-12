@@ -57,7 +57,8 @@ export const apiAssetUrl = (path?: string) => {
 export const toExternalUrl = (value?: string): string => {
   const trimmed = (value || '').trim();
   if (!trimmed) return '';
-  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+  if (/^(https?:|mailto:|tel:)/i.test(trimmed) || trimmed.startsWith('/')) return trimmed;
+  return `https://${trimmed}`;
 };
 
 export interface ApplicationResponse {

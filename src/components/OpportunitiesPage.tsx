@@ -41,7 +41,6 @@ import {
 } from '../motion-animations';
 import type { SupportedLanguage } from '../i18n/languages';
 import { useCmsOpportunities } from '../hooks/useCmsOpportunities';
-import type { TeamApplicationContext } from '../types';
 import { toExternalUrl } from '../api';
 import BrandImage from './BrandImage';
 
@@ -803,10 +802,8 @@ function SkeletonGrid() {
 
 export default function OpportunitiesPage({
   embedded = false,
-  onOpenApplyModal,
 }: {
   embedded?: boolean;
-  onOpenApplyModal?: (context?: TeamApplicationContext) => void;
 }) {
   const { i18n } = useTranslation();
   const language = getLanguage(i18n.resolvedLanguage || i18n.language || 'ru');
@@ -1076,14 +1073,6 @@ export default function OpportunitiesPage({
     });
   };
 
-  const openOpportunityApplication = (opportunity: Opportunity) => {
-    onOpenApplyModal?.({
-      sourceType: 'opportunity',
-      sourceId: opportunity.id,
-      sourceTitle: pick(opportunity.title, language),
-    });
-  };
-
   const renderCard = (opportunity: Opportunity) => (
     <OpportunityCard
       key={opportunity.id}
@@ -1299,7 +1288,6 @@ export default function OpportunitiesPage({
           opportunity={modalOpportunity}
           language={language}
           onClose={closeOpportunityModal}
-          onOpenApplyModal={onOpenApplyModal}
         />
       </AnimatePresence>
     );
@@ -1420,12 +1408,10 @@ function OpportunityDetailsModal({
   opportunity,
   language,
   onClose,
-  onOpenApplyModal,
 }: {
   opportunity: Opportunity;
   language: SupportedLanguage;
   onClose: () => void;
-  onOpenApplyModal?: (context?: TeamApplicationContext) => void;
 }) {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -1451,8 +1437,9 @@ function OpportunityDetailsModal({
     ) : (
       <button
         type="button"
-        onClick={() => onOpenApplyModal?.({ sourceType: 'opportunity', sourceId: opportunity.id, sourceTitle: pick(opportunity.title, language) })}
-        className={className}
+        disabled
+        title="Official URL is not configured in CMS"
+        className={`${className} cursor-not-allowed opacity-60`}
       >
         <span>{pick(UI.apply, language)}</span>
         <ArrowRight className="h-3.5 w-3.5" />

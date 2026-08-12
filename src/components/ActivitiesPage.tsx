@@ -439,7 +439,7 @@ export default function ActivitiesPage({
           </>
         ) : (
           <Suspense fallback={<div className="rounded-[1.5rem] border border-white/60 bg-white/42 p-8 text-sm text-brand-slate surface-elevated-soft backdrop-blur-xl">{t('common.loading')}</div>}>
-            <OpportunitiesPage embedded onOpenApplyModal={onOpenApplyModal} />
+            <OpportunitiesPage embedded />
           </Suspense>
         )}
       </div>
@@ -449,7 +449,6 @@ export default function ActivitiesPage({
           <ActivityDetailsModal
             activity={selectedActivity}
             onClose={() => setSelectedActivity(null)}
-            onOpenApplyModal={onOpenApplyModal}
           />
         )}
       </AnimatePresence>
@@ -554,21 +553,14 @@ function ActivityCard({
 function ActivityDetailsModal({
   activity,
   onClose,
-  onOpenApplyModal,
 }: {
   activity: ActivityItem;
   onClose: () => void;
-  onOpenApplyModal: (context?: TeamApplicationContext) => void;
 }) {
   const { t } = useTranslation();
   const categoryInfo = CATEGORY_MAP[activity.category];
   const isCompleted = activity.status === 'completed';
   const canRegister = !isCompleted;
-  const openActivityApplication = () => onOpenApplyModal({
-    sourceType: 'event',
-    sourceId: activity.id,
-    sourceTitle: activity.title,
-  });
 
   const externalRegistrationUrl = toExternalUrl(activity.ctaLink);
 
@@ -586,8 +578,9 @@ function ActivityDetailsModal({
     ) : (
       <button
         type="button"
-        onClick={openActivityApplication}
-        className={className}
+        disabled
+        title="CTA link is not configured in CMS"
+        className={`${className} cursor-not-allowed opacity-60`}
       >
         <span>{t('ui.aboutprojectpage.2805697540')}</span>
         <ArrowRight className="h-3.5 w-3.5" />
