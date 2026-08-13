@@ -25,7 +25,8 @@ for (const key of requiredEnv) {
 import { execSync, spawn } from 'node:child_process';
 
 import type { PageKey } from '../src/types';
-import { SUPPORTED_LANGUAGES } from '../src/i18n/languages';
+import { isSupportedLanguage, SUPPORTED_LANGUAGES } from '../src/i18n/languages';
+import { EDITABLE_PAGE_TEXT_PAGES, type EditablePageTextPage, type PageTextDoc } from '../src/page-texts';
 import { getAdminContentTypeByCollection } from '../src/content-admin-registry';
 import { getPayloadClient } from './payload';
 import { startTranslationWorker } from './translation-worker';
@@ -54,6 +55,7 @@ const publicReadOnlyApiPrefixes = [
   '/api/activities',
   '/api/opportunities',
   '/api/faqs',
+  '/api/page-texts',
   '/api/pillars',
   '/api/scenarios',
   '/api/experts',
@@ -247,6 +249,19 @@ const queryLimit = (value: unknown, fallback = 50) => {
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) return fallback;
   return Math.min(200, Math.max(1, parsed));
+};
+
+const editablePageTextPages = new Set(EDITABLE_PAGE_TEXT_PAGES.map((page) => page.value));
+
+const pageTextPagesFromQuery = (value: unknown): EditablePageTextPage[] => {
+  const rawPages = (typeof value === 'string' ? value : '')
+    .split(',')
+    .map((page) => page.trim())
+    .filter(Boolean);
+  const pages = rawPages.filter((page): page is EditablePageTextPage =>
+    editablePageTextPages.has(page as EditablePageTextPage),
+  );
+  return Array.from(new Set(pages));
 };
 
 const findApprovedTeamMembers = async () => {
@@ -497,6 +512,38 @@ app.get('/api/faqs', asyncRoute(async (req, res) => {
       return acc;
     }, {} as Record<PageKey, typeof faqs>),
   );
+}));
+
+app.get('/api/page-texts', asyncRoute(async (req, res) => {
+  const payload = await getPayloadClient();
+  const requestedLanguage = typeof req.query.lang === 'string' ? req.query.lang.split('-')[0] : '';
+  const language = isSupportedLanguage(requestedLanguage) ? requestedLanguage : languageFromRequest(req);
+  const pages = pageTextPagesFromQuery(req.query.pages);
+  if (typeof req.query.pages === 'string' && pages.length === 0) {
+    res.json({ language, pages, texts: {} });
+    return;
+  }
+  const result = await payload.find({
+    collection: 'page-texts' as any,
+    depth: 0,
+    limit: 500,
+    sort: 'sortOrder',
+    where: {
+      and: [
+        { isPublished: { equals: true } },
+        { language: { equals: language } },
+        ...(pages.length ? [{ page: { in: pages } }] : []),
+      ],
+    },
+    overrideAccess: true,
+  });
+  const docs = result.docs as PageTextDoc[];
+  const texts = docs.reduce<Record<string, string>>((acc, doc) => {
+    if (doc.translationKey && typeof doc.value === 'string') acc[doc.translationKey] = doc.value;
+    return acc;
+  }, {});
+
+  res.json({ language, pages, texts });
 }));
 
 app.get('/api/pillars', asyncRoute(async (req, res) => {

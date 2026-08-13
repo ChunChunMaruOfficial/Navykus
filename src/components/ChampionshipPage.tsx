@@ -26,6 +26,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { useCmsFaqs } from '../hooks/useCmsFaqs';
+import { useCmsPageTexts } from '../hooks/useCmsPageTexts';
 import { useCmsTournamentsState } from '../hooks/useCmsTournaments';
 import type { TeamApplicationContext } from '../types';
 import BrandImage from './BrandImage';
@@ -83,6 +84,7 @@ export default function ChampionshipPage({
   onOpenApplyModal,
 }: ChampionshipPageProps) {
   const { t } = useTranslation();
+  useCmsPageTexts(['championship']);
   const {
     data: cmsTournaments,
     isLoading: isCmsLoading,

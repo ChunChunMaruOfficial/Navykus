@@ -1,5 +1,8 @@
 import 'dotenv/config';
 
+import fs from 'node:fs';
+import path from 'node:path';
+
 import {
   ACTIVITIES,
   EXPERTS,
@@ -11,6 +14,14 @@ import {
   TRUST_POINTS,
 } from '../src/data';
 import { OPPORTUNITIES } from '../src/components/OpportunitiesPage';
+import { SUPPORTED_LANGUAGES, type SupportedLanguage } from '../src/i18n/languages';
+import {
+  EDITABLE_PAGE_TEXT_PAGES,
+  flattenLocaleText,
+  getEditablePageTextKeys,
+  pageTextLegacyId,
+  type EditablePageTextPage,
+} from '../src/page-texts';
 import { getPayloadClient } from '../server/payload';
 
 const list = (items: string[] = []) => items.map((value) => ({ value }));
@@ -29,6 +40,11 @@ const seedVisibility = (collection: string) => ({
 const ui = (await import('../src/i18n/locales/ru/translation.json', { with: { type: 'json' } })).default.ui as any;
 
 const tr = (path: string) => path.split('.').reduce<any>((acc, key) => acc?.[key], { ui }) || path;
+
+const readLocale = (language: SupportedLanguage) => {
+  const file = path.resolve(process.cwd(), 'src', 'i18n', 'locales', language, 'translation.json');
+  return flattenLocaleText(JSON.parse(fs.readFileSync(file, 'utf8')));
+};
 
 const FAQ_SEED = [
   ['about-faq-1', 'about', 'ui.aboutprojectpage.4b5e0f1908', 'ui.aboutprojectpage.09fd377d38'],
@@ -282,6 +298,37 @@ const ensureOpportunitySeed = async (
   });
 };
 
+const ensurePageTextSeed = async (
+  page: EditablePageTextPage,
+  language: SupportedLanguage,
+  translationKey: string,
+  value: string,
+  sortOrder: number,
+) => {
+  await ensureByLegacyId('page-texts', pageTextLegacyId(page, language, translationKey), {
+    page,
+    language,
+    translationKey,
+    label: translationKey.replace(/^ui\./, '').replace(/^common\./, 'common.'),
+    value,
+    sortOrder,
+    isPublished: true,
+  });
+};
+
+const seedPageTexts = async () => {
+  for (const language of SUPPORTED_LANGUAGES) {
+    const flatLocale = readLocale(language);
+    for (const pageOption of EDITABLE_PAGE_TEXT_PAGES) {
+      const page = pageOption.value;
+      const keys = getEditablePageTextKeys(page, flatLocale);
+      for (const [index, translationKey] of keys.entries()) {
+        await ensurePageTextSeed(page, language, translationKey, flatLocale[translationKey], index);
+      }
+    }
+  }
+};
+
 const seed = async () => {
   const payload = await getPayloadClient();
 
@@ -457,6 +504,8 @@ const seed = async () => {
       originalLanguage: 'ru',
     });
   }
+
+  await seedPageTexts();
 
   console.log('Payload seed complete.');
   process.exit(0);

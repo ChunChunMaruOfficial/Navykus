@@ -14,6 +14,7 @@ import * as migration_20260731_000100_add_tournaments_slug_unique_index from './
 import * as migration_20260806_000000_add_event_registration_url from './20260806_000000_add_event_registration_url';
 import * as migration_20260807_000000_remove_blog from './20260807_000000_remove_blog';
 import * as migration_20260807_010000_fix_team_member_version_fields from './20260807_010000_fix_team_member_version_fields';
+import * as migration_20260813_000000_add_page_texts from './20260813_000000_add_page_texts';
 
 export const migrations = [
   {
@@ -95,5 +96,10 @@ export const migrations = [
     up: migration_20260807_010000_fix_team_member_version_fields.up,
     down: migration_20260807_010000_fix_team_member_version_fields.down,
     name: '20260807_010000_fix_team_member_version_fields',
+  },
+  {
+    up: migration_20260813_000000_add_page_texts.up,
+    down: migration_20260813_000000_add_page_texts.down,
+    name: '20260813_000000_add_page_texts',
   },
 ];

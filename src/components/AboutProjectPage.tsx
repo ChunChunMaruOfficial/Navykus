@@ -28,6 +28,7 @@ import {
   cardItemFadeUp,
 } from '../motion-animations';
 import { useCmsFaqs } from '../hooks/useCmsFaqs';
+import { useCmsPageTexts } from '../hooks/useCmsPageTexts';
 import BrandImage from './BrandImage';
 import Logo from './Logo';
 
@@ -138,6 +139,7 @@ export default function AboutProjectPage({
   
   const [selectedSegmentIdx, setSelectedSegmentIdx] = useState(0);
   const [activeFaqIdx, setActiveFaqIdx] = useState<number | null>(null);
+  useCmsPageTexts(['about']);
   const faqItems = useCmsFaqs('about');
 
   const handleNavigateFromAbout = (sectionId: string) => {

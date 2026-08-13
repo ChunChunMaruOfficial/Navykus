@@ -1949,6 +1949,39 @@ export const audit_logs = sqliteTable(
   ],
 );
 
+export const page_texts = sqliteTable(
+  "page_texts",
+  {
+    id: integer("id").primaryKey(),
+    legacyId: text("legacy_id"),
+    sortOrder: numeric("sort_order", { mode: "number" }).default(0),
+    isPublished: integer("is_published", { mode: "boolean" }).default(true),
+    page: text("page", { enum: ["about", "championship"] }).notNull(),
+    language: text("language", {
+      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
+    })
+      .notNull()
+      .default("ru"),
+    translationKey: text("translation_key").notNull(),
+    label: text("label").notNull(),
+    value: text("value").notNull(),
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+  },
+  (columns) => [
+    index("page_texts_legacy_id_idx").on(columns.legacyId),
+    index("page_texts_page_idx").on(columns.page),
+    index("page_texts_language_idx").on(columns.language),
+    index("page_texts_translation_key_idx").on(columns.translationKey),
+    index("page_texts_updated_at_idx").on(columns.updatedAt),
+    index("page_texts_created_at_idx").on(columns.createdAt),
+  ],
+);
+
 export const content_localizations = sqliteTable(
   "content_localizations",
   {
@@ -2060,6 +2093,7 @@ export const payload_locked_documents_rels = sqliteTable(
     "contact-settingsID": integer("contact_settings_id"),
     "operator-settingsID": integer("operator_settings_id"),
     "audit-logsID": integer("audit_logs_id"),
+    "page-textsID": integer("page_texts_id"),
     "content-localizationsID": integer("content_localizations_id"),
   },
   (columns) => [
@@ -2099,6 +2133,9 @@ export const payload_locked_documents_rels = sqliteTable(
     ),
     index("payload_locked_documents_rels_audit_logs_id_idx").on(
       columns["audit-logsID"],
+    ),
+    index("payload_locked_documents_rels_page_texts_id_idx").on(
+      columns["page-textsID"],
     ),
     index("payload_locked_documents_rels_content_localizations_id_idx").on(
       columns["content-localizationsID"],
@@ -2187,6 +2224,11 @@ export const payload_locked_documents_rels = sqliteTable(
       columns: [columns["audit-logsID"]],
       foreignColumns: [audit_logs.id],
       name: "payload_locked_documents_rels_audit_logs_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["page-textsID"]],
+      foreignColumns: [page_texts.id],
+      name: "payload_locked_documents_rels_page_texts_fk",
     }).onDelete("cascade"),
     foreignKey({
       columns: [columns["content-localizationsID"]],
@@ -2802,6 +2844,7 @@ export const relations_audit_logs = relations(audit_logs, ({ many }) => ({
     relationName: "changedFields",
   }),
 }));
+export const relations_page_texts = relations(page_texts, () => ({}));
 export const relations_content_localizations = relations(
   content_localizations,
   () => ({}),
@@ -2894,6 +2937,11 @@ export const relations_payload_locked_documents_rels = relations(
       fields: [payload_locked_documents_rels["audit-logsID"]],
       references: [audit_logs.id],
       relationName: "audit-logs",
+    }),
+    "page-textsID": one(page_texts, {
+      fields: [payload_locked_documents_rels["page-textsID"]],
+      references: [page_texts.id],
+      relationName: "page-texts",
     }),
     "content-localizationsID": one(content_localizations, {
       fields: [payload_locked_documents_rels["content-localizationsID"]],
@@ -2994,6 +3042,7 @@ type DatabaseSchema = {
   operator_settings: typeof operator_settings;
   audit_logs_changed_fields: typeof audit_logs_changed_fields;
   audit_logs: typeof audit_logs;
+  page_texts: typeof page_texts;
   content_localizations: typeof content_localizations;
   payload_kv: typeof payload_kv;
   payload_locked_documents: typeof payload_locked_documents;
@@ -3056,6 +3105,7 @@ type DatabaseSchema = {
   relations_operator_settings: typeof relations_operator_settings;
   relations_audit_logs_changed_fields: typeof relations_audit_logs_changed_fields;
   relations_audit_logs: typeof relations_audit_logs;
+  relations_page_texts: typeof relations_page_texts;
   relations_content_localizations: typeof relations_content_localizations;
   relations_payload_kv: typeof relations_payload_kv;
   relations_payload_locked_documents_rels: typeof relations_payload_locked_documents_rels;
