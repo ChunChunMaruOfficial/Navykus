@@ -1,18 +1,17 @@
 import type { CollectionConfig } from 'payload';
 
-import { SUPPORTED_LANGUAGES } from '../../i18n/languages';
 import { EDITABLE_PAGE_TEXT_PAGES } from '../../page-texts';
 import { adminOrModerator, anyone } from '../access';
-import { legacyIdField, publishedField, sortOrderField } from '../fields';
 import { auditAfterChange, auditAfterDelete } from '../audit';
+import { localizedAfterChange, localizedAfterDelete } from '../localization';
 
 export const PageTexts: CollectionConfig = {
   slug: 'page-texts',
   admin: {
     useAsTitle: 'label',
     group: 'Content',
-    description: 'Editable static text for the About project and Championship pages.',
-    defaultColumns: ['page', 'language', 'label', 'translationKey', 'isPublished', 'sortOrder'],
+    description: 'Русские тексты страниц. Остальные языки обновляются автоматически через систему переводов.',
+    defaultColumns: ['page', 'label', 'value', 'isPublished'],
   },
   access: {
     read: anyone,
@@ -21,30 +20,45 @@ export const PageTexts: CollectionConfig = {
     delete: adminOrModerator,
   },
   hooks: {
-    afterChange: [auditAfterChange('page-texts')],
-    afterDelete: [auditAfterDelete('page-texts')],
+    afterChange: [localizedAfterChange('page-texts'), auditAfterChange('page-texts')],
+    afterDelete: [localizedAfterDelete('page-texts'), auditAfterDelete('page-texts')],
   },
   fields: [
-    legacyIdField,
-    sortOrderField,
-    publishedField,
     {
-      name: 'page',
-      type: 'select',
-      required: true,
+      name: 'legacyId',
+      type: 'text',
       index: true,
-      options: EDITABLE_PAGE_TEXT_PAGES as unknown as Array<{ label: string; value: string }>,
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Служебный ID. Не редактировать.',
+      },
+    },
+    {
+      name: 'sortOrder',
+      type: 'number',
+      defaultValue: 0,
+      admin: {
+        position: 'sidebar',
+        description: 'Порядок в списке CMS.',
+      },
+    },
+    {
+      name: 'isPublished',
+      label: 'Опубликовано',
+      type: 'checkbox',
+      defaultValue: true,
       admin: {
         position: 'sidebar',
       },
     },
     {
-      name: 'language',
+      name: 'page',
+      label: 'Страница',
       type: 'select',
       required: true,
       index: true,
-      defaultValue: 'ru',
-      options: SUPPORTED_LANGUAGES as unknown as string[],
+      options: EDITABLE_PAGE_TEXT_PAGES as unknown as Array<{ label: string; value: string }>,
       admin: {
         position: 'sidebar',
       },
@@ -56,24 +70,27 @@ export const PageTexts: CollectionConfig = {
       required: true,
       index: true,
       admin: {
-        description: 'Do not change this unless the frontend key changed.',
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Служебный ключ. Не редактировать.',
       },
     },
     {
       name: 'label',
+      label: 'Где используется',
       type: 'text',
       required: true,
       admin: {
-        description: 'Human-readable label for searching in the admin panel.',
+        description: 'Подсказка для поиска нужной строки.',
       },
     },
     {
       name: 'value',
-      label: 'Text',
+      label: 'Русский текст',
       type: 'textarea',
       required: true,
       admin: {
-        rows: 6,
+        rows: 8,
       },
     },
   ],

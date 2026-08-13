@@ -1957,11 +1957,6 @@ export const page_texts = sqliteTable(
     sortOrder: numeric("sort_order", { mode: "number" }).default(0),
     isPublished: integer("is_published", { mode: "boolean" }).default(true),
     page: text("page", { enum: ["about", "championship"] }).notNull(),
-    language: text("language", {
-      enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
-    })
-      .notNull()
-      .default("ru"),
     translationKey: text("translation_key").notNull(),
     label: text("label").notNull(),
     value: text("value").notNull(),
@@ -1975,7 +1970,6 @@ export const page_texts = sqliteTable(
   (columns) => [
     index("page_texts_legacy_id_idx").on(columns.legacyId),
     index("page_texts_page_idx").on(columns.page),
-    index("page_texts_language_idx").on(columns.language),
     index("page_texts_translation_key_idx").on(columns.translationKey),
     index("page_texts_updated_at_idx").on(columns.updatedAt),
     index("page_texts_created_at_idx").on(columns.createdAt),
@@ -1999,6 +1993,7 @@ export const content_localizations = sqliteTable(
         "stats",
         "trust-points",
         "tournaments",
+        "page-texts",
       ],
     }).notNull(),
     sourceId: text("source_id").notNull(),

@@ -15,6 +15,7 @@ import * as migration_20260806_000000_add_event_registration_url from './2026080
 import * as migration_20260807_000000_remove_blog from './20260807_000000_remove_blog';
 import * as migration_20260807_010000_fix_team_member_version_fields from './20260807_010000_fix_team_member_version_fields';
 import * as migration_20260813_000000_add_page_texts from './20260813_000000_add_page_texts';
+import * as migration_20260813_010000_simplify_page_texts_ru_source from './20260813_010000_simplify_page_texts_ru_source';
 
 export const migrations = [
   {
@@ -101,5 +102,10 @@ export const migrations = [
     up: migration_20260813_000000_add_page_texts.up,
     down: migration_20260813_000000_add_page_texts.down,
     name: '20260813_000000_add_page_texts',
+  },
+  {
+    up: migration_20260813_010000_simplify_page_texts_ru_source.up,
+    down: migration_20260813_010000_simplify_page_texts_ru_source.down,
+    name: '20260813_010000_simplify_page_texts_ru_source',
   },
 ];

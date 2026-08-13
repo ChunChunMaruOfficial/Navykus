@@ -531,13 +531,13 @@ app.get('/api/page-texts', asyncRoute(async (req, res) => {
     where: {
       and: [
         { isPublished: { equals: true } },
-        { language: { equals: language } },
         ...(pages.length ? [{ page: { in: pages } }] : []),
       ],
     },
     overrideAccess: true,
   });
   const docs = result.docs as PageTextDoc[];
+  await applyLocalizations(payload, 'page-texts', docs as Array<Record<string, unknown>>, language);
   const texts = docs.reduce<Record<string, string>>((acc, doc) => {
     if (doc.translationKey && typeof doc.value === 'string') acc[doc.translationKey] = doc.value;
     return acc;

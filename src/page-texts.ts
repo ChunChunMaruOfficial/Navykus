@@ -5,17 +5,17 @@ export type EditablePageTextPage = 'about' | 'championship';
 export type PageTextDoc = {
   id: string | number;
   page: EditablePageTextPage;
-  language: SupportedLanguage;
   translationKey: string;
   label?: string | null;
   value: string;
   isPublished?: boolean | null;
   sortOrder?: number | null;
+  translationPending?: boolean | null;
 };
 
 export const EDITABLE_PAGE_TEXT_PAGES = [
-  { label: 'About project', value: 'about' },
-  { label: 'Championship', value: 'championship' },
+  { label: 'О проекте', value: 'about' },
+  { label: 'Чемпионат', value: 'championship' },
 ] as const;
 
 const SHARED_ABOUT_KEYS = [

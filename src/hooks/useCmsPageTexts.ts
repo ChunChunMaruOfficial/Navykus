@@ -2,12 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { apiUrl } from '../api';
-import type { EditablePageTextPage, PageTextDoc } from '../page-texts';
+import type { EditablePageTextPage } from '../page-texts';
 import { useCmsLanguage } from './useCmsCollection';
 
 type PageTextsResponse = {
   texts?: Record<string, string>;
-  docs?: PageTextDoc[];
 };
 
 export const useCmsPageTexts = (pages: readonly EditablePageTextPage[]) => {

@@ -19,6 +19,7 @@ export const SUPPORTED_CONTENT_COLLECTIONS = [
   'stats',
   'trust-points',
   'tournaments',
+  'page-texts',
 ] as const;
 
 export type SupportedContentCollection = (typeof SUPPORTED_CONTENT_COLLECTIONS)[number];
@@ -114,6 +115,10 @@ const LOCALIZATION_CONFIGS: Record<SupportedContentCollection, LocalizationConfi
     collection: 'tournaments',
     sourceLanguageField: 'originalLanguage',
     fields: ['title', 'slug', 'type', 'description', 'pitch', 'date', 'registrationDeadline', 'skills', 'suitableFor', 'format', 'targetAudience', 'ageLimit', 'teamsAllowed', 'language', 'expectedResult', 'themesText', 'evaluationCriteriaText', 'seoTitle', 'seoDescription'],
+  },
+  'page-texts': {
+    collection: 'page-texts',
+    fields: ['value'],
   },
 };
 

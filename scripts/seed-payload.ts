@@ -14,7 +14,7 @@ import {
   TRUST_POINTS,
 } from '../src/data';
 import { OPPORTUNITIES } from '../src/components/OpportunitiesPage';
-import { SUPPORTED_LANGUAGES, type SupportedLanguage } from '../src/i18n/languages';
+import { DEFAULT_LANGUAGE, type SupportedLanguage } from '../src/i18n/languages';
 import {
   EDITABLE_PAGE_TEXT_PAGES,
   flattenLocaleText,
@@ -317,14 +317,12 @@ const ensurePageTextSeed = async (
 };
 
 const seedPageTexts = async () => {
-  for (const language of SUPPORTED_LANGUAGES) {
-    const flatLocale = readLocale(language);
-    for (const pageOption of EDITABLE_PAGE_TEXT_PAGES) {
-      const page = pageOption.value;
-      const keys = getEditablePageTextKeys(page, flatLocale);
-      for (const [index, translationKey] of keys.entries()) {
-        await ensurePageTextSeed(page, language, translationKey, flatLocale[translationKey], index);
-      }
+  const flatLocale = readLocale(DEFAULT_LANGUAGE);
+  for (const pageOption of EDITABLE_PAGE_TEXT_PAGES) {
+    const page = pageOption.value;
+    const keys = getEditablePageTextKeys(page, flatLocale);
+    for (const [index, translationKey] of keys.entries()) {
+      await ensurePageTextSeed(page, DEFAULT_LANGUAGE, translationKey, flatLocale[translationKey], index);
     }
   }
 };
