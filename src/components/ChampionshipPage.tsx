@@ -78,6 +78,14 @@ const splitCmsList = (value?: string) =>
     .map((item) => item.trim())
     .filter(Boolean);
 
+const splitDisplayText = (value?: string) => {
+  const lines = splitCmsList(value);
+  return {
+    title: lines[0] || '',
+    description: lines.slice(1).join(' · '),
+  };
+};
+
 export default function ChampionshipPage({ 
   onBackToHome, 
   onNavigateToSection, 
@@ -129,6 +137,7 @@ export default function ChampionshipPage({
   };
 
   const faqItems = useCmsFaqs('championship');
+  const formatDisplay = splitDisplayText(cmsData.format);
 
   if (!cmsData) {
     return (
@@ -236,19 +245,21 @@ export default function ChampionshipPage({
               </div>
             </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.5, ease: "easeOut", delay: 0.08 }}
-              className={keyInfoCardClass}
-            >
-              <span className={`${keyInfoLabelClass} text-[#bd5b82]`}>{t('ui.championshippage.f94a9af829')}</span>
-              <div className="space-y-1">
-                <p className={`${keyInfoValueClass} text-brand-dark`}>{t('ui.championshippage.8bd2b856e1')}</p>
-                <p className={keyInfoSubtextClass}>Zoom, Figma, Miro</p>
-              </div>
-            </motion.div>
+            {formatDisplay.title && (
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, ease: "easeOut", delay: 0.08 }}
+                className={keyInfoCardClass}
+              >
+                <span className={`${keyInfoLabelClass} text-[#bd5b82]`}>{t('ui.championshippage.f94a9af829')}</span>
+                <div className="space-y-1">
+                  <p className={`${keyInfoValueClass} text-brand-dark`}>{formatDisplay.title}</p>
+                  {formatDisplay.description && <p className={keyInfoSubtextClass}>{formatDisplay.description}</p>}
+                </div>
+              </motion.div>
+            )}
 
             <motion.div
               initial={{ opacity: 0, y: 30 }}

@@ -682,6 +682,8 @@ export const events = sqliteTable(
     eventDate: text("event_date").default(
       sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
     ),
+    displayDate: text("display_date"),
+    showTime: integer("show_time", { mode: "boolean" }).default(false),
     timeZone: text("time_zone").default("UTC"),
     registrationDeadline: text("registration_deadline").default(
       sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
@@ -693,6 +695,9 @@ export const events = sqliteTable(
     onlineLink: text("online_link"),
     registrationUrl: text("registration_url"),
     speaker: text("speaker"),
+    audience: text("audience"),
+    outcomesText: text("outcomes_text"),
+    prerequisites: text("prerequisites"),
     seoTitle: text("seo_title"),
     seoDescription: text("seo_description"),
     updatedAt: text("updated_at")
@@ -784,6 +789,10 @@ export const _events_v = sqliteTable(
     version_eventDate: text("version_event_date").default(
       sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
     ),
+    version_displayDate: text("version_display_date"),
+    version_showTime: integer("version_show_time", { mode: "boolean" }).default(
+      false,
+    ),
     version_timeZone: text("version_time_zone").default("UTC"),
     version_registrationDeadline: text("version_registration_deadline").default(
       sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
@@ -799,6 +808,9 @@ export const _events_v = sqliteTable(
     version_onlineLink: text("version_online_link"),
     version_registrationUrl: text("version_registration_url"),
     version_speaker: text("version_speaker"),
+    version_audience: text("version_audience"),
+    version_outcomesText: text("version_outcomes_text"),
+    version_prerequisites: text("version_prerequisites"),
     version_seoTitle: text("version_seo_title"),
     version_seoDescription: text("version_seo_description"),
     version_updatedAt: text("version_updated_at").default(
@@ -1956,7 +1968,9 @@ export const page_texts = sqliteTable(
     legacyId: text("legacy_id"),
     sortOrder: numeric("sort_order", { mode: "number" }).default(0),
     isPublished: integer("is_published", { mode: "boolean" }).default(true),
-    page: text("page", { enum: ["about", "championship"] }).notNull(),
+    page: text("page", {
+      enum: ["about", "championship", "activities"],
+    }).notNull(),
     translationKey: text("translation_key").notNull(),
     label: text("label").notNull(),
     value: text("value").notNull(),

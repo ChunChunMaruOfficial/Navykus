@@ -1,7 +1,7 @@
 import type { CollectionConfig } from 'payload';
 
 import { adminOrModerator, anyone } from '../access';
-import { legacyIdField, publicContentVersions, publishedField, sortOrderField, syncPublishedDraftBeforeChange, textListField } from '../fields';
+import { legacyIdField, newlineListField, publicContentVersions, publishedField, sortOrderField, syncPublishedDraftBeforeChange, textListField } from '../fields';
 import { auditAfterChange, auditAfterDelete } from '../audit';
 import { localizedAfterChange, localizedAfterDelete, originalLanguageField } from '../localization';
 import { publicPreview } from '../preview';
@@ -51,9 +51,49 @@ export const Events: CollectionConfig = {
           label: 'Schedule & Venue',
           fields: [
             { name: 'eventType', type: 'text', required: true, index: true, admin: { description: 'e.g. workshop, lecture, masterclass' } },
-            { name: 'eventDate', type: 'date', required: true, index: true },
+            {
+              name: 'eventDate',
+              label: 'Дата события',
+              type: 'date',
+              required: true,
+              index: true,
+              admin: {
+                date: {
+                  pickerAppearance: 'dayAndTime',
+                },
+                description: 'Техническая дата для сортировки и статуса. Время можно не показывать на сайте ниже.',
+              },
+            },
+            {
+              name: 'displayDate',
+              label: 'Дата на сайте',
+              type: 'text',
+              admin: {
+                description: 'Необязательно. Если заполнено, сайт покажет этот текст вместо автоматической даты.',
+              },
+            },
+            {
+              name: 'showTime',
+              label: 'Показывать время на сайте',
+              type: 'checkbox',
+              defaultValue: false,
+              admin: {
+                description: 'Выключено по умолчанию: на карточках и в модалке показывается только дата.',
+              },
+            },
             { name: 'timeZone', type: 'text', defaultValue: 'UTC' },
-            { name: 'registrationDeadline', type: 'date', index: true, admin: { description: 'Registration cutoff date' } },
+            {
+              name: 'registrationDeadline',
+              label: 'Дедлайн регистрации',
+              type: 'date',
+              index: true,
+              admin: {
+                date: {
+                  pickerAppearance: 'dayOnly',
+                },
+                description: 'Дата без времени для блока предварительного опыта/условий.',
+              },
+            },
             { name: 'participantLimit', type: 'number' },
             { name: 'format', type: 'select', required: true, options: ['online', 'offline', 'hybrid'], index: true },
             { name: 'country', type: 'text', index: true },
@@ -68,6 +108,25 @@ export const Events: CollectionConfig = {
             { name: 'speaker', type: 'text' },
             textListField('languages', 'Languages'),
             textListField('materials', 'Materials'),
+            {
+              name: 'audience',
+              label: 'Кому подходит',
+              type: 'textarea',
+              admin: {
+                rows: 4,
+                description: 'Текст для блока "Кому подходит" в модальном окне активности.',
+              },
+            },
+            newlineListField('outcomesText', 'Что вы получите'),
+            {
+              name: 'prerequisites',
+              label: 'Предварительный опыт',
+              type: 'textarea',
+              admin: {
+                rows: 4,
+                description: 'Если оставить пустым, сайт покажет дедлайн регистрации, если он заполнен.',
+              },
+            },
             { name: 'seoTitle', type: 'text' },
             { name: 'seoDescription', type: 'textarea' },
           ],

@@ -83,6 +83,7 @@ export interface Config {
     'contact-settings': ContactSetting;
     'operator-settings': OperatorSetting;
     'audit-logs': AuditLog;
+    'page-texts': PageText;
     'content-localizations': ContentLocalization;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -107,6 +108,7 @@ export interface Config {
     'contact-settings': ContactSettingsSelect<false> | ContactSettingsSelect<true>;
     'operator-settings': OperatorSettingsSelect<false> | OperatorSettingsSelect<true>;
     'audit-logs': AuditLogsSelect<false> | AuditLogsSelect<true>;
+    'page-texts': PageTextsSelect<false> | PageTextsSelect<true>;
     'content-localizations': ContentLocalizationsSelect<false> | ContentLocalizationsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -255,12 +257,9 @@ export interface Tournament {
         id?: string | null;
       }[]
     | null;
-  /**
-   * Who this is suitable for
-   */
   suitableFor?: string | null;
   /**
-   * Format description (e.g. online, offline, hybrid)
+   * Карточка "Формат участия" на странице чемпионата. Первая строка - крупный текст, остальные строки - подпись. Пустое поле скрывает карточку.
    */
   format?: string | null;
   targetAudience?: string | null;
@@ -417,10 +416,21 @@ export interface Event {
    * e.g. workshop, lecture, masterclass
    */
   eventType: string;
+  /**
+   * Техническая дата для сортировки и статуса. Время можно не показывать на сайте ниже.
+   */
   eventDate: string;
+  /**
+   * Необязательно. Если заполнено, сайт покажет этот текст вместо автоматической даты.
+   */
+  displayDate?: string | null;
+  /**
+   * Выключено по умолчанию: на карточках и в модалке показывается только дата.
+   */
+  showTime?: boolean | null;
   timeZone?: string | null;
   /**
-   * Registration cutoff date
+   * Дата без времени для блока предварительного опыта/условий.
    */
   registrationDeadline?: string | null;
   participantLimit?: number | null;
@@ -437,7 +447,7 @@ export interface Event {
   /**
    * External registration/application link
    */
-  registrationUrl?: string | null;
+  registrationUrl: string;
   speaker?: string | null;
   languages?:
     | {
@@ -451,6 +461,18 @@ export interface Event {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Текст для блока "Кому подходит" в модальном окне активности.
+   */
+  audience?: string | null;
+  /**
+   * One item per line.
+   */
+  outcomesText?: string | null;
+  /**
+   * Если оставить пустым, сайт покажет дедлайн регистрации, если он заполнен.
+   */
+  prerequisites?: string | null;
   seoTitle?: string | null;
   seoDescription?: string | null;
   updatedAt: string;
@@ -567,7 +589,7 @@ export interface Opportunity {
   /**
    * External application link
    */
-  officialUrl?: string | null;
+  officialUrl: string;
   internalApplicationsEnabled?: boolean | null;
   seoTitle?: string | null;
   seoDescription?: string | null;
@@ -846,6 +868,36 @@ export interface AuditLog {
   createdAt: string;
 }
 /**
+ * Русские тексты статичных страниц. Здесь только видимые тексты About/Championship; карточки, события, FAQ и формы редактируются в своих коллекциях.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "page-texts".
+ */
+export interface PageText {
+  id: number;
+  /**
+   * Служебный ID. Не редактировать.
+   */
+  legacyId?: string | null;
+  /**
+   * Порядок в списке CMS.
+   */
+  sortOrder?: number | null;
+  isPublished?: boolean | null;
+  page: 'about' | 'championship' | 'activities';
+  /**
+   * Нужен сайту, чтобы подставить текст в правильное место. Не редактировать.
+   */
+  translationKey: string;
+  /**
+   * Подсказка для поиска нужной строки.
+   */
+  label: string;
+  value: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * AI-generated localized copies for public CMS content.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -864,7 +916,8 @@ export interface ContentLocalization {
     | 'scenarios'
     | 'stats'
     | 'trust-points'
-    | 'tournaments';
+    | 'tournaments'
+    | 'page-texts';
   sourceId: string;
   language: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
   localizedData:
@@ -971,6 +1024,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'audit-logs';
         value: number | AuditLog;
+      } | null)
+    | ({
+        relationTo: 'page-texts';
+        value: number | PageText;
       } | null)
     | ({
         relationTo: 'content-localizations';
@@ -1196,6 +1253,8 @@ export interface EventsSelect<T extends boolean = true> {
   imageUrl?: T;
   eventType?: T;
   eventDate?: T;
+  displayDate?: T;
+  showTime?: T;
   timeZone?: T;
   registrationDeadline?: T;
   participantLimit?: T;
@@ -1217,6 +1276,9 @@ export interface EventsSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  audience?: T;
+  outcomesText?: T;
+  prerequisites?: T;
   seoTitle?: T;
   seoDescription?: T;
   updatedAt?: T;
@@ -1470,6 +1532,21 @@ export interface AuditLogsSelect<T extends boolean = true> {
         id?: T;
       };
   summary?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "page-texts_select".
+ */
+export interface PageTextsSelect<T extends boolean = true> {
+  legacyId?: T;
+  sortOrder?: T;
+  isPublished?: T;
+  page?: T;
+  translationKey?: T;
+  label?: T;
+  value?: T;
   updatedAt?: T;
   createdAt?: T;
 }

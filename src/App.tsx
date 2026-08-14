@@ -654,7 +654,7 @@ export default function App() {
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
                 <button
-                  onClick={() => openApplyModal()}
+                  onClick={() => openApplyModal({ sourceType: 'home', sourceTitle: t('ui.app.24cd8dc78d') })}
                   className="px-8 py-4 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white rounded-2xl text-[14px] font-medium shadow-xl shadow-[#bc4638]/25 hover:shadow-[#bc4638]/35 hover:scale-[1.01] transition-all flex items-center justify-center gap-2.5 cursor-pointer group"
                 >
                   <span>{t('ui.app.24cd8dc78d')}</span>
@@ -943,7 +943,7 @@ export default function App() {
                 {t('ui.app.e07687c4')}</h2>
               <p className="text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed max-w-md mx-auto">{t('ui.app.ec08c69dd3')}</p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-                <button onClick={() => openApplyModal()} className="px-8 py-3.5 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white hover:opacity-95 text-xs font-mono tracking-widest rounded-xl transition-all shadow-lg shadow-[#bc4638]/15 cursor-pointer font-semibold uppercase">{t('ui.app.762a52a7bb')}</button>
+                <button onClick={() => openApplyModal({ sourceType: 'home', sourceTitle: t('ui.app.762a52a7bb') })} className="px-8 py-3.5 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white hover:opacity-95 text-xs font-mono tracking-widest rounded-xl transition-all shadow-lg shadow-[#bc4638]/15 cursor-pointer font-semibold uppercase">{t('ui.app.762a52a7bb')}</button>
                 <button onClick={() => { setCurrentPage('find-team'); updatePath('find-team'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="px-8 py-3.5 bg-white/50 border border-[#d8d1cc] text-[#5b6472] hover:border-[#bc4638]/60 text-xs font-mono tracking-widest rounded-xl transition-all cursor-pointer uppercase">{t('ui.app.d4b60991e4')}</button>
               </div>
             </motion.div>
@@ -957,7 +957,7 @@ export default function App() {
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             onNavigateToSection={scrollToSection}
-            onOpenApplyModal={() => openApplyModal()}
+            onOpenApplyModal={() => openApplyModal({ sourceType: 'about', sourceTitle: t('ui.aboutprojectpage.e260b399ab') })}
           />
         </div>
       ) : currentPage === 'championship' ? (

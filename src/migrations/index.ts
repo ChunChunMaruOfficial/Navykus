@@ -16,6 +16,8 @@ import * as migration_20260807_000000_remove_blog from './20260807_000000_remove
 import * as migration_20260807_010000_fix_team_member_version_fields from './20260807_010000_fix_team_member_version_fields';
 import * as migration_20260813_000000_add_page_texts from './20260813_000000_add_page_texts';
 import * as migration_20260813_010000_simplify_page_texts_ru_source from './20260813_010000_simplify_page_texts_ru_source';
+import * as migration_20260814_000000_clean_page_texts_and_event_display_fields from './20260814_000000_clean_page_texts_and_event_display_fields';
+import * as migration_20260814_010000_remove_cms_verify_artifacts from './20260814_010000_remove_cms_verify_artifacts';
 
 export const migrations = [
   {
@@ -107,5 +109,15 @@ export const migrations = [
     up: migration_20260813_010000_simplify_page_texts_ru_source.up,
     down: migration_20260813_010000_simplify_page_texts_ru_source.down,
     name: '20260813_010000_simplify_page_texts_ru_source',
+  },
+  {
+    up: migration_20260814_000000_clean_page_texts_and_event_display_fields.up,
+    down: migration_20260814_000000_clean_page_texts_and_event_display_fields.down,
+    name: '20260814_000000_clean_page_texts_and_event_display_fields',
+  },
+  {
+    up: migration_20260814_010000_remove_cms_verify_artifacts.up,
+    down: migration_20260814_010000_remove_cms_verify_artifacts.down,
+    name: '20260814_010000_remove_cms_verify_artifacts',
   },
 ];

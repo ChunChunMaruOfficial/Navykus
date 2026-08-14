@@ -26,7 +26,7 @@ const ROLE_LABELS: Record<TeamRole, string> = {
 };
 const MAX_FILES = 5;
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
-const PARTICIPATION_SOURCE_TYPES: Array<ApplicationForm['sourceType']> = ['championship', 'event', 'opportunity', 'activities'];
+const PARTICIPATION_SOURCE_TYPES: Array<ApplicationForm['sourceType']> = ['championship', 'event', 'opportunity', 'activities', 'about', 'home'];
 const ALLOWED_FILE_TYPES = new Set([
   'application/pdf',
   'application/msword',
@@ -40,6 +40,7 @@ type Props = {
   context?: TeamApplicationContext;
   compact?: boolean;
   onSubmitted?: () => void;
+  titleId?: string;
 };
 
 const emptyForm = (context?: TeamApplicationContext): ApplicationForm => ({
@@ -72,7 +73,7 @@ const splitList = (value: string) => value
 const isParticipationSourceType = (sourceType?: ApplicationForm['sourceType']) =>
   PARTICIPATION_SOURCE_TYPES.includes(sourceType);
 
-export default function TeamMemberApplicationForm({ context, compact = false, onSubmitted }: Props) {
+export default function TeamMemberApplicationForm({ context, compact = false, onSubmitted, titleId }: Props) {
   const { t, i18n } = useTranslation();
   const [form, setForm] = useState<ApplicationForm>(() => emptyForm(context));
   const [skillsInput, setSkillsInput] = useState('');
@@ -160,7 +161,7 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
             <Check className="h-6 w-6" />
           </div>
           <div>
-            <h2 className="text-lg font-serif tracking-tight text-brand-dark">{t('ui.app.0d65b9d27c')}</h2>
+            <h2 id={titleId} className="text-lg font-serif tracking-tight text-brand-dark">{t('ui.app.0d65b9d27c')}</h2>
             <p className="mt-1.5 max-w-sm text-sm text-brand-slate">
               {isParticipationForm
                 ? t('ui.applicationmodal.15cd01515e', { defaultValue: 'Questionnaire sent for moderation.' })
@@ -182,7 +183,7 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
   return (
     <form onSubmit={submit} className={compact ? 'space-y-3' : 'space-y-4'}>
       <div>
-        <h2 className="text-xl font-serif tracking-tight text-brand-dark sm:text-2xl">{t('ui.applicationmodal.6b0f724b4e')}</h2>
+        <h2 id={titleId} className="text-xl font-serif tracking-tight text-brand-dark sm:text-2xl">{t('ui.applicationmodal.6b0f724b4e')}</h2>
         <p className="mt-1 text-xs font-light text-brand-slate sm:text-sm">
           {sourceLabel || t('ui.applicationmodal.21117adc83')}
         </p>

@@ -6,6 +6,15 @@ import { useTranslation } from 'react-i18next';
 import type { TeamApplicationContext } from '../types';
 import TeamMemberApplicationForm from './TeamMemberApplicationForm';
 
+const PARTICIPATION_MODAL_SOURCE_TYPES: Array<TeamApplicationContext['sourceType']> = [
+  'championship',
+  'event',
+  'opportunity',
+  'activities',
+  'about',
+  'home',
+];
+
 interface ApplicationModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -16,6 +25,7 @@ export default function ApplicationModal({ isOpen, onClose, context }: Applicati
   const { t } = useTranslation();
   const modalRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+  const isParticipationModal = Boolean(context?.sourceType && PARTICIPATION_MODAL_SOURCE_TYPES.includes(context.sourceType));
 
   useEffect(() => {
     if (!isOpen) return;
@@ -96,7 +106,21 @@ export default function ApplicationModal({ isOpen, onClose, context }: Applicati
             >
               <X className="h-5 w-5" />
             </button>
-            <TeamMemberApplicationForm context={context} />
+            {isParticipationModal ? (
+              <div className="space-y-8">
+                <div className="text-center space-y-2 pb-5">
+                  <h2 id="application-modal-title" className="text-2xl sm:text-3xl font-serif text-brand-dark">
+                    {t('ui.championshippage.795d6a19a2')}
+                  </h2>
+                  <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed max-w-md mx-auto">
+                    {t('ui.championshippage.5788077ace')}
+                  </p>
+                </div>
+                <TeamMemberApplicationForm compact context={context} />
+              </div>
+            ) : (
+              <TeamMemberApplicationForm context={context} titleId="application-modal-title" />
+            )}
           </motion.div>
         </div>
       )}

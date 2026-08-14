@@ -22,7 +22,6 @@ import {
 import {
   cardItemFadeUp,
   cardStaggerContainer,
-  fadeInScale,
   fadeUp,
 } from '../motion-animations';
 import BrandImage from './BrandImage';
@@ -30,6 +29,7 @@ import { toExternalUrl } from '../api';
 import { ActivityCategory, ActivityItem, ActivityStatus, ParticipationScenario, type TeamApplicationContext } from '../types';
 import { useCmsEvents } from '../hooks/useCmsEvents';
 import { useCmsOpportunities } from '../hooks/useCmsOpportunities';
+import { useCmsPageTexts } from '../hooks/useCmsPageTexts';
 import { useCmsScenarios } from '../hooks/useCmsScenarios';
 
 
@@ -139,6 +139,7 @@ export default function ActivitiesPage({
   onOpenApplyModal,
 }: ActivitiesPageProps) {
   const { t } = useTranslation();
+  useCmsPageTexts(['activities']);
   const { events: activities, isLoading: activitiesLoading } = useCmsEvents();
   const { opportunities: cmsOpportunities } = useCmsOpportunities();
   const scenarios = useCmsScenarios();
@@ -404,38 +405,6 @@ export default function ActivitiesPage({
           )}
         </section>
 
-        <section className="py-10 md:py-16">
-          <motion.div
-            {...fadeInScale}
-            className="relative overflow-hidden rounded-[2rem] border border-white/60 bg-brand-dark px-6 py-9 text-center shadow-[0_30px_90px_rgba(17,17,17,0.16)] sm:px-10 sm:py-12"
-          >
-            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
-            <h2 className="mx-auto max-w-4xl text-3xl font-serif font-semibold leading-tight tracking-tight text-white sm:text-4xl md:text-5xl">
-              {t('ui.activitiespage.97446fff')}
-            </h2>
-            <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-white/70">{t('ui.activitiespage.4dbca5f4b0')}</p>
-            <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <button
-                onClick={() => onOpenApplyModal({ sourceType: 'activities', sourceTitle: t('ui.activitiespage.97446fff') })}
-                className="inline-flex min-h-12 w-full items-center justify-center rounded-2xl bg-white px-7 py-3 text-[11px] font-bold uppercase tracking-widest text-brand-dark shadow-lg shadow-black/15 transition-all hover:bg-[#f7f3ef] sm:w-auto"
-              >
-                {t('ui.app.24cd8dc78d')}
-              </button>
-              <button
-                onClick={() => onNavigateToSection('scenarios')}
-                className="inline-flex min-h-12 w-full items-center justify-center rounded-2xl border border-white/20 bg-white/8 px-7 py-3 text-[11px] font-bold uppercase tracking-widest text-white transition-all hover:bg-white/14 sm:w-auto"
-              >
-                {t('ui.app.d13f387e64')}
-              </button>
-              <button
-                onClick={() => onNavigateToSection('footer-system')}
-                className="inline-flex min-h-12 w-full items-center justify-center rounded-2xl border border-white/20 bg-white/8 px-7 py-3 text-[11px] font-bold uppercase tracking-widest text-white transition-all hover:bg-white/14 sm:w-auto"
-              >
-                {t('ui.activitiespage.1f75230b6e')}
-              </button>
-            </div>
-          </motion.div>
-        </section>
           </>
         ) : (
           <Suspense fallback={<div className="rounded-[1.5rem] border border-white/60 bg-white/42 p-8 text-sm text-brand-slate surface-elevated-soft backdrop-blur-xl">{t('common.loading')}</div>}>
@@ -526,16 +495,22 @@ function ActivityCard({
           {activity.shortDescription}
         </p>
 
-        <div className="mt-5 grid grid-cols-1 gap-2 text-[11px] font-medium text-brand-slate sm:grid-cols-2">
-          <span className="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-white/60 bg-white/48 px-3 py-2">
-            <Calendar className="h-3.5 w-3.5 shrink-0 text-[#bc4638]" />
-            <span>{activity.date}</span>
-          </span>
-          <span className="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-white/60 bg-white/48 px-3 py-2">
-            <Clock className="h-3.5 w-3.5 shrink-0 text-[#3d6b8f]" />
-            <span>{activity.format}</span>
-          </span>
-        </div>
+        {(activity.date || activity.format) && (
+          <div className="mt-5 grid grid-cols-1 gap-2 text-[11px] font-medium text-brand-slate sm:grid-cols-2">
+            {activity.date && (
+              <span className="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-white/60 bg-white/48 px-3 py-2">
+                <Calendar className="h-3.5 w-3.5 shrink-0 text-[#bc4638]" />
+                <span>{activity.date}</span>
+              </span>
+            )}
+            {activity.format && (
+              <span className="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-white/60 bg-white/48 px-3 py-2">
+                <Clock className="h-3.5 w-3.5 shrink-0 text-[#3d6b8f]" />
+                <span>{activity.format}</span>
+              </span>
+            )}
+          </div>
+        )}
 
         <div className="mt-auto flex justify-end pt-5">
           <span
@@ -661,37 +636,49 @@ function ActivityDetailsModal({
         </div>
 
         <div className="space-y-6 px-5 pb-5 sm:px-8 sm:pb-8">
-          <div className="grid grid-cols-1 gap-2 text-[11px] font-medium text-brand-slate sm:grid-cols-2">
-            <span className="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-white/60 bg-white/55 px-3 py-2">
-              <Calendar className="h-3.5 w-3.5 shrink-0 text-[#bc4638]" />
-              <span>{activity.date}</span>
-            </span>
-            <span className="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-white/60 bg-white/55 px-3 py-2">
-              <Clock className="h-3.5 w-3.5 shrink-0 text-[#3d6b8f]" />
-              <span>{activity.format}</span>
-            </span>
-          </div>
+          {(activity.date || activity.format) && (
+            <div className="grid grid-cols-1 gap-2 text-[11px] font-medium text-brand-slate sm:grid-cols-2">
+              {activity.date && (
+                <span className="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-white/60 bg-white/55 px-3 py-2">
+                  <Calendar className="h-3.5 w-3.5 shrink-0 text-[#bc4638]" />
+                  <span>{activity.date}</span>
+                </span>
+              )}
+              {activity.format && (
+                <span className="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-white/60 bg-white/55 px-3 py-2">
+                  <Clock className="h-3.5 w-3.5 shrink-0 text-[#3d6b8f]" />
+                  <span>{activity.format}</span>
+                </span>
+              )}
+            </div>
+          )}
 
           <p className="text-sm leading-relaxed text-brand-slate sm:text-base">{activity.fullDescription}</p>
 
-          <DetailBlock title={t('ui.app.411ef17e3a')}>
-            <p>{activity.who}</p>
-          </DetailBlock>
+          {activity.who && (
+            <DetailBlock title={t('ui.app.411ef17e3a')}>
+              <p>{activity.who}</p>
+            </DetailBlock>
+          )}
 
-          <DetailBlock title={t('ui.activitiespage.1a8a81bc71')}>
-            <ul className="space-y-2">
-              {activity.benefits.map((benefit) => (
-                <li key={benefit} className="flex items-start gap-2">
-                  <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
-                  <span>{benefit}</span>
-                </li>
-              ))}
-            </ul>
-          </DetailBlock>
+          {activity.benefits.length > 0 && (
+            <DetailBlock title={t('ui.activitiespage.1a8a81bc71')}>
+              <ul className="space-y-2">
+                {activity.benefits.map((benefit) => (
+                  <li key={benefit} className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                    <span>{benefit}</span>
+                  </li>
+                ))}
+              </ul>
+            </DetailBlock>
+          )}
 
-          <DetailBlock title={t('ui.activitiespage.160919e620')}>
-            <p>{activity.prerequisites}</p>
-          </DetailBlock>
+          {activity.prerequisites && (
+            <DetailBlock title={t('ui.activitiespage.160919e620')}>
+              <p>{activity.prerequisites}</p>
+            </DetailBlock>
+          )}
 
           {canRegister && renderParticipateCta("inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-[11px] font-bold uppercase tracking-widest text-white shadow-lg shadow-[#bc4638]/12 transition-all hover:opacity-95")}
         </div>

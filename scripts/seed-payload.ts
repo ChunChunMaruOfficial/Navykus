@@ -74,6 +74,8 @@ const EVENT_SEED = [
     fullDescription: 'Students practice structure, argumentation, visual support and answers to expert questions.',
     eventType: 'workshop',
     eventDate: '2026-09-12T14:00:00.000Z',
+    displayDate: '12 сентября 2026',
+    showTime: false,
     timeZone: 'Europe/Moscow',
     format: 'online',
     country: 'Global',
@@ -82,6 +84,9 @@ const EVENT_SEED = [
     registrationDeadline: '2026-09-10T20:59:00.000Z',
     languages: list(['ru', 'en']),
     materials: list(['slides', 'checklist']),
+    audience: 'Школьники, которые хотят увереннее выступать и защищать проекты.',
+    outcomesText: ['Структура сильной презентации', 'Практика ответов на вопросы экспертов', 'Чеклист подготовки к защите'].join('\n'),
+    prerequisites: 'Предварительный опыт не нужен.',
     registrationUrl: 'https://example.org/register/public-speaking-lab',
   },
   {
@@ -92,6 +97,8 @@ const EVENT_SEED = [
     fullDescription: 'Participants introduce their interests, projects and roles they want to cover in future teams.',
     eventType: 'networking',
     eventDate: '2026-10-04T12:00:00.000Z',
+    displayDate: '4 октября 2026',
+    showTime: false,
     timeZone: 'Asia/Almaty',
     format: 'hybrid',
     country: 'Kazakhstan',
@@ -100,6 +107,9 @@ const EVENT_SEED = [
     registrationDeadline: '2026-10-01T20:59:00.000Z',
     languages: list(['ru', 'kk', 'en']),
     materials: list(['participant guide']),
+    audience: 'Школьники, которые ищут международную команду или хотят познакомиться с участниками из других стран.',
+    outcomesText: ['Новые контакты', 'Идеи для командных проектов', 'Понимание ролей в будущей команде'].join('\n'),
+    prerequisites: 'Достаточно коротко рассказать о себе, интересах и проектных целях.',
     registrationUrl: 'https://example.org/register/asian-youth-connect',
   },
   {
@@ -110,6 +120,8 @@ const EVENT_SEED = [
     fullDescription: 'Teams compete to build a functional web application within 24 hours. Mentors provide guidance, and the best projects win prizes.',
     eventType: 'hackathon',
     eventDate: '2026-08-20T09:00:00.000Z',
+    displayDate: '20 августа 2026',
+    showTime: false,
     timeZone: 'Europe/Moscow',
     format: 'online',
     country: 'Global',
@@ -118,6 +130,9 @@ const EVENT_SEED = [
     registrationDeadline: '2026-08-15T20:59:00.000Z',
     languages: list(['ru', 'en']),
     materials: list(['starter kit', 'API docs']),
+    audience: 'Команды и участники, которые хотят собрать рабочий веб-проект за короткий срок.',
+    outcomesText: ['Готовый прототип', 'Опыт командной разработки', 'Фидбек от экспертов'].join('\n'),
+    prerequisites: 'Желателен базовый опыт в программировании, дизайне или продуктовой работе.',
     registrationUrl: 'https://example.org/register/code-marathon-web-dev',
   },
   {
@@ -128,6 +143,8 @@ const EVENT_SEED = [
     fullDescription: 'Young leaders gather to discuss global challenges, develop projects and connect with mentors and investors.',
     eventType: 'forum',
     eventDate: '2026-11-05T10:00:00.000Z',
+    displayDate: '5 ноября 2026',
+    showTime: false,
     timeZone: 'Asia/Almaty',
     format: 'offline',
     country: 'Kazakhstan',
@@ -136,6 +153,9 @@ const EVENT_SEED = [
     registrationDeadline: '2026-10-20T20:59:00.000Z',
     languages: list(['ru', 'kk', 'en']),
     materials: list(['program', 'notebook']),
+    audience: 'Активные школьники, которые хотят развивать лидерство и запускать социальные проекты.',
+    outcomesText: ['План собственного проекта', 'Контакты наставников и участников', 'Опыт публичного питча'].join('\n'),
+    prerequisites: 'Полезен опыт участия в школьных проектах, волонтерстве или дебатах.',
     registrationUrl: 'https://example.org/register/youth-leadership-forum-2026',
   },
 ];
@@ -204,6 +224,7 @@ const ensureByLegacyId = async (
   collection: string,
   legacyId: string,
   data: Record<string, unknown>,
+  options: { backfillMissingFields?: boolean } = {},
 ) => {
   const payload = await getPayloadClient();
   const existing = await payload.find({
@@ -221,11 +242,24 @@ const ensureByLegacyId = async (
   if (existingDoc) {
     const visibilityPatch = seedVisibility(collection);
     const needsVisibilityPatch = Object.entries(visibilityPatch).some(([key, value]) => existingDoc[key] !== value);
-    if (needsVisibilityPatch) {
+    const missingSeedPatch = options.backfillMissingFields
+      ? Object.fromEntries(
+          Object.entries(data).filter(([key, value]) => {
+            if (value === undefined || value === null || value === '') return false;
+            const existingValue = existingDoc[key];
+            if (Array.isArray(existingValue)) return existingValue.length === 0;
+            return existingValue === undefined || existingValue === null || existingValue === '';
+          }),
+        )
+      : {};
+    if (needsVisibilityPatch || Object.keys(missingSeedPatch).length > 0) {
       await payload.update({
         collection: collection as any,
         id: existingDoc.id as any,
-        data: visibilityPatch,
+        data: {
+          ...missingSeedPatch,
+          ...visibilityPatch,
+        },
         overrideAccess: true,
       });
     }
@@ -491,7 +525,7 @@ const seed = async () => {
       sortOrder: index,
       isPublished: true,
       originalLanguage: 'ru',
-    });
+    }, { backfillMissingFields: true });
   }
 
   for (const [index, item] of OPPORTUNITY_SEED.entries()) {

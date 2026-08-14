@@ -10,7 +10,7 @@ export const PageTexts: CollectionConfig = {
   admin: {
     useAsTitle: 'label',
     group: 'Content',
-    description: 'Русские тексты страниц. Остальные языки обновляются автоматически через систему переводов.',
+    description: 'Русские тексты статичных страниц. Здесь только видимые тексты About/Championship; карточки, события, FAQ и формы редактируются в своих коллекциях.',
     defaultColumns: ['page', 'label', 'value', 'isPublished'],
   },
   access: {
@@ -65,14 +65,14 @@ export const PageTexts: CollectionConfig = {
     },
     {
       name: 'translationKey',
-      label: 'Translation key',
+      label: 'Служебный ключ',
       type: 'text',
       required: true,
       index: true,
       admin: {
         position: 'sidebar',
         readOnly: true,
-        description: 'Служебный ключ. Не редактировать.',
+        description: 'Нужен сайту, чтобы подставить текст в правильное место. Не редактировать.',
       },
     },
     {

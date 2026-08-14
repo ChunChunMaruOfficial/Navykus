@@ -74,7 +74,7 @@ const LOCALIZATION_CONFIGS: Record<SupportedContentCollection, LocalizationConfi
   events: {
     collection: 'events',
     sourceLanguageField: 'originalLanguage',
-    fields: ['title', 'slug', 'shortDescription', 'fullDescription', 'eventType', 'country', 'venue', 'speaker', 'languages', 'materials', 'seoTitle', 'seoDescription'],
+    fields: ['title', 'slug', 'shortDescription', 'fullDescription', 'eventType', 'displayDate', 'country', 'venue', 'speaker', 'languages', 'materials', 'audience', 'outcomesText', 'prerequisites', 'seoTitle', 'seoDescription'],
   },
   experts: {
     collection: 'experts',

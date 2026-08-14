@@ -13,6 +13,8 @@ type CmsEventDoc = {
   imageUrl?: string;
   eventType?: string;
   eventDate?: string;
+  displayDate?: string;
+  showTime?: boolean;
   timeZone?: string;
   registrationDeadline?: string;
   participantLimit?: number;
@@ -24,6 +26,9 @@ type CmsEventDoc = {
   speaker?: string;
   languages?: Array<{ value: string }> | string[];
   materials?: Array<{ value: string }> | string[];
+  audience?: string;
+  outcomesText?: string;
+  prerequisites?: string;
 };
 
 const listValues = (items: unknown): string[] => {
@@ -34,6 +39,12 @@ const listValues = (items: unknown): string[] => {
     return '';
   }).filter(Boolean);
 };
+
+const splitLines = (value?: string) =>
+  (value || '')
+    .split(/\r?\n/)
+    .map((item) => item.trim())
+    .filter(Boolean);
 
 const categoryByEventType = (eventType?: string): ActivityCategory => {
   const value = (eventType || '').toLowerCase();
@@ -52,26 +63,28 @@ const eventStatus = (eventDate?: string): ActivityStatus => {
   return date.getTime() >= Date.now() ? 'coming' : 'completed';
 };
 
-const formatEventDate = (eventDate?: string, language = 'ru') => {
-  if (!eventDate) return '';
-  const date = new Date(eventDate);
-  if (Number.isNaN(date.getTime())) return eventDate;
-  return new Intl.DateTimeFormat(language, {
+const formatDate = (value?: string, language = 'ru', showTime = false) => {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  const options: Intl.DateTimeFormatOptions = {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date);
+  };
+  if (showTime) {
+    options.hour = '2-digit';
+    options.minute = '2-digit';
+  }
+  return new Intl.DateTimeFormat(language, options).format(date);
 };
 
 const mapCmsEvent = (doc: CmsEventDoc, language: string): ActivityItem => {
   const materials = listValues(doc.materials);
   const languages = listValues(doc.languages);
   const format = [doc.format, doc.country, doc.venue].filter(Boolean).join(' · ');
-  const registrationLine = doc.registrationDeadline
-    ? `${new Intl.DateTimeFormat(language, { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(doc.registrationDeadline))}`
-    : '';
+  const registrationLine = formatDate(doc.registrationDeadline, language);
+  const outcomes = splitLines(doc.outcomesText);
 
   return {
     id: String(doc.id),
@@ -79,13 +92,13 @@ const mapCmsEvent = (doc: CmsEventDoc, language: string): ActivityItem => {
     shortDescription: doc.shortDescription || '',
     fullDescription: doc.fullDescription || doc.shortDescription || '',
     format: format || doc.format || '',
-    date: formatEventDate(doc.eventDate, language),
+    date: doc.displayDate?.trim() || formatDate(doc.eventDate, language, Boolean(doc.showTime)),
     imageUrl: apiAssetUrl(doc.imageUrl) || '',
     category: categoryByEventType(doc.eventType),
     status: eventStatus(doc.eventDate),
-    who: [doc.speaker, doc.participantLimit ? `${doc.participantLimit} participants` : '', doc.country].filter(Boolean).join(' · '),
-    benefits: [...languages, ...materials],
-    prerequisites: registrationLine ? `Registration deadline: ${registrationLine}` : '',
+    who: doc.audience?.trim() || [doc.speaker, doc.participantLimit ? `${doc.participantLimit} participants` : '', doc.country].filter(Boolean).join(' · '),
+    benefits: outcomes.length ? outcomes : [...languages, ...materials],
+    prerequisites: doc.prerequisites?.trim() || (registrationLine ? `Registration deadline: ${registrationLine}` : ''),
     ctaText: 'Apply',
     ctaLink: doc.registrationUrl,
   };
