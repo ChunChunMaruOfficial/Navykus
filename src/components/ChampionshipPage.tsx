@@ -137,7 +137,6 @@ export default function ChampionshipPage({
   };
 
   const faqItems = useCmsFaqs('championship');
-  const formatDisplay = splitDisplayText(cmsData.format);
 
   if (!cmsData) {
     return (
@@ -150,6 +149,8 @@ export default function ChampionshipPage({
       </div>
     );
   }
+
+  const formatDisplay = splitDisplayText(cmsData.format);
 
   return (
     <div className="relative w-full text-brand-dark pb-16 pt-24">
