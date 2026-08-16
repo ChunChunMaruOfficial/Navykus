@@ -88,7 +88,7 @@ const mapCmsEvent = (doc: CmsEventDoc, language: string): ActivityItem => {
 
   return {
     id: String(doc.id),
-    title: doc.title || doc.slug || String(doc.id),
+    title: doc.title?.trim() || '',
     shortDescription: doc.shortDescription || '',
     fullDescription: doc.fullDescription || doc.shortDescription || '',
     format: format || doc.format || '',
@@ -104,12 +104,16 @@ const mapCmsEvent = (doc: CmsEventDoc, language: string): ActivityItem => {
   };
 };
 
+const hasVisibleEventText = (event: ActivityItem) =>
+  Boolean(event.title?.trim() || event.shortDescription?.trim() || event.fullDescription?.trim());
+
 export const useCmsEvents = () => {
   const { i18n } = useTranslation();
   const language = (i18n.resolvedLanguage || i18n.language || 'ru').split('-')[0];
   const result = useCmsCollection<CmsEventDoc, ActivityItem>({
     path: `/api/events?limit=50&lang=${encodeURIComponent(language)}`,
     map: (doc) => mapCmsEvent(doc, language),
+    filter: hasVisibleEventText,
   });
   const events = result.data || [];
 

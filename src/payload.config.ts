@@ -81,7 +81,21 @@ export default buildConfig({
     user: 'users',
     components: {
       afterDashboard: ['../../../src/admin/components/VersionBadge#VersionBadge'],
-      afterNavLinks: ['../../../src/admin/components/VersionBadge#VersionBadge'],
+      afterNavLinks: [
+        '../../../src/admin/components/VersionBadge#VersionBadge',
+        '../../../src/admin/components/PageTextsTreeNavLink#PageTextsTreeNavLink',
+      ],
+      views: {
+        'page-texts-tree': {
+          Component: '../../../src/admin/components/PageTextsTree#default',
+          path: '/page-texts-tree',
+          exact: true,
+          meta: {
+            title: 'Дерево текстов | Navykus',
+            description: 'Иерархический редактор текстов сайта',
+          },
+        },
+      },
     },
     importMap: {
       baseDir: adminRouteGroupDir,

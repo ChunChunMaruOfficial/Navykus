@@ -539,7 +539,8 @@ app.get('/api/page-texts', asyncRoute(async (req, res) => {
   const docs = result.docs as PageTextDoc[];
   await applyLocalizations(payload, 'page-texts', docs as Array<Record<string, unknown>>, language);
   const texts = docs.reduce<Record<string, string>>((acc, doc) => {
-    if (doc.translationKey && typeof doc.value === 'string') acc[doc.translationKey] = doc.value;
+    const value = typeof doc.value === 'string' ? doc.value.trim() : '';
+    if (doc.translationKey && value) acc[doc.translationKey] = value;
     return acc;
   }, {});
 

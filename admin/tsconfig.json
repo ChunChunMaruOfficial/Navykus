@@ -22,7 +22,11 @@
     "**/*.tsx",
     "../src/payload/**/*.ts",
     "../src/payload.config.ts",
-    "../src/types.ts"
+    "../src/types.ts",
+    "../src/admin/**/*.ts",
+    "../src/admin/**/*.tsx",
+    "../src/page-texts.ts",
+    "../src/i18n/**/*.ts"
   ],
   "exclude": [
     "../node_modules"

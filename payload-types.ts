@@ -685,8 +685,8 @@ export interface TrustPoint {
    * Language used as the source for AI localizations.
    */
   originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
-  title: string;
-  description: string;
+  title?: string | null;
+  description?: string | null;
   seoTitle?: string | null;
   seoDescription?: string | null;
   updatedAt: string;
@@ -868,7 +868,7 @@ export interface AuditLog {
   createdAt: string;
 }
 /**
- * Русские тексты статичных страниц. Здесь только видимые тексты About/Championship; карточки, события, FAQ и формы редактируются в своих коллекциях.
+ * Русские тексты статичных страниц. Карточки, события, FAQ и формы редактируются в своих коллекциях. Для иерархического просмотра используйте «Дерево текстов» в боковом меню.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "page-texts".
@@ -884,16 +884,20 @@ export interface PageText {
    */
   sortOrder?: number | null;
   isPublished?: boolean | null;
-  page: 'about' | 'championship' | 'activities';
+  page: 'global' | 'home' | 'about' | 'championship' | 'activities' | 'find-team' | 'legal';
   /**
    * Нужен сайту, чтобы подставить текст в правильное место. Не редактировать.
    */
   translationKey: string;
   /**
+   * Имя блока внутри страницы (на русском). Используется для группировки текстов в дереве редактирования.
+   */
+  blockName?: string | null;
+  /**
    * Подсказка для поиска нужной строки.
    */
-  label: string;
-  value: string;
+  label?: string | null;
+  value?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1545,6 +1549,7 @@ export interface PageTextsSelect<T extends boolean = true> {
   isPublished?: T;
   page?: T;
   translationKey?: T;
+  blockName?: T;
   label?: T;
   value?: T;
   updatedAt?: T;

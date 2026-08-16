@@ -14,16 +14,19 @@ type CmsExpertDoc = {
 
 const mapCmsExpert = (doc: CmsExpertDoc): Expert => ({
   id: String(doc.id),
-  name: doc.name,
+  name: doc.name?.trim() || '',
   type: doc.type || 'expert',
-  role: doc.role,
-  expertise: doc.expertise,
-  description: doc.description,
+  role: doc.role?.trim() || '',
+  expertise: doc.expertise?.trim() || '',
+  description: doc.description?.trim() || '',
   photo: typeof doc.photo === 'object' && doc.photo ? (doc.photo as { url?: string }).url : undefined,
   tournamentId: typeof doc.tournamentId === 'object' && doc.tournamentId
     ? String((doc.tournamentId as { id: string | number }).id)
     : typeof doc.tournamentId === 'string' ? doc.tournamentId : undefined,
 });
+
+const hasVisibleExpertText = (doc: Expert) =>
+  Boolean(doc.name || doc.role || doc.expertise || doc.description);
 
 export const useCmsExperts = (tournamentId?: string) => {
   const language = useCmsLanguage();
@@ -31,5 +34,6 @@ export const useCmsExperts = (tournamentId?: string) => {
   return useCmsCollection<CmsExpertDoc, Expert>({
     path: `/api/experts?limit=50&depth=2&sort=sortOrder${filterParam}&lang=${encodeURIComponent(language)}`,
     map: mapCmsExpert,
+    filter: hasVisibleExpertText,
   }).data || [];
 };

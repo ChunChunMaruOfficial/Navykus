@@ -147,7 +147,8 @@
       "notFoundTitle": "Diese Seite ist vom Kurs abgekommen",
       "scrollTop": "Nach oben",
       "trustGrowthDescription": "Teilnehmer sehen den nächsten Schritt: von der ersten Idee und Teamarbeit bis zur Projektverteidigung, Zertifikat und Portfolio.",
-      "trustGrowthTitle": "Klarer Wachstumspfad"
+      "trustGrowthTitle": "Klarer Wachstumspfad",
+      "updatePrompt": "Ein Update ist verfügbar. App aktualisieren?"
     },
     "aboutprojectpage": {
       "2805697540": "Machen Sie mit",
@@ -616,8 +617,8 @@
       "principleMentoring": "Mentoring",
       "championshipHeroAlt": "Participants pitching a project at the championship",
       "championshipCaseAlt": "Technology case for the championship",
-      "fileTypeError": "File must be PDF, DOC, DOCX, PPT, PPTX, TXT, JPG, or PNG.",
-      "fileSizeError": "File size must not exceed 10 MB.",
+      "fileTypeError": "Nicht unterstützter Dateityp. Lade PDF, DOC, DOCX, JPG, PNG oder WebP hoch.",
+      "fileSizeError": "Die Datei ist zu groß. Maximal 10 MB.",
       "privateContact": "Öffentliche Kontaktdaten sind in Fragebögen verborgen. Die Koordination läuft per E-Mail.",
       "findTeamHeroAlt": "Participants discussing a team project"
     },
@@ -706,6 +707,14 @@
       "termsSubtitle": "Regeln für die Nutzung der Navykus-Website, Fragebögen, Veröffentlichungen und Teamdienste.",
       "lastUpdated": "Aktualisiert: 5. August 2026",
       "backHome": "Zuhause"
+    },
+    "cookieconsent": {
+      "message": "Wir verwenden Cookies, damit die Website stabil und sicher funktioniert.",
+      "description": "Wenn du die Website weiter nutzt, stimmst du der Verarbeitung technischer Cookies zu.",
+      "policyLink": "Datenschutzerklärung",
+      "close": "Cookie-Hinweis schließen",
+      "accept": "Akzeptieren",
+      "decline": "Nicht jetzt"
     }
   },
   "data": {

@@ -41,6 +41,8 @@ import { useCmsPillars } from './hooks/useCmsPillars';
 import { useCmsExperts } from './hooks/useCmsExperts';
 import { useCmsTrustPoints } from './hooks/useCmsTrustPoints';
 import { useCmsStats } from './hooks/useCmsStats';
+import { useCmsPageTexts } from './hooks/useCmsPageTexts';
+import { ALL_EDITABLE_PAGE_TEXT_PAGES } from './page-texts';
 import {
   fadeUp,
   fadeUpLarge,
@@ -161,6 +163,7 @@ export default function App() {
   const experts = useCmsExperts();
   const trustPoints = useCmsTrustPoints();
   const stats = useCmsStats();
+  const { texts: homePageTexts } = useCmsPageTexts(ALL_EDITABLE_PAGE_TEXT_PAGES);
   const [featuredTournament, setFeaturedTournament] = useState<Record<string, unknown> | null>(null);
   const featuredTournamentPublicId = featuredTournament
     ? String(featuredTournament.legacyId ?? featuredTournament.id ?? '')
@@ -188,7 +191,16 @@ export default function App() {
   const navContainerRef = useRef<HTMLElement | null>(null);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
   const [contactSettings, setContactSettings] = useState<ContactSettings | null>(null);
-  const displayedTrustPoints = trustPoints || [];
+  const displayedTrustPoints = (trustPoints || [])
+    .map((item) => ({
+      ...item,
+      title: item.title?.trim() || '',
+      description: item.description?.trim() || '',
+    }))
+    .filter((item) => item.title || item.description);
+  const trustBlockTitle = homePageTexts['ui.app.19816f01']?.trim() || '';
+  const trustBlockDescription = homePageTexts['ui.app.c8e427d5b3']?.trim() || '';
+  const shouldShowTrustBlock = Boolean(trustBlockTitle || trustBlockDescription || displayedTrustPoints.length);
 
   useEffect(() => {
     const handlePopState = () => {
@@ -906,33 +918,44 @@ export default function App() {
             </motion.div>
           </section>
 
-          <section id="trust-block" className="relative z-10 py-16 md:py-24 max-w-7xl mx-auto px-[6%] md:px-[10%] space-y-12 section-accent-warm">
-            <motion.div {...fadeUp} className="text-center max-w-2xl mx-auto space-y-3">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif text-brand-dark tracking-tight">
-                {t('ui.app.19816f01')}</h2>
-              <p className="text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.app.c8e427d5b3')}</p>
-            </motion.div>
-
-            <motion.div {...cardStaggerContainer} className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {displayedTrustPoints.map((item, index) => (
-                <motion.div
-                  key={item.id}
-                  variants={cardItemFadeUp.variants}
-                  className={`relative overflow-hidden bg-white/[0.12] glass-card surface-elevated-soft border border-white/[0.15] p-6 rounded-2xl flex flex-col justify-between ${
-                    index === 0 || index === 3 || index === 4 ? 'md:col-span-2' : 'md:col-span-1'
-                  }`}
-                >
-                  <div className="pointer-events-none absolute right-5 top-3 select-none font-serif text-5xl leading-none text-[#bc4638]/[0.11]">
-                    {index + 1}
-                  </div>
-                  <div className="space-y-3 text-left">
-                    <h3 className="text-xl sm:text-2xl font-serif font-semibold text-brand-dark">{item.title}</h3>
-                    <p className="text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed">{item.description}</p>
-                  </div>
+          {shouldShowTrustBlock && (
+            <section id="trust-block" className="relative z-10 py-16 md:py-24 max-w-7xl mx-auto px-[6%] md:px-[10%] space-y-12 section-accent-warm">
+              {(trustBlockTitle || trustBlockDescription) && (
+                <motion.div {...fadeUp} className="text-center max-w-2xl mx-auto space-y-3">
+                  {trustBlockTitle && (
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif text-brand-dark tracking-tight">
+                      {trustBlockTitle}
+                    </h2>
+                  )}
+                  {trustBlockDescription && (
+                    <p className="text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed">{trustBlockDescription}</p>
+                  )}
                 </motion.div>
-              ))}
-            </motion.div>
-          </section>
+              )}
+
+              {displayedTrustPoints.length > 0 && (
+                <motion.div {...cardStaggerContainer} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {displayedTrustPoints.map((item, index) => (
+                    <motion.div
+                      key={item.id}
+                      variants={cardItemFadeUp.variants}
+                      className={`relative overflow-hidden bg-white/[0.12] glass-card surface-elevated-soft border border-white/[0.15] p-6 rounded-2xl flex flex-col justify-between ${
+                        index === 0 || index === 3 || index === 4 ? 'md:col-span-2' : 'md:col-span-1'
+                      }`}
+                    >
+                      <div className="pointer-events-none absolute right-5 top-3 select-none font-serif text-5xl leading-none text-[#bc4638]/[0.11]">
+                        {index + 1}
+                      </div>
+                      <div className="space-y-3 text-left">
+                        {item.title && <h3 className="text-xl sm:text-2xl font-serif font-semibold text-brand-dark">{item.title}</h3>}
+                        {item.description && <p className="text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed">{item.description}</p>}
+                      </div>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </section>
+          )}
 
           <section id="final-cta" className="relative z-10 py-16 md:py-24 max-w-5xl mx-auto px-[6%] md:px-[10%] section-accent-rose">
             <motion.div

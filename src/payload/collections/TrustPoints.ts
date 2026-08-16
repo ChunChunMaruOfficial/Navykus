@@ -29,8 +29,8 @@ export const TrustPoints: CollectionConfig = {
     sortOrderField,
     publishedField,
     originalLanguageField,
-    { name: 'title', type: 'text', required: true },
-    { name: 'description', type: 'textarea', required: true },
+    { name: 'title', type: 'text' },
+    { name: 'description', type: 'textarea' },
     ...seoFields,
   ],
 };

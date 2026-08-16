@@ -57,7 +57,7 @@ const listValues = (items: unknown): string[] => {
 
 const mapCmsDoc = (doc: CmsTournamentDoc): CmsMappedTournament => ({
   id: String(doc.id),
-  title: doc.title,
+  title: doc.title?.trim() || '',
   type: doc.type || '',
   description: doc.description || '',
   pitch: doc.pitch || '',
@@ -80,11 +80,15 @@ const mapCmsDoc = (doc: CmsTournamentDoc): CmsMappedTournament => ({
     : 'open',
 });
 
+const hasVisibleTournamentText = (doc: CmsMappedTournament) =>
+  Boolean(doc.title || doc.description || doc.pitch || doc.type);
+
 export const useCmsTournamentsState = () => {
   const language = useCmsLanguage();
   const collection = useCmsCollection<CmsTournamentDoc, CmsMappedTournament>({
     path: `/api/tournaments?limit=50&lang=${encodeURIComponent(language)}`,
     map: mapCmsDoc,
+    filter: hasVisibleTournamentText,
   });
   return {
     ...collection,

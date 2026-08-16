@@ -10,8 +10,8 @@ export const PageTexts: CollectionConfig = {
   admin: {
     useAsTitle: 'label',
     group: 'Content',
-    description: 'Русские тексты статичных страниц. Здесь только видимые тексты About/Championship; карточки, события, FAQ и формы редактируются в своих коллекциях.',
-    defaultColumns: ['page', 'label', 'value', 'isPublished'],
+    description: 'Русские тексты статичных страниц. Карточки, события, FAQ и формы редактируются в своих коллекциях. Для иерархического просмотра используйте «Дерево текстов» в боковом меню.',
+    defaultColumns: ['page', 'blockName', 'label', 'value', 'isPublished'],
   },
   access: {
     read: anyone,
@@ -76,10 +76,19 @@ export const PageTexts: CollectionConfig = {
       },
     },
     {
+      name: 'blockName',
+      label: 'Название блока',
+      type: 'text',
+      index: true,
+      admin: {
+        position: 'sidebar',
+        description: 'Имя блока внутри страницы (на русском). Используется для группировки текстов в дереве редактирования.',
+      },
+    },
+    {
       name: 'label',
       label: 'Где используется',
       type: 'text',
-      required: true,
       admin: {
         description: 'Подсказка для поиска нужной строки.',
       },
@@ -88,7 +97,6 @@ export const PageTexts: CollectionConfig = {
       name: 'value',
       label: 'Русский текст',
       type: 'textarea',
-      required: true,
       admin: {
         rows: 8,
       },

@@ -98,7 +98,7 @@ const listValues = (items: unknown): string[] => {
 const mapCmsDoc = (doc: CmsOpportunityDoc): CmsMappedOpportunity => ({
   id: String(doc.id),
   slug: doc.slug || String(doc.id),
-  title: doc.title,
+  title: doc.title?.trim() || '',
   organization: doc.organization || '',
   type: doc.opportunityType || '',
   shortDescription: doc.shortDescription || '',
@@ -138,11 +138,15 @@ const mapCmsDoc = (doc: CmsOpportunityDoc): CmsMappedOpportunity => ({
   publishedAt: doc.publishedAt || doc.createdAt || '',
 });
 
+const hasVisibleOpportunityText = (doc: CmsMappedOpportunity) =>
+  Boolean(doc.title || doc.shortDescription || doc.fullDescription || doc.organization);
+
 export const useCmsOpportunities = () => {
   const language = useCmsLanguage();
   const result = useCmsCollection<CmsOpportunityDoc, CmsMappedOpportunity>({
     path: `/api/opportunities?limit=50&lang=${encodeURIComponent(language)}`,
     map: mapCmsDoc,
+    filter: hasVisibleOpportunityText,
   });
 
   return {

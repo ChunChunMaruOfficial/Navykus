@@ -18,6 +18,12 @@ import * as migration_20260813_000000_add_page_texts from './20260813_000000_add
 import * as migration_20260813_010000_simplify_page_texts_ru_source from './20260813_010000_simplify_page_texts_ru_source';
 import * as migration_20260814_000000_clean_page_texts_and_event_display_fields from './20260814_000000_clean_page_texts_and_event_display_fields';
 import * as migration_20260814_010000_remove_cms_verify_artifacts from './20260814_010000_remove_cms_verify_artifacts';
+import * as migration_20260815_000000_add_home_trust_page_texts from './20260815_000000_add_home_trust_page_texts';
+import * as migration_20260815_010000_expand_page_texts_cms_coverage from './20260815_010000_expand_page_texts_cms_coverage';
+import * as migration_20260815_020000_seed_page_text_ready_localizations from './20260815_020000_seed_page_text_ready_localizations';
+import * as migration_20260815_030000_expand_page_texts_cms_coverage_pass2 from './20260815_030000_expand_page_texts_cms_coverage_pass2';
+import * as migration_20260815_040000_enqueue_content_collection_localizations from './20260815_040000_enqueue_content_collection_localizations';
+import * as migration_20260815_050000_backfill_page_text_block_names from './20260815_050000_backfill_page_text_block_names';
 
 export const migrations = [
   {
@@ -119,5 +125,35 @@ export const migrations = [
     up: migration_20260814_010000_remove_cms_verify_artifacts.up,
     down: migration_20260814_010000_remove_cms_verify_artifacts.down,
     name: '20260814_010000_remove_cms_verify_artifacts',
+  },
+  {
+    up: migration_20260815_000000_add_home_trust_page_texts.up,
+    down: migration_20260815_000000_add_home_trust_page_texts.down,
+    name: '20260815_000000_add_home_trust_page_texts',
+  },
+  {
+    up: migration_20260815_010000_expand_page_texts_cms_coverage.up,
+    down: migration_20260815_010000_expand_page_texts_cms_coverage.down,
+    name: '20260815_010000_expand_page_texts_cms_coverage',
+  },
+  {
+    up: migration_20260815_020000_seed_page_text_ready_localizations.up,
+    down: migration_20260815_020000_seed_page_text_ready_localizations.down,
+    name: '20260815_020000_seed_page_text_ready_localizations',
+  },
+  {
+    up: migration_20260815_030000_expand_page_texts_cms_coverage_pass2.up,
+    down: migration_20260815_030000_expand_page_texts_cms_coverage_pass2.down,
+    name: '20260815_030000_expand_page_texts_cms_coverage_pass2',
+  },
+  {
+    up: migration_20260815_040000_enqueue_content_collection_localizations.up,
+    down: migration_20260815_040000_enqueue_content_collection_localizations.down,
+    name: '20260815_040000_enqueue_content_collection_localizations',
+  },
+  {
+    up: migration_20260815_050000_backfill_page_text_block_names.up,
+    down: migration_20260815_050000_backfill_page_text_block_names.down,
+    name: '20260815_050000_backfill_page_text_block_names',
   },
 ];

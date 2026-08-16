@@ -12,14 +12,23 @@ type PageTextsResponse = {
 export const useCmsPageTexts = (pages: readonly EditablePageTextPage[]) => {
   const { i18n } = useTranslation();
   const language = useCmsLanguage();
-  const [, setRevision] = useState(0);
+  const [texts, setTexts] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasLoadError, setHasLoadError] = useState(false);
   const pageParam = useMemo(() => Array.from(new Set(pages)).sort().join(','), [pages]);
 
   useEffect(() => {
-    if (!pageParam) return undefined;
+    if (!pageParam) {
+      setTexts({});
+      setIsLoading(false);
+      setHasLoadError(false);
+      return undefined;
+    }
 
     let isMounted = true;
     const path = `/api/page-texts?pages=${encodeURIComponent(pageParam)}&lang=${encodeURIComponent(language)}`;
+    setIsLoading(true);
+    setHasLoadError(false);
 
     fetch(apiUrl(path), { credentials: 'include' })
       .then((res) => {
@@ -28,18 +37,33 @@ export const useCmsPageTexts = (pages: readonly EditablePageTextPage[]) => {
       })
       .then((payload) => {
         if (!isMounted) return;
-        const texts = payload.texts || {};
-        for (const [key, value] of Object.entries(texts)) {
-          i18n.addResource(language, 'translation', key, value, { silent: true });
+        const incoming = payload.texts || {};
+        const texts: Record<string, string> = {};
+        for (const [key, value] of Object.entries(incoming)) {
+          const trimmed = typeof value === 'string' ? value.trim() : '';
+          if (!trimmed) continue;
+          texts[key] = trimmed;
+          i18n.addResource(language, 'translation', key, trimmed, { silent: true });
         }
-        setRevision((current) => current + 1);
+        setTexts(texts);
+        setIsLoading(false);
+        setHasLoadError(false);
       })
       .catch(() => {
-        if (isMounted) setRevision((current) => current + 1);
+        if (!isMounted) return;
+        setTexts({});
+        setIsLoading(false);
+        setHasLoadError(true);
       });
 
     return () => {
       isMounted = false;
     };
   }, [i18n, language, pageParam]);
+
+  return {
+    texts,
+    isLoading,
+    hasLoadError,
+  };
 };

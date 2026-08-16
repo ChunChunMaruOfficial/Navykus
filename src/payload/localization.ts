@@ -44,7 +44,8 @@ const textList = (items: unknown) => {
       if (item && typeof item === 'object' && 'value' in item) return String((item as Record<string, unknown>).value || '');
       return '';
     })
-    .filter(Boolean);
+    .filter((item) => item !== undefined && item !== null)
+    .map((item) => item.trim());
 };
 
 export const originalLanguageField: Field = {
@@ -138,13 +139,20 @@ const fieldValue = (doc: Record<string, unknown>, field: string) => {
   return value;
 };
 
+const isEmptyContentValue = (value: unknown) => {
+  if (value === undefined || value === null) return true;
+  if (typeof value === 'string') return !value.trim();
+  if (Array.isArray(value)) return value.length === 0;
+  return false;
+};
+
 const extractContent = (config: LocalizationConfig, doc: Record<string, unknown>) => {
   const content: Record<string, unknown> = {};
   for (const field of config.fields) {
+    if (!Object.prototype.hasOwnProperty.call(doc, field)) continue;
     const value = fieldValue(doc, field);
-    if (Array.isArray(value) ? value.length > 0 : typeof value === 'string' ? value.length > 0 : value !== undefined && value !== null) {
-      content[field] = value;
-    }
+    if (isEmptyContentValue(value)) continue;
+    content[field] = value;
   }
   return content;
 };
@@ -462,12 +470,28 @@ export const enqueueContentLocalizations = async (
 
   const sourceLanguage = asSupportedLanguage(config.sourceLanguageField ? doc[config.sourceLanguageField] : undefined);
   const content = extractContent(config, doc);
-  if (Object.keys(content).length === 0) return;
+  const sourceId = doc.id as string | number;
+
+  if (Object.keys(content).length === 0) {
+    await withSqliteBusyRetry(() => payload.delete({
+      collection: 'content-localizations' as any,
+      where: {
+        and: [
+          { sourceCollection: { equals: collection } },
+          { sourceId: { equals: String(sourceId) } },
+        ],
+      },
+      overrideAccess: true,
+    })).catch((error) => {
+      console.error(`[content-localization] ${collection}:${String(sourceId)} cleanup on empty source failed:`, error);
+    });
+    return;
+  }
 
   const hash = contentHash(content, sourceLanguage);
   const targets = (SUPPORTED_LANGUAGES as readonly SupportedLanguage[]).filter((language) => language !== sourceLanguage);
   for (const language of targets) {
-    await upsertLocalizationRecord(payload, collection, doc.id as string | number, language, hash);
+    await upsertLocalizationRecord(payload, collection, sourceId, language, hash);
   }
 };
 

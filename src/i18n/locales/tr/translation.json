@@ -147,7 +147,8 @@
       "notFoundTitle": "Bu sayfa rotadan saptı",
       "scrollTop": "Yukarı",
       "trustGrowthDescription": "Katılımcı bir sonraki adımı görür: ilk fikirden ve ekip çalışmasından proje savunmasına, sertifikaya ve portfolyoya kadar.",
-      "trustGrowthTitle": "Net büyüme yolu"
+      "trustGrowthTitle": "Net büyüme yolu",
+      "updatePrompt": "Bir güncelleme mevcut. Uygulama yenilensin mi?"
     },
     "aboutprojectpage": {
       "2805697540": "Katıl",
@@ -616,8 +617,8 @@
       "principleMentoring": "Mentoring",
       "championshipHeroAlt": "Participants pitching a project at the championship",
       "championshipCaseAlt": "Technology case for the championship",
-      "fileTypeError": "File must be PDF, DOC, DOCX, PPT, PPTX, TXT, JPG, or PNG.",
-      "fileSizeError": "File size must not exceed 10 MB.",
+      "fileTypeError": "Desteklenmeyen dosya türü. PDF, DOC, DOCX, JPG, PNG veya WebP yükleyin.",
+      "fileSizeError": "Dosya çok büyük. Maksimum 10 MB.",
       "privateContact": "Anketlerde herkese açık iletişim bilgileri gizlidir. Koordinasyon email üzerinden yapılır.",
       "findTeamHeroAlt": "Participants discussing a team project"
     },
@@ -706,6 +707,14 @@
       "termsSubtitle": "Navykus sitesini, anketleri, yayınları ve ekip servislerini kullanma kuralları.",
       "lastUpdated": "Güncelleme: 5 Ağustos 2026",
       "backHome": "Ana sayfa"
+    },
+    "cookieconsent": {
+      "message": "Sitenin kararlı ve güvenli çalışması için çerez kullanıyoruz.",
+      "description": "Siteyi kullanmaya devam ederek teknik çerezlerin işlenmesini kabul edersiniz.",
+      "policyLink": "Gizlilik politikası",
+      "close": "Çerez bildirimini kapat",
+      "accept": "Kabul et",
+      "decline": "Şimdi değil"
     }
   },
   "data": {

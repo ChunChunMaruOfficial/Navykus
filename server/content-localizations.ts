@@ -46,6 +46,32 @@ const mergeLocalizedData = (doc: Record<string, unknown>, localizedData: Record<
   }
 };
 
+const PENDING_CLEAR_FIELDS: Record<SupportedContentCollection, readonly string[]> = {
+  'team-members': ['country', 'city', 'shortBio', 'interests', 'skills', 'targetProject', 'whyLooking'],
+  activities: ['title', 'shortDescription', 'fullDescription', 'format', 'date', 'who', 'benefits', 'prerequisites', 'ctaText', 'seoTitle', 'seoDescription'],
+  events: ['title', 'shortDescription', 'fullDescription', 'eventType', 'displayDate', 'country', 'venue', 'speaker', 'languages', 'materials', 'audience', 'outcomesText', 'prerequisites', 'seoTitle', 'seoDescription'],
+  experts: ['name', 'role', 'expertise', 'description', 'seoTitle', 'seoDescription'],
+  faqs: ['question', 'answer', 'seoTitle', 'seoDescription'],
+  opportunities: ['title', 'opportunityType', 'shortDescription', 'fullDescription', 'country', 'cost', 'languages', 'requirements', 'benefits', 'documents', 'seoTitle', 'seoDescription'],
+  pillars: ['label', 'title', 'description', 'seoTitle', 'seoDescription'],
+  scenarios: ['title', 'who', 'why', 'ctaText', 'seoTitle', 'seoDescription'],
+  stats: ['value', 'label', 'seoTitle', 'seoDescription'],
+  'trust-points': ['title', 'description', 'seoTitle', 'seoDescription'],
+  tournaments: ['title', 'type', 'description', 'pitch', 'date', 'registrationDeadline', 'skills', 'mentors', 'suitableFor', 'format', 'targetAudience', 'ageLimit', 'teamsAllowed', 'language', 'expectedResult', 'themesText', 'evaluationCriteriaText', 'seoTitle', 'seoDescription'],
+  'page-texts': ['value'],
+};
+
+const clearPendingLocalizedFields = (
+  doc: Record<string, unknown>,
+  collection: SupportedContentCollection,
+) => {
+  for (const field of PENDING_CLEAR_FIELDS[collection]) {
+    if (!Object.prototype.hasOwnProperty.call(doc, field)) continue;
+    doc[field] = Array.isArray(doc[field]) ? [] : '';
+  }
+  doc.translationPending = true;
+};
+
 export const applyLocalizations = async <T extends Record<string, unknown>>(
   payload: Payload,
   collection: SupportedContentCollection,
@@ -83,7 +109,7 @@ export const applyLocalizations = async <T extends Record<string, unknown>>(
     if (localizedData) {
       mergeLocalizedData(doc, localizedData);
     } else {
-      (doc as Record<string, unknown>).translationPending = true;
+      clearPendingLocalizedFields(doc, collection);
     }
   }
 

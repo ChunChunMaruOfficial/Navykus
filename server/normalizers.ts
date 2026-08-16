@@ -98,8 +98,8 @@ export const normalizeTeamMember = (doc: any): TeamMember => ({
 
 export const normalizeTrustPoint = (doc: any): TrustPoint => ({
   id: publicId(doc),
-  title: doc.title,
-  description: doc.description,
+  title: doc.title || '',
+  description: doc.description || '',
 });
 
 export const normalizePillar = (doc: any): Pillar => ({

@@ -139,7 +139,8 @@
       "notFoundTitle": "This page drifted off course",
       "notFoundDescription": "The link may be outdated, or the address may have a typo. Return home and continue your path through the Navykus community.",
       "notFoundCodeLabel": "404 page",
-      "scrollTop": "Back to top"
+      "scrollTop": "Back to top",
+      "updatePrompt": "An update is available. Refresh the app?"
     },
     "aboutprojectpage": {
       "2805697540": "Take part",
@@ -608,8 +609,8 @@
       "principleMentoring": "Mentoring",
       "championshipHeroAlt": "Participants pitching a project at the championship",
       "championshipCaseAlt": "Technology case for the championship",
-      "fileTypeError": "File must be PDF, DOC, DOCX, PPT, PPTX, TXT, JPG, or PNG.",
-      "fileSizeError": "File size must not exceed 10 MB.",
+      "fileTypeError": "Unsupported file type. Upload PDF, DOC, DOCX, JPG, PNG or WebP.",
+      "fileSizeError": "The file is too large. Maximum size is 10 MB.",
       "privateContact": "Public contacts are hidden in questionnaires. Coordination goes through email.",
       "findTeamHeroAlt": "Participants discussing a team project"
     },
@@ -698,6 +699,14 @@
       "termsSubtitle": "Rules for using the Navykus website, questionnaires, publications, and team services.",
       "lastUpdated": "Updated: August 5, 2026",
       "backHome": "Home"
+    },
+    "cookieconsent": {
+      "message": "We use cookies to keep the site stable and secure.",
+      "description": "By continuing to use the site, you agree to technical cookie processing.",
+      "policyLink": "Privacy policy",
+      "close": "Close cookie notice",
+      "accept": "Accept",
+      "decline": "Not now"
     }
   },
   "data": {

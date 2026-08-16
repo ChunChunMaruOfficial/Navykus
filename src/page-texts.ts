@@ -1,6 +1,6 @@
 import type { SupportedLanguage } from './i18n/languages';
 
-export type EditablePageTextPage = 'about' | 'championship' | 'activities';
+export type EditablePageTextPage = 'global' | 'home' | 'about' | 'championship' | 'activities' | 'find-team' | 'legal';
 
 export type PageTextDoc = {
   id: string | number;
@@ -14,9 +14,20 @@ export type PageTextDoc = {
 };
 
 export const EDITABLE_PAGE_TEXT_PAGES = [
+  { label: 'Общие тексты', value: 'global' },
+  { label: 'Главная', value: 'home' },
   { label: 'О проекте', value: 'about' },
   { label: 'Чемпионат', value: 'championship' },
   { label: 'Активности', value: 'activities' },
+  { label: 'Поиск команды', value: 'find-team' },
+  { label: 'Юридические страницы', value: 'legal' },
+] as const;
+
+export const ALL_EDITABLE_PAGE_TEXT_PAGES = EDITABLE_PAGE_TEXT_PAGES.map((page) => page.value) as readonly EditablePageTextPage[];
+
+const HOME_PAGE_KEYS = [
+  'ui.app.19816f01',
+  'ui.app.c8e427d5b3',
 ] as const;
 
 const ABOUT_PAGE_KEYS = [
@@ -145,10 +156,80 @@ const ACTIVITIES_PAGE_KEYS = [
   'ui.activitiespage.160919e620',
 ] as const;
 
+const GLOBAL_PAGE_KEYS = [] as const;
+const FIND_TEAM_PAGE_KEYS = [] as const;
+const LEGAL_PAGE_KEYS = [] as const;
+
 export const editablePageTextKeys: Record<EditablePageTextPage, readonly string[]> = {
+  global: GLOBAL_PAGE_KEYS,
+  home: HOME_PAGE_KEYS,
   about: ABOUT_PAGE_KEYS,
   championship: CHAMPIONSHIP_PAGE_KEYS,
   activities: ACTIVITIES_PAGE_KEYS,
+  'find-team': FIND_TEAM_PAGE_KEYS,
+  legal: LEGAL_PAGE_KEYS,
+};
+
+const pageTextKeyMatchers: Record<EditablePageTextPage, readonly ((key: string) => boolean)[]> = {
+  global: [
+    (key) => key.startsWith('common.'),
+    (key) => key.startsWith('languages.'),
+    (key) => key.startsWith('ui.applicationmodal.'),
+    (key) => key.startsWith('ui.cookieconsent.'),
+    (key) => key.startsWith('ui.enhancements.file'),
+    (key) => key.startsWith('meta.notFound.'),
+    (key) => key.startsWith('meta.404.'),
+  ],
+  home: [
+    (key) => key.startsWith('ui.app.') && key !== 'ui.app.411ef17e3a',
+    (key) => key === 'meta.home.title',
+    (key) => key === 'meta.home.description',
+    (key) => key === 'ui.enhancements.championshipCardAlt',
+    (key) => key === 'ui.enhancements.homeHeroAlt',
+    (key) => key === 'ui.enhancements.homeParticipantsLabel',
+    (key) => key === 'ui.enhancements.communityAlt',
+    (key) => key === 'ui.enhancements.communityEyebrow',
+    (key) => key === 'ui.enhancements.communityTitle',
+    (key) => key === 'ui.enhancements.communityText',
+    (key) => key === 'ui.enhancements.participationTitle',
+    (key) => key === 'ui.enhancements.caseAlt',
+    (key) => key === 'ui.enhancements.demoEyebrow',
+    (key) => key === 'ui.enhancements.demoProjectTitle',
+    (key) => key === 'ui.enhancements.demoProjectDescription',
+    (key) => key === 'ui.enhancements.demoTagEco',
+    (key) => key === 'ui.enhancements.demoTagResearch',
+    (key) => key.startsWith('ui.enhancements.proof'),
+    (key) => key.startsWith('ui.enhancements.step'),
+  ],
+  about: [
+    (key) => key.startsWith('ui.aboutprojectpage.'),
+    (key) => key === 'meta.about.title',
+    (key) => key === 'ui.enhancements.aboutHeroAlt',
+    (key) => key === 'ui.enhancements.aboutMissionAlt',
+    (key) => key === 'ui.enhancements.aboutHeroPlaque',
+    (key) => key === 'ui.enhancements.principleApplied',
+    (key) => key === 'ui.enhancements.principleSafety',
+    (key) => key === 'ui.enhancements.principleMentoring',
+  ],
+  championship: [
+    (key) => key.startsWith('ui.championshippage.'),
+    (key) => key === 'meta.championship.title',
+    (key) => key === 'ui.enhancements.championshipHeroAlt',
+    (key) => key === 'ui.enhancements.championshipCaseAlt',
+  ],
+  activities: [
+    (key) => key.startsWith('ui.activitiespage.'),
+    (key) => key === 'meta.activities.title',
+  ],
+  'find-team': [
+    (key) => key.startsWith('ui.findteampage.'),
+    (key) => key === 'ui.enhancements.findTeamHeroAlt',
+    (key) => key === 'ui.enhancements.privateContact',
+    (key) => key === 'meta.findTeam.title',
+  ],
+  legal: [
+    (key) => key.startsWith('ui.legalpage.'),
+  ],
 };
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
@@ -168,9 +249,23 @@ export const getEditablePageTextKeys = (
   page: EditablePageTextPage,
   flatLocale: Record<string, string>,
 ) => {
-  return Array.from(new Set(editablePageTextKeys[page]))
+  const configuredKeys = editablePageTextKeys[page];
+  const matchedKeys = Object.keys(flatLocale).filter((key) =>
+    pageTextKeyMatchers[page].some((matches) => matches(key)),
+  );
+
+  return Array.from(new Set([...configuredKeys, ...matchedKeys]))
     .filter((key) => typeof flatLocale[key] === 'string')
-    .sort((left, right) => editablePageTextKeys[page].indexOf(left) - editablePageTextKeys[page].indexOf(right));
+    .sort((left, right) => {
+      const leftIndex = configuredKeys.indexOf(left);
+      const rightIndex = configuredKeys.indexOf(right);
+      if (leftIndex !== -1 || rightIndex !== -1) {
+        if (leftIndex === -1) return 1;
+        if (rightIndex === -1) return -1;
+        return leftIndex - rightIndex;
+      }
+      return left.localeCompare(right);
+    });
 };
 
 export const pageTextLegacyId = (

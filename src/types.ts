@@ -88,8 +88,8 @@ export interface ParticipationScenario {
 
 export interface TrustPoint {
   id: string;
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
 }
 
 export interface FaqItem {

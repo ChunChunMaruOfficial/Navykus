@@ -1,6 +1,6 @@
 import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
-import './i18n';
+import i18n, { i18nReady } from './i18n';
 import './index.css';
 
 // Register service worker for PWA
@@ -18,9 +18,11 @@ if ('serviceWorker' in navigator) {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
             // New version available — use registration.waiting (may be same as newWorker)
             const waitingWorker = registration.waiting || newWorker;
-            if (confirm('Доступно обновление. Обновить приложение?')) {
-              waitingWorker.postMessage({ type: 'SKIP_WAITING' });
-            }
+            void i18nReady.finally(() => {
+              if (confirm(i18n.t('ui.app.updatePrompt'))) {
+                waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+              }
+            });
           }
         });
       });

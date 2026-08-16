@@ -21,10 +21,12 @@ export const useCmsLanguage = () => {
 export const useCmsCollection = <TRaw, TMapped>({
   path,
   map,
+  filter,
   enabled = true,
 }: {
   path: string;
   map: (doc: TRaw) => TMapped;
+  filter?: (doc: TMapped) => boolean;
   enabled?: boolean;
 }) => {
   const [state, setState] = useState<CmsState<TMapped>>({
@@ -49,7 +51,8 @@ export const useCmsCollection = <TRaw, TMapped>({
       })
       .then((payload) => {
         if (!isMounted) return;
-        setState({ data: docsFrom(payload).map(map), error: false, isLoading: false });
+        const mappedDocs = docsFrom(payload).map(map);
+        setState({ data: filter ? mappedDocs.filter(filter) : mappedDocs, error: false, isLoading: false });
       })
       .catch(() => {
         if (!isMounted) return;
@@ -59,7 +62,7 @@ export const useCmsCollection = <TRaw, TMapped>({
     return () => {
       isMounted = false;
     };
-  }, [enabled, path]);
+  }, [enabled, filter, path]);
 
   const data = useMemo(() => {
     if (state.error || state.data === undefined) return undefined;

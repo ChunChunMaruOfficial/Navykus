@@ -12,17 +12,21 @@ type CmsScenarioDoc = {
 
 const mapCmsScenario = (doc: CmsScenarioDoc): ParticipationScenario => ({
   id: String(doc.id),
-  title: doc.title,
-  who: doc.who,
-  why: doc.why,
-  ctaText: doc.ctaText,
+  title: doc.title?.trim() || '',
+  who: doc.who?.trim() || '',
+  why: doc.why?.trim() || '',
+  ctaText: doc.ctaText?.trim() || '',
   actionType: doc.actionType || 'general',
 });
+
+const hasVisibleScenarioText = (doc: ParticipationScenario) =>
+  Boolean(doc.title || doc.who || doc.why || doc.ctaText);
 
 export const useCmsScenarios = () => {
   const language = useCmsLanguage();
   return useCmsCollection<CmsScenarioDoc, ParticipationScenario>({
     path: `/api/scenarios?limit=50&depth=1&sort=sortOrder&where[isPublished][equals]=true&lang=${encodeURIComponent(language)}`,
     map: mapCmsScenario,
+    filter: hasVisibleScenarioText,
   }).data || [];
 };
