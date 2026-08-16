@@ -229,8 +229,15 @@ for (const full of [...walkDir(SRC_ROOT)]) {
 const ruLocaleRaw = ruLocaleRaw0;
 const flat = flatLocale0;
 
+// Source-order mapping: page -> ordered list of keys (in the order they appear on the page)
+const pageSourceOrder = {};
+for (const pageOpt of EDITABLE_PAGE_TEXT_PAGES) {
+  pageSourceOrder[pageOpt.value] = [];
+}
+
 for (const pageOpt of EDITABLE_PAGE_TEXT_PAGES) {
   const page = pageOpt.value;
+  // getEditablePageTextKeys already preserves source order (configured keys first, then matched keys in JSON-object order)
   const keys = getEditablePageTextKeys(page, flat);
   for (const key of keys) {
     const fromAst = keyToBlock[key];
@@ -258,6 +265,7 @@ for (const pageOpt of EDITABLE_PAGE_TEXT_PAGES) {
       blockName = typeof nsLabel === 'string' ? nsLabel : `${pageOpt.label} — Прочее`;
     }
     keyToBlock[key] = { page, blockName: blockName || `${pageOpt.label} — Прочее` };
+    pageSourceOrder[page].push(key);
   }
 }
 
@@ -271,7 +279,16 @@ export type PageTextBlockInfo = {
 export const PAGE_TEXT_KEY_INFO: Record<string, PageTextBlockInfo> = {
 ${dict.map(([key, info]) => `  ${JSON.stringify(key)}: { page: ${JSON.stringify(info.page)}, blockName: ${JSON.stringify(info.blockName || 'Прочее')} },`).join('\n')}
 };
+
+/**
+ * Source-order mapping of editable page-text keys per page.
+ * Keys appear in the order they show up on the rendered page (source-file order for explicit lists, JSON-object order for matcher-discovered keys).
+ * Used by the admin tree view to sort texts within each page so editors can find them in the same order as on the site.
+ */
+export const PAGE_TEXT_SOURCE_ORDER: Record<string, string[]> = {
+${EDITABLE_PAGE_TEXT_PAGES.map((p) => `  ${JSON.stringify(p.value)}: ${JSON.stringify(pageSourceOrder[p.value])},`).join('\n')}
+};
 `;
 fs.mkdirSync(path.resolve('src/admin'), { recursive: true });
 fs.writeFileSync(path.resolve('src/admin/pageTextBlockMap.ts'), serialized + '\n');
-console.log('Generated pageTextBlockMap.ts with', dict.length, 'keys');
+console.log('Generated pageTextBlockMap.ts with', dict.length, 'keys and source-order map for', EDITABLE_PAGE_TEXT_PAGES.length, 'pages');

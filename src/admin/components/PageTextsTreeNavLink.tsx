@@ -13,8 +13,8 @@ export const PageTextsTreeNavLink = () => {
         textDecoration: 'none',
         fontSize: 14,
         fontWeight: active ? 600 : 400,
-        color: active ? 'inherit' : '#666',
-        background: active ? 'rgba(0,0,0,0.06)' : 'transparent',
+        color: 'var(--theme-text)',
+        background: active ? 'var(--theme-elevation-100)' : 'transparent',
       }}
     >
       Дерево текстов

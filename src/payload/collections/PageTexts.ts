@@ -8,6 +8,7 @@ import { localizedAfterChange, localizedAfterDelete } from '../localization';
 export const PageTexts: CollectionConfig = {
   slug: 'page-texts',
   admin: {
+    hidden: true,
     useAsTitle: 'label',
     group: 'Content',
     description: 'Русские тексты статичных страниц. Карточки, события, FAQ и формы редактируются в своих коллекциях. Для иерархического просмотра используйте «Дерево текстов» в боковом меню.',
