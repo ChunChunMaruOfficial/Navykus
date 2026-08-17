@@ -63,7 +63,7 @@ for (const user of others.docs) {
     collection: 'users',
     id: user.id,
     data: {
-      role: user.role === 'admin' ? 'moderator' : (user.role || 'moderator'),
+      role: 'moderator',
       accountStatus: 'blocked',
       sessions: [],
     } as any,
