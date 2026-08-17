@@ -231,6 +231,8 @@ const upsertLocalizationRecord = async (
           translationStatus: 'pending',
           contentHash: hash,
           errorMessage: '',
+          attempts: 0,
+          generatedAt: null,
         },
         overrideAccess: true,
       }) as Promise<Record<string, unknown>>);
@@ -383,7 +385,7 @@ export const processContentLocalizationRecord = async (
     await payload.update({
       collection: 'content-localizations' as any,
       id: payloadId(record.id as string | number),
-      data: { contentHash: hash, localizedData: {}, translationStatus: 'pending', errorMessage: '' },
+      data: { contentHash: hash, localizedData: {}, translationStatus: 'pending', errorMessage: '', attempts: 0, generatedAt: null },
       overrideAccess: true,
     });
   }
@@ -566,6 +568,8 @@ export const retryContentLocalization = async (
       localizedData: {},
       contentHash: hash,
       errorMessage: '',
+      attempts: 0,
+      generatedAt: null,
     },
     overrideAccess: true,
   });

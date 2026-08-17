@@ -63,11 +63,13 @@ for (const user of others.docs) {
     collection: 'users',
     id: user.id,
     data: {
-      role: 'user',
+      role: user.role === 'admin' ? 'moderator' : (user.role || 'moderator'),
       accountStatus: 'blocked',
       sessions: [],
     } as any,
     overrideAccess: true,
+  }).catch((error) => {
+    console.warn(`Failed to block user ${user.email}:`, (error as Error).message?.slice(0, 200));
   });
 }
 
