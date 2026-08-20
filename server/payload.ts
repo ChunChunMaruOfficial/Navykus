@@ -98,7 +98,6 @@ const ensureDevelopmentSchema = async () => {
 
   await executeSafe(`CREATE TABLE IF NOT EXISTS experts (
     id integer PRIMARY KEY NOT NULL,
-    legacy_id text,
     sort_order numeric DEFAULT 0,
     is_published integer DEFAULT true,
     name text NOT NULL,
@@ -114,7 +113,6 @@ const ensureDevelopmentSchema = async () => {
   await ensureColumn('experts', 'type', "text DEFAULT 'expert' NOT NULL");
   await ensureColumn('experts', 'photo_id', 'integer REFERENCES media(id)');
   await ensureColumn('experts', 'tournament_id_id', 'integer REFERENCES tournaments(id)');
-  await executeSafe('CREATE INDEX IF NOT EXISTS experts_legacy_id_idx ON experts (legacy_id);');
   await executeSafe('CREATE INDEX IF NOT EXISTS experts_photo_idx ON experts (photo_id);');
   await executeSafe('CREATE INDEX IF NOT EXISTS experts_tournament_id_idx ON experts (tournament_id_id);');
   await executeSafe('CREATE INDEX IF NOT EXISTS experts_updated_at_idx ON experts (updated_at);');
@@ -122,7 +120,6 @@ const ensureDevelopmentSchema = async () => {
 
   await executeSafe(`CREATE TABLE IF NOT EXISTS scenarios (
     id integer PRIMARY KEY NOT NULL,
-    legacy_id text,
     sort_order numeric DEFAULT 0,
     is_published integer DEFAULT true,
     title text NOT NULL,
@@ -133,7 +130,6 @@ const ensureDevelopmentSchema = async () => {
     updated_at text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL,
     created_at text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL
   );`);
-  await ensureColumn('scenarios', 'legacy_id', 'text');
   await ensureColumn('scenarios', 'sort_order', 'numeric DEFAULT 0');
   await ensureColumn('scenarios', 'is_published', 'integer DEFAULT true');
   await ensureColumn('scenarios', 'title', "text DEFAULT '' NOT NULL");
@@ -143,7 +139,6 @@ const ensureDevelopmentSchema = async () => {
   await ensureColumn('scenarios', 'action_type', "text DEFAULT 'general' NOT NULL");
   await ensureColumn('scenarios', 'updated_at', "text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL");
   await ensureColumn('scenarios', 'created_at', "text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL");
-  await executeSafe('CREATE INDEX IF NOT EXISTS scenarios_legacy_id_idx ON scenarios (legacy_id);');
   await executeSafe('CREATE INDEX IF NOT EXISTS scenarios_updated_at_idx ON scenarios (updated_at);');
   await executeSafe('CREATE INDEX IF NOT EXISTS scenarios_created_at_idx ON scenarios (created_at);');
 
@@ -255,7 +250,7 @@ const ensureDevelopmentSchema = async () => {
   await ensureColumn('team_members', 'source_type', 'text');
   await ensureColumn('team_members', 'source_id', 'text');
   await ensureColumn('team_members', 'source_context', 'text');
-  await ensureColumn('team_members', 'tournament_id', 'text');
+  await ensureColumn('team_members', 'tournament_id_id', 'integer REFERENCES tournaments(id)');
   await ensureColumn('team_members', 'seo_title', 'text');
   await ensureColumn('team_members', 'seo_description', 'text');
   await ensureColumn('team_members', '_status', "text DEFAULT 'published'");

@@ -4692,7 +4692,7 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
-          "default": "'info@navykus.org'"
+          "default": "'info@navykus.online'"
         },
         "phone": {
           "name": "phone",

@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload';
 
 import { adminOrModerator } from '../access';
+import { SUPPORTED_LANGUAGES } from '../../i18n/languages';
 import { SUPPORTED_CONTENT_COLLECTIONS, TRANSLATION_STATUSES } from '../localization';
 
 export const ContentLocalizations: CollectionConfig = {
@@ -30,7 +31,7 @@ export const ContentLocalizations: CollectionConfig = {
       name: 'language',
       type: 'select',
       required: true,
-      options: ['ru', 'en', 'kk', 'uz', 'ar', 'de', 'es', 'tr'],
+      options: SUPPORTED_LANGUAGES as unknown as string[],
       index: true,
     },
     {

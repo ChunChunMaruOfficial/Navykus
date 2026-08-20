@@ -2,7 +2,7 @@ import type { CollectionConfig } from 'payload';
 
 import { adminOrModerator, anyone } from '../access';
 import { auditAfterChange, auditAfterDelete } from '../audit';
-import { legacyIdField, publishedField, seoFields, sortOrderField } from '../fields';
+import { publishedField, seoFields, sortOrderField } from '../fields';
 import { localizedAfterChange, localizedAfterDelete, originalLanguageField } from '../localization';
 import { publicPreview } from '../preview';
 
@@ -25,26 +25,43 @@ export const Scenarios: CollectionConfig = {
     afterDelete: [localizedAfterDelete('scenarios'), auditAfterDelete('scenarios')],
   },
   fields: [
-    legacyIdField,
     sortOrderField,
     publishedField,
     originalLanguageField,
-    { name: 'title', type: 'text', required: true, admin: { description: 'Scenario title, e.g. "Хочу попробовать"' } },
-    { name: 'who', type: 'textarea', required: true, admin: { description: 'Who this scenario is for' } },
-    { name: 'why', type: 'textarea', required: true, admin: { description: 'Why participate' } },
-    { name: 'ctaText', type: 'text', required: true, admin: { description: 'Button text' } },
     {
-      name: 'actionType',
-      type: 'select',
-      required: true,
-      defaultValue: 'general',
-      options: [
-        { label: 'Подать заявку', value: 'apply' },
-        { label: 'Поиск команды', value: 'team' },
-        { label: 'Активности', value: 'activity' },
-        { label: 'Общее', value: 'general' },
+      type: 'tabs',
+      tabs: [
+        {
+          label: 'Основное',
+          fields: [
+            { name: 'title', label: 'Заголовок', type: 'text', required: true, admin: { description: 'Название сценария, например: "Хочу попробовать"' } },
+            { name: 'who', label: 'Для кого', type: 'textarea', required: true, admin: { description: 'Кому подходит этот сценарий' } },
+            { name: 'why', label: 'Зачем участвовать', type: 'textarea', required: true, admin: { description: 'Почему стоит участвовать' } },
+          ],
+        },
+        {
+          label: 'Действие',
+          fields: [
+            { name: 'ctaText', label: 'Текст кнопки', type: 'text', required: true, admin: { description: 'Текст кнопки действия' } },
+            {
+              name: 'actionType',
+              type: 'select',
+              required: true,
+              defaultValue: 'general',
+              options: [
+                { label: 'Подать заявку', value: 'apply' },
+                { label: 'Поиск команды', value: 'team' },
+                { label: 'Активности', value: 'activity' },
+                { label: 'Общее', value: 'general' },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'SEO',
+          fields: [...seoFields],
+        },
       ],
     },
-    ...seoFields,
   ],
 };

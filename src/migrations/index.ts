@@ -24,6 +24,7 @@ import * as migration_20260815_020000_seed_page_text_ready_localizations from '.
 import * as migration_20260815_030000_expand_page_texts_cms_coverage_pass2 from './20260815_030000_expand_page_texts_cms_coverage_pass2';
 import * as migration_20260815_040000_enqueue_content_collection_localizations from './20260815_040000_enqueue_content_collection_localizations';
 import * as migration_20260815_050000_backfill_page_text_block_names from './20260815_050000_backfill_page_text_block_names';
+import * as migration_20260820_000000_remove_legacy_id_columns from './20260820_000000_remove_legacy_id_columns';
 
 export const migrations = [
   {
@@ -155,5 +156,10 @@ export const migrations = [
     up: migration_20260815_050000_backfill_page_text_block_names.up,
     down: migration_20260815_050000_backfill_page_text_block_names.down,
     name: '20260815_050000_backfill_page_text_block_names',
+  },
+  {
+    up: migration_20260820_000000_remove_legacy_id_columns.up,
+    down: migration_20260820_000000_remove_legacy_id_columns.down,
+    name: '20260820_000000_remove_legacy_id_columns',
   },
 ];

@@ -50,6 +50,7 @@ const textList = (items: unknown) => {
 
 export const originalLanguageField: Field = {
   name: 'originalLanguage',
+  label: 'Исходный язык',
   type: 'select',
   required: true,
   defaultValue: DEFAULT_LANGUAGE,
@@ -57,7 +58,7 @@ export const originalLanguageField: Field = {
   index: true,
   admin: {
     position: 'sidebar',
-    description: 'Language used as the source for AI localizations.',
+    description: 'Язык, используемый как источник для AI-перевода.',
   },
 };
 
@@ -283,7 +284,6 @@ const processLocalization = async (
       content,
       from: sourceLanguage,
       to: targetLanguage,
-      context: `${collection}:${sourceId}`,
     });
     try {
       await withSqliteBusyRetry(() => payload.update({

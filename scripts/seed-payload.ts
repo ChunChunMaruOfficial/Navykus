@@ -67,7 +67,6 @@ const FAQ_SEED = [
 
 const EVENT_SEED = [
   {
-    legacyId: 'event-public-speaking',
     title: 'Public Speaking Lab',
     slug: 'public-speaking-lab',
     shortDescription: 'Online workshop for preparing a confident project presentation.',
@@ -90,7 +89,6 @@ const EVENT_SEED = [
     registrationUrl: 'https://example.org/register/public-speaking-lab',
   },
   {
-    legacyId: 'event-youth-connect',
     title: 'Asian Youth Connect',
     slug: 'asian-youth-connect',
     shortDescription: 'Networking session for students looking for international teammates.',
@@ -113,7 +111,6 @@ const EVENT_SEED = [
     registrationUrl: 'https://example.org/register/asian-youth-connect',
   },
   {
-    legacyId: 'event-code-marathon',
     title: 'Code Marathon: Web Development',
     slug: 'code-marathon-web-dev',
     shortDescription: '24-hour coding marathon for building web projects from scratch.',
@@ -136,7 +133,6 @@ const EVENT_SEED = [
     registrationUrl: 'https://example.org/register/code-marathon-web-dev',
   },
   {
-    legacyId: 'event-leadership-forum',
     title: 'Youth Leadership Forum 2026',
     slug: 'youth-leadership-forum-2026',
     shortDescription: 'Three-day forum with workshops, panels and project pitches.',
@@ -161,7 +157,6 @@ const EVENT_SEED = [
 ];
 
 const OPPORTUNITY_SEED = OPPORTUNITIES.map((item) => ({
-  legacyId: item.id,
   title: pickRu(item.title),
   slug: item.slug,
   organization: pickRu(item.organizer),
@@ -220,9 +215,12 @@ const STAT_SEED = STATS.length > 0
       },
     ];
 
-const ensureByLegacyId = async (
+// Idempotent seeding: match existing docs by a stable natural key (title/name/slug)
+// instead of the removed legacyId field.
+const ensureByNaturalKey = async (
   collection: string,
-  legacyId: string,
+  keyField: string,
+  keyValue: string,
   data: Record<string, unknown>,
   options: { backfillMissingFields?: boolean } = {},
 ) => {
@@ -230,8 +228,8 @@ const ensureByLegacyId = async (
   const existing = await payload.find({
     collection: collection as any,
     where: {
-      legacyId: {
-        equals: legacyId,
+      [keyField]: {
+        equals: keyValue,
       },
     },
     limit: 1,
@@ -269,7 +267,6 @@ const ensureByLegacyId = async (
   await payload.create({
     collection: collection as any,
     data: {
-      legacyId,
       ...data,
       ...seedVisibility(collection),
     },
@@ -278,7 +275,6 @@ const ensureByLegacyId = async (
 };
 
 const ensureOpportunitySeed = async (
-  legacyId: string,
   slug: string,
   data: Record<string, unknown>,
 ) => {
@@ -286,10 +282,7 @@ const ensureOpportunitySeed = async (
   const existing = await payload.find({
     collection: 'opportunities' as any,
     where: {
-      or: [
-        { legacyId: { equals: legacyId } },
-        { slug: { equals: slug } },
-      ],
+      slug: { equals: slug },
     },
     limit: 1,
     overrideAccess: true,
@@ -298,13 +291,11 @@ const ensureOpportunitySeed = async (
   const existingDoc = existing.docs[0] as Record<string, unknown> | undefined;
   if (existingDoc) {
     const missingCardFields = !existingDoc.source || !existingDoc.category || !existingDoc.imageUrl;
-    const oldSeedIdentity = existingDoc.legacyId !== legacyId;
-    if (missingCardFields || oldSeedIdentity) {
+    if (missingCardFields) {
       await payload.update({
         collection: 'opportunities' as any,
         id: existingDoc.id as any,
         data: {
-          legacyId,
           ...data,
           ...seedVisibility('opportunities'),
         },
@@ -324,7 +315,6 @@ const ensureOpportunitySeed = async (
   await payload.create({
     collection: 'opportunities' as any,
     data: {
-      legacyId,
       ...data,
       ...seedVisibility('opportunities'),
     },
@@ -339,10 +329,11 @@ const ensurePageTextSeed = async (
   value: string,
   sortOrder: number,
 ) => {
-  await ensureByLegacyId('page-texts', pageTextLegacyId(page, language, translationKey), {
+  await ensureByNaturalKey('page-texts', 'translationKey', translationKey, {
     page,
     language,
     translationKey,
+    legacyId: pageTextLegacyId(page, language, translationKey),
     label: translationKey.replace(/^ui\./, '').replace(/^common\./, 'common.'),
     value,
     sortOrder,
@@ -408,8 +399,9 @@ const seed = async () => {
   }
 
   for (const [index, item] of TOURNAMENTS.entries()) {
-    await ensureByLegacyId('tournaments', item.id, {
-      ...item,
+    const { id: _legacyTournamentId, ...tournamentData } = item;
+    await ensureByNaturalKey('tournaments', 'title', item.title, {
+      ...tournamentData,
       sortOrder: index,
       isPublished: true,
       isFeatured: index === 0, // Mark the first tournament as featured
@@ -448,8 +440,9 @@ const seed = async () => {
   const featuredTournamentId = featuredTournament.docs[0]?.id;
 
   for (const [index, item] of ACTIVITIES.entries()) {
-    await ensureByLegacyId('activities', item.id, {
-      ...item,
+    const { id: _legacyActivityId, ...activityData } = item;
+    await ensureByNaturalKey('activities', 'title', item.title, {
+      ...activityData,
       sortOrder: index,
       isPublished: true,
       benefits: list(item.benefits),
@@ -457,8 +450,9 @@ const seed = async () => {
   }
 
   for (const [index, item] of EXPERTS.entries()) {
-    await ensureByLegacyId('experts', item.id, {
-      ...item,
+    const { id: _legacyExpertId, ...expertData } = item;
+    await ensureByNaturalKey('experts', 'name', item.name, {
+      ...expertData,
       sortOrder: index,
       isPublished: true,
       tournamentId: featuredTournamentId, // Link experts to featured tournament
@@ -466,8 +460,9 @@ const seed = async () => {
   }
 
   for (const [index, item] of TEAM_MEMBERS.entries()) {
-    await ensureByLegacyId('team-members', item.id, {
-      ...item,
+    const { id: _legacyTeamMemberId, ...teamMemberData } = item;
+    await ensureByNaturalKey('team-members', 'name', item.name, {
+      ...teamMemberData,
       sortOrder: index,
       originalLanguage: 'ru',
       moderationStatus: 'approved',
@@ -478,15 +473,16 @@ const seed = async () => {
   }
 
   for (const [index, item] of TRUST_POINT_SEED.entries()) {
-    await ensureByLegacyId('trust-points', item.id, {
-      ...item,
+    const { id: _legacyTrustPointId, ...trustPointData } = item;
+    await ensureByNaturalKey('trust-points', 'title', item.title, {
+      ...trustPointData,
       sortOrder: index,
       isPublished: true,
     });
   }
 
   for (const [index, item] of PILLARS.entries()) {
-    await ensureByLegacyId('pillars', `pillar-${index + 1}`, {
+    await ensureByNaturalKey('pillars', 'label', item.label, {
       ...item,
       sortOrder: index,
       isPublished: true,
@@ -494,23 +490,24 @@ const seed = async () => {
   }
 
   for (const [index, item] of SCENARIOS.entries()) {
-    await ensureByLegacyId('scenarios', item.id, {
-      ...item,
+    const { id: _legacyScenarioId, ...scenarioData } = item;
+    await ensureByNaturalKey('scenarios', 'title', item.title, {
+      ...scenarioData,
       sortOrder: index,
       isPublished: true,
     });
   }
 
   for (const [index, item] of STAT_SEED.entries()) {
-    await ensureByLegacyId('stats', `stat-${index + 1}`, {
+    await ensureByNaturalKey('stats', 'label', item.label, {
       ...item,
       sortOrder: index,
       isPublished: true,
     });
   }
 
-  for (const [index, [legacyId, page, questionKey, answerKey]] of FAQ_SEED.entries()) {
-    await ensureByLegacyId('faqs', legacyId, {
+  for (const [index, [, page, questionKey, answerKey]] of FAQ_SEED.entries()) {
+    await ensureByNaturalKey('faqs', 'question', tr(questionKey), {
       page,
       question: tr(questionKey),
       answer: tr(answerKey),
@@ -520,7 +517,7 @@ const seed = async () => {
   }
 
   for (const [index, item] of EVENT_SEED.entries()) {
-    await ensureByLegacyId('events', item.legacyId, {
+    await ensureByNaturalKey('events', 'slug', item.slug, {
       ...item,
       sortOrder: index,
       isPublished: true,
@@ -529,7 +526,7 @@ const seed = async () => {
   }
 
   for (const [index, item] of OPPORTUNITY_SEED.entries()) {
-    await ensureOpportunitySeed(item.legacyId, item.slug, {
+    await ensureOpportunitySeed(item.slug, {
       ...item,
       sortOrder: index,
       isPublished: true,

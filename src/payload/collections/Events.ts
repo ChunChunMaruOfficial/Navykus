@@ -1,7 +1,7 @@
 import type { CollectionConfig } from 'payload';
 
 import { adminOrModerator, anyone } from '../access';
-import { legacyIdField, newlineListField, publicContentVersions, publishedField, sortOrderField, syncPublishedDraftBeforeChange, textListField } from '../fields';
+import { newlineListField, publicContentVersions, publishedField, sortOrderField, syncPublishedDraftBeforeChange, textListField } from '../fields';
 import { auditAfterChange, auditAfterDelete } from '../audit';
 import { localizedAfterChange, localizedAfterDelete, originalLanguageField } from '../localization';
 import { publicPreview } from '../preview';
@@ -30,7 +30,6 @@ export const Events: CollectionConfig = {
     afterDelete: [localizedAfterDelete('events'), auditAfterDelete('events')],
   },
   fields: [
-    legacyIdField,
     sortOrderField,
     publishedField,
     originalLanguageField,
@@ -38,19 +37,19 @@ export const Events: CollectionConfig = {
       type: 'tabs',
       tabs: [
         {
-          label: 'General',
+          label: 'Основное',
           fields: [
-            { name: 'title', type: 'text', required: true },
-            { name: 'slug', type: 'text', unique: true, index: true, admin: { description: 'Auto-generated from title when empty.' } },
-            { name: 'shortDescription', type: 'textarea', required: true },
-            { name: 'fullDescription', type: 'textarea', admin: { description: 'Detailed description (optional)' } },
-            { name: 'imageUrl', type: 'text' },
+            { name: 'title', label: 'Заголовок', type: 'text', required: true },
+            { name: 'slug', label: 'Slug', type: 'text', unique: true, index: true, admin: { description: 'Генерируется автоматически из заголовка, если пусто.' } },
+            { name: 'shortDescription', label: 'Короткое описание', type: 'textarea', required: true },
+            { name: 'fullDescription', label: 'Полное описание', type: 'textarea', admin: { description: 'Подробное описание (необязательно)' } },
+            { name: 'imageUrl', label: 'Ссылка на изображение', type: 'text' },
           ],
         },
         {
-          label: 'Schedule & Venue',
+          label: 'Расписание и место',
           fields: [
-            { name: 'eventType', type: 'text', required: true, index: true, admin: { description: 'e.g. workshop, lecture, masterclass' } },
+            { name: 'eventType', label: 'Тип события', type: 'text', required: true, index: true, admin: { description: 'Например: воркшоп, лекция, мастер-класс' } },
             {
               name: 'eventDate',
               label: 'Дата события',
@@ -81,7 +80,7 @@ export const Events: CollectionConfig = {
                 description: 'Выключено по умолчанию: на карточках и в модалке показывается только дата.',
               },
             },
-            { name: 'timeZone', type: 'text', defaultValue: 'UTC' },
+            { name: 'timeZone', label: 'Часовой пояс', type: 'text', defaultValue: 'UTC' },
             {
               name: 'registrationDeadline',
               label: 'Дедлайн регистрации',
@@ -94,20 +93,31 @@ export const Events: CollectionConfig = {
                 description: 'Дата без времени для блока предварительного опыта/условий.',
               },
             },
-            { name: 'participantLimit', type: 'number' },
-            { name: 'format', type: 'select', required: true, options: ['online', 'offline', 'hybrid'], index: true },
-            { name: 'country', type: 'text', index: true },
-            { name: 'venue', type: 'text', admin: { condition: (_, siblingData) => siblingData?.format !== 'online', description: 'Physical location' } },
-            { name: 'onlineLink', type: 'text', admin: { condition: (_, siblingData) => siblingData?.format !== 'offline', description: 'Zoom/Google Meet link' } },
-            { name: 'registrationUrl', type: 'text', required: true, admin: { description: 'External registration/application link' } },
+            { name: 'participantLimit', label: 'Лимит участников', type: 'number' },
+            {
+              name: 'format',
+              label: 'Формат',
+              type: 'select',
+              required: true,
+              options: [
+                { label: 'Онлайн', value: 'online' },
+                { label: 'Офлайн', value: 'offline' },
+                { label: 'Гибрид', value: 'hybrid' },
+              ],
+              index: true,
+            },
+            { name: 'country', label: 'Страна', type: 'text', index: true },
+            { name: 'venue', label: 'Место проведения', type: 'text', admin: { condition: (_, siblingData) => siblingData?.format !== 'online', description: 'Физический адрес' } },
+            { name: 'onlineLink', label: 'Ссылка на трансляцию', type: 'text', admin: { condition: (_, siblingData) => siblingData?.format !== 'offline', description: 'Ссылка Zoom/Google Meet' } },
+            { name: 'registrationUrl', label: 'Ссылка на регистрацию', type: 'text', required: true, admin: { description: 'Внешняя ссылка на регистрацию/заявку' } },
           ],
         },
         {
-          label: 'Details & SEO',
+          label: 'Детали и SEO',
           fields: [
-            { name: 'speaker', type: 'text' },
-            textListField('languages', 'Languages'),
-            textListField('materials', 'Materials'),
+            { name: 'speaker', label: 'Спикер', type: 'text' },
+            textListField('languages', 'Языки'),
+            textListField('materials', 'Материалы'),
             {
               name: 'audience',
               label: 'Кому подходит',
@@ -127,8 +137,8 @@ export const Events: CollectionConfig = {
                 description: 'Если оставить пустым, сайт покажет дедлайн регистрации, если он заполнен.',
               },
             },
-            { name: 'seoTitle', type: 'text' },
-            { name: 'seoDescription', type: 'textarea' },
+            { name: 'seoTitle', label: 'SEO-заголовок', type: 'text' },
+            { name: 'seoDescription', label: 'SEO-описание', type: 'textarea' },
           ],
         },
       ],

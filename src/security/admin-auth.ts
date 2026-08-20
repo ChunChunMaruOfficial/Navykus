@@ -1,4 +1,4 @@
-export const ADMIN_EMAIL = 'admin@navykus.org';
+export const ADMIN_EMAIL = 'admin@navykus.online';
 export const ADMIN_VERIFICATION_EMAIL = 'info@navykus.online';
 export const ADMIN_USER_ID = 1;
 

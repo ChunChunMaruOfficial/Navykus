@@ -8,6 +8,7 @@ export const ContactSettings: CollectionConfig = {
     useAsTitle: 'label',
     group: 'Settings',
     description: 'Contact information displayed in the site footer.',
+    defaultColumns: ['label', 'email', 'updatedAt'],
   },
   access: {
     read: anyone,
@@ -29,7 +30,7 @@ export const ContactSettings: CollectionConfig = {
       name: 'email',
       type: 'email',
       label: 'Email',
-      defaultValue: 'info@navykus.org',
+      defaultValue: 'info@navykus.online',
     },
   ],
 };

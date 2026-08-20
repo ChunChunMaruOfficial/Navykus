@@ -27,7 +27,6 @@ import { execSync, spawn } from 'node:child_process';
 import type { PageKey } from '../src/types';
 import { isSupportedLanguage, SUPPORTED_LANGUAGES } from '../src/i18n/languages';
 import { EDITABLE_PAGE_TEXT_PAGES, type EditablePageTextPage, type PageTextDoc } from '../src/page-texts';
-import { getAdminContentTypeByCollection } from '../src/content-admin-registry';
 import { getPayloadClient } from './payload';
 import { startTranslationWorker } from './translation-worker';
 import { applyLocalizations, languageFromRequest } from './content-localizations';
@@ -214,15 +213,36 @@ app.use('/media', express.static(path.resolve(process.cwd(), 'uploads', 'media')
 
 startTranslationWorker(getPayloadClient);
 
+// Collection publish-flag map (replaces the previous content-admin-registry-based logic).
+//   - Versioned collections (Payload drafts enabled) filter by `_status: published`.
+//   - Non-versioned content collections filter by `isPublished: true` instead.
+//   - team-members has its own approval flow (findApprovedTeamMembers) and does not use these flags.
+//   - Settings collections (contact-settings, operator-settings) and the content-localizations
+//     system collection have no publish flag at all.
+const VERSIONED_COLLECTIONS = new Set([
+  'tournaments',
+  'events',
+  'experts',
+  'faqs',
+  'opportunities',
+]);
+const IS_PUBLISHED_FLAG_COLLECTIONS = new Set([
+  'activities',
+  'page-texts',
+  'pillars',
+  'scenarios',
+  'stats',
+  'trust-points',
+]);
+
 export const publicCollectionWhere = (collection: string, where: Record<string, unknown> = {}) => {
-  const contentType = getAdminContentTypeByCollection(collection);
   const filters: Record<string, unknown> = {};
 
-  if (contentType?.requiresPublishedFlag || contentType?.usesPublishedFlag) {
-    filters.isPublished = { equals: true };
-  }
-  if (contentType?.supportsDraftStatus) {
+  if (VERSIONED_COLLECTIONS.has(collection)) {
     filters._status = { equals: 'published' };
+    filters.isPublished = { equals: true };
+  } else if (IS_PUBLISHED_FLAG_COLLECTIONS.has(collection)) {
+    filters.isPublished = { equals: true };
   }
 
   return {
@@ -679,13 +699,13 @@ app.post('/api/team-members', upload.array('portfolioFiles', 5), asyncRoute(asyn
         targetProject: typeof body.targetProject === 'string' ? body.targetProject.trim() : undefined,
         whyLooking: String(body.whyLooking).trim(),
         contact: String(body.contact).trim(),
-        contactType: ['telegram', 'email', 'discord'].includes(body.contactType) ? body.contactType : 'telegram',
+        contactType: ['telegram', 'email'].includes(body.contactType) ? body.contactType : 'telegram',
         portfolioLink: typeof body.portfolioLink === 'string' ? body.portfolioLink.trim() : undefined,
         portfolioFiles: portfolioFileIds,
         sourceType: typeof body.sourceType === 'string' ? body.sourceType : 'api',
         sourceContext: typeof body.sourceContext === 'string' ? body.sourceContext.trim() : undefined,
         sourceId: typeof body.sourceId === 'string' ? body.sourceId.trim() : undefined,
-        tournamentId: typeof body.tournamentId === 'string' ? body.tournamentId.trim() : undefined,
+        tournamentId: /^\d+$/.test(String(body.tournamentId || '').trim()) ? Number(String(body.tournamentId).trim()) : undefined,
         originalLanguage,
         moderationStatus: 'pending',
         isApproved: false,

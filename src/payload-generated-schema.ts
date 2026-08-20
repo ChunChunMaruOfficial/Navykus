@@ -151,7 +151,6 @@ export const tournaments = sqliteTable(
   "tournaments",
   {
     id: integer("id").primaryKey(),
-    legacyId: text("legacy_id"),
     sortOrder: numeric("sort_order", { mode: "number" }).default(0),
     isPublished: integer("is_published", { mode: "boolean" }).default(true),
     originalLanguage: text("original_language", {
@@ -189,7 +188,6 @@ export const tournaments = sqliteTable(
     _status: text("_status", { enum: ["draft", "published"] }).default("draft"),
   },
   (columns) => [
-    index("tournaments_legacy_id_idx").on(columns.legacyId),
     index("tournaments_original_language_idx").on(columns.originalLanguage),
     uniqueIndex("tournaments_slug_idx").on(columns.slug),
     index("tournaments_updated_at_idx").on(columns.updatedAt),
@@ -245,7 +243,6 @@ export const _tournaments_v = sqliteTable(
     parent: integer("parent_id").references(() => tournaments.id, {
       onDelete: "set null",
     }),
-    version_legacyId: text("version_legacy_id"),
     version_sortOrder: numeric("version_sort_order", {
       mode: "number",
     }).default(0),
@@ -301,9 +298,6 @@ export const _tournaments_v = sqliteTable(
   },
   (columns) => [
     index("_tournaments_v_parent_idx").on(columns.parent),
-    index("_tournaments_v_version_version_legacy_id_idx").on(
-      columns.version_legacyId,
-    ),
     index("_tournaments_v_version_version_original_language_idx").on(
       columns.version_originalLanguage,
     ),
@@ -346,7 +340,6 @@ export const activities = sqliteTable(
   "activities",
   {
     id: integer("id").primaryKey(),
-    legacyId: text("legacy_id"),
     sortOrder: numeric("sort_order", { mode: "number" }).default(0),
     isPublished: integer("is_published", { mode: "boolean" }).default(true),
     originalLanguage: text("original_language", {
@@ -357,8 +350,6 @@ export const activities = sqliteTable(
     title: text("title").notNull(),
     shortDescription: text("short_description").notNull(),
     fullDescription: text("full_description").notNull(),
-    format: text("format").notNull(),
-    date: text("date").notNull(),
     imageUrl: text("image_url").notNull(),
     category: text("category", {
       enum: [
@@ -373,6 +364,8 @@ export const activities = sqliteTable(
     status: text("status", {
       enum: ["coming", "ongoing", "completed"],
     }).notNull(),
+    format: text("format").notNull(),
+    date: text("date").notNull(),
     who: text("who").notNull(),
     prerequisites: text("prerequisites").notNull(),
     ctaText: text("cta_text").notNull(),
@@ -387,7 +380,6 @@ export const activities = sqliteTable(
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
   },
   (columns) => [
-    index("activities_legacy_id_idx").on(columns.legacyId),
     index("activities_original_language_idx").on(columns.originalLanguage),
     index("activities_updated_at_idx").on(columns.updatedAt),
     index("activities_created_at_idx").on(columns.createdAt),
@@ -398,7 +390,6 @@ export const experts = sqliteTable(
   "experts",
   {
     id: integer("id").primaryKey(),
-    legacyId: text("legacy_id"),
     sortOrder: numeric("sort_order", { mode: "number" }).default(0),
     isPublished: integer("is_published", { mode: "boolean" }).default(true),
     originalLanguage: text("original_language", {
@@ -409,12 +400,12 @@ export const experts = sqliteTable(
       "expert",
     ),
     role: text("role"),
+    tournamentId: integer("tournament_id_id").references(() => tournaments.id, {
+      onDelete: "set null",
+    }),
     expertise: text("expertise"),
     description: text("description"),
     photo: integer("photo_id").references(() => media.id, {
-      onDelete: "set null",
-    }),
-    tournamentId: integer("tournament_id_id").references(() => tournaments.id, {
       onDelete: "set null",
     }),
     seoTitle: text("seo_title"),
@@ -428,10 +419,9 @@ export const experts = sqliteTable(
     _status: text("_status", { enum: ["draft", "published"] }).default("draft"),
   },
   (columns) => [
-    index("experts_legacy_id_idx").on(columns.legacyId),
     index("experts_original_language_idx").on(columns.originalLanguage),
-    index("experts_photo_idx").on(columns.photo),
     index("experts_tournament_id_idx").on(columns.tournamentId),
+    index("experts_photo_idx").on(columns.photo),
     index("experts_updated_at_idx").on(columns.updatedAt),
     index("experts_created_at_idx").on(columns.createdAt),
     index("experts__status_idx").on(columns._status),
@@ -445,7 +435,6 @@ export const _experts_v = sqliteTable(
     parent: integer("parent_id").references(() => experts.id, {
       onDelete: "set null",
     }),
-    version_legacyId: text("version_legacy_id"),
     version_sortOrder: numeric("version_sort_order", {
       mode: "number",
     }).default(0),
@@ -460,17 +449,17 @@ export const _experts_v = sqliteTable(
       enum: ["jury", "mentor", "expert"],
     }).default("expert"),
     version_role: text("version_role"),
-    version_expertise: text("version_expertise"),
-    version_description: text("version_description"),
-    version_photo: integer("version_photo_id").references(() => media.id, {
-      onDelete: "set null",
-    }),
     version_tournamentId: integer("version_tournament_id_id").references(
       () => tournaments.id,
       {
         onDelete: "set null",
       },
     ),
+    version_expertise: text("version_expertise"),
+    version_description: text("version_description"),
+    version_photo: integer("version_photo_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
     version_seoTitle: text("version_seo_title"),
     version_seoDescription: text("version_seo_description"),
     version_updatedAt: text("version_updated_at").default(
@@ -492,16 +481,13 @@ export const _experts_v = sqliteTable(
   },
   (columns) => [
     index("_experts_v_parent_idx").on(columns.parent),
-    index("_experts_v_version_version_legacy_id_idx").on(
-      columns.version_legacyId,
-    ),
     index("_experts_v_version_version_original_language_idx").on(
       columns.version_originalLanguage,
     ),
-    index("_experts_v_version_version_photo_idx").on(columns.version_photo),
     index("_experts_v_version_version_tournament_id_idx").on(
       columns.version_tournamentId,
     ),
+    index("_experts_v_version_version_photo_idx").on(columns.version_photo),
     index("_experts_v_version_version_updated_at_idx").on(
       columns.version_updatedAt,
     ),
@@ -519,7 +505,6 @@ export const faqs = sqliteTable(
   "faqs",
   {
     id: integer("id").primaryKey(),
-    legacyId: text("legacy_id"),
     sortOrder: numeric("sort_order", { mode: "number" }).default(0),
     isPublished: integer("is_published", { mode: "boolean" }).default(true),
     originalLanguage: text("original_language", {
@@ -548,7 +533,6 @@ export const faqs = sqliteTable(
     _status: text("_status", { enum: ["draft", "published"] }).default("draft"),
   },
   (columns) => [
-    index("faqs_legacy_id_idx").on(columns.legacyId),
     index("faqs_original_language_idx").on(columns.originalLanguage),
     index("faqs_page_idx").on(columns.page),
     index("faqs_updated_at_idx").on(columns.updatedAt),
@@ -564,7 +548,6 @@ export const _faqs_v = sqliteTable(
     parent: integer("parent_id").references(() => faqs.id, {
       onDelete: "set null",
     }),
-    version_legacyId: text("version_legacy_id"),
     version_sortOrder: numeric("version_sort_order", {
       mode: "number",
     }).default(0),
@@ -607,7 +590,6 @@ export const _faqs_v = sqliteTable(
   },
   (columns) => [
     index("_faqs_v_parent_idx").on(columns.parent),
-    index("_faqs_v_version_version_legacy_id_idx").on(columns.version_legacyId),
     index("_faqs_v_version_version_original_language_idx").on(
       columns.version_originalLanguage,
     ),
@@ -667,7 +649,6 @@ export const events = sqliteTable(
   "events",
   {
     id: integer("id").primaryKey(),
-    legacyId: text("legacy_id"),
     sortOrder: numeric("sort_order", { mode: "number" }).default(0),
     isPublished: integer("is_published", { mode: "boolean" }).default(true),
     originalLanguage: text("original_language", {
@@ -709,7 +690,6 @@ export const events = sqliteTable(
     _status: text("_status", { enum: ["draft", "published"] }).default("draft"),
   },
   (columns) => [
-    index("events_legacy_id_idx").on(columns.legacyId),
     index("events_original_language_idx").on(columns.originalLanguage),
     uniqueIndex("events_slug_idx").on(columns.slug),
     index("events_event_type_idx").on(columns.eventType),
@@ -770,7 +750,6 @@ export const _events_v = sqliteTable(
     parent: integer("parent_id").references(() => events.id, {
       onDelete: "set null",
     }),
-    version_legacyId: text("version_legacy_id"),
     version_sortOrder: numeric("version_sort_order", {
       mode: "number",
     }).default(0),
@@ -832,9 +811,6 @@ export const _events_v = sqliteTable(
   },
   (columns) => [
     index("_events_v_parent_idx").on(columns.parent),
-    index("_events_v_version_version_legacy_id_idx").on(
-      columns.version_legacyId,
-    ),
     index("_events_v_version_version_original_language_idx").on(
       columns.version_originalLanguage,
     ),
@@ -1000,7 +976,6 @@ export const opportunities = sqliteTable(
   "opportunities",
   {
     id: integer("id").primaryKey(),
-    legacyId: text("legacy_id"),
     sortOrder: numeric("sort_order", { mode: "number" }).default(0),
     isPublished: integer("is_published", { mode: "boolean" }).default(true),
     originalLanguage: text("original_language", {
@@ -1066,7 +1041,6 @@ export const opportunities = sqliteTable(
     _status: text("_status", { enum: ["draft", "published"] }).default("draft"),
   },
   (columns) => [
-    index("opportunities_legacy_id_idx").on(columns.legacyId),
     index("opportunities_original_language_idx").on(columns.originalLanguage),
     uniqueIndex("opportunities_slug_idx").on(columns.slug),
     index("opportunities_organization_idx").on(columns.organization),
@@ -1242,7 +1216,6 @@ export const _opportunities_v = sqliteTable(
     parent: integer("parent_id").references(() => opportunities.id, {
       onDelete: "set null",
     }),
-    version_legacyId: text("version_legacy_id"),
     version_sortOrder: numeric("version_sort_order", {
       mode: "number",
     }).default(0),
@@ -1335,9 +1308,6 @@ export const _opportunities_v = sqliteTable(
   },
   (columns) => [
     index("_opportunities_v_parent_idx").on(columns.parent),
-    index("_opportunities_v_version_version_legacy_id_idx").on(
-      columns.version_legacyId,
-    ),
     index("_opportunities_v_version_version_original_language_idx").on(
       columns.version_originalLanguage,
     ),
@@ -1447,7 +1417,6 @@ export const team_members = sqliteTable(
   "team_members",
   {
     id: integer("id").primaryKey(),
-    legacyId: text("legacy_id"),
     sortOrder: numeric("sort_order", { mode: "number" }).default(0),
     originalLanguage: text("original_language", {
       enum: ["ru", "en", "kk", "uz", "ar", "de", "es", "tr"],
@@ -1461,9 +1430,7 @@ export const team_members = sqliteTable(
     targetProject: text("target_project"),
     whyLooking: text("why_looking"),
     contact: text("contact"),
-    contactType: text("contact_type", {
-      enum: ["telegram", "email", "discord"],
-    }),
+    contactType: text("contact_type", { enum: ["telegram", "email"] }),
     moderationStatus: text("moderation_status", {
       enum: ["pending", "approved", "rejected", "needs_edit"],
     }).default("pending"),
@@ -1488,7 +1455,9 @@ export const team_members = sqliteTable(
     }).default("modal"),
     sourceId: text("source_id"),
     sourceContext: text("source_context"),
-    tournamentId: text("tournament_id"),
+    tournamentId: integer("tournament_id_id").references(() => tournaments.id, {
+      onDelete: "set null",
+    }),
     seoTitle: text("seo_title"),
     seoDescription: text("seo_description"),
     updatedAt: text("updated_at")
@@ -1500,10 +1469,10 @@ export const team_members = sqliteTable(
     _status: text("_status", { enum: ["draft", "published"] }).default("draft"),
   },
   (columns) => [
-    index("team_members_legacy_id_idx").on(columns.legacyId),
     index("team_members_original_language_idx").on(columns.originalLanguage),
     index("team_members_email_idx").on(columns.email),
     index("team_members_moderation_status_idx").on(columns.moderationStatus),
+    index("team_members_tournament_id_idx").on(columns.tournamentId),
     index("team_members_updated_at_idx").on(columns.updatedAt),
     index("team_members_created_at_idx").on(columns.createdAt),
     index("team_members__status_idx").on(columns._status),
@@ -1616,7 +1585,6 @@ export const _team_members_v = sqliteTable(
     parent: integer("parent_id").references(() => team_members.id, {
       onDelete: "set null",
     }),
-    version_legacyId: text("version_legacy_id"),
     version_sortOrder: numeric("version_sort_order", {
       mode: "number",
     }).default(0),
@@ -1633,7 +1601,7 @@ export const _team_members_v = sqliteTable(
     version_whyLooking: text("version_why_looking"),
     version_contact: text("version_contact"),
     version_contactType: text("version_contact_type", {
-      enum: ["telegram", "email", "discord"],
+      enum: ["telegram", "email"],
     }),
     version_moderationStatus: text("version_moderation_status", {
       enum: ["pending", "approved", "rejected", "needs_edit"],
@@ -1661,7 +1629,12 @@ export const _team_members_v = sqliteTable(
     }).default("modal"),
     version_sourceId: text("version_source_id"),
     version_sourceContext: text("version_source_context"),
-    version_tournamentId: text("version_tournament_id"),
+    version_tournamentId: integer("version_tournament_id_id").references(
+      () => tournaments.id,
+      {
+        onDelete: "set null",
+      },
+    ),
     version_seoTitle: text("version_seo_title"),
     version_seoDescription: text("version_seo_description"),
     version_updatedAt: text("version_updated_at").default(
@@ -1683,9 +1656,6 @@ export const _team_members_v = sqliteTable(
   },
   (columns) => [
     index("_team_members_v_parent_idx").on(columns.parent),
-    index("_team_members_v_version_version_legacy_id_idx").on(
-      columns.version_legacyId,
-    ),
     index("_team_members_v_version_version_original_language_idx").on(
       columns.version_originalLanguage,
     ),
@@ -1694,6 +1664,9 @@ export const _team_members_v = sqliteTable(
     ),
     index("_team_members_v_version_version_moderation_status_idx").on(
       columns.version_moderationStatus,
+    ),
+    index("_team_members_v_version_version_tournament_id_idx").on(
+      columns.version_tournamentId,
     ),
     index("_team_members_v_version_version_updated_at_idx").on(
       columns.version_updatedAt,
@@ -1741,7 +1714,6 @@ export const trust_points = sqliteTable(
   "trust_points",
   {
     id: integer("id").primaryKey(),
-    legacyId: text("legacy_id"),
     sortOrder: numeric("sort_order", { mode: "number" }).default(0),
     isPublished: integer("is_published", { mode: "boolean" }).default(true),
     originalLanguage: text("original_language", {
@@ -1749,8 +1721,8 @@ export const trust_points = sqliteTable(
     })
       .notNull()
       .default("ru"),
-    title: text("title").notNull(),
-    description: text("description").notNull(),
+    title: text("title"),
+    description: text("description"),
     seoTitle: text("seo_title"),
     seoDescription: text("seo_description"),
     updatedAt: text("updated_at")
@@ -1761,7 +1733,6 @@ export const trust_points = sqliteTable(
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
   },
   (columns) => [
-    index("trust_points_legacy_id_idx").on(columns.legacyId),
     index("trust_points_original_language_idx").on(columns.originalLanguage),
     index("trust_points_updated_at_idx").on(columns.updatedAt),
     index("trust_points_created_at_idx").on(columns.createdAt),
@@ -1772,7 +1743,6 @@ export const pillars = sqliteTable(
   "pillars",
   {
     id: integer("id").primaryKey(),
-    legacyId: text("legacy_id"),
     sortOrder: numeric("sort_order", { mode: "number" }).default(0),
     isPublished: integer("is_published", { mode: "boolean" }).default(true),
     originalLanguage: text("original_language", {
@@ -1793,7 +1763,6 @@ export const pillars = sqliteTable(
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
   },
   (columns) => [
-    index("pillars_legacy_id_idx").on(columns.legacyId),
     index("pillars_original_language_idx").on(columns.originalLanguage),
     index("pillars_updated_at_idx").on(columns.updatedAt),
     index("pillars_created_at_idx").on(columns.createdAt),
@@ -1804,7 +1773,6 @@ export const scenarios = sqliteTable(
   "scenarios",
   {
     id: integer("id").primaryKey(),
-    legacyId: text("legacy_id"),
     sortOrder: numeric("sort_order", { mode: "number" }).default(0),
     isPublished: integer("is_published", { mode: "boolean" }).default(true),
     originalLanguage: text("original_language", {
@@ -1831,7 +1799,6 @@ export const scenarios = sqliteTable(
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
   },
   (columns) => [
-    index("scenarios_legacy_id_idx").on(columns.legacyId),
     index("scenarios_original_language_idx").on(columns.originalLanguage),
     index("scenarios_updated_at_idx").on(columns.updatedAt),
     index("scenarios_created_at_idx").on(columns.createdAt),
@@ -1842,7 +1809,6 @@ export const stats = sqliteTable(
   "stats",
   {
     id: integer("id").primaryKey(),
-    legacyId: text("legacy_id"),
     sortOrder: numeric("sort_order", { mode: "number" }).default(0),
     isPublished: integer("is_published", { mode: "boolean" }).default(true),
     originalLanguage: text("original_language", {
@@ -1862,7 +1828,6 @@ export const stats = sqliteTable(
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
   },
   (columns) => [
-    index("stats_legacy_id_idx").on(columns.legacyId),
     index("stats_original_language_idx").on(columns.originalLanguage),
     index("stats_updated_at_idx").on(columns.updatedAt),
     index("stats_created_at_idx").on(columns.createdAt),
@@ -1874,7 +1839,7 @@ export const contact_settings = sqliteTable(
   {
     id: integer("id").primaryKey(),
     label: text("label").notNull().default("Site Contacts"),
-    email: text("email").default("info@navykus.org"),
+    email: text("email").default("info@navykus.online"),
     updatedAt: text("updated_at")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
@@ -1969,11 +1934,20 @@ export const page_texts = sqliteTable(
     sortOrder: numeric("sort_order", { mode: "number" }).default(0),
     isPublished: integer("is_published", { mode: "boolean" }).default(true),
     page: text("page", {
-      enum: ["about", "championship", "activities"],
+      enum: [
+        "global",
+        "home",
+        "about",
+        "championship",
+        "activities",
+        "find-team",
+        "legal",
+      ],
     }).notNull(),
     translationKey: text("translation_key").notNull(),
-    label: text("label").notNull(),
-    value: text("value").notNull(),
+    blockName: text("block_name"),
+    label: text("label"),
+    value: text("value"),
     updatedAt: text("updated_at")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
@@ -1985,6 +1959,7 @@ export const page_texts = sqliteTable(
     index("page_texts_legacy_id_idx").on(columns.legacyId),
     index("page_texts_page_idx").on(columns.page),
     index("page_texts_translation_key_idx").on(columns.translationKey),
+    index("page_texts_block_name_idx").on(columns.blockName),
     index("page_texts_updated_at_idx").on(columns.updatedAt),
     index("page_texts_created_at_idx").on(columns.createdAt),
   ],
@@ -2409,15 +2384,15 @@ export const relations_activities = relations(activities, ({ many }) => ({
   }),
 }));
 export const relations_experts = relations(experts, ({ one }) => ({
-  photo: one(media, {
-    fields: [experts.photo],
-    references: [media.id],
-    relationName: "photo",
-  }),
   tournamentId: one(tournaments, {
     fields: [experts.tournamentId],
     references: [tournaments.id],
     relationName: "tournamentId",
+  }),
+  photo: one(media, {
+    fields: [experts.photo],
+    references: [media.id],
+    relationName: "photo",
   }),
 }));
 export const relations__experts_v = relations(_experts_v, ({ one }) => ({
@@ -2426,15 +2401,15 @@ export const relations__experts_v = relations(_experts_v, ({ one }) => ({
     references: [experts.id],
     relationName: "parent",
   }),
-  version_photo: one(media, {
-    fields: [_experts_v.version_photo],
-    references: [media.id],
-    relationName: "version_photo",
-  }),
   version_tournamentId: one(tournaments, {
     fields: [_experts_v.version_tournamentId],
     references: [tournaments.id],
     relationName: "version_tournamentId",
+  }),
+  version_photo: one(media, {
+    fields: [_experts_v.version_photo],
+    references: [media.id],
+    relationName: "version_photo",
   }),
 }));
 export const relations_faqs = relations(faqs, () => ({}));
@@ -2745,20 +2720,28 @@ export const relations_team_members_rels = relations(
     }),
   }),
 );
-export const relations_team_members = relations(team_members, ({ many }) => ({
-  interests: many(team_members_interests, {
-    relationName: "interests",
+export const relations_team_members = relations(
+  team_members,
+  ({ one, many }) => ({
+    interests: many(team_members_interests, {
+      relationName: "interests",
+    }),
+    skills: many(team_members_skills, {
+      relationName: "skills",
+    }),
+    targetRoles: many(team_members_target_roles, {
+      relationName: "targetRoles",
+    }),
+    tournamentId: one(tournaments, {
+      fields: [team_members.tournamentId],
+      references: [tournaments.id],
+      relationName: "tournamentId",
+    }),
+    _rels: many(team_members_rels, {
+      relationName: "_rels",
+    }),
   }),
-  skills: many(team_members_skills, {
-    relationName: "skills",
-  }),
-  targetRoles: many(team_members_target_roles, {
-    relationName: "targetRoles",
-  }),
-  _rels: many(team_members_rels, {
-    relationName: "_rels",
-  }),
-}));
+);
 export const relations__team_members_v_version_interests = relations(
   _team_members_v_version_interests,
   ({ one }) => ({
@@ -2820,6 +2803,11 @@ export const relations__team_members_v = relations(
     }),
     version_targetRoles: many(_team_members_v_version_target_roles, {
       relationName: "version_targetRoles",
+    }),
+    version_tournamentId: one(tournaments, {
+      fields: [_team_members_v.version_tournamentId],
+      references: [tournaments.id],
+      relationName: "version_tournamentId",
     }),
     _rels: many(_team_members_v_rels, {
       relationName: "_rels",

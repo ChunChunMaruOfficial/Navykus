@@ -165,12 +165,8 @@ export default function App() {
   const stats = useCmsStats();
   const { texts: homePageTexts } = useCmsPageTexts(ALL_EDITABLE_PAGE_TEXT_PAGES);
   const [featuredTournament, setFeaturedTournament] = useState<Record<string, unknown> | null>(null);
-  const featuredTournamentPublicId = featuredTournament
-    ? String(featuredTournament.legacyId ?? featuredTournament.id ?? '')
-    : undefined;
   const featuredExperts = useMemo(() => {
     const tournamentIds = [
-      featuredTournamentPublicId,
       featuredTournament?.id != null ? String(featuredTournament.id) : undefined,
       cmsTournaments?.[0]?.id,
     ].filter((id): id is string => Boolean(id));
@@ -180,7 +176,7 @@ export default function App() {
     if (scopedExperts.length > 0) return scopedExperts;
     const unscopedExperts = experts?.filter(e => !e.tournamentId) || [];
     return unscopedExperts.length > 0 ? unscopedExperts : (experts || []);
-  }, [experts, featuredTournament, featuredTournamentPublicId, cmsTournaments]);
+  }, [experts, featuredTournament, cmsTournaments]);
   const [currentPage, setCurrentPage] = useState<Page>(getPageFromPath);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [applicationContext, setApplicationContext] = useState<TeamApplicationContext | undefined>(undefined);
@@ -425,7 +421,7 @@ export default function App() {
   const firstCmsTournament = cmsTournaments[0];
   const nearestTournament = featuredTournament
     ? {
-        id: featuredTournamentPublicId || String(featuredTournament.id || firstCmsTournament?.id || ''),
+        id: featuredTournament.id != null ? String(featuredTournament.id) : String(firstCmsTournament?.id || ''),
         title: String(featuredTournament.title || firstCmsTournament?.title || ''),
         type: String(featuredTournament.type || firstCmsTournament?.type || ''),
         date: String(featuredTournament.date || firstCmsTournament?.date || ''),

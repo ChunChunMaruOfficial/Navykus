@@ -2,7 +2,7 @@ import type { CollectionConfig } from 'payload';
 
 import { adminOrModerator, anyone } from '../access';
 import { auditAfterChange, auditAfterDelete } from '../audit';
-import { legacyIdField, publishedField, seoFields, sortOrderField } from '../fields';
+import { publishedField, seoFields, sortOrderField } from '../fields';
 import { localizedAfterChange, localizedAfterDelete, originalLanguageField } from '../localization';
 import { publicPreview } from '../preview';
 
@@ -25,13 +25,25 @@ export const Pillars: CollectionConfig = {
     afterDelete: [localizedAfterDelete('pillars'), auditAfterDelete('pillars')],
   },
   fields: [
-    legacyIdField,
     sortOrderField,
     publishedField,
     originalLanguageField,
-    { name: 'label', type: 'text', required: true },
-    { name: 'title', type: 'text', required: true },
-    { name: 'description', type: 'textarea', required: true },
-    ...seoFields,
+    {
+      type: 'tabs',
+      tabs: [
+        {
+          label: 'Основное',
+          fields: [
+            { name: 'label', label: 'Ярлык', type: 'text', required: true },
+            { name: 'title', label: 'Заголовок', type: 'text', required: true },
+            { name: 'description', label: 'Описание', type: 'textarea', required: true },
+          ],
+        },
+        {
+          label: 'SEO',
+          fields: [...seoFields],
+        },
+      ],
+    },
   ],
 };

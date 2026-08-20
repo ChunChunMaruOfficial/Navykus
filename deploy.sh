@@ -8,8 +8,8 @@ set -euo pipefail
 #  Or:   chmod +x deploy.sh && ./deploy.sh
 # =============================================================================
 
-NAVYKUS_DOMAIN="${NAVYKUS_DOMAIN:-navykus.org}"
-NAVYKUS_ADMIN_EMAIL="${NAVYKUS_ADMIN_EMAIL:-admin@navykus.org}"
+NAVYKUS_DOMAIN="${NAVYKUS_DOMAIN:-navykus.online}"
+NAVYKUS_ADMIN_EMAIL="${NAVYKUS_ADMIN_EMAIL:-admin@navykus.online}"
 NAVYKUS_ADMIN_PASSWORD="${NAVYKUS_ADMIN_PASSWORD:-$(openssl rand -base64 16)}"
 PAYLOAD_SECRET="${PAYLOAD_SECRET:-$(openssl rand -base64 32)}"
 REPO_URL="${REPO_URL:-https://github.com/your-org/navykus.git}"
@@ -199,7 +199,7 @@ ok "PM2 started — navykus-api running on port 4000"
 # ── 11. SSL via Let's Encrypt ──────────────────────────────────────────────
 step "11/12 — Setting up SSL certificate"
 
-if [[ -n "${NAVYKUS_DOMAIN}" && "${NAVYKUS_DOMAIN}" != "navykus.org" ]]; then
+if [[ -n "${NAVYKUS_DOMAIN}" && "${NAVYKUS_DOMAIN}" != "navykus.online" ]]; then
   info "Obtaining SSL certificate for ${NAVYKUS_DOMAIN}..."
   certbot --nginx -d "${NAVYKUS_DOMAIN}" -d "www.${NAVYKUS_DOMAIN}" \
     --non-interactive --agree-tos --email "${NAVYKUS_ADMIN_EMAIL}" \

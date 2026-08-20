@@ -3,7 +3,7 @@ import type { CollectionConfig } from 'payload';
 import type { Field } from 'payload';
 
 import { adminOrModerator, anyone } from '../access';
-import { legacyIdField, newlineListField, publicContentVersions, publishedField, seoFields, sortOrderField, syncPublishedDraftBeforeChange, textListField } from '../fields';
+import { newlineListField, publicContentVersions, publishedField, seoFields, sortOrderField, syncPublishedDraftBeforeChange, textListField } from '../fields';
 import { auditAfterChange, auditAfterDelete } from '../audit';
 import { localizedAfterChange, localizedAfterDelete, originalLanguageField } from '../localization';
 import { publicPreview } from '../preview';
@@ -32,57 +32,57 @@ export const Tournaments: CollectionConfig = {
     afterDelete: [localizedAfterDelete('tournaments'), auditAfterDelete('tournaments')],
   },
   fields: [
-    legacyIdField,
     sortOrderField,
     publishedField,
     originalLanguageField,
     {
       name: 'isFeatured',
       type: 'checkbox',
-      label: 'Featured on homepage',
+      label: 'Показывать на главной',
       defaultValue: false,
       admin: {
         position: 'sidebar',
-        description: 'Mark this championship to appear on the homepage',
+        description: 'Отметьте, чтобы чемпионат появился на главной странице',
       },
     } as Field,
     {
       type: 'tabs',
       tabs: [
         {
-          label: 'General',
+          label: 'Основное',
           fields: [
-            { name: 'title', type: 'text', required: true },
-            { name: 'slug', type: 'text', unique: true, index: true, admin: { description: 'Auto-generated from title when empty.' } },
-            { name: 'type', type: 'text', required: true, admin: { description: 'e.g. "Кейс-чемпионат", "Хакатон"' } },
-            { name: 'description', type: 'textarea', required: true, admin: { rows: 10 } },
-            { name: 'pitch', type: 'textarea', admin: { rows: 6, description: 'Short hero text. Falls back to description.' } },
+            { name: 'title', label: 'Заголовок', type: 'text', required: true },
+            { name: 'slug', label: 'Slug', type: 'text', unique: true, index: true, admin: { description: 'Генерируется автоматически из заголовка, если пусто.' } },
+            { name: 'type', label: 'Тип', type: 'text', required: true, admin: { description: 'Например: "Кейс-чемпионат", "Хакатон"' } },
+            { name: 'description', label: 'Описание', type: 'textarea', required: true, admin: { rows: 10 } },
+            { name: 'pitch', label: 'Короткий текст для хиро-блока', type: 'textarea', admin: { rows: 6, description: 'Если пусто, используется описание.' } },
           ],
         },
         {
-          label: 'Schedule',
+          label: 'Расписание',
           fields: [
-            { name: 'date', type: 'text', required: true, admin: { description: 'Event date(s)' } },
-            { name: 'registrationDeadline', type: 'text', required: true, admin: { description: 'Registration cutoff date' } },
+            { name: 'date', label: 'Дата проведения', type: 'text', required: true, admin: { description: 'Даты события (текстом)' } },
+            { name: 'registrationDeadline', label: 'Дедлайн регистрации', type: 'text', required: true, admin: { description: 'Дата окончания регистрации' } },
             {
               name: 'registrationStatus',
+              label: 'Статус регистрации',
               type: 'select',
               required: true,
               defaultValue: 'open',
               options: [
-                { label: 'Open', value: 'open' },
-                { label: 'Suspended', value: 'suspended' },
-                { label: 'Closed', value: 'closed' },
+                { label: 'Открыта', value: 'open' },
+                { label: 'Приостановлена', value: 'suspended' },
+                { label: 'Закрыта', value: 'closed' },
               ],
             },
           ],
         },
         {
-          label: 'Details',
+          label: 'Детали',
           fields: [
-            { name: 'maxParticipants', type: 'number', required: true },
-            textListField('skills', 'Required Skills'),
-            textListField('mentors', 'Mentors'),
+            { name: 'maxParticipants', label: 'Максимум участников', type: 'number', required: true },
+            textListField('skills', 'Необходимые навыки'),
+            textListField('mentors', 'Наставники'),
             { name: 'suitableFor', label: 'Кому подходит', type: 'textarea', admin: { rows: 5 } },
             {
               name: 'format',

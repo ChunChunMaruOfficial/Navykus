@@ -2,7 +2,7 @@ import type { CollectionConfig } from 'payload';
 
 import { adminOrModerator, anyone } from '../access';
 import { auditAfterChange, auditAfterDelete } from '../audit';
-import { legacyIdField, publishedField, seoFields, sortOrderField } from '../fields';
+import { publishedField, seoFields, sortOrderField } from '../fields';
 import { localizedAfterChange, localizedAfterDelete, originalLanguageField } from '../localization';
 import { publicPreview } from '../preview';
 
@@ -25,12 +25,24 @@ export const Stats: CollectionConfig = {
     afterDelete: [localizedAfterDelete('stats'), auditAfterDelete('stats')],
   },
   fields: [
-    legacyIdField,
     sortOrderField,
     publishedField,
     originalLanguageField,
-    { name: 'value', type: 'text', required: true, admin: { description: 'e.g. "15+", "1000+"' } },
-    { name: 'label', type: 'text', required: true, admin: { description: 'e.g. "countries", "participants"' } },
-    ...seoFields,
+    {
+      type: 'tabs',
+      tabs: [
+        {
+          label: 'Основное',
+          fields: [
+            { name: 'value', label: 'Значение', type: 'text', required: true, admin: { description: 'Например: "15+", "1000+"' } },
+            { name: 'label', label: 'Подпись', type: 'text', required: true, admin: { description: 'Например: "стран", "участников"' } },
+          ],
+        },
+        {
+          label: 'SEO',
+          fields: [...seoFields],
+        },
+      ],
+    },
   ],
 };

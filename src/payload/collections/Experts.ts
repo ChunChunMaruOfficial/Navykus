@@ -1,7 +1,7 @@
 import type { CollectionConfig } from 'payload';
 
 import { adminOrModerator, anyone } from '../access';
-import { legacyIdField, publicContentVersions, publishedField, seoFields, sortOrderField, syncPublishedDraftBeforeChange } from '../fields';
+import { publicContentVersions, publishedField, seoFields, sortOrderField, syncPublishedDraftBeforeChange } from '../fields';
 import { auditAfterChange, auditAfterDelete } from '../audit';
 import { localizedAfterChange, localizedAfterDelete, originalLanguageField } from '../localization';
 import { publicPreview } from '../preview';
@@ -27,45 +27,62 @@ export const Experts: CollectionConfig = {
     afterDelete: [localizedAfterDelete('experts'), auditAfterDelete('experts')],
   },
   fields: [
-    legacyIdField,
     sortOrderField,
     publishedField,
     originalLanguageField,
-    { name: 'name', type: 'text', required: true },
     {
-      name: 'type',
-      type: 'select',
-      required: true,
-      defaultValue: 'expert',
-      options: [
-        { label: 'Жюри', value: 'jury' },
-        { label: 'Наставник', value: 'mentor' },
-        { label: 'Эксперт', value: 'expert' },
+      type: 'tabs',
+      tabs: [
+        {
+          label: 'Основное',
+          fields: [
+            { name: 'name', label: 'Имя', type: 'text', required: true },
+            {
+              name: 'type',
+              type: 'select',
+              required: true,
+              defaultValue: 'expert',
+              options: [
+                { label: 'Жюри', value: 'jury' },
+                { label: 'Наставник', value: 'mentor' },
+                { label: 'Эксперт', value: 'expert' },
+              ],
+              admin: {
+                description: 'Роль в чемпионате: жюри, наставник или эксперт',
+              },
+            },
+            { name: 'role', label: 'Роль', type: 'text', required: true },
+            {
+              name: 'tournamentId',
+              type: 'relationship',
+              relationTo: 'tournaments',
+              hasMany: false,
+              admin: {
+                description: 'К какому чемпионату привязан эксперт',
+              },
+            },
+          ],
+        },
+        {
+          label: 'Описание',
+          fields: [
+            { name: 'expertise', label: 'Экспертиза', type: 'textarea', required: true },
+            { name: 'description', label: 'Описание', type: 'textarea', required: true },
+            {
+              name: 'photo',
+              type: 'upload',
+              relationTo: 'media',
+              admin: {
+                description: 'Фото эксперта, наставника или жюри',
+              },
+            },
+          ],
+        },
+        {
+          label: 'SEO',
+          fields: [...seoFields],
+        },
       ],
-      admin: {
-        description: 'Роль в чемпионате: жюри, наставник или эксперт',
-      },
     },
-    { name: 'role', type: 'text', required: true },
-    { name: 'expertise', type: 'textarea', required: true },
-    { name: 'description', type: 'textarea', required: true },
-    {
-      name: 'photo',
-      type: 'upload',
-      relationTo: 'media',
-      admin: {
-        description: 'Фото эксперта, наставника или жюри',
-      },
-    },
-    {
-      name: 'tournamentId',
-      type: 'relationship',
-      relationTo: 'tournaments',
-      hasMany: false,
-      admin: {
-        description: 'К какому чемпионату привязан эксперт',
-      },
-    },
-    ...seoFields,
   ],
 };

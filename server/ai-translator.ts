@@ -38,10 +38,6 @@ const providerOrder = (): TranslationProvider[] => {
   return [primary, ...fallbacks];
 };
 
-export const getTranslationProviderName = () => {
-  return normalizeProvider(process.env.TRANSLATION_PROVIDER);
-};
-
 const parseGoogleTranslateResponse = (data: unknown) => {
   if (!Array.isArray(data) || !Array.isArray(data[0])) return '';
   return data[0]
@@ -182,7 +178,6 @@ export const translateStructuredContent = async ({
   content: Record<string, unknown>;
   from: SupportedLanguage;
   to: SupportedLanguage;
-  context?: string;
 }) => {
   const sourceLanguage = normalizeLocale(from);
   const targetLanguage = normalizeLocale(to);
@@ -194,6 +189,3 @@ export const translateStructuredContent = async ({
   }
   return Object.fromEntries(localizedEntries);
 };
-
-export const targetLocales = (source: SupportedLanguage): SupportedLanguage[] =>
-  (SUPPORTED_LANGUAGES as readonly SupportedLanguage[]).filter((language) => language !== source);

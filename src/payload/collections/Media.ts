@@ -8,6 +8,7 @@ export const Media: CollectionConfig = {
   admin: {
     useAsTitle: 'alt',
     group: 'System',
+    defaultColumns: ['alt', 'filename', 'mimeType', 'filesize', 'updatedAt'],
   },
   upload: {
     staticDir: mediaUploadDir,

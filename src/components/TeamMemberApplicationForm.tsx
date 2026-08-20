@@ -11,7 +11,7 @@ const FIELD_CLASS =
 const UPLOAD_CLASS =
   'group relative flex w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-[#d8d1cc] bg-white/70 px-4 py-3.5 transition-colors hover:bg-white focus-within:border-brand-dark/45 focus-within:bg-white';
 
-const CONTACT_TYPES = ['telegram', 'email', 'discord'] as const;
+const CONTACT_TYPES = ['telegram', 'email'] as const;
 const ROLE_OPTIONS: TeamRole[] = ['developer', 'designer', 'researcher', 'product_manager', 'marketer', 'team_lead', 'analyst', 'other'];
 
 const ROLE_LABELS: Record<TeamRole, string> = {

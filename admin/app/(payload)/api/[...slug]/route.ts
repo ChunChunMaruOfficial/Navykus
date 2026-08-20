@@ -9,11 +9,21 @@ import {
 import { getPayload } from 'payload';
 
 import config from '../../../../payload.config';
-import { getAdminContentTypeByCollection } from '../../../../../src/content-admin-registry';
 import {
   syncPublishedDraftData,
   syncTeamMemberPublicationData,
 } from '../../../../../src/payload/fields';
+
+// Mirrors the publish-flag map in server/index.ts. Used by the unpublishAllLocales PATCH
+// handler below to decide whether a collection supports Payload drafts.
+const VERSIONED_COLLECTIONS = new Set([
+  'tournaments',
+  'events',
+  'experts',
+  'faqs',
+  'opportunities',
+  'team-members',
+]);
 
 export const runtime = 'nodejs';
 
@@ -42,8 +52,7 @@ export const PATCH = async (request: Request, context: RouteContext) => {
 
   const slug = (await context.params).slug || [];
   const [collection, id] = slug;
-  const contentType = collection ? getAdminContentTypeByCollection(collection) : undefined;
-  if (!collection || !id || !contentType?.supportsDraftStatus) {
+  if (!collection || !id || !VERSIONED_COLLECTIONS.has(collection)) {
     return REST_PATCH_HANDLER(request, context);
   }
 

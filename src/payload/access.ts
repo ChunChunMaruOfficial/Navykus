@@ -40,15 +40,3 @@ export const ownUserOrAdmin: Access = ({ req: { user } }) => {
     },
   };
 };
-
-export const ownerOrStaff = (fieldName = 'user'): Access => ({ req: { user } }) => {
-  const currentUser = getUser(user);
-  if (!currentUser?.id) return false;
-  if (isAdmin(currentUser) || currentUser.role === 'moderator') return true;
-
-  return {
-    [fieldName]: {
-      equals: currentUser.id,
-    },
-  };
-};

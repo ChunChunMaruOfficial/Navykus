@@ -21,7 +21,7 @@ const listValues = (items: unknown): string[] => {
     .filter(Boolean);
 };
 
-const publicId = (doc: any) => String(doc.legacyId || doc.id);
+const publicId = (doc: any) => String(doc.id);
 
 export const normalizeTournament = (doc: any): Tournament => ({
   id: publicId(doc),

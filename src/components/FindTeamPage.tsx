@@ -66,7 +66,6 @@ const ROLE_LABELS: Record<TeamRole, string> = {
 const CONTACT_LABELS: Record<string, string> = {
   telegram: 'Telegram',
   email: 'Email',
-  discord: 'Discord',
 };
 
 const COUNTRY_FLAGS: Record<string, string> = {
@@ -376,7 +375,7 @@ function DetailedProfileModal({
                   <button
                     onClick={handleOpenContact}
                     className="shrink-0 rounded-lg border border-white/50 bg-white/40 p-2 text-brand-slate hover:text-brand-dark hover:bg-white/70 transition-all cursor-pointer"
-                    title={member.contactType === 'discord' ? 'Copy username' : 'Open'}
+                    title="Open"
                   >
                     <ArrowUpRight className="h-3.5 w-3.5" />
                   </button>

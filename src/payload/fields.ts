@@ -1,17 +1,8 @@
 import type { CollectionBeforeChangeHook, Field } from 'payload';
 
-export const legacyIdField: Field = {
-  name: 'legacyId',
-  type: 'text',
-  admin: {
-    description: 'Stable ID from the original frontend data file.',
-    position: 'sidebar',
-  },
-  index: true,
-};
-
 export const sortOrderField: Field = {
   name: 'sortOrder',
+  label: 'Порядок сортировки',
   type: 'number',
   defaultValue: 0,
   admin: {
@@ -21,6 +12,7 @@ export const sortOrderField: Field = {
 
 export const publishedField: Field = {
   name: 'isPublished',
+  label: 'Опубликовано',
   type: 'checkbox',
   defaultValue: true,
   admin: {
@@ -46,20 +38,20 @@ export const newlineListField = (name: string, label: string): Field => ({
   label,
   type: 'textarea',
   admin: {
-    description: 'One item per line.',
+    description: 'Один пункт на строку.',
   },
 });
 
 export const seoFields: Field[] = [
   {
     name: 'seoTitle',
-    label: 'SEO title',
+    label: 'SEO-заголовок',
     type: 'text',
     maxLength: 80,
   },
   {
     name: 'seoDescription',
-    label: 'SEO description',
+    label: 'SEO-описание',
     type: 'textarea',
     maxLength: 180,
   },

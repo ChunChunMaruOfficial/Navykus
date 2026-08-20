@@ -67,8 +67,8 @@
       "aacca2db": "ما هو نافيكوس؟",
       "19816f01": "لماذا يختار الآباء والخبراء Navykus؟",
       "e07687c4": "هل أنت مستعد لبدء رحلتك؟",
-      "a5307558": "mailto:info@navykus.org?subject=%D8%B7%D9%84%D8%A8%20%D8%B3%D9%8A%D8%A7%D8%B3%D8%A9%20%D8%A7%D9%84%D8%AE%D8%B5%D9%88%D8%B5%D9%8A%D8%A9",
-      "4d9e7853": "mailto:info@navykus.org?subject=%D8%B7%D9%84%D8%A8%20%D8%A7%D8%AA%D9%81%D8%A7%D9%82%D9%8A%D8%A9%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D8%AE%D8%AF%D8%A7%D9%85",
+      "a5307558": "mailto:info@navykus.online?subject=%D8%B7%D9%84%D8%A8%20%D8%B3%D9%8A%D8%A7%D8%B3%D8%A9%20%D8%A7%D9%84%D8%AE%D8%B5%D9%88%D8%B5%D9%8A%D8%A9",
+      "4d9e7853": "mailto:info@navykus.online?subject=%D8%B7%D9%84%D8%A8%20%D8%A7%D8%AA%D9%81%D8%A7%D9%82%D9%8A%D8%A9%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D8%AE%D8%AF%D8%A7%D9%85",
       "02ce21d910": "الرجاء إدخال اسمك",
       "1c3299a85e": "الرجاء إدخال العمر الصحيح (من 10 إلى 22 سنة)",
       "92ca287f55": "يرجى الإشارة إلى بلدك أو مدينتك",
@@ -222,7 +222,7 @@
       "55cd784afe": "كيف تعمل الأحداث والدفاع عن المشروع؟",
       "b38dd282f8": "تتم جميع العمليات بالكامل عبر الإنترنت على منصتنا. يتم بث ورش العمل والمحاضرات مسجلة ومباشرة، ويتم تنفيذ الأعمال في Miro/Figma، ويتم الدفاع عن المشاريع أمام لجنة التحكيم في Zoom أو Discord.",
       "e663d62bb5": "كيف يمكنني الاتصال بمنظمي Navykus؟",
-      "b966ab17f5": "اكتب لنا على info@navykus.org. سنجيب عن الأسئلة التنظيمية والتقنية."
+      "b966ab17f5": "اكتب لنا على info@navykus.online. سنجيب عن الأسئلة التنظيمية والتقنية."
     },
     "activitiespage": {
       "0b2e4667a1": "فعاليات للطلاب",
@@ -992,7 +992,7 @@
         ],
         "prerequisites": "غير مطلوب",
         "ctaText": "عرض الإدخالات",
-        "ctaLink": "mailto:info@navykus.org?subject=Записи%20конференции%20Будущее%20Skills%202025"
+        "ctaLink": "mailto:info@navykus.online?subject=Записи%20конференции%20Будущее%20Skills%202025"
       },
       {
         "id": "act-9",
@@ -1033,7 +1033,7 @@
         ],
         "prerequisites": "غير مطلوب",
         "ctaText": "شاهد التسجيل",
-        "ctaLink": "mailto:info@navykus.org?subject=Запись%20воркшопа%20по%20исследовательской%20работе"
+        "ctaLink": "mailto:info@navykus.online?subject=Запись%20воркшопа%20по%20исследовательской%20работе"
       },
       {
         "id": "act-11",
@@ -1054,7 +1054,7 @@
         ],
         "prerequisites": "أي مهارة هي موضع ترحيب",
         "ctaText": "نتائج الهاكاثون",
-        "ctaLink": "mailto:info@navykus.org?subject=Итоги%20хакатона%20Доступная%20среда%202025"
+        "ctaLink": "mailto:info@navykus.online?subject=Итоги%20хакатона%20Доступная%20среда%202025"
       },
       {
         "id": "act-12",
@@ -1075,7 +1075,7 @@
         ],
         "prerequisites": "اللغة الإنجليزية الأساسية للتواصل",
         "ctaText": "الحدث القادم",
-        "ctaLink": "mailto:info@navykus.org?subject=Следующее%20событие%20Asian%20Youth%20Connect"
+        "ctaLink": "mailto:info@navykus.online?subject=Следующее%20событие%20Asian%20Youth%20Connect"
       }
     ],
     "teamMembers": [

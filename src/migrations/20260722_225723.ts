@@ -323,7 +323,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.run(sql`CREATE TABLE \`contact_settings\` (
   	\`id\` integer PRIMARY KEY NOT NULL,
   	\`label\` text DEFAULT 'Site Contacts' NOT NULL,
-  	\`email\` text DEFAULT 'info@navykus.org',
+  	\`email\` text DEFAULT 'info@navykus.online',
   	\`phone\` text DEFAULT '+7 (999) 000-00-00',
   	\`telegram\` text DEFAULT '@navykus_com',
   	\`address\` text DEFAULT '',

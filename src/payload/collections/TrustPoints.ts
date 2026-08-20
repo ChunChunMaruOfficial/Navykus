@@ -2,7 +2,7 @@ import type { CollectionConfig } from 'payload';
 
 import { adminOrModerator, anyone } from '../access';
 import { auditAfterChange, auditAfterDelete } from '../audit';
-import { legacyIdField, publishedField, seoFields, sortOrderField } from '../fields';
+import { publishedField, seoFields, sortOrderField } from '../fields';
 import { localizedAfterChange, localizedAfterDelete, originalLanguageField } from '../localization';
 import { publicPreview } from '../preview';
 
@@ -25,12 +25,24 @@ export const TrustPoints: CollectionConfig = {
     afterDelete: [localizedAfterDelete('trust-points'), auditAfterDelete('trust-points')],
   },
   fields: [
-    legacyIdField,
     sortOrderField,
     publishedField,
     originalLanguageField,
-    { name: 'title', type: 'text' },
-    { name: 'description', type: 'textarea' },
-    ...seoFields,
+    {
+      type: 'tabs',
+      tabs: [
+        {
+          label: 'Основное',
+          fields: [
+            { name: 'title', label: 'Заголовок', type: 'text' },
+            { name: 'description', label: 'Описание', type: 'textarea' },
+          ],
+        },
+        {
+          label: 'SEO',
+          fields: [...seoFields],
+        },
+      ],
+    },
   ],
 };

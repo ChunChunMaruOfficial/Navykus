@@ -48,13 +48,13 @@ const mergeLocalizedData = (doc: Record<string, unknown>, localizedData: Record<
 
 const PENDING_CLEAR_FIELDS: Record<SupportedContentCollection, readonly string[]> = {
   'team-members': ['country', 'city', 'shortBio', 'interests', 'skills', 'targetProject', 'whyLooking'],
-  activities: ['title', 'shortDescription', 'fullDescription', 'format', 'date', 'who', 'benefits', 'prerequisites', 'ctaText', 'seoTitle', 'seoDescription'],
+  activities: ['title', 'shortDescription', 'fullDescription', 'format', 'date', 'category', 'status', 'who', 'benefits', 'prerequisites', 'ctaText', 'seoTitle', 'seoDescription'],
   events: ['title', 'shortDescription', 'fullDescription', 'eventType', 'displayDate', 'country', 'venue', 'speaker', 'languages', 'materials', 'audience', 'outcomesText', 'prerequisites', 'seoTitle', 'seoDescription'],
   experts: ['name', 'role', 'expertise', 'description', 'seoTitle', 'seoDescription'],
   faqs: ['question', 'answer', 'seoTitle', 'seoDescription'],
   opportunities: ['title', 'opportunityType', 'shortDescription', 'fullDescription', 'country', 'cost', 'languages', 'requirements', 'benefits', 'documents', 'seoTitle', 'seoDescription'],
   pillars: ['label', 'title', 'description', 'seoTitle', 'seoDescription'],
-  scenarios: ['title', 'who', 'why', 'ctaText', 'seoTitle', 'seoDescription'],
+  scenarios: ['title', 'who', 'why', 'ctaText', 'actionType', 'seoTitle', 'seoDescription'],
   stats: ['value', 'label', 'seoTitle', 'seoDescription'],
   'trust-points': ['title', 'description', 'seoTitle', 'seoDescription'],
   tournaments: ['title', 'type', 'description', 'pitch', 'date', 'registrationDeadline', 'skills', 'mentors', 'suitableFor', 'format', 'targetAudience', 'ageLimit', 'teamsAllowed', 'language', 'expectedResult', 'themesText', 'evaluationCriteriaText', 'seoTitle', 'seoDescription'],
@@ -115,35 +115,3 @@ export const applyLocalizations = async <T extends Record<string, unknown>>(
 
   return docs;
 };
-
-export const localizationSummaries = async (
-  payload: Payload,
-  collection: SupportedContentCollection,
-  ids: Array<string | number>,
-) => {
-  if (!ids.length) return new Map<string, Array<{ language: string; translationStatus: string }>>();
-  const result = await payload.find({
-    collection: 'content-localizations' as any,
-    where: {
-      and: [
-        { sourceCollection: { equals: collection } },
-        { sourceId: { in: ids.map(String) } },
-      ],
-    },
-    limit: ids.length * SUPPORTED_LANGUAGES.length,
-    overrideAccess: true,
-  });
-  const map = new Map<string, Array<{ language: string; translationStatus: string }>>();
-  for (const doc of result.docs as Array<Record<string, unknown>>) {
-    const sourceId = String(doc.sourceId || '');
-    const rows = map.get(sourceId) || [];
-    rows.push({
-      language: String(doc.language || ''),
-      translationStatus: String(doc.translationStatus || ''),
-    });
-    map.set(sourceId, rows);
-  }
-  return map;
-};
-
-export const toPayloadId = payloadId;

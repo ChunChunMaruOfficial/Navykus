@@ -67,8 +67,8 @@
       "aacca2db": "Navykus nedir?",
       "19816f01": "Ebeveynler ve uzmanlar neden Navykus'u seçiyor?",
       "e07687c4": "Yolculuğunuza başlamaya hazır mısınız?",
-      "a5307558": "mailto:info@navykus.org?subject=Gizlilik%20politikas%C4%B1%20talebi",
-      "4d9e7853": "mailto:info@navykus.org?subject=Kullan%C4%B1c%C4%B1%20s%C3%B6zle%C5%9Fmesi%20talebi",
+      "a5307558": "mailto:info@navykus.online?subject=Gizlilik%20politikas%C4%B1%20talebi",
+      "4d9e7853": "mailto:info@navykus.online?subject=Kullan%C4%B1c%C4%B1%20s%C3%B6zle%C5%9Fmesi%20talebi",
       "02ce21d910": "Lütfen adınızı girin",
       "1c3299a85e": "Lütfen doğru yaşı girin (10 ila 22 yaş arası)",
       "92ca287f55": "Lütfen ülkenizi veya şehrinizi belirtin",
@@ -222,7 +222,7 @@
       "55cd784afe": "Etkinlikler ve proje savunması nasıl çalışır?",
       "b38dd282f8": "Platformumuzda tüm süreçler tamamen online olarak gerçekleşmektedir. Atölye çalışmaları ve dersler canlı olarak kaydedilerek yayınlanmakta, çalışmalar Miro/Figma'da yürütülmekte ve projeler Zoom veya Discord'da jüri önünde savunulmaktadır.",
       "e663d62bb5": "Navykus organizatörleriyle nasıl iletişime geçebilirim?",
-      "b966ab17f5": "info@navykus.org adresine yaz. Organizasyon ve teknik soruları yanıtlarız."
+      "b966ab17f5": "info@navykus.online adresine yaz. Organizasyon ve teknik soruları yanıtlarız."
     },
     "activitiespage": {
       "0b2e4667a1": "Öğrenciler için etkinlikler",
@@ -992,7 +992,7 @@
         ],
         "prerequisites": "Gerekli değil",
         "ctaText": "Girişleri görüntüle",
-        "ctaLink": "mailto:info@navykus.org?subject=Записи%20конференции%20Будущее%20Skills%202025"
+        "ctaLink": "mailto:info@navykus.online?subject=Записи%20конференции%20Будущее%20Skills%202025"
       },
       {
         "id": "act-9",
@@ -1033,7 +1033,7 @@
         ],
         "prerequisites": "Gerekli değil",
         "ctaText": "Kaydı izle",
-        "ctaLink": "mailto:info@navykus.org?subject=Запись%20воркшопа%20по%20исследовательской%20работе"
+        "ctaLink": "mailto:info@navykus.online?subject=Запись%20воркшопа%20по%20исследовательской%20работе"
       },
       {
         "id": "act-11",
@@ -1054,7 +1054,7 @@
         ],
         "prerequisites": "Herhangi bir beceri memnuniyetle karşılanır",
         "ctaText": "Hackathon sonuçları",
-        "ctaLink": "mailto:info@navykus.org?subject=Итоги%20хакатона%20Доступная%20среда%202025"
+        "ctaLink": "mailto:info@navykus.online?subject=Итоги%20хакатона%20Доступная%20среда%202025"
       },
       {
         "id": "act-12",
@@ -1075,7 +1075,7 @@
         ],
         "prerequisites": "İletişim için temel İngilizce",
         "ctaText": "Sonraki etkinlik",
-        "ctaLink": "mailto:info@navykus.org?subject=Следующее%20событие%20Asian%20Youth%20Connect"
+        "ctaLink": "mailto:info@navykus.online?subject=Следующее%20событие%20Asian%20Youth%20Connect"
       }
     ],
     "teamMembers": [

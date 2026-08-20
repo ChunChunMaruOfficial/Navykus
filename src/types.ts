@@ -28,7 +28,7 @@ export interface ApplicationForm {
   country: string;
   city: string;
   contact: string;
-  contactType: 'telegram' | 'email' | 'discord';
+  contactType: 'telegram' | 'email';
   shortBio: string;
   interests: string[];
   skills: string[];
@@ -153,7 +153,7 @@ export interface TeamMember {
   targetProject?: string;
   whyLooking: string;
   contact: string;
-  contactType: 'telegram' | 'email' | 'discord';
+  contactType: 'telegram' | 'email';
   portfolioLink?: string;
   sourceContext?: string;
   createdAt: string;

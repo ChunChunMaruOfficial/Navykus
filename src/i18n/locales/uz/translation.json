@@ -67,8 +67,8 @@
       "aacca2db": "Navykus nima?",
       "19816f01": "Nima uchun ota-onalar va mutaxassislar Navykusni tanlashadi?",
       "e07687c4": "Sayohatingizni boshlashga tayyormisiz?",
-      "a5307558": "mailto:info@navykus.org?subject=Maxfiylik%20siyosati%20so%27rovi",
-      "4d9e7853": "mailto:info@navykus.org?subject=Foydalanuvchi%20kelishuvi%20so%27rovi",
+      "a5307558": "mailto:info@navykus.online?subject=Maxfiylik%20siyosati%20so%27rovi",
+      "4d9e7853": "mailto:info@navykus.online?subject=Foydalanuvchi%20kelishuvi%20so%27rovi",
       "02ce21d910": "Iltimos, ismingizni kiriting",
       "1c3299a85e": "To'g'ri yoshni kiriting (10 yoshdan 22 yoshgacha)",
       "92ca287f55": "Iltimos, mamlakatingiz yoki shaharingizni ko'rsating",
@@ -222,7 +222,7 @@
       "55cd784afe": "Voqealar va loyiha himoyasi qanday ishlaydi?",
       "b38dd282f8": "Barcha jarayonlar bizning platformamizda butunlay onlayn tarzda amalga oshiriladi. Seminarlar va ma'ruzalar yozib olinadi va jonli efirga uzatiladi, ish Miro/Figma-da olib boriladi va loyihalar Zoom yoki Discord-da hakamlar hay'ati oldida himoya qilinadi.",
       "e663d62bb5": "Navykus tashkilotchilari bilan qanday bog'lanish mumkin?",
-      "b966ab17f5": "info@navykus.org manziliga yozing. Tashkiliy va texnik savollarga javob beramiz."
+      "b966ab17f5": "info@navykus.online manziliga yozing. Tashkiliy va texnik savollarga javob beramiz."
     },
     "activitiespage": {
       "0b2e4667a1": "Oquvchilar uchun tadbirlar",
@@ -992,7 +992,7 @@
         ],
         "prerequisites": "Majburiy emas",
         "ctaText": "Yozuvlarni ko'rish",
-        "ctaLink": "mailto:info@navykus.org?subject=Записи%20конференции%20Будущее%20Skills%202025"
+        "ctaLink": "mailto:info@navykus.online?subject=Записи%20конференции%20Будущее%20Skills%202025"
       },
       {
         "id": "act-9",
@@ -1033,7 +1033,7 @@
         ],
         "prerequisites": "Majburiy emas",
         "ctaText": "Yozishni tomosha qilish",
-        "ctaLink": "mailto:info@navykus.org?subject=Запись%20воркшопа%20по%20исследовательской%20работе"
+        "ctaLink": "mailto:info@navykus.online?subject=Запись%20воркшопа%20по%20исследовательской%20работе"
       },
       {
         "id": "act-11",
@@ -1054,7 +1054,7 @@
         ],
         "prerequisites": "Har qanday mahorat mamnuniyat bilan qabul qilinadi",
         "ctaText": "Hackathon natijalari",
-        "ctaLink": "mailto:info@navykus.org?subject=Итоги%20хакатона%20Доступная%20среда%202025"
+        "ctaLink": "mailto:info@navykus.online?subject=Итоги%20хакатона%20Доступная%20среда%202025"
       },
       {
         "id": "act-12",
@@ -1075,7 +1075,7 @@
         ],
         "prerequisites": "Muloqot uchun asosiy ingliz tili",
         "ctaText": "Keyingi voqea",
-        "ctaLink": "mailto:info@navykus.org?subject=Следующее%20событие%20Asian%20Youth%20Connect"
+        "ctaLink": "mailto:info@navykus.online?subject=Следующее%20событие%20Asian%20Youth%20Connect"
       }
     ],
     "teamMembers": [

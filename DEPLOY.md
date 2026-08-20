@@ -1,44 +1,44 @@
-# 🚀 Деплой Navykus на сервер
+# рџљЂ Р”РµРїР»РѕР№ Navykus РЅР° СЃРµСЂРІРµСЂ
 
-**Сервер:** `95.163.227.196`  
-**Пользователь:** `root`  
-**ОС:** Ubuntu 24.04 LTS
+**РЎРµСЂРІРµСЂ:** `95.163.227.196`  
+**РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ:** `root`  
+**РћРЎ:** Ubuntu 24.04 LTS
 
 ---
 
-## Вариант 1: Автоматический скрипт (рекомендуется)
+## Р’Р°СЂРёР°РЅС‚ 1: РђРІС‚РѕРјР°С‚РёС‡РµСЃРєРёР№ СЃРєСЂРёРїС‚ (СЂРµРєРѕРјРµРЅРґСѓРµС‚СЃСЏ)
 
-Скопируйте `deploy.sh` на сервер и запустите:
+РЎРєРѕРїРёСЂСѓР№С‚Рµ `deploy.sh` РЅР° СЃРµСЂРІРµСЂ Рё Р·Р°РїСѓСЃС‚РёС‚Рµ:
 
 ```bash
-# 1. Скопировать скрипт на сервер
+# 1. РЎРєРѕРїРёСЂРѕРІР°С‚СЊ СЃРєСЂРёРїС‚ РЅР° СЃРµСЂРІРµСЂ
 scp deploy.sh root@95.163.227.196:/root/deploy.sh
 
-# 2. Зайти на сервер
+# 2. Р—Р°Р№С‚Рё РЅР° СЃРµСЂРІРµСЂ
 ssh root@95.163.227.196
 
-# 3. Настроить переменные (замените на свои)
-export NAVYKUS_DOMAIN="navykus.org"
-export NAVYKUS_ADMIN_EMAIL="admin@navykus.org"
-export REPO_URL="https://github.com/your-org/navykus.git"  # или копируйте вручную
+# 3. РќР°СЃС‚СЂРѕРёС‚СЊ РїРµСЂРµРјРµРЅРЅС‹Рµ (Р·Р°РјРµРЅРёС‚Рµ РЅР° СЃРІРѕРё)
+export NAVYKUS_DOMAIN="navykus.online"
+export NAVYKUS_ADMIN_EMAIL="admin@navykus.online"
+export REPO_URL="https://github.com/your-org/navykus.git"  # РёР»Рё РєРѕРїРёСЂСѓР№С‚Рµ РІСЂСѓС‡РЅСѓСЋ
 
-# 4. Запустить
+# 4. Р—Р°РїСѓСЃС‚РёС‚СЊ
 chmod +x deploy.sh
 ./deploy.sh
 ```
 
-**Если нет Git-репозитория** — загрузите проект вручную через SCP перед запуском:
+**Р•СЃР»Рё РЅРµС‚ Git-СЂРµРїРѕР·РёС‚РѕСЂРёСЏ** вЂ” Р·Р°РіСЂСѓР·РёС‚Рµ РїСЂРѕРµРєС‚ РІСЂСѓС‡РЅСѓСЋ С‡РµСЂРµР· SCP РїРµСЂРµРґ Р·Р°РїСѓСЃРєРѕРј:
 
 ```bash
-# На локальной машине (Windows):
-# Собрать фронтенд
+# РќР° Р»РѕРєР°Р»СЊРЅРѕР№ РјР°С€РёРЅРµ (Windows):
+# РЎРѕР±СЂР°С‚СЊ С„СЂРѕРЅС‚РµРЅРґ
 cd D:\Navykus
 npm run build
 
-# Создать архив с проектом (исключая node_modules)
+# РЎРѕР·РґР°С‚СЊ Р°СЂС…РёРІ СЃ РїСЂРѕРµРєС‚РѕРј (РёСЃРєР»СЋС‡Р°СЏ node_modules)
 tar --exclude=node_modules -czf navykus.tar.gz .
 
-# На сервере
+# РќР° СЃРµСЂРІРµСЂРµ
 scp navykus.tar.gz root@95.163.227.196:/home/ubuntu/navykus.tar.gz
 ssh root@95.163.227.196
 cd /home/ubuntu
@@ -48,18 +48,18 @@ chown -R ubuntu:ubuntu navykus
 
 ---
 
-## Вариант 2: Ручной деплой (пошагово)
+## Р’Р°СЂРёР°РЅС‚ 2: Р СѓС‡РЅРѕР№ РґРµРїР»РѕР№ (РїРѕС€Р°РіРѕРІРѕ)
 
-### Шаг 1. Подключение к серверу
+### РЁР°Рі 1. РџРѕРґРєР»СЋС‡РµРЅРёРµ Рє СЃРµСЂРІРµСЂСѓ
 
 ```bash
 ssh root@95.163.227.196
 ```
 
-### Шаг 2. Установка зависимостей
+### РЁР°Рі 2. РЈСЃС‚Р°РЅРѕРІРєР° Р·Р°РІРёСЃРёРјРѕСЃС‚РµР№
 
 ```bash
-# Обновление пакетов
+# РћР±РЅРѕРІР»РµРЅРёРµ РїР°РєРµС‚РѕРІ
 apt-get update && apt-get upgrade -y
 
 # Node.js 22
@@ -69,57 +69,57 @@ apt-get install -y nodejs git nginx certbot python3-certbot-nginx build-essentia
 # PM2
 npm install -g pm2
 
-# Проверка
+# РџСЂРѕРІРµСЂРєР°
 node -v   # >= 22
 npm -v
 nginx -v
 ```
 
-### Шаг 3. Копирование проекта
+### РЁР°Рі 3. РљРѕРїРёСЂРѕРІР°РЅРёРµ РїСЂРѕРµРєС‚Р°
 
-**На локальной машине (Windows PowerShell):**
+**РќР° Р»РѕРєР°Р»СЊРЅРѕР№ РјР°С€РёРЅРµ (Windows PowerShell):**
 ```powershell
-# Собрать фронтенд
+# РЎРѕР±СЂР°С‚СЊ С„СЂРѕРЅС‚РµРЅРґ
 cd D:\Navykus
 npm run build
 
-# Установить OpenSSH (если нет) или использовать WinSCP
-# Создать архив
+# РЈСЃС‚Р°РЅРѕРІРёС‚СЊ OpenSSH (РµСЃР»Рё РЅРµС‚) РёР»Рё РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ WinSCP
+# РЎРѕР·РґР°С‚СЊ Р°СЂС…РёРІ
 tar -czf navykus.tar.gz --exclude=node_modules --exclude=.git .
 ```
 
-**На сервере:**
+**РќР° СЃРµСЂРІРµСЂРµ:**
 ```bash
-# Создать пользователя и папку
+# РЎРѕР·РґР°С‚СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ Рё РїР°РїРєСѓ
 useradd -m -s /bin/bash ubuntu || true
 mkdir -p /home/ubuntu/navykus
 
-# Скопировать архив (с локальной машины)
+# РЎРєРѕРїРёСЂРѕРІР°С‚СЊ Р°СЂС…РёРІ (СЃ Р»РѕРєР°Р»СЊРЅРѕР№ РјР°С€РёРЅС‹)
 # scp navykus.tar.gz root@95.163.227.196:/home/ubuntu/
 
-# Распаковать
+# Р Р°СЃРїР°РєРѕРІР°С‚СЊ
 cd /home/ubuntu
 tar -xzf navykus.tar.gz -C navykus
 chown -R ubuntu:ubuntu navykus
 cd navykus
 ```
 
-### Шаг 4. Настройка окружения
+### РЁР°Рі 4. РќР°СЃС‚СЂРѕР№РєР° РѕРєСЂСѓР¶РµРЅРёСЏ
 
 ```bash
 cd /home/ubuntu/navykus
 
-# Сгенерировать секреты
+# РЎРіРµРЅРµСЂРёСЂРѕРІР°С‚СЊ СЃРµРєСЂРµС‚С‹
 PAYLOAD_SECRET=$(openssl rand -base64 32)
 ADMIN_PASSWORD=$(openssl rand -base64 16)
 
-# Создать .env
+# РЎРѕР·РґР°С‚СЊ .env
 cat > .env <<EOF
 NODE_ENV=production
 API_PORT=4000
-SERVER_URL=https://navykus.org
-CORS_ORIGIN=https://navykus.org
-PAYLOAD_PUBLIC_SERVER_URL=https://navykus.org/admin
+SERVER_URL=https://navykus.online
+CORS_ORIGIN=https://navykus.online
+PAYLOAD_PUBLIC_SERVER_URL=https://navykus.online/admin
 PAYLOAD_SECRET=${PAYLOAD_SECRET}
 DATABASE_URL=file:./payload.db
 SMTP_HOST=localhost
@@ -127,17 +127,17 @@ SMTP_PORT=25
 SMTP_SECURE=false
 SMTP_USER=
 SMTP_PASS=
-SMTP_FROM=noreply@navykus.org
+SMTP_FROM=noreply@navykus.online
 SMTP_FROM_NAME=Navykus
-ADMIN_EMAIL=admin@navykus.org
+ADMIN_EMAIL=admin@navykus.online
 ADMIN_PASSWORD=${ADMIN_PASSWORD}
 GOOGLE_GENAI_API_KEY=
 EOF
 
-echo "Admin password: ${ADMIN_PASSWORD}"  # Сохраните!
+echo "Admin password: ${ADMIN_PASSWORD}"  # РЎРѕС…СЂР°РЅРёС‚Рµ!
 ```
 
-### Шаг 5. Установка зависимостей и сборка
+### РЁР°Рі 5. РЈСЃС‚Р°РЅРѕРІРєР° Р·Р°РІРёСЃРёРјРѕСЃС‚РµР№ Рё СЃР±РѕСЂРєР°
 
 ```bash
 cd /home/ubuntu/navykus
@@ -145,19 +145,19 @@ npm install --production=false
 npm run build
 ```
 
-### Шаг 6. Миграция и наполнение БД
+### РЁР°Рі 6. РњРёРіСЂР°С†РёСЏ Рё РЅР°РїРѕР»РЅРµРЅРёРµ Р‘Р”
 
 ```bash
 cd /home/ubuntu/navykus
 
-# Миграции
+# РњРёРіСЂР°С†РёРё
 npx payload migrate --config src/payload.config.ts
 
-# Наполнение демо-данными
+# РќР°РїРѕР»РЅРµРЅРёРµ РґРµРјРѕ-РґР°РЅРЅС‹РјРё
 npx tsx scripts/seed-payload.ts
 ```
 
-### Шаг 7. Создание папок для загрузок
+### РЁР°Рі 7. РЎРѕР·РґР°РЅРёРµ РїР°РїРѕРє РґР»СЏ Р·Р°РіСЂСѓР·РѕРє
 
 ```bash
 cd /home/ubuntu/navykus
@@ -165,13 +165,13 @@ mkdir -p uploads/incoming uploads/media uploads/avatars
 chown -R ubuntu:ubuntu uploads
 ```
 
-### Шаг 8. Настройка Nginx
+### РЁР°Рі 8. РќР°СЃС‚СЂРѕР№РєР° Nginx
 
 ```bash
 cat > /etc/nginx/sites-available/navykus <<'NGINXEOF'
 server {
     listen 80;
-    server_name navykus.org www.navykus.org;
+    server_name navykus.online www.navykus.online;
 
     client_max_body_size 20M;
 
@@ -194,63 +194,63 @@ server {
 }
 NGINXEOF
 
-# Активировать конфиг
+# РђРєС‚РёРІРёСЂРѕРІР°С‚СЊ РєРѕРЅС„РёРі
 rm -f /etc/nginx/sites-enabled/default
 ln -s /etc/nginx/sites-available/navykus /etc/nginx/sites-enabled/
 
-# Проверить и перезагрузить
+# РџСЂРѕРІРµСЂРёС‚СЊ Рё РїРµСЂРµР·Р°РіСЂСѓР·РёС‚СЊ
 nginx -t
 systemctl reload nginx
 ```
 
-### Шаг 9. Запуск через PM2
+### РЁР°Рі 9. Р—Р°РїСѓСЃРє С‡РµСЂРµР· PM2
 
 ```bash
 cd /home/ubuntu/navykus
 pm2 start npm --name "navykus-api" -- start -- run start:api
 pm2 save
 pm2 startup systemd -u ubuntu --hp /home/ubuntu
-# Выполнить команду, которую выведет pm2 startup
+# Р’С‹РїРѕР»РЅРёС‚СЊ РєРѕРјР°РЅРґСѓ, РєРѕС‚РѕСЂСѓСЋ РІС‹РІРµРґРµС‚ pm2 startup
 ```
 
-### Шаг 10. SSL-сертификат (Let's Encrypt)
+### РЁР°Рі 10. SSL-СЃРµСЂС‚РёС„РёРєР°С‚ (Let's Encrypt)
 
 ```bash
-certbot --nginx -d navykus.org -d www.navykus.org \
-  --non-interactive --agree-tos --email admin@navykus.org
+certbot --nginx -d navykus.online -d www.navykus.online \
+  --non-interactive --agree-tos --email admin@navykus.online
 ```
 
-### Шаг 11. Проверка
+### РЁР°Рі 11. РџСЂРѕРІРµСЂРєР°
 
 ```bash
 curl -s http://127.0.0.1:4000/api/health
-# Должен ответить: {"ok":true,"service":"navykus-express-payload","db":"connected"}
+# Р”РѕР»Р¶РµРЅ РѕС‚РІРµС‚РёС‚СЊ: {"ok":true,"service":"navykus-express-payload","db":"connected"}
 ```
 
 ---
 
-## 🔧 Полезные команды
+## рџ”§ РџРѕР»РµР·РЅС‹Рµ РєРѕРјР°РЅРґС‹
 
-| Команда | Описание |
+| РљРѕРјР°РЅРґР° | РћРїРёСЃР°РЅРёРµ |
 |---|---|
-| `pm2 status` | Статус процессов |
-| `pm2 logs navykus-api` | Логи приложения |
-| `pm2 restart navykus-api` | Перезапуск |
-| `pm2 monit` | Мониторинг в реальном времени |
-| `sudo nginx -t` | Проверка конфига Nginx |
-| `sudo systemctl reload nginx` | Перезагрузка Nginx |
-| `sudo certbot renew` | Обновление SSL (автоматически каждый месяц) |
-| `journalctl -u nginx -f` | Логи Nginx |
+| `pm2 status` | РЎС‚Р°С‚СѓСЃ РїСЂРѕС†РµСЃСЃРѕРІ |
+| `pm2 logs navykus-api` | Р›РѕРіРё РїСЂРёР»РѕР¶РµРЅРёСЏ |
+| `pm2 restart navykus-api` | РџРµСЂРµР·Р°РїСѓСЃРє |
+| `pm2 monit` | РњРѕРЅРёС‚РѕСЂРёРЅРі РІ СЂРµР°Р»СЊРЅРѕРј РІСЂРµРјРµРЅРё |
+| `sudo nginx -t` | РџСЂРѕРІРµСЂРєР° РєРѕРЅС„РёРіР° Nginx |
+| `sudo systemctl reload nginx` | РџРµСЂРµР·Р°РіСЂСѓР·РєР° Nginx |
+| `sudo certbot renew` | РћР±РЅРѕРІР»РµРЅРёРµ SSL (Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё РєР°Р¶РґС‹Р№ РјРµСЃСЏС†) |
+| `journalctl -u nginx -f` | Р›РѕРіРё Nginx |
 
-## 🔄 Обновление проекта
+## рџ”„ РћР±РЅРѕРІР»РµРЅРёРµ РїСЂРѕРµРєС‚Р°
 
 ```bash
 cd /home/ubuntu/navykus
 
-# Если через Git
+# Р•СЃР»Рё С‡РµСЂРµР· Git
 git pull
 
-# Если вручную — перезалейте архив и распакуйте
+# Р•СЃР»Рё РІСЂСѓС‡РЅСѓСЋ вЂ” РїРµСЂРµР·Р°Р»РµР№С‚Рµ Р°СЂС…РёРІ Рё СЂР°СЃРїР°РєСѓР№С‚Рµ
 # scp navykus.tar.gz root@95.163.227.196:/home/ubuntu/
 
 npm install
@@ -259,26 +259,26 @@ npx payload migrate --config src/payload.config.ts
 pm2 restart navykus-api
 ```
 
-## 🐛 Решение проблем
+## рџђ› Р РµС€РµРЅРёРµ РїСЂРѕР±Р»РµРј
 
-**502 Bad Gateway** — Express не запущен:
+**502 Bad Gateway** вЂ” Express РЅРµ Р·Р°РїСѓС‰РµРЅ:
 ```bash
 pm2 start navykus-api
 ```
 
-**Cannot find module** — не установлены зависимости:
+**Cannot find module** вЂ” РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅС‹ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё:
 ```bash
 cd /home/ubuntu/navykus && npm install
 ```
 
-**Permission denied** — неправильные права:
+**Permission denied** вЂ” РЅРµРїСЂР°РІРёР»СЊРЅС‹Рµ РїСЂР°РІР°:
 ```bash
 chown -R ubuntu:ubuntu /home/ubuntu/navykus
 chown -R ubuntu:ubuntu /home/ubuntu/navykus/uploads
 chmod 755 /home/ubuntu/navykus/payload.db
 ```
 
-**Cannot write to database** — SQLite файл заблокирован:
+**Cannot write to database** вЂ” SQLite С„Р°Р№Р» Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ:
 ```bash
 chmod 666 /home/ubuntu/navykus/payload.db
 ```

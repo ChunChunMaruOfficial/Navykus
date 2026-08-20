@@ -104,7 +104,7 @@ export default buildConfig({
   },
   email: smtpEnabled
     ? nodemailerAdapter({
-        defaultFromAddress: process.env.SMTP_FROM || 'noreply@navykus.org',
+        defaultFromAddress: process.env.SMTP_FROM || 'noreply@navykus.online',
         defaultFromName: process.env.SMTP_FROM_NAME || 'Navykus',
         skipVerify: process.env.SMTP_SKIP_VERIFY !== 'false',
         transportOptions: {

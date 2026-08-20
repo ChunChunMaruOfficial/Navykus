@@ -1,7 +1,7 @@
 import type { CollectionConfig } from 'payload';
 
 import { adminOrModerator, anyone } from '../access';
-import { legacyIdField, publicContentVersions, publishedField, seoFields, sortOrderField, syncPublishedDraftBeforeChange } from '../fields';
+import { publicContentVersions, publishedField, seoFields, sortOrderField, syncPublishedDraftBeforeChange } from '../fields';
 import { auditAfterChange, auditAfterDelete } from '../audit';
 import { localizedAfterChange, localizedAfterDelete, originalLanguageField } from '../localization';
 import { publicPreview } from '../preview';
@@ -27,26 +27,39 @@ export const Faqs: CollectionConfig = {
     afterDelete: [localizedAfterDelete('faqs'), auditAfterDelete('faqs')],
   },
   fields: [
-    legacyIdField,
     sortOrderField,
     publishedField,
     originalLanguageField,
     {
-      name: 'page',
-      type: 'select',
-      required: true,
-      index: true,
-      options: [
-        { label: 'Home', value: 'home' },
-        { label: 'About', value: 'about' },
-        { label: 'Championship', value: 'championship' },
-        { label: 'Activities', value: 'activities' },
-        { label: 'Find team', value: 'find-team' },
-        { label: 'Opportunities', value: 'opportunities' },
+      type: 'tabs',
+      tabs: [
+        {
+          label: 'Основное',
+          fields: [
+            {
+              name: 'page',
+              label: 'Страница',
+              type: 'select',
+              required: true,
+              index: true,
+              options: [
+                { label: 'Главная', value: 'home' },
+                { label: 'О проекте', value: 'about' },
+                { label: 'Чемпионат', value: 'championship' },
+                { label: 'Активности', value: 'activities' },
+                { label: 'Поиск команды', value: 'find-team' },
+                { label: 'Возможности', value: 'opportunities' },
+              ],
+            },
+            { name: 'question', label: 'Вопрос', type: 'text', required: true },
+            { name: 'answer', label: 'Ответ', type: 'textarea', required: true },
+          ],
+        },
+        {
+          label: 'SEO',
+          fields: [...seoFields],
+        },
       ],
     },
-    { name: 'question', type: 'text', required: true },
-    { name: 'answer', type: 'textarea', required: true },
-    ...seoFields,
   ],
 };

@@ -207,40 +207,36 @@ export interface Media {
  */
 export interface Tournament {
   id: number;
-  /**
-   * Stable ID from the original frontend data file.
-   */
-  legacyId?: string | null;
   sortOrder?: number | null;
   isPublished?: boolean | null;
   /**
-   * Language used as the source for AI localizations.
+   * Язык, используемый как источник для AI-перевода.
    */
   originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
   /**
-   * Mark this championship to appear on the homepage
+   * Отметьте, чтобы чемпионат появился на главной странице
    */
   isFeatured?: boolean | null;
   title: string;
   /**
-   * Auto-generated from title when empty.
+   * Генерируется автоматически из заголовка, если пусто.
    */
   slug?: string | null;
   /**
-   * e.g. "Кейс-чемпионат", "Хакатон"
+   * Например: "Кейс-чемпионат", "Хакатон"
    */
   type: string;
   description: string;
   /**
-   * Short hero text. Falls back to description.
+   * Если пусто, используется описание.
    */
   pitch?: string | null;
   /**
-   * Event date(s)
+   * Даты события (текстом)
    */
   date: string;
   /**
-   * Registration cutoff date
+   * Дата окончания регистрации
    */
   registrationDeadline: string;
   registrationStatus: 'open' | 'suspended' | 'closed';
@@ -268,11 +264,11 @@ export interface Tournament {
   language?: string | null;
   expectedResult?: string | null;
   /**
-   * One item per line.
+   * Один пункт на строку.
    */
   themesText?: string | null;
   /**
-   * One item per line.
+   * Один пункт на строку.
    */
   evaluationCriteriaText?: string | null;
   seoTitle?: string | null;
@@ -287,24 +283,20 @@ export interface Tournament {
  */
 export interface Activity {
   id: number;
-  /**
-   * Stable ID from the original frontend data file.
-   */
-  legacyId?: string | null;
   sortOrder?: number | null;
   isPublished?: boolean | null;
   /**
-   * Language used as the source for AI localizations.
+   * Язык, используемый как источник для AI-перевода.
    */
   originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
   title: string;
   shortDescription: string;
   fullDescription: string;
-  format: string;
-  date: string;
   imageUrl: string;
   category: 'educational' | 'project' | 'social' | 'online-meeting' | 'workshop' | 'team';
   status: 'coming' | 'ongoing' | 'completed';
+  format: string;
+  date: string;
   who: string;
   benefits?:
     | {
@@ -326,14 +318,10 @@ export interface Activity {
  */
 export interface Expert {
   id: number;
-  /**
-   * Stable ID from the original frontend data file.
-   */
-  legacyId?: string | null;
   sortOrder?: number | null;
   isPublished?: boolean | null;
   /**
-   * Language used as the source for AI localizations.
+   * Язык, используемый как источник для AI-перевода.
    */
   originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
   name: string;
@@ -342,16 +330,16 @@ export interface Expert {
    */
   type: 'jury' | 'mentor' | 'expert';
   role: string;
+  /**
+   * К какому чемпионату привязан эксперт
+   */
+  tournamentId?: (number | null) | Tournament;
   expertise: string;
   description: string;
   /**
    * Фото эксперта, наставника или жюри
    */
   photo?: (number | null) | Media;
-  /**
-   * К какому чемпионату привязан эксперт
-   */
-  tournamentId?: (number | null) | Tournament;
   seoTitle?: string | null;
   seoDescription?: string | null;
   updatedAt: string;
@@ -364,14 +352,10 @@ export interface Expert {
  */
 export interface Faq {
   id: number;
-  /**
-   * Stable ID from the original frontend data file.
-   */
-  legacyId?: string | null;
   sortOrder?: number | null;
   isPublished?: boolean | null;
   /**
-   * Language used as the source for AI localizations.
+   * Язык, используемый как источник для AI-перевода.
    */
   originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
   page: 'home' | 'about' | 'championship' | 'activities' | 'find-team' | 'opportunities';
@@ -391,29 +375,25 @@ export interface Faq {
  */
 export interface Event {
   id: number;
-  /**
-   * Stable ID from the original frontend data file.
-   */
-  legacyId?: string | null;
   sortOrder?: number | null;
   isPublished?: boolean | null;
   /**
-   * Language used as the source for AI localizations.
+   * Язык, используемый как источник для AI-перевода.
    */
   originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
   title: string;
   /**
-   * Auto-generated from title when empty.
+   * Генерируется автоматически из заголовка, если пусто.
    */
   slug?: string | null;
   shortDescription: string;
   /**
-   * Detailed description (optional)
+   * Подробное описание (необязательно)
    */
   fullDescription?: string | null;
   imageUrl?: string | null;
   /**
-   * e.g. workshop, lecture, masterclass
+   * Например: воркшоп, лекция, мастер-класс
    */
   eventType: string;
   /**
@@ -437,15 +417,15 @@ export interface Event {
   format: 'online' | 'offline' | 'hybrid';
   country?: string | null;
   /**
-   * Physical location
+   * Физический адрес
    */
   venue?: string | null;
   /**
-   * Zoom/Google Meet link
+   * Ссылка Zoom/Google Meet
    */
   onlineLink?: string | null;
   /**
-   * External registration/application link
+   * Внешняя ссылка на регистрацию/заявку
    */
   registrationUrl: string;
   speaker?: string | null;
@@ -466,7 +446,7 @@ export interface Event {
    */
   audience?: string | null;
   /**
-   * One item per line.
+   * Один пункт на строку.
    */
   outcomesText?: string | null;
   /**
@@ -487,41 +467,37 @@ export interface Event {
  */
 export interface Opportunity {
   id: number;
-  /**
-   * Stable ID from the original frontend data file.
-   */
-  legacyId?: string | null;
   sortOrder?: number | null;
   isPublished?: boolean | null;
   /**
-   * Language used as the source for AI localizations.
+   * Язык, используемый как источник для AI-перевода.
    */
   originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
   title: string;
   /**
-   * Auto-generated from title when empty.
+   * Генерируется автоматически из заголовка, если пусто.
    */
   slug?: string | null;
   organization: string;
   /**
-   * e.g. championship, olympiad, internship, grant
+   * Например: чемпионат, олимпиада, стажировка, грант
    */
   opportunityType: string;
   source?: ('navykus' | 'verified' | 'partner') | null;
   /**
-   * Frontend category id, e.g. championships, olympiads, internships, projects
+   * ID категории фронтенда, например: championships, olympiads, internships, projects
    */
   category?: string | null;
   direction?: ('business' | 'science' | 'tech' | 'social' | 'creative' | 'leadership') | null;
   participation?: ('individual' | 'team' | 'both') | null;
   shortDescription: string;
   /**
-   * Detailed description (optional)
+   * Подробное описание (необязательно)
    */
   fullDescription?: string | null;
   logoUrl?: string | null;
   /**
-   * Public card/detail image URL. Falls back to logo URL.
+   * Изображение карточки/деталей. Если пусто, используется логотип.
    */
   imageUrl?: string | null;
   country?: string | null;
@@ -530,7 +506,7 @@ export interface Opportunity {
   ageMin?: number | null;
   ageMax?: number | null;
   /**
-   * Cost description (e.g. "Free", "$50")
+   * Описание стоимости (например: "Бесплатно", "$50")
    */
   cost?: string | null;
   funding?: boolean | null;
@@ -587,7 +563,7 @@ export interface Opportunity {
       }[]
     | null;
   /**
-   * External application link
+   * Внешняя ссылка на заявку
    */
   officialUrl: string;
   internalApplicationsEnabled?: boolean | null;
@@ -603,13 +579,9 @@ export interface Opportunity {
  */
 export interface TeamMember {
   id: number;
-  /**
-   * Stable ID from the original frontend data file.
-   */
-  legacyId?: string | null;
   sortOrder?: number | null;
   /**
-   * Language used as the source for AI localizations.
+   * Язык, используемый как источник для AI-перевода.
    */
   originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
   name: string;
@@ -636,33 +608,36 @@ export interface TeamMember {
   targetProject?: string | null;
   whyLooking: string;
   contact: string;
-  contactType: 'telegram' | 'email' | 'discord';
+  contactType: 'telegram' | 'email';
   /**
-   * Review status for participant-submitted profiles.
+   * Статус проверки анкеты участника.
    */
   moderationStatus: 'pending' | 'approved' | 'rejected' | 'needs_edit';
   moderationComment?: string | null;
   reviewedAt?: string | null;
   isApproved?: boolean | null;
   /**
-   * External portfolio link submitted with the questionnaire.
+   * Внешняя ссылка на портфолио из анкеты.
    */
   portfolioLink?: string | null;
   /**
-   * Portfolio files uploaded from the public questionnaire.
+   * Файлы портфолио, загруженные из публичной анкеты.
    */
   portfolioFiles?: (number | Media)[] | null;
   sourceType?:
     ('modal' | 'championship' | 'event' | 'opportunity' | 'find-team' | 'home' | 'about' | 'activities' | 'api') | null;
   /**
-   * Source entity id from the public CTA, when available.
+   * ID сущности-источника публичного CTA, если доступно.
    */
   sourceId?: string | null;
   /**
-   * Human-readable source title/context.
+   * Человекочитаемое название/контекст источника.
    */
   sourceContext?: string | null;
-  tournamentId?: string | null;
+  /**
+   * К какому чемпионату привязана заявка
+   */
+  tournamentId?: (number | null) | Tournament;
   seoTitle?: string | null;
   seoDescription?: string | null;
   updatedAt: string;
@@ -675,14 +650,10 @@ export interface TeamMember {
  */
 export interface TrustPoint {
   id: number;
-  /**
-   * Stable ID from the original frontend data file.
-   */
-  legacyId?: string | null;
   sortOrder?: number | null;
   isPublished?: boolean | null;
   /**
-   * Language used as the source for AI localizations.
+   * Язык, используемый как источник для AI-перевода.
    */
   originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
   title?: string | null;
@@ -698,14 +669,10 @@ export interface TrustPoint {
  */
 export interface Pillar {
   id: number;
-  /**
-   * Stable ID from the original frontend data file.
-   */
-  legacyId?: string | null;
   sortOrder?: number | null;
   isPublished?: boolean | null;
   /**
-   * Language used as the source for AI localizations.
+   * Язык, используемый как источник для AI-перевода.
    */
   originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
   label: string;
@@ -722,30 +689,26 @@ export interface Pillar {
  */
 export interface Scenario {
   id: number;
-  /**
-   * Stable ID from the original frontend data file.
-   */
-  legacyId?: string | null;
   sortOrder?: number | null;
   isPublished?: boolean | null;
   /**
-   * Language used as the source for AI localizations.
+   * Язык, используемый как источник для AI-перевода.
    */
   originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
   /**
-   * Scenario title, e.g. "Хочу попробовать"
+   * Название сценария, например: "Хочу попробовать"
    */
   title: string;
   /**
-   * Who this scenario is for
+   * Кому подходит этот сценарий
    */
   who: string;
   /**
-   * Why participate
+   * Почему стоит участвовать
    */
   why: string;
   /**
-   * Button text
+   * Текст кнопки действия
    */
   ctaText: string;
   actionType: 'apply' | 'team' | 'activity' | 'general';
@@ -760,22 +723,18 @@ export interface Scenario {
  */
 export interface Stat {
   id: number;
-  /**
-   * Stable ID from the original frontend data file.
-   */
-  legacyId?: string | null;
   sortOrder?: number | null;
   isPublished?: boolean | null;
   /**
-   * Language used as the source for AI localizations.
+   * Язык, используемый как источник для AI-перевода.
    */
   originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
   /**
-   * e.g. "15+", "1000+"
+   * Например: "15+", "1000+"
    */
   value: string;
   /**
-   * e.g. "countries", "participants"
+   * Например: "стран", "участников"
    */
   label: string;
   seoTitle?: string | null;
@@ -1128,7 +1087,6 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "tournaments_select".
  */
 export interface TournamentsSelect<T extends boolean = true> {
-  legacyId?: T;
   sortOrder?: T;
   isPublished?: T;
   originalLanguage?: T;
@@ -1174,18 +1132,17 @@ export interface TournamentsSelect<T extends boolean = true> {
  * via the `definition` "activities_select".
  */
 export interface ActivitiesSelect<T extends boolean = true> {
-  legacyId?: T;
   sortOrder?: T;
   isPublished?: T;
   originalLanguage?: T;
   title?: T;
   shortDescription?: T;
   fullDescription?: T;
-  format?: T;
-  date?: T;
   imageUrl?: T;
   category?: T;
   status?: T;
+  format?: T;
+  date?: T;
   who?: T;
   benefits?:
     | T
@@ -1206,17 +1163,16 @@ export interface ActivitiesSelect<T extends boolean = true> {
  * via the `definition` "experts_select".
  */
 export interface ExpertsSelect<T extends boolean = true> {
-  legacyId?: T;
   sortOrder?: T;
   isPublished?: T;
   originalLanguage?: T;
   name?: T;
   type?: T;
   role?: T;
+  tournamentId?: T;
   expertise?: T;
   description?: T;
   photo?: T;
-  tournamentId?: T;
   seoTitle?: T;
   seoDescription?: T;
   updatedAt?: T;
@@ -1228,7 +1184,6 @@ export interface ExpertsSelect<T extends boolean = true> {
  * via the `definition` "faqs_select".
  */
 export interface FaqsSelect<T extends boolean = true> {
-  legacyId?: T;
   sortOrder?: T;
   isPublished?: T;
   originalLanguage?: T;
@@ -1246,7 +1201,6 @@ export interface FaqsSelect<T extends boolean = true> {
  * via the `definition` "events_select".
  */
 export interface EventsSelect<T extends boolean = true> {
-  legacyId?: T;
   sortOrder?: T;
   isPublished?: T;
   originalLanguage?: T;
@@ -1294,7 +1248,6 @@ export interface EventsSelect<T extends boolean = true> {
  * via the `definition` "opportunities_select".
  */
 export interface OpportunitiesSelect<T extends boolean = true> {
-  legacyId?: T;
   sortOrder?: T;
   isPublished?: T;
   originalLanguage?: T;
@@ -1382,7 +1335,6 @@ export interface OpportunitiesSelect<T extends boolean = true> {
  * via the `definition` "team-members_select".
  */
 export interface TeamMembersSelect<T extends boolean = true> {
-  legacyId?: T;
   sortOrder?: T;
   originalLanguage?: T;
   name?: T;
@@ -1429,7 +1381,6 @@ export interface TeamMembersSelect<T extends boolean = true> {
  * via the `definition` "trust-points_select".
  */
 export interface TrustPointsSelect<T extends boolean = true> {
-  legacyId?: T;
   sortOrder?: T;
   isPublished?: T;
   originalLanguage?: T;
@@ -1445,7 +1396,6 @@ export interface TrustPointsSelect<T extends boolean = true> {
  * via the `definition` "pillars_select".
  */
 export interface PillarsSelect<T extends boolean = true> {
-  legacyId?: T;
   sortOrder?: T;
   isPublished?: T;
   originalLanguage?: T;
@@ -1462,7 +1412,6 @@ export interface PillarsSelect<T extends boolean = true> {
  * via the `definition` "scenarios_select".
  */
 export interface ScenariosSelect<T extends boolean = true> {
-  legacyId?: T;
   sortOrder?: T;
   isPublished?: T;
   originalLanguage?: T;
@@ -1481,7 +1430,6 @@ export interface ScenariosSelect<T extends boolean = true> {
  * via the `definition` "stats_select".
  */
 export interface StatsSelect<T extends boolean = true> {
-  legacyId?: T;
   sortOrder?: T;
   isPublished?: T;
   originalLanguage?: T;

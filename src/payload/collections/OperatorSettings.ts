@@ -9,6 +9,7 @@ export const OperatorSettings: CollectionConfig = {
     group: 'Settings',
     description:
       'Operator details displayed in the Privacy Policy (personal data operator section).',
+    defaultColumns: ['label', 'operatorName', 'contactsEmail', 'updatedAt'],
   },
   access: {
     read: anyone,

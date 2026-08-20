@@ -14,7 +14,7 @@ type CmsTeamMemberDoc = {
   targetProject?: string;
   whyLooking: string;
   contact: string;
-  contactType: 'telegram' | 'email' | 'discord';
+  contactType: 'telegram' | 'email';
   isApproved: boolean;
   createdAt: string;
 };
