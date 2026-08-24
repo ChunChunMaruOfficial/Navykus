@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { useAuth } from '@payloadcms/ui';
+
 import { PAGE_TEXT_KEY_INFO, PAGE_TEXT_SOURCE_ORDER } from '../pageTextBlockMap';
 
 type PageTextRecord = {
@@ -28,9 +30,8 @@ const PAGE_LABELS: Record<string, string> = {
 
 const FAVORITE_PAGES = ['global', 'home', 'about', 'championship', 'activities', 'find-team', 'legal'];
 
-const fetchCsrf = () => fetch(`${API_BASE}/payload-api/access`, { credentials: 'include' }).catch(() => null);
-
 const PageTextsTreeView = () => {
+  const { token } = useAuth();
   const [records, setRecords] = useState<PageTextRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,15 +39,30 @@ const PageTextsTreeView = () => {
   const [draftValue, setDraftValue] = useState('');
   const [draftBlockName, setDraftBlockName] = useState('');
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState<string | number | null>(null);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [query, setQuery] = useState('');
+
+  const authHeaders = useMemo(() => (token ? { Authorization: `JWT ${token}` } : {}), [token]);
+
+  const makeRequest = useCallback(async (url: string, options: RequestInit = {}) => {
+    const res = await fetch(`${API_BASE}${url}`, {
+      ...options,
+      credentials: 'include',
+      headers: {
+        ...options.headers,
+        ...authHeaders,
+        'Content-Type': 'application/json',
+      },
+    });
+    return res;
+  }, [authHeaders]);
 
   const loadAll = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      await fetchCsrf();
-      const res = await fetch(`${API_BASE}/payload-api/page-texts?limit=1000&depth=0`, { credentials: 'include' });
+      const res = await makeRequest('/payload-api/page-texts?limit=1000&depth=0');
       if (!res.ok) throw new Error(`fetch failed ${res.status}`);
       const json = await res.json();
       const docs = (json.docs as PageTextRecord[]).filter((d) => Boolean(d.translationKey));
@@ -56,7 +72,7 @@ const PageTextsTreeView = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [makeRequest]);
 
   useEffect(() => {
     loadAll();
@@ -171,11 +187,8 @@ const PageTextsTreeView = () => {
   const saveEdit = async (r: PageTextRecord) => {
     setSaving(true);
     try {
-      await fetchCsrf();
-      const res = await fetch(`${API_BASE}/payload-api/page-texts/${r.id}`, {
+      const res = await makeRequest(`/payload-api/page-texts/${r.id}`, {
         method: 'PATCH',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: draftValue, blockName: draftBlockName || undefined }),
       });
       if (!res.ok) throw new Error(`save failed ${res.status}`);
@@ -189,6 +202,22 @@ const PageTextsTreeView = () => {
       setError((e as Error).message || 'save error');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const deleteRecord = async (id: string | number) => {
+    if (!window.confirm('Удалить этот текст? Это действие необратимо.')) return;
+    setDeleting(id);
+    try {
+      const res = await makeRequest(`/payload-api/page-texts/${id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error(`delete failed ${res.status}`);
+      setRecords((prev) => prev.filter((p) => p.id !== id));
+    } catch (e) {
+      setError((e as Error).message || 'delete error');
+    } finally {
+      setDeleting(null);
     }
   };
 
@@ -297,19 +326,26 @@ const PageTextsTreeView = () => {
                       <button onClick={cancelEdit} style={btnStyle}>Отмена</button>
                     </div>
                   </div>
-                ) : (
-                  <div>
-                    <div style={{ whiteSpace: 'pre-wrap', fontSize: 14, color: 'var(--theme-text)' }}>
-                      {record.value || <span style={{ color: 'var(--theme-error-500)' }}>(пусто — блок скрыт на сайте)</span>}
-                    </div>
-                    <div style={{ marginTop: 6 }}>
-                      <button onClick={() => startEdit(record)} style={{ ...btnStyle, marginRight: 8 }}>Редактировать</button>
-                      <span style={{ fontSize: 11, color: 'var(--theme-elevation-500)' }}>
-                        {record.isPublished === false ? 'не опубликовано' : 'опубликовано'}
-                      </span>
-                    </div>
-                  </div>
-                )}
+) : (
+                      <div>
+                        <div style={{ whiteSpace: 'pre-wrap', fontSize: 14, color: 'var(--theme-text)' }}>
+                          {record.value || <span style={{ color: 'var(--theme-error-500)' }}>(пусто — блок скрыт на сайте)</span>}
+                        </div>
+                        <div style={{ marginTop: 6 }}>
+                          <button onClick={() => startEdit(record)} style={{ ...btnStyle, marginRight: 8 }}>Редактировать</button>
+                          <button
+                            onClick={() => deleteRecord(record.id)}
+                            disabled={deleting === record.id}
+                            style={{ ...btnStyle, marginRight: 8, background: 'var(--theme-error-100)', color: 'var(--theme-error-500)', borderColor: 'var(--theme-error-300)' }}
+                          >
+                            {deleting === record.id ? 'Удаление...' : 'Удалить'}
+                          </button>
+                          <span style={{ fontSize: 11, color: 'var(--theme-elevation-500)' }}>
+                            {record.isPublished === false ? 'не опубликовано' : 'опубликовано'}
+                          </span>
+                        </div>
+                      </div>
+                    )}
               </div>
             );
           })}
@@ -377,7 +413,7 @@ const PageTextsTreeView = () => {
                               ({blockRecords.length})
                             </span>
                           </div>
-                          {bOpen && (
+{bOpen && (
                             <div style={{ padding: '0 0 12px 48px' }}>
                               {blockRecords.map((r) => {
                                 const editing = editingId === r.id;
@@ -413,6 +449,13 @@ const PageTextsTreeView = () => {
                                         </div>
                                         <div style={{ marginTop: 6 }}>
                                           <button onClick={() => startEdit(r)} style={{ ...btnStyle, marginRight: 8 }}>Редактировать</button>
+                                          <button
+                                            onClick={() => deleteRecord(r.id)}
+                                            disabled={deleting === r.id}
+                                            style={{ ...btnStyle, marginRight: 8, background: 'var(--theme-error-100)', color: 'var(--theme-error-500)', borderColor: 'var(--theme-error-300)' }}
+                                          >
+                                            {deleting === r.id ? 'Удаление...' : 'Удалить'}
+                                          </button>
                                           <span style={{ fontSize: 11, color: 'var(--theme-elevation-500)' }}>
                                             {r.isPublished === false ? 'не опубликовано' : 'опубликовано'}
                                           </span>

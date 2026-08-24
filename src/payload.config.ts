@@ -52,15 +52,26 @@ const configuredServerURL = normalizeServerURL(process.env.PAYLOAD_PUBLIC_SERVER
 const payloadServerURL = isProduction && (!configuredServerURL || isLocalServerURL(configuredServerURL))
   ? productionServerURL
   : configuredServerURL || `http://localhost:${process.env.API_PORT || 4000}`;
+const devLocalhostOrigins = isProduction ? [] : [
+  `http://localhost:${process.env.SITE_PORT || 3000}`,
+  `http://localhost:${process.env.ADMIN_PORT || 3001}`,
+  `http://localhost:${process.env.API_PORT || 4000}`,
+  `http://127.0.0.1:${process.env.SITE_PORT || 3000}`,
+  `http://127.0.0.1:${process.env.ADMIN_PORT || 3001}`,
+  `http://127.0.0.1:${process.env.API_PORT || 4000}`,
+];
+
 const csrfOrigins = Array.from(new Set([
   payloadServerURL,
+  configuredServerURL,
   productionServerURL,
   normalizeServerURL(process.env.PUBLIC_SITE_URL),
   normalizeServerURL(process.env.SITE_URL),
   normalizeServerURL(process.env.SERVER_URL),
   'https://navykus.online',
   'https://www.navykus.online',
-].filter((value): value is string => Boolean(value) && !isLocalServerURL(value))));
+  ...devLocalhostOrigins,
+].filter((value): value is string => Boolean(value) && (isProduction ? !isLocalServerURL(value) : true))));
 const smtpHost = process.env.SMTP_HOST?.trim();
 const smtpUser = process.env.SMTP_USER?.trim();
 const smtpPass = process.env.SMTP_PASS;
