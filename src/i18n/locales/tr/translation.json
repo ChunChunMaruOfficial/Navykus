@@ -136,7 +136,7 @@
       "ec3eba7deb": "Konsey Uzmanları",
       "ce65e2cf6b": "İletişim ve Destek",
       "ed16b5adfc": "Koordinatör:",
-      "9e059272f1": "Gizlilik",
+      "9e059272f1": "Gizlilik Politikası",
       "3a86197ba3": "Anlaşma",
       "2060fe9f62": "Kupa jürisi ve mentorlar",
       "copyright": "© 2026 Navikus Global Education",
@@ -306,7 +306,8 @@
       "4b5dbcf3e2": "Pencereyi kapat",
       "maxFilesError": "{{count}} dosyaya kadar ekleyebilirsiniz",
       "submitError": "Anket gönderilemedi. Tekrar deneyin.",
-      "moderationSuccess": "Anket moderasyona gönderildi. İncelemeden sonra ekip arama sayfasında görünecektir."
+      "moderationSuccess": "Anket moderasyona gönderildi. İncelemeden sonra ekip arama sayfasında görünecektir.",
+      "privacyConsentLabel": "Gizlilik Politikasını kabul ediyorsunuz"
     },
     "championshippage": {
       "75eb0d84": "Ekibim yoksa katılabilir miyim?",
@@ -716,6 +717,622 @@
       "accept": "Kabul et",
       "decline": "Şimdi değil"
     }
+  },
+  "privacypolicy": {
+    "eyebrow": "Yasal bilgiler",
+    "title": "Navykus Projesi Gizlilik Politikası",
+    "lastUpdatedLabel": "Son güncelleme: {{lastUpdated}}",
+    "lastUpdatedDate": "5 Ağustos 2026",
+    "sections": [
+      {
+        "title": "1. GENEL HÜKÜMLER",
+        "subs": [
+          {
+            "h": "1.1. Genel bilgiler",
+            "blocks": [
+              "p|Navykus projesinin (bundan sonra — **Politika**) bu Gizlilik Politikası, **{{siteUrl}}** web sitesinin (bundan sonra — **Site**) kullanımı sırasında ve ayrıca Navykus şampiyonalarına, vaka şampiyonalarına, etkinliklere, atölyelere ve diğer proje faaliyetlerine katılım sırasında sağlanan kişisel verilerin işlenme ve korunma prosedürünü belirler.",
+              "p|Navykus, 10 ila 22 yaş arasındaki okul öğrencileri ve gençler için uluslararası bir eğitim platformudur.",
+              "p|Bu Politika, Rusya Federasyonu'nun kişisel verilere ilişkin mevzuatının hükümleri, 27.07.2006 tarihli ve 152-FZ sayılı \"Kişisel Veriler Hakkında\" Federal Yasası ve uygulanabilir durumlarda Avrupa Birliği Genel Veri Koruma Yönetmeliği (GDPR) gereklilikleri dikkate alınarak hazırlanmıştır."
+            ]
+          },
+          {
+            "h": "1.2. Kişisel verilerin işlendiği operatör",
+            "blocks": [
+              "p|Kişisel verilerin operatörü, bireysel girişimci (serbest meslek sahibi) olarak faaliyet gösteren bir gerçek kişidir — **{{operatorName}}**.",
+              "p|Operatör bilgileri:",
+              "list|Vergi No (INN): **{{operatorInn}}**\nOGRNIP: **{{operatorOgrnip}}**\nadres: **{{operatorAddress}}**\nkişisel veri operatörleri kaydına kayıt: No **{{operatorRegistryNumber}}**, tarih **{{operatorRegistryDate}}**",
+              "p|Operatör, kişisel verileri bu Politika ve uygulanabilir mevzuatla belirlenen amaçlar, usul ve kapsam dahilinde işler."
+            ]
+          },
+          {
+            "h": "1.3. Site ve iletişim bilgileri",
+            "blocks": [
+              "p|Proje sitesi: **{{siteUrl}}**.",
+              "p|Kişisel verilerin işlenmesiyle ilgili taleplerin iletilmesi için veri sahibi veya yasal temsilcisi Operatörle iletişime geçebilir:",
+              "list|e-posta ile: **{{contactsEmail}}**\nposta adresi ile: **{{contactsPostalAddress}}**"
+            ]
+          },
+          {
+            "h": "1.4. Politikanın kapsamı",
+            "blocks": [
+              "p|Bu Politika, Operatörün Site'nin kullanımı, anketlerin doldurulması, şampiyonalara, etkinliklere ve atölyelere kayıt olunması, proje faaliyetlerine katılım sırasında ve ayrıca ilgili içeriğin sonraki moderasyonu, yayınlanması ve yönetimi sürecinde veri sahibinden doğrudan aldığı kişisel veriler için geçerlidir.",
+              "p|Politika ayrıca, ilgili başvuruların ve anketlerin işlenmesi sırasında bilgi sistemi tarafından oluşturulan ve güvenlik, moderasyon ve denetimin sağlanması için gerekli bilgileri de içeren teknik ve hizmet verileri için de geçerlidir."
+            ]
+          },
+          {
+            "h": "1.5. İşlemenin temel ilkeleri",
+            "blocks": [
+              "p|Operatör, kişisel verileri aşağıdaki ilkelere dayanarak işler:",
+              "list|işleme yasal ve önceden belirlenmiş amaçlarla gerçekleştirilir\nişlenen verilerin hacmi belirtilen amaçlara uygundur\nyalnızca ilgili amaçlar için gerekli olan veri kategorileri kullanılır\nkişisel veriler bu Politikada belirtilmeyen amaçlar için kullanılmaz\nkişisel veriler satılmaz\nkişisel veriler hedefli reklam için kullanılmaz\nveri sahiplerinin profillemesi yapılmaz\nveri sahibi için hukuki veya benzeri önemli sonuçlar doğuran otomatik karar alma gerçekleştirilmez\nuygun onay olmadan pazarlama gönderimleri yapılmaz"
+            ]
+          },
+          {
+            "h": "1.6. Veri sahibinin onayı",
+            "blocks": [
+              "p|İşlemenin onaya dayandığı durumlarda, ilgili onay Site üzerinden elektronik biçimde verilir.",
+              "p|Onay, veri sahibinin bir formda ilgili eylemi gerçekleştirmesiyle, formda öngörülen kişisel verilerin işlenmesi koşulları ve ilgili yönetmelik ile uyum onay işaretinin işaretlenmesi dahil olmak üzere verilir.",
+              "p|Reşit olmayanların verilerinin işlenmesi için bu Politikanın 4. bölümünde belirlenen özel gereklilikler geçerlidir."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "2. TEMEL KAVRAMLAR",
+        "subs": [
+          {
+            "h": "2.1. Kişisel veriler",
+            "blocks": ["p|**Kişisel veriler** — belirli veya belirlenebilir bir gerçek kişiyle doğrudan veya dolaylı olarak ilgili her türlü bilgi."]
+          },
+          {
+            "h": "2.2. Operatör",
+            "blocks": [
+              "p|**Operatör** — kişisel verilerin işlenmesini tek başına veya diğer kişilerle birlikte organize eden ve/veya gerçekleştiren ve ayrıca işlemenin amaçlarını, kişisel verilerin bileşimini ve bunlarla yapılan eylemleri belirleyen kişi.",
+              "p|Bu Politika kapsamında Operatör **{{operatorName}}**'dir."
+            ]
+          },
+          {
+            "h": "2.3. Veri sahibi",
+            "blocks": ["p|**Veri sahibi** — işlenen kişisel verilerin ait olduğu gerçek kişi."]
+          },
+          {
+            "h": "2.4. Kişisel verilerin işlenmesi",
+            "blocks": ["p|**Kişisel verilerin işlenmesi** — otomasyon araçları kullanılarak veya kullanılmadan kişisel verilerle gerçekleştirilen her türlü eylem veya eylemler bütünü; toplama, kaydetme, sistematikleştirme, biriktirme, saklama, güncelleme, değiştirme, çıkarma, kullanma, aktarma, erişim sağlama, yayma, anonimleştirme, bloke etme, silme ve imha etme dahil."]
+          },
+          {
+            "h": "2.5. Onay",
+            "blocks": ["p|**Kişisel verilerin işlenmesine onay** — mevzuat ve bu Politika tarafından öngörülen durumlarda ve usulde verilen, veri sahibinin gönüllü, belirli, konuya ilişkin, bilgilendirilmiş ve bilinçli irade beyanı."]
+          },
+          {
+            "h": "2.6. Anonimleştirme",
+            "blocks": ["p|**Anonimleştirme** — ek bilgi kullanılmadan kişisel verilerin belirli bir veri sahibine ait olduğunun belirlenmesinin imkansız hale geldiği eylemler."]
+          },
+          {
+            "h": "2.7. Bloke etme",
+            "blocks": ["p|**Bloke etme** — kişisel verilerin işlenmesinin geçici olarak durdurulması; işlemenin kişisel verilerin netleştirilmesi için gerekli olduğu durumlar hariç."]
+          },
+          {
+            "h": "2.8. İmha",
+            "blocks": ["p|**İmha** — bilgi sisteminde kişisel verilerin içeriğinin geri yüklenmesinin imkansız hale geldiği ve/veya kişisel verilerin maddi ortamlarının imha edildiği eylemler."]
+          },
+          {
+            "h": "2.9. Sınır ötesi aktarım",
+            "blocks": ["p|**Kişisel verilerin sınır ötesi aktarımı** — kişisel verilerin yabancı bir devletin topraklarına, yabancı bir devletin devlet otoritesine, yabancı bir gerçek veya tüzel kişiye aktarılması."]
+          },
+          {
+            "h": "2.10. Yetkili organ",
+            "blocks": ["p|**Yetkili organ** — kişisel veriler alanında kontrol ve denetim işlevlerini yerine getiren devlet organı; Rusya Federasyonu mevzuatının öngördüğü durumlarda Roskomnadzor dahil."]
+          },
+          {
+            "h": "2.11. Çerezler",
+            "blocks": ["p|**Çerezler** — bir tarayıcı veya başka bir yazılım tarafından kullanıcının cihazında saklanan ve Site tarafından bu Politikada öngörülen teknik amaçlar için kullanılan küçük veri parçaları."]
+          },
+          {
+            "h": "2.12. IP adresi",
+            "blocks": ["p|**IP adresi** — IP protokolü kullanılarak kurulan bir bilgisayar ağındaki bir cihazın veya düğümün benzersiz ağ adresi."]
+          },
+          {
+            "h": "2.13. Otomatik işleme",
+            "blocks": ["p|**Otomatik işleme** — bilgisayar ve yazılım araçları kullanılarak kişisel verilerin işlenmesi."]
+          },
+          {
+            "h": "2.14. Moderasyon",
+            "blocks": ["p|**Moderasyon** — kullanıcı tarafından sağlanan içeriğin ve bilgilerin, ilgili bölümün veya faaliyetin kurallarına göre onaylanması, reddedilmesi, değişiklik gerekmesi veya başka bir şekilde işlenmesi kararı vermek amacıyla yetkili bir kişi tarafından yapılan kontrol."]
+          }
+        ]
+      },
+      {
+        "title": "3. KİŞİSEL VERİLERİN İŞLENME AMAÇLARI",
+        "subs": [
+          {
+            "h": "3.1. Genel hükümler",
+            "blocks": ["p|Operatör, kişisel verileri yalnızca Navykus'un işleyişi, etkinliklere ve şampiyonalara katılımın organize edilmesi, öngörülen bölümlerde profillerin yayınlanması, moderasyon ve Sitenin güvenliğinin sağlanması ile doğrudan ilgili, önceden belirlenmiş ve somut amaçlar için işler."]
+          },
+          {
+            "h": "3.2. İşleme amaçları",
+            "blocks": [
+              "table|No;İşleme amacı;Kişisel veri kategorileri;Form/kaynak|1;Şampiyonaya kayıt / vaka şampiyonasına katılım;Kimlik, iletişim ve profil verileri, portfolyo dosyaları;Katılımcı anketi (`sourceType=championship`)|2;Moderasyondan sonra anketin \"Takım Bul\" bölümünde yayınlanması;Kimlik, profil ve iletişim verileri (Telegram/E-posta), ülke;Katılımcı anketi (`sourceType=find-team / modal / home / about / activities`)|3;Etkinliklere ve atölyelere kayıt;Kimlik, iletişim ve profil verileri;Katılımcı anketi (`sourceType=event / activities`)|4;Moderasyon durumu, şampiyona bilgileri ve son tarihler hakkında bildirim gönderimi;Ad, e-posta adresi;Durum değiştiğinde veya öngörülen eylem gerçekleştirildiğinde otomatik|5;İçerik moderasyonu, güvenlik ve denetim;Teknik ve hizmet verileri (`sourceType`, `moderationStatus`, denetim kayıtları ve diğer hizmet bilgileri);Sistem süreçleri|6;Şampiyonaya katılım sözleşmesinin yerine getirilmesi;İlgili katılım için gerekli veriler;Anket ve kişisel verilerin işlenmesine onay"
+            ]
+          },
+          {
+            "h": "3.3. Şampiyonalara kayıt ve katılım",
+            "blocks": [
+              "p|Kişisel veriler, bir katılımcının anketinin kabul edilmesi, ilgili şampiyonaya kayıt olunması, vaka şampiyonasına katılımın organize edilmesi, sunulan materyallerin işlenmesi ve katılımla ilgili organizasyonel eylemlerin gerçekleştirilmesi için işlenebilir.",
+              "p|Bu amaç kapsamında, bu Politika ile belirlenen sınırlar dahilinde kimlik, iletişim ve profil verileri ve portfolyo dosyaları işlenebilir."
+            ]
+          },
+          {
+            "h": "3.4. Profilin \"Takım Bul\" bölümünde yayınlanması",
+            "blocks": [
+              "p|Öngörülen moderasyondan sonra, anket verileri belirtilen amaç için gerekli ölçüde \"Takım Bul\" bölümünde yayınlanabilir.",
+              "p|Yayınlama, yalnızca anketin uygun şekilde işlenmesinden ve yayınlanmasına ilişkin öngörülen kararın alınmasından sonra gerçekleştirilir.",
+              "p|Yayınlanan veriler, bu amaç için öngörülen kimlik ve profil bilgilerini, Telegram/E-posta biçimindeki iletişim verilerini ve ülke bilgilerini içerir."
+            ]
+          },
+          {
+            "h": "3.5. Etkinliklere ve atölyelere kayıt",
+            "blocks": ["p|Kişisel veriler, veri sahibinin etkinliklere, atölyelere, çevrimiçi toplantılara ve Navykus'un diğer proje faaliyetlerine kaydı için işlenebilir."]
+          },
+          {
+            "h": "3.6. Bildirimler",
+            "blocks": [
+              "p|Operatör, kullanıcının ilgili faaliyete katılımıyla doğrudan ilgili bildirimler gönderebilir:",
+              "list|moderasyon durumu bildirimleri\nşampiyona hakkında bilgiler\nson tarihler ve süreler hakkında bilgiler\nilgili katılımla doğrudan ilgili organizasyonel bildirimler",
+              "p|Belirtilen amaçlarla doğrudan ilgili olmayan pazarlama gönderimleri, bu Politikada belirtilen işleme amaçlarına dahil değildir."
+            ]
+          },
+          {
+            "h": "3.7. Moderasyon, güvenlik ve denetim",
+            "blocks": [
+              "p|Teknik ve hizmet bilgileri şu amaçlarla işlenir:",
+              "list|moderasyonun gerçekleştirilmesi\nSitenin güvenliğinin sağlanması\nanket işleme durumunun kontrolü\nverilerle yapılan eylemlerin kaydedilmesi\niçerik oluşturma, değiştirme ve silme işlemlerinin denetiminin tutulması\nolayların araştırılmasının ve yetkili kişilerin eylemlerinin doğrulanmasının sağlanması"
+            ]
+          },
+          {
+            "h": "3.8. Verilerin kullanılmadığı amaçlar",
+            "blocks": [
+              "p|Operatör kişisel verileri şunlar için **kullanmaz**:",
+              "list|hedefli reklam\nprofilleme\notomatik karar alma\nkişisel veri satışı\npazarlama amaçlarıyla kişisel verilerin üçüncü kişilere aktarılması\nuygun onay olmadan pazarlama gönderimleri",
+              "p|Google Analytics, Yandex.Metrica, reklam ağları, sosyal ağ pikseli ve diğer benzer analitik veya reklam profilleme araçları açıklanan sistem kapsamında kullanılmaz."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "4. İŞLEMENİN YASAL DAYANAKLARI",
+        "subs": [
+          {
+            "h": "4.1. Genel hükümler",
+            "blocks": ["p|Kişisel verilerin işlenmesi, Rusya Federasyonu mevzuatı ve uygulanabilir durumlarda ilgili yargı yetkisinin kişisel veri koruma mevzuatı tarafından öngörülen yasal bir dayanak mevcutken gerçekleştirilir."]
+          },
+          {
+            "h": "4.2. Yasal dayanaklar",
+            "blocks": [
+              "table|İşleme türü;152-FZ'ye göre dayanak;GDPR'ye göre dayanak|Anketin kabulü, moderasyon ve profil yayını;Onay, md. 6 bölüm 1 madde 1;GDPR md. 6(1)(a)|Şampiyonaya kayıt ve sözleşme ilişkilerinin yerine getirilmesi;Sözleşmenin yerine getirilmesi, md. 6 bölüm 1 madde 2;GDPR md. 6(1)(b)|Katılım ve durum bildirimleri;Meşru menfaat, md. 6 bölüm 1 madde 5 ve/veya onay;GDPR md. 6(1)(f) ve/veya md. 6(1)(a)|Denetim, güvenlik ve hakların korunması;Yasal yükümlülüğün yerine getirilmesi, md. 6 bölüm 1 madde 3, 152-FZ md. 18 ve 19 gereklilikleri dahil;GDPR md. 6(1)(c)|Teknik çerezler ve çerez onayının kaydedilmesi;Onay, 152-FZ md. 9;ePrivacy / GDPR md. 6(1)(a)"
+            ]
+          },
+          {
+            "h": "4.3. Kişisel verilerin işlenmesine onay",
+            "blocks": [
+              "p|Dayanağın onay olduğu durumlarda, veri sahibi onayı, ilgili işleme başlamadan önce Site arayüzü aracılığıyla veya sistemi tarafından öngörülen ve bu onayı doğrulayan bir eylem gerçekleştirerek verir.",
+              "p|Onay formu, onayın konusunu ve onayın verildiği gerçeğini tanımlamaya izin vermelidir."
+            ]
+          },
+          {
+            "h": "4.4. Sözleşme ilişkileri",
+            "blocks": ["p|Şampiyonaya katılımla ilgili durumlarda, işleme, veri sahibi ile Operatör arasındaki sözleşme ilişkilerinin yerine getirilmesi gerekliliği temelinde, işlemenin ilgili yükümlülüklerin yerine getirilmesi için gerekli olduğu ölçüde gerçekleştirilebilir."]
+          },
+          {
+            "h": "4.5. Yasal yükümlülükler",
+            "blocks": ["p|Teknik ve hizmet verileri, yasal gerekliliklerin yerine getirilmesi, bilgi sisteminin güvenliğinin sağlanması, denetimin yürütülmesi ve Operatörün ve veri sahiplerinin haklarının ve meşru menfaatlerinin korunması için gerekli ölçüde işlenebilir."]
+          },
+          {
+            "h": "4.6. Özel kişisel veri kategorileri",
+            "blocks": [
+              "p|Operatör, ırk, milliyet, siyasi görüş, dini veya felsefi inanç, sağlık durumu, özel hayat, genetik veriler ve biyometrik kişisel verilerle ilgili bilgilere ilişkin **özel kişisel veri kategorilerinin işlenmesini gerçekleştirmez**.",
+              "p|Ankette sayısal bir değer olarak belirtilen yaş, Operatör tarafından özel bir kişisel veri kategorisi olarak değerlendirilmez."
+            ]
+          },
+          {
+            "h": "4.7. Reşit olmayanlar",
+            "blocks": [
+              "p|Navykus, 10 ila 22 yaş arasındaki kullanıcılara yöneliktir. Bu bağlamda, reşit olmayanlar için onay verilmesine ilişkin özel gereklilikler uygulanır.",
+              "p|**10–13 yaş** arasındaki kullanıcılar için bu Politika, yasal bir temsilcinin onayını gerektirir.",
+              "p|**14–17 yaş** arasındaki kullanıcılar için veri sahibinin kendi onayı uygulanır. Bu durumda ebeveynlerin veya diğer yasal temsilcilerin bilgilendirilmesi önerilir.",
+              "p|**18 yaş ve üzeri** kullanıcılar için onay, doğrudan veri sahibinin kendisi tarafından verilir.",
+              "p|Bu gereklilikler, ilgili teknik kontrol mekanizmasının doğrudan Sitenin kodunda uygulanıp uygulanmadığına bakılmaksızın bu Politikanın gereklilikleridir."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "5. İŞLEME YÖNTEMLERİ VE SÜRELERİ",
+        "subs": [
+          {
+            "h": "5.1. İşleme yöntemleri",
+            "blocks": ["p|Kişisel veriler otomatik ve manuel yöntemlerle işlenir."]
+          },
+          {
+            "h": "5.2. Otomatik işleme",
+            "blocks": [
+              "p|Otomatik biçimde kişisel veriler, özellikle aşağıdaki süreçler aracılığıyla işlenir:",
+              "list|anket verilerinin `POST /api/team-members` üzerinden alınması\nverilerin SQLite veritabanına yazılması (`payload.db`)\nNodemailer aracılığıyla e-posta bildirimlerinin gönderilmesi\nmoderasyondan sonra ilgili içeriğin ön yüzde yayınlanması\nişlem denetiminin tutulması"
+            ]
+          },
+          {
+            "h": "5.3. Manuel işleme",
+            "blocks": [
+              "p|Manuel işleme şunları içerir:",
+              "list|Payload Admin'de anketlerin moderasyonu\nanketlerin onaylanması\nanketlerin reddedilmesi\nverilerde gerekli değişikliklerin yapılması\nveri sahibinin talebi üzerine verilerin dışa aktarılması\nveri sahibinin talebi üzerine verilerin silinmesi"
+            ]
+          },
+          {
+            "h": "5.4. Kişisel veri kategorileri",
+            "blocks": [
+              "table|Kategori;Alanlar;Zorunluluk|Kimlik;`name`, `age`;Evet|İletişim;`email`, `contact`, `contactType`, `country`, `city`;`city` — hayır (diğerleri — evet)|Profil;`shortBio`, `interests[]`, `skills[]`, `targetRoles[]`, `targetProject`, `whyLooking`;Kısmen|Dosyalar;`portfolioFiles[]`, `portfolioLink`;Hayır|Teknik/hizmet;`sourceType`, `sourceId`, `sourceContext`, `tournamentId`, `moderationStatus`, `moderationComment`, `reviewedAt`, `isApproved`, `originalLanguage`, `createdAt`, `updatedAt`;Otomatik|Çerez / localStorage;`navykus.cookieConsent` değeri `accepted` veya `dismissed`;Yalnızca onay bilgisi"
+            ]
+          },
+          {
+            "h": "5.5. Portfolyo",
+            "blocks": [
+              "p|`portfolioFiles[]` alanı, portfolyo dosyalarının yüklenmesi için tasarlanmıştır.",
+              "p|Aşağıdaki türlerdeki dosyalara izin verilir:",
+              "list|PDF\nDOC\nDOCX\nJPG\nPNG\nWebP",
+              "p|Bir dosyanın boyutu **10 MB'ı** aşmamalıdır. Maksimum portfolyo dosyası sayısı **5'tir**.",
+              "p|`portfolioLink` alanı da kullanılabilir."
+            ]
+          },
+          {
+            "h": "5.6. Teknik ve hizmet verileri",
+            "blocks": ["p|Teknik ve hizmet verileri, işleyişin, moderasyonun ve denetimin sağlanması için sistem tarafından otomatik olarak oluşturulan bilgileri içerir: `sourceType`, `sourceId`, `sourceContext`, `tournamentId`, `moderationStatus`, `moderationComment`, `reviewedAt`, `isApproved`, `originalLanguage`, `createdAt`, `updatedAt` ve denetim verileri."]
+          },
+          {
+            "h": "5.7. Çerezler",
+            "blocks": [
+              "p|Site, kullanıcının onay değerinin `localStorage` içinde şu anahtar altında teknik olarak saklanmasını kullanır:",
+              "p|`navykus.cookieConsent`",
+              "p|Olası değerler:",
+              "list|`accepted`\n`dismissed`",
+              "p|Yalnızca gerekli çerezler ve onay ve yönetici oturumuyla ilgili teknik saklama kullanılır.",
+              "p|Analitik ve pazarlama çerezleri kullanılmaz."
+            ]
+          },
+          {
+            "h": "5.8. Saklama süreleri",
+            "blocks": [
+              "p|Kişisel veriler, işleme amaçlarına ulaşmak, onayın geri çekilmesi veya yasal sürenin dolması için gerekli süre boyunca saklanır.",
+              "p|Özellikle:",
+              "table|Kategori;Süre|Onaylanan katılımcıların anketleri;Onay geri çekilene kadar veya son giriş/güncellemeden itibaren 3 yıl hareketsizlik|Reddedilen katılımcıların ve moderasyondaki anketler;Moderatör kararından 30 gün sonra, ardından silinmeye tabidir|Denetim günlükleri `AuditLogs`;En az 3 yıl|Çerez onayı;Kullanıcı `localStorage`'ı temizleyene kadar"
+            ]
+          },
+          {
+            "h": "5.9. Silme",
+            "blocks": [
+              "p|Sistem kodunda doğrudan otomatik veri silme yoktur.",
+              "p|Verilerin silinmesi, yönetim sisteminde bir moderatör tarafından manuel olarak veya Politika tarafından öngörülen başka bir dayanakla gerçekleştirilir.",
+              "p|Genel saklama ilkesi: kişisel veriler, işleme amacına ulaşılana, onay geri çekilene veya mevzuatla belirlenen süre dolana kadar saklanır."
+            ]
+          },
+          {
+            "h": "5.10. İşlemenin kısıtlanması",
+            "blocks": ["p|İşlemenin geçici olarak durdurulmasının gerekli olduğu durumlarda, ilgili veriler bloke edilebilir veya durumları, veri sahibinin başvurusunun incelenmesi prosedürüne uygun olarak yönetim sisteminde değiştirilebilir."]
+          }
+        ]
+      },
+      {
+        "title": "6. VERİLERİN ÜÇÜNCÜ KİŞİLERE AKTARILMASI",
+        "subs": [
+          {
+            "h": "6.1. Genel hükümler",
+            "blocks": [
+              "p|Operatör, veri satışı, hedefli reklam veya pazarlama profillemesi amaçlarıyla kişisel verileri üçüncü kişilere aktarmaz.",
+              "p|İşleme sırasında, sistemin işleyişiyle doğrudan ilgili ayrı teknolojik bileşenler ve altyapı çözümleri kullanılabilir."
+            ]
+          },
+          {
+            "h": "6.2. Kullanılan alt işleyiciler ve altyapı bileşenleri",
+            "blocks": [
+              "table|Alt işleyici / bileşen;Amaç;İşlenen veriler;Dayanak;Konum;DPA/SCC|Payload CMS / SQLite (`payload.db`);Veritabanı saklama;Tüm anket verileri;Sözleşme;RF, Operatörün sunucusunda yerel;Dahili|Nodemailer / SMTP;Moderatöre ve kullanıcıya e-posta bildirimleri;E-posta, ad, form verileri;Sözleşme / meşru menfaat;Ortamda belirtilen SMTP sağlayıcısına bağlıdır;İmzalı|Payload Media / yerel depolama `uploads/media`;Portfolyo dosyalarının saklanması;Yüklenen dosyalar;Sözleşme;RF, yerel;Dahili"
+            ]
+          },
+          {
+            "h": "6.3. Payload CMS / SQLite",
+            "blocks": [
+              "p|Sistemin ana veritabanı, Operatörün sunucusunda Payload CMS tarafından kullanılan `payload.db` dosyasında saklanır.",
+              "p|Bu veritabanında, belirtilen işleme amaçları için gerekli tüm anket verileri saklanabilir."
+            ]
+          },
+          {
+            "h": "6.4. E-posta bildirimleri",
+            "blocks": [
+              "p|Sistem tarafından öngörülen e-posta bildirimlerinin gönderilmesi için, ilgili altyapının ortam değişkenlerinde belirtilen bir SMTP sağlayıcısıyla Nodemailer kullanılır.",
+              "p|SMTP sağlayıcısının ayarlarına bağlı olarak, e-posta verileri, bildirimin teslimi için gerekli ölçüde ilgili SMTP sağlayıcısı tarafından işlenebilir."
+            ]
+          },
+          {
+            "h": "6.5. Portfolyo dosyaları",
+            "blocks": ["p|Portfolyo dosyaları, Payload Media aracılığıyla `uploads/media` dizinindeki yerel diskte saklanır."]
+          },
+          {
+            "h": "6.6. Verilerin aktarılmadığı hizmetler",
+            "blocks": [
+              "p|Açıklanan sistem kapsamında kişisel veriler şunlara aktarılmaz:",
+              "list|Google Analytics\nYandex.Metrica\nsosyal ağlar\nreklam ağları\nödeme ağ geçitleri\nCRM sistemleri\nkişiselleştirmeli CDN'ler\npazarlama izleyicileri"
+            ]
+          },
+          {
+            "h": "6.7. Devlet organları",
+            "blocks": [
+              "p|Kişisel verilerin devlet organlarına aktarılması, yalnızca mevzuatın öngördüğü bir dayanak mevcutsa ve yasanın belirlediği usulde gerçekleştirilir.",
+              "p|Bu tür durumlar, özellikle mahkemelerin, Roskomnadzor'un, soruşturma organlarının ve diğer yetkili devlet organlarının yasayla öngörülen taleplerini içerir."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "7. GÜVENLİK ÖNLEMLERİ",
+        "subs": [
+          {
+            "h": "7.1. Genel hükümler",
+            "blocks": [
+              "p|Operatör, kişisel verileri yasa dışı veya kazara erişime, imhaya, değiştirilmeye, bloke edilmeye ve diğer yasa dışı eylemlere karşı korumak için organizasyonel ve teknik önlemler alır.",
+              "p|Uygulanan önlemler, sistemin fiilen uygulanan mekanizmalarına karşılık gelir."
+            ]
+          },
+          {
+            "h": "7.2. Aktarım sırasında koruma",
+            "blocks": ["p|Ağ üzerinden veri aktarımı, HTTPS ve **1.2 veya üzeri** sürüm TLS kullanılarak gerçekleştirilir."]
+          },
+          {
+            "h": "7.3. Yönetici kullanıcıların kimlik doğrulaması",
+            "blocks": [
+              "p|Yönetici erişimi için Payload JWT kimlik doğrulama mekanizması kullanılır.",
+              "p|JWT belirteci şurada saklanır:",
+              "list|HttpOnly çerez\nSecure çerez\nSameSite=Lax parametreli çerez",
+              "p|Belirtecin geçerlilik süresi `PAYLOAD_TOKEN_EXPIRATION_SECONDS` parametresiyle belirlenir. Varsayılan değer **4 saattir**.",
+              "p|**5 başarısız giriş denemesinden** sonra erişim **15 dakika** süreyle bloke edilir."
+            ]
+          },
+          {
+            "h": "7.4. Erişim kontrolü",
+            "blocks": [
+              "p|Yönetim sisteminde şu rolleri içeren rol tabanlı bir erişim modeli kullanılır:",
+              "list|`admin`\n`moderator`",
+              "p|Anketlerin herkese açık gönderimi şu yolla gerçekleştirilir:",
+              "p|`POST /api/team-members`",
+              "p|Herkese açık bir istek, ilgili durumun zorunlu olarak ayarlanmasıyla işlenir:",
+              "list|`pending`\nyayınlama işareti için `false`",
+              "p|Herkese açık bir kullanıcıya `TeamMembers` koleksiyonuna doğrudan okuma erişimi verilmez."
+            ]
+          },
+          {
+            "h": "7.5. İstek sıklığının sınırlandırılması",
+            "blocks": [
+              "p|API için `express-rate-limit` istek sıklığı sınırlama mekanizması uygulanır.",
+              "p|Bu önlem, herkese açık API yöntemlerinin kötüye kullanımı ve çok sayıda isteğin otomatik gönderimi riskini azaltmak için kullanılır."
+            ]
+          },
+          {
+            "h": "7.6. Dosya kontrolü",
+            "blocks": [
+              "p|Dosyalar yüklenirken izin verilen MIME türlerinin beyaz listesi uygulanır:",
+              "list|PDF\nDOC\nDOCX\nJPG\nPNG\nWebP",
+              "p|Ayrıca şu kısıtlamalar uygulanır:",
+              "list|dosya başına en fazla 10 MB\nen fazla 5 portfolyo dosyası",
+              "p|Kontrol, istemci ve sunucu tarafında gerçekleştirilir."
+            ]
+          },
+          {
+            "h": "7.7. Doğrulama ve temizleme",
+            "blocks": [
+              "p|Verilerin yapısını ve izin verilen değerlerini kontrol etmek için Payload'ın yerleşik doğrulaması kullanılır.",
+              "p|Açıklanan sistem çalışma mekanizmasında ham SQL sorguları kullanılmaz."
+            ]
+          },
+          {
+            "h": "7.8. Denetim",
+            "blocks": [
+              "p|İşlemleri kontrol etmek için `AuditLogs` koleksiyonu kullanılır.",
+              "p|Denetime şu işlemler kaydedilebilir:",
+              "list|oluşturma\ndeğiştirme\nsilme",
+              "p|Denetim işlemleri için özellikle şunlar kaydedilir:",
+              "list|eylemi kim gerçekleştirdi\neylem ne zaman gerçekleştirildi\nhangi veriler değiştirildi\ndeğişiklikten önceki veri durumu\ndeğişiklikten sonraki veri durumu"
+            ]
+          },
+          {
+            "h": "7.9. Bekleme durumundaki verilerin korunması",
+            "blocks": [
+              "p|`payload.db` veritabanı Operatörün sunucusunda saklanır.",
+              "p|Bekleme durumundaki verilerin şifrelenmesi, sunucunun işletim sistemi/disk düzeyinde sağlanır."
+            ]
+          },
+          {
+            "h": "7.10. Yedekleme",
+            "blocks": [
+              "p|Sistem kodunda doğrudan otomatik yedekleme uygulanmamıştır.",
+              "p|Yedekleme sorumluluğu Operatöre aittir."
+            ]
+          },
+          {
+            "h": "7.11. Olay yönetimi",
+            "blocks": ["p|Bilgi güvenliği olaylarına müdahale prosedürü, Operatörün dahili belgelerinde kayıtlıdır."]
+          },
+          {
+            "h": "7.12. Veri koruma sorumlusu",
+            "blocks": ["p|Açıklanan işleme modeline göre, faaliyet ölçeği ve özel kişisel veri kategorilerinin işlenmemesi nedeniyle ayrı bir Veri Koruma Sorumlusu (DPO) atanmamıştır."]
+          }
+        ]
+      },
+      {
+        "title": "8. VERİ SAHİBİNİN HAKLARI",
+        "subs": [
+          {
+            "h": "8.1. Genel hükümler",
+            "blocks": [
+              "p|Veri sahibi, Rusya Federasyonu mevzuatının ve uygulanabilir durumlarda ilgili yargı yetkisinin mevzuatının öngördüğü haklara sahiptir; GDPR tarafından öngörülen haklar dahil.",
+              "p|Hakları kullanmak için **{{contactsEmail}}** e-posta adresine veya **{{contactsPostalAddress}}** posta adresine yazılı bir başvuru gönderilir.",
+              "p|Sistemde kişisel verilerin yönetimi için ayrı bir kullanıcı portalı yoktur."
+            ]
+          },
+          {
+            "h": "8.2. Erişim hakkı",
+            "blocks": [
+              "p|Veri sahibi, işlenen kişisel veriler hakkında bilgi talep etme hakkına sahiptir.",
+              "p|Bu hakkı kullanmak için **{{contactsEmail}}** adresine bir başvuru gönderilmelidir.",
+              "p|Başvurunun incelenmesinden sonra moderatör, ilgili verileri Payload Admin'den JSON biçiminde dışa aktarabilir."
+            ]
+          },
+          {
+            "h": "8.3. Düzeltme hakkı",
+            "blocks": [
+              "p|Yanlışlıkların tespit edilmesi veya kişisel verilerin güncellenmesi gerektiğinde, veri sahibi **{{contactsEmail}}** adresine ilgili bir başvuru gönderebilir.",
+              "p|Başvurunun doğrulanmasından sonra moderatör, yönetim sisteminde gerekli değişiklikleri yapabilir."
+            ]
+          },
+          {
+            "h": "8.4. Silme hakkı",
+            "blocks": [
+              "p|Veri sahibi, kişisel verilerin silinmesini talep etme hakkına sahiptir.",
+              "p|Talep **{{contactsEmail}}** adresine gönderilir.",
+              "p|Talebin işlenmesinden sonra moderatör, ilgili belgeyi, ilgili Media dosyalarının öngörülen kademeli silinmesi dahil olmak üzere yönetim sisteminden siler."
+            ]
+          },
+          {
+            "h": "8.5. İşlemenin kısıtlanması hakkı",
+            "blocks": [
+              "p|Yasanın öngördüğü durumlarda, veri sahibi kişisel verilerin işlenmesinin kısıtlanmasını talep etme hakkına sahiptir.",
+              "p|Bu hakkı kullanmak için **{{contactsEmail}}** adresine bir başvuru gönderilir.",
+              "p|Yönetim sisteminde ilgili işleme, durum değiştirilerek kısıtlanabilir:",
+              "list|`moderationStatus='rejected'`\n`moderationStatus='needs_edit'`"
+            ]
+          },
+          {
+            "h": "8.6. Taşınabilirlik hakkı",
+            "blocks": [
+              "p|Bu hakkın uygulanabilir olduğu durumlarda, veri sahibi kişisel verileri yapılandırılmış bir biçimde talep etme hakkına sahiptir.",
+              "p|Mevcut sistem kapsamında bu sağlama, yönetim panelinden verilerin JSON dışa aktarımıyla gerçekleştirilir."
+            ]
+          },
+          {
+            "h": "8.7. Onayı geri çekme hakkı",
+            "blocks": [
+              "p|İşlemenin onay temelinde gerçekleştirildiği durumlarda, veri sahibi kişisel verilerin işlenmesi için verilen onayı geri çekme hakkına sahiptir.",
+              "p|Bunun için **{{contactsEmail}}** adresine bir başvuru gönderilmelidir.",
+              "p|Mevcut uygulama kapsamında, onayın geri çekilmesi, işlemenin başka bir yasal dayanakla devam ettirilmesi gerekmiyorsa, veri silme talebiyle benzer şekilde işlenir.",
+              "p|Teknik çerezler için onay, `navykus.cookieConsent` değeriyle ilişkilendirilebilir. `localStorage`'daki ilgili değerin temizlenmesi kullanıcının kendisi tarafından yapılır."
+            ]
+          },
+          {
+            "h": "8.8. Roskomnadzor'a şikayet",
+            "blocks": [
+              "p|Veri sahibi, Rusya Federasyonu mevzuatının belirlediği usulde yetkili organa, Roskomnadzor dahil, şikayette bulunma hakkına sahiptir.",
+              "p|Operatörün bilgileri ve kişisel veri operatörleri kaydına kayıt bilgileri bu Politikanın 9. bölümünde belirtilmiştir."
+            ]
+          },
+          {
+            "h": "8.9. Başvuruların incelenme prosedürü",
+            "blocks": [
+              "p|Bir başvuru alındığında Operatör onu inceler ve yasal ve teknik dayanakların bulunması halinde yönetim sisteminde ilgili eylemleri gerçekleştirir.",
+              "p|Bir başvurunun incelenme süresi **30 takvim günüdür**; uygulanabilir mevzuat farklı bir süre öngörmediği sürece."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "9. İLETİŞİM VE SON HÜKÜMLER",
+        "subs": [
+          {
+            "h": "9.1. Operatör bilgileri",
+            "blocks": [
+              "list|**Operatör:** {{operatorName}}\n**Vergi No (INN):** {{operatorInn}}\n**OGRNIP:** {{operatorOgrnip}}\n**Adres:** {{operatorAddress}}"
+            ]
+          },
+          {
+            "h": "9.2. Kayda alınma bilgileri",
+            "blocks": [
+              "p|Kişisel veri operatörleri kaydına kayıt:",
+              "p|**No {{operatorRegistryNumber}}, tarih {{operatorRegistryDate}}**",
+              "p|Kayıt bilgileri Roskomnadzor'un resmi kaynağında mevcuttur:",
+              "p|https://pd.rkn.gov.ru/"
+            ]
+          },
+          {
+            "h": "9.3. İletişim",
+            "blocks": [
+              "list|**E-posta:** {{contactsEmail}}\n**Posta adresi:** {{contactsPostalAddress}}",
+              "p|Site:",
+              "p|**{{siteUrl}}**"
+            ]
+          },
+          {
+            "h": "9.4. Veri sahiplerinin başvuruları",
+            "blocks": [
+              "p|Kişisel verilerin işlenmesiyle ilgili tüm sorular, talepler ve başvurular, belirtilen iletişim bilgileri üzerinden Operatöre gönderilir.",
+              "p|Bir başvuruyu işlemek için Operatör, başvuru sahibini tanımlamak ve yetkilerini doğrulamak için gerekli bilgileri, mevzuatın öngördüğü ölçüde talep edebilir."
+            ]
+          },
+          {
+            "h": "9.5. Yanıt süresi",
+            "blocks": ["p|Veri sahibinin başvurusuna yanıt süresi **30 takvim günüdür**; uygulanabilir mevzuat farklı bir süre açıkça belirlemediği sürece."]
+          },
+          {
+            "h": "9.6. Uygulanacak hukuk",
+            "blocks": [
+              "p|Bu Politikaya ve Operatör ile veri sahibi arasındaki ilişkilere **Rusya Federasyonu mevzuatı** uygulanır.",
+              "p|Kişisel verilerin işlenmesine GDPR gerekliliklerinin veya ilgili yargı yetkisinin diğer zorunlu normlarının uygulanabilir olduğu durumlarda, Operatör bunları yasanın öngördüğü ölçüde dikkate alır."
+            ]
+          },
+          {
+            "h": "9.7. Dava öncesi prosedür",
+            "blocks": [
+              "p|Mahkemeye başvurmadan önce, veri sahibi Operatöre, ilgili konunun gönüllü olarak çözülmesini talep eden bir itiraz veya başka bir yazılı başvuru gönderme hakkına sahiptir.",
+              "p|Bir itiraza yanıt süresi **30 takvim günüdür**."
+            ]
+          },
+          {
+            "h": "9.8. Yargısal prosedür",
+            "blocks": [
+              "p|Uyuşmazlığın mahkeme dışında çözülememesi halinde, uyuşmazlık uygulanabilir mevzuata göre mahkeme tarafından çözülür.",
+              "p|Rusya Federasyonu mevzuatıyla düzenlenen ilişkiler için, yetki kuralları dikkate alınarak Rusya Federasyonu mevzuatı tarafından belirlenen dava açma prosedürü uygulanır."
+            ]
+          },
+          {
+            "h": "9.9. Politikada değişiklik",
+            "blocks": [
+              "p|Operatör bu Politikada değişiklik yapma hakkına sahiptir.",
+              "p|Yeni sürüm, yeni sürümün kendisi aksini öngörmediği sürece, Sitede yayınlandığı andan itibaren yürürlüğe girer.",
+              "p|Geçerli sürüm tarihi şu alanda belirtilir:",
+              "p|**{{lastUpdated}}**",
+              "p|Kişisel verilerin işlenme koşullarında önemli bir değişiklik olması durumunda, bu değişiklikler hakkındaki bilgiler, ilgili mekanizma uygulanmışsa, Sitedeki bir banner ve/veya e-posta bildirimi aracılığıyla kullanıcılara ek olarak iletilebilir."
+            ]
+          },
+          {
+            "h": "9.10. Çerez politikası",
+            "blocks": [
+              "p|Site, ayrı bir çerez onayı mekanizması (`CookieConsent`) içerir.",
+              "p|Açıklanan sistem kapsamında yalnızca şunlarla ilgili gerekli teknik çerezler kullanılır:",
+              "list|yönetici oturumu\nkullanıcının onayı hakkındaki bilgilerin saklanması",
+              "p|Analitik ve pazarlama çerezleri kullanılmaz."
+            ]
+          },
+          {
+            "h": "9.11. Otomatik silmenin olmaması",
+            "blocks": [
+              "p|Operatör, kişisel verilerin sistemin program kodunda doğrudan otomatik olarak silinmesinin uygulanmadığını veri sahiplerine ayrıca bildirir.",
+              "p|Silme, yetkili bir moderatör tarafından yönetim panelinde manuel olarak veya bu Politika tarafından öngörülen başka bir dayanakla gerçekleştirilir."
+            ]
+          },
+          {
+            "h": "9.12. Son hükümler",
+            "blocks": [
+              "p|Bu Politika kamuya açık bir belgedir ve kapsamına giren kişisel veri işleme ilişkilerinin tümü için geçerlidir.",
+              "p|Sitenin kullanımı, anketlerin sunulması ve diğer bilgilerin gönderilmesi, bu Politikanın ilgili bölümüyle bilgilenildiği anlamına gelir.",
+              "p|Kişisel verilerin işlenme koşullarını kabul etmeyen veri sahibi, Sitenin ilgili işlevlerini kullanmayı bırakmalı ve işlenmesi onayını gerektiren verileri sağlamamalıdır.",
+              "p|**Son güncelleme: {{lastUpdated}}**"
+            ]
+          }
+        ]
+      }
+    ]
   },
   "data": {
     "tournaments": [

@@ -72,6 +72,16 @@ export const TeamMembers: CollectionConfig = {
       ],
     },
     {
+      name: 'privacyConsent',
+      label: 'Согласие на обработку ПДн',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        description: 'Подтверждение согласия на обработку персональных данных и принятие регламента.',
+      },
+    },
+    {
       name: 'moderationStatus',
       label: 'Статус модерации',
       type: 'select',

@@ -136,7 +136,7 @@
       "ec3eba7deb": "Expertos del Consejo",
       "ce65e2cf6b": "Contactos y soporte",
       "ed16b5adfc": "Coordinador:",
-      "9e059272f1": "Privacidad",
+      "9e059272f1": "Política de Privacidad",
       "3a86197ba3": "Acuerdo",
       "2060fe9f62": "Jurado y mentores de la copa",
       "trustGrowthTitle": "Ruta clara de crecimiento",
@@ -306,7 +306,8 @@
       "4b5dbcf3e2": "Cerrar ventana",
       "maxFilesError": "Puedes adjuntar hasta {{count}} archivos",
       "submitError": "No se pudo enviar el cuestionario. Inténtalo de nuevo.",
-      "moderationSuccess": "El cuestionario se envió a moderación. Después de la revisión aparecerá en la página de búsqueda de equipo."
+      "moderationSuccess": "El cuestionario se envió a moderación. Después de la revisión aparecerá en la página de búsqueda de equipo.",
+      "privacyConsentLabel": "Aceptas la Política de Privacidad"
     },
     "championshippage": {
       "75eb0d84": "¿Puedo participar si no tengo equipo?",
@@ -716,6 +717,622 @@
       "accept": "Aceptar",
       "decline": "Ahora no"
     }
+  },
+  "privacypolicy": {
+    "eyebrow": "Información legal",
+    "title": "Política de Privacidad del Proyecto Navykus",
+    "lastUpdatedLabel": "Última actualización: {{lastUpdated}}",
+    "lastUpdatedDate": "5 de agosto de 2026",
+    "sections": [
+      {
+        "title": "1. DISPOSICIONES GENERALES",
+        "subs": [
+          {
+            "h": "1.1. Información general",
+            "blocks": [
+              "p|La presente Política de Privacidad del proyecto Navykus (en adelante — la **Política**) establece el procedimiento de tratamiento y protección de los datos personales de las personas físicas proporcionados al utilizar el sitio web **{{siteUrl}}** (en adelante — el **Sitio**), así como al participar en campeonatos, campeonatos de casos, eventos, talleres y otras actividades de proyectos de Navykus.",
+              "p|Navykus es una plataforma educativa internacional para escolares y jóvenes de 10 a 22 años.",
+              "p|La presente Política se ha elaborado teniendo en cuenta las disposiciones de la legislación de la Federación de Rusia sobre datos personales, incluida la Ley Federal n.º 152-FZ del 27.07.2006 «Sobre datos personales», así como, cuando corresponda, los requisitos del Reglamento General de Protección de Datos de la Unión Europea (RGPD)."
+            ]
+          },
+          {
+            "h": "1.2. Operador de datos personales",
+            "blocks": [
+              "p|El operador de datos personales es una persona física — **{{operatorName}}**, que actúa como empresario individual (autónomo).",
+              "p|Datos del Operador:",
+              "list|NIF (INN): **{{operatorInn}}**\nOGRNIP: **{{operatorOgrnip}}**\ndirección: **{{operatorAddress}}**\ninscripción en el registro de operadores de datos personales: n.º **{{operatorRegistryNumber}}** de fecha **{{operatorRegistryDate}}**",
+              "p|El Operador trata los datos personales con las finalidades, en el orden y en la medida establecidos por la presente Política y la legislación aplicable."
+            ]
+          },
+          {
+            "h": "1.3. Sitio web e información de contacto",
+            "blocks": [
+              "p|Sitio web del proyecto: **{{siteUrl}}**.",
+              "p|Para enviar solicitudes relacionadas con el tratamiento de datos personales, el interesado o su representante legal puede ponerse en contacto con el Operador:",
+              "list|por correo electrónico: **{{contactsEmail}}**\npor dirección postal: **{{contactsPostalAddress}}**"
+            ]
+          },
+          {
+            "h": "1.4. Ámbito de aplicación de la Política",
+            "blocks": [
+              "p|La presente Política se aplica a los datos personales que el Operador recibe directamente del interesado durante el uso del Sitio, el llenado de cuestionarios, la inscripción en campeonatos, eventos y talleres, la participación en actividades de proyectos, así como durante la posterior moderación, publicación y administración del contenido correspondiente.",
+              "p|La Política también se aplica a los datos técnicos y de servicio generados por el sistema de información al tratar las solicitudes y cuestionarios correspondientes, incluida la información necesaria para garantizar la seguridad, la moderación y la auditoría."
+            ]
+          },
+          {
+            "h": "1.5. Principios básicos del tratamiento",
+            "blocks": [
+              "p|El Operador trata los datos personales basándose en los siguientes principios:",
+              "list|el tratamiento se realiza con finalidades legítimas y previamente determinadas\nel volumen de los datos tratados corresponde a las finalidades declaradas\nsolo se utilizan las categorías de datos necesarias para las finalidades correspondientes\nlos datos personales no se utilizan para finalidades no indicadas en la presente Política\nlos datos personales no se venden\nlos datos personales no se utilizan para publicidad dirigida\nno se realiza elaboración de perfiles de los interesados\nno se realiza toma de decisiones automatizada que cree consecuencias jurídicas o similares significativas para el interesado\nno se realizan envíos de marketing sin el consentimiento correspondiente"
+            ]
+          },
+          {
+            "h": "1.6. Consentimiento del interesado",
+            "blocks": [
+              "p|En los casos en que el tratamiento se base en el consentimiento, el consentimiento correspondiente se proporciona electrónicamente a través del Sitio.",
+              "p|El consentimiento se otorga mediante la realización por el interesado de la acción correspondiente en un formulario, incluida la marcación de la casilla prevista en el formulario sobre el acuerdo con las condiciones del tratamiento de datos personales y el reglamento correspondiente.",
+              "p|Para el tratamiento de datos de menores se aplican requisitos especiales establecidos en la sección 4 de la presente Política."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "2. CONCEPTOS BÁSICOS",
+        "subs": [
+          {
+            "h": "2.1. Datos personales",
+            "blocks": ["p|**Datos personales** — cualquier información relativa directa o indirectamente a una persona física determinada o determinable."]
+          },
+          {
+            "h": "2.2. Operador",
+            "blocks": [
+              "p|**Operador** — la persona que, de forma independiente o conjuntamente con otras personas, organiza y/o realiza el tratamiento de datos personales, y también determina las finalidades del tratamiento, la composición de los datos personales y las acciones realizadas con ellos.",
+              "p|En el marco de la presente Política, el Operador es **{{operatorName}}**."
+            ]
+          },
+          {
+            "h": "2.3. Interesado",
+            "blocks": ["p|**Interesado** — la persona física a la que se refieren los datos personales tratados."]
+          },
+          {
+            "h": "2.4. Tratamiento de datos personales",
+            "blocks": ["p|**Tratamiento de datos personales** — cualquier acción o conjunto de acciones realizadas con datos personales con o sin el uso de medios automatizados, incluida la recogida, el registro, la sistematización, la acumulación, el almacenamiento, la aclaración, la modificación, la extracción, el uso, la transferencia, la concesión de acceso, la difusión, la anonimización, el bloqueo, la supresión y la destrucción."]
+          },
+          {
+            "h": "2.5. Consentimiento",
+            "blocks": ["p|**Consentimiento para el tratamiento de datos personales** — manifestación de voluntad libre, específica, objetiva, informada y consciente del interesado, proporcionada en los casos y en el orden previstos por la legislación y la presente Política."]
+          },
+          {
+            "h": "2.6. Anonimización",
+            "blocks": ["p|**Anonimización** — acciones como resultado de las cuales resulta imposible determinar la pertenencia de los datos personales a un interesado concreto sin utilizar información adicional."]
+          },
+          {
+            "h": "2.7. Bloqueo",
+            "blocks": ["p|**Bloqueo** — cesación temporal del tratamiento de datos personales, salvo en los casos en que el tratamiento sea necesario para aclarar los datos personales."]
+          },
+          {
+            "h": "2.8. Destrucción",
+            "blocks": ["p|**Destrucción** — acciones como resultado de las cuales resulta imposible restablecer el contenido de los datos personales en el sistema de información y/o como resultado de las cuales se destruyen los soportes materiales de los datos personales."]
+          },
+          {
+            "h": "2.9. Transferencia transfronteriza",
+            "blocks": ["p|**Transferencia transfronteriza de datos personales** — transferencia de datos personales al territorio de un Estado extranjero a una autoridad estatal de un Estado extranjero, a una persona física o jurídica extranjera."]
+          },
+          {
+            "h": "2.10. Órgano autorizado",
+            "blocks": ["p|**Órgano autorizado** — el órgano estatal que ejerce funciones de control y supervisión en el ámbito de los datos personales, incluido Roskomnadzor en los casos previstos por la legislación de la Federación de Rusia."]
+          },
+          {
+            "h": "2.11. Cookies",
+            "blocks": ["p|**Cookies** — un pequeño fragmento de datos almacenado por un navegador u otro software en el dispositivo del usuario y utilizado por el Sitio con fines técnicos previstos en la presente Política."]
+          },
+          {
+            "h": "2.12. Dirección IP",
+            "blocks": ["p|**Dirección IP** — la dirección de red única de un dispositivo o nodo en una red informática construida con el protocolo IP."]
+          },
+          {
+            "h": "2.13. Tratamiento automatizado",
+            "blocks": ["p|**Tratamiento automatizado** — tratamiento de datos personales con el uso de medios informáticos y de software."]
+          },
+          {
+            "h": "2.14. Moderación",
+            "blocks": ["p|**Moderación** — verificación realizada por una persona autorizada del contenido y la información proporcionados por el usuario con el fin de decidir sobre su aprobación, rechazo, necesidad de cambios u otro tratamiento posterior de acuerdo con las reglas de la sección o actividad correspondiente."]
+          }
+        ]
+      },
+      {
+        "title": "3. FINALIDADES DEL TRATAMIENTO DE DATOS PERSONALES",
+        "subs": [
+          {
+            "h": "3.1. Disposiciones generales",
+            "blocks": ["p|El Operador trata los datos personales solo con finalidades previamente determinadas y concretas, directamente relacionadas con el funcionamiento de Navykus, la organización de la participación en eventos y campeonatos, la publicación de perfiles en las secciones previstas, la moderación y la garantía de la seguridad del Sitio."]
+          },
+          {
+            "h": "3.2. Finalidades del tratamiento",
+            "blocks": [
+              "table|N.º;Finalidad del tratamiento;Categorías de datos personales;Forma/fuente|1;Inscripción en el campeonato / participación en el campeonato de casos;Datos de identificación, de contacto y de perfil, archivos de portafolio;Cuestionario del participante (`sourceType=championship`)|2;Publicación del cuestionario en la sección \"Buscar equipo\" tras la moderación;Datos de identificación, de perfil y de contacto (Telegram/Email), país;Cuestionario del participante (`sourceType=find-team / modal / home / about / activities`)|3;Inscripción en eventos y talleres;Datos de identificación, de contacto y de perfil;Cuestionario del participante (`sourceType=event / activities`)|4;Envío de notificaciones sobre el estado de la moderación, información sobre el campeonato y plazos;Nombre, dirección de correo electrónico;Automáticamente al cambiar el estado o realizar la acción prevista|5;Moderación de contenido, seguridad y auditoría;Datos técnicos y de servicio (`sourceType`, `moderationStatus`, registros de auditoría y otra información de servicio);Procesos del sistema|6;Cumplimiento del contrato de participación en el campeonato;Datos necesarios para la participación correspondiente;Cuestionario y consentimiento para el tratamiento de datos personales"
+            ]
+          },
+          {
+            "h": "3.3. Inscripción y participación en campeonatos",
+            "blocks": [
+              "p|Los datos personales pueden tratarse para aceptar el cuestionario de un participante, inscribirse en el campeonato correspondiente, organizar la participación en el campeonato de casos, procesar los materiales presentados y realizar las acciones organizativas relacionadas con la participación.",
+              "p|En el marco de esta finalidad pueden tratarse datos de identificación, de contacto y de perfil y archivos de portafolio en la medida establecida por la presente Política."
+            ]
+          },
+          {
+            "h": "3.4. Publicación del perfil en la sección \"Buscar equipo\"",
+            "blocks": [
+              "p|Tras la moderación prevista, los datos del cuestionario pueden publicarse en la sección \"Buscar equipo\" en la medida necesaria para la finalidad indicada.",
+              "p|La publicación se realiza solo después del procesamiento adecuado del cuestionario y de la adopción de la decisión prevista sobre su publicación.",
+              "p|Los datos publicados incluyen la información de identificación y de perfil prevista para este fin, los datos de contacto en forma de Telegram/Email y la información sobre el país."
+            ]
+          },
+          {
+            "h": "3.5. Inscripción en eventos y talleres",
+            "blocks": ["p|Los datos personales pueden tratarse para inscribir al interesado en eventos, talleres, reuniones en línea y otras actividades de proyectos de Navykus."]
+          },
+          {
+            "h": "3.6. Notificaciones",
+            "blocks": [
+              "p|El Operador puede enviar notificaciones directamente relacionadas con la participación del usuario en la actividad correspondiente, incluidos:",
+              "list|notificaciones sobre el estado de la moderación\ninformación sobre el campeonato\ninformación sobre plazos y fechas límite\nnotificaciones organizativas directamente relacionadas con la participación correspondiente",
+              "p|Los envíos de marketing no relacionados directamente con las finalidades indicadas no pertenecen a las finalidades de tratamiento previstas en la presente Política."
+            ]
+          },
+          {
+            "h": "3.7. Moderación, seguridad y auditoría",
+            "blocks": [
+              "p|La información técnica y de servicio se trata para:",
+              "list|realizar la moderación\ngarantizar la seguridad del Sitio\ncontrolar el estado del tratamiento del cuestionario\nregistrar las acciones con los datos\nllevar a cabo la auditoría de las operaciones de creación, modificación y eliminación de contenido\npermitir la investigación de incidentes y la confirmación de las acciones de las personas autorizadas"
+            ]
+          },
+          {
+            "h": "3.8. Finalidades para las que no se utilizan los datos",
+            "blocks": [
+              "p|El Operador **no utiliza** los datos personales para:",
+              "list|publicidad dirigida\nelaboración de perfiles\ntoma de decisiones automatizada\nventa de datos personales\ntransferencia de datos personales a terceros con fines de marketing\nenvíos de marketing sin el consentimiento correspondiente",
+              "p|Google Analytics, Yandex.Metrica, redes publicitarias, píxeles de redes sociales y otras herramientas similares de elaboración de perfiles analíticos o publicitarios no se utilizan en el marco del sistema descrito."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "4. BASES LEGALES DEL TRATAMIENTO",
+        "subs": [
+          {
+            "h": "4.1. Disposiciones generales",
+            "blocks": ["p|El tratamiento de datos personales se realiza cuando existe una base legal prevista por la legislación de la Federación de Rusia y, cuando corresponda, por la legislación de protección de datos personales de la jurisdicción correspondiente."]
+          },
+          {
+            "h": "4.2. Bases legales",
+            "blocks": [
+              "table|Tipo de tratamiento;Base según la 152-FZ;Base según el RGPD|Aceptación del cuestionario, moderación y publicación del perfil;Consentimiento, art. 6 parte 1 p. 1;Art. 6(1)(a) RGPD|Inscripción en el campeonato y cumplimiento de las relaciones contractuales;Cumplimiento del contrato, art. 6 parte 1 p. 2;Art. 6(1)(b) RGPD|Notificaciones sobre participación y estado;Interés legítimo, art. 6 parte 1 p. 5, y/o consentimiento;Art. 6(1)(f) y/o Art. 6(1)(a) RGPD|Auditoría, seguridad y protección de derechos;Cumplimiento de una obligación legal, art. 6 parte 1 p. 3, incluidos los requisitos de la 152-FZ art. 18 y 19;Art. 6(1)(c) RGPD|Cookies técnicas y registro del consentimiento de cookies;Consentimiento, art. 9 de la 152-FZ;ePrivacy / Art. 6(1)(a) RGPD"
+            ]
+          },
+          {
+            "h": "4.3. Consentimiento para el tratamiento de datos personales",
+            "blocks": [
+              "p|En los casos en que la base sea el consentimiento, el interesado lo proporciona a través de la interfaz del Sitio antes del inicio del tratamiento correspondiente o mediante la realización de una acción prevista por el sistema que confirme dicho consentimiento.",
+              "p|El formulario de consentimiento debe permitir identificar su objeto y el hecho de la prestación del consentimiento."
+            ]
+          },
+          {
+            "h": "4.4. Relaciones contractuales",
+            "blocks": ["p|En los casos relacionados con la participación en un campeonato, el tratamiento puede realizarse sobre la base de la necesidad de cumplir las relaciones contractuales entre el interesado y el Operador en la medida en que el tratamiento sea necesario para el cumplimiento de las obligaciones correspondientes."]
+          },
+          {
+            "h": "4.5. Obligaciones legales",
+            "blocks": ["p|Los datos técnicos y de servicio pueden tratarse en la medida necesaria para cumplir los requisitos legales, garantizar la seguridad del sistema de información, llevar a cabo la auditoría y proteger los derechos e intereses legítimos del Operador y de los interesados."]
+          },
+          {
+            "h": "4.6. Categorías especiales de datos personales",
+            "blocks": [
+              "p|El Operador **no realiza el tratamiento de categorías especiales de datos personales** relativas a información sobre raza, nacionalidad, opiniones políticas, creencias religiosas o filosóficas, estado de salud, vida íntima, datos genéticos y datos personales biométricos.",
+              "p|La edad indicada en el cuestionario como valor numérico no se considera por el Operador como una categoría especial de datos personales."
+            ]
+          },
+          {
+            "h": "4.7. Menores de edad",
+            "blocks": [
+              "p|Navykus está orientado a usuarios de 10 a 22 años. En este sentido, se aplican requisitos especiales para la prestación del consentimiento de los menores.",
+              "p|Para los usuarios de **10 a 13 años**, la presente Política exige el consentimiento de un representante legal.",
+              "p|Para los usuarios de **14 a 17 años**, se aplica el consentimiento propio del interesado. En este caso, se recomienda notificar a los padres u otros representantes legales.",
+              "p|Para los usuarios de **18 años o más**, el consentimiento lo presta directamente el propio interesado.",
+              "p|Estos requisitos son requisitos de la presente Política independientemente de si el mecanismo de control técnico correspondiente está implementado directamente en el código del Sitio."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "5. MÉTODOS Y PLAZOS DEL TRATAMIENTO",
+        "subs": [
+          {
+            "h": "5.1. Métodos de tratamiento",
+            "blocks": ["p|Los datos personales se tratan por métodos automatizados y manuales."]
+          },
+          {
+            "h": "5.2. Tratamiento automatizado",
+            "blocks": [
+              "p|En forma automatizada, los datos personales se tratan, en particular, mediante los siguientes procesos:",
+              "list|recepción de los datos del cuestionario a través de `POST /api/team-members`\nescritura de los datos en la base de datos SQLite (`payload.db`)\nenvío de notificaciones por correo electrónico mediante Nodemailer\npublicación del contenido correspondiente en el frontend tras la moderación\nllevar a cabo la auditoría de las operaciones"
+            ]
+          },
+          {
+            "h": "5.3. Tratamiento manual",
+            "blocks": [
+              "p|El tratamiento manual incluye:",
+              "list|la moderación de cuestionarios en Payload Admin\nla aprobación de cuestionarios\nel rechazo de cuestionarios\nla realización de los cambios necesarios en los datos\nla exportación de datos a petición del interesado\nla eliminación de datos a petición del interesado"
+            ]
+          },
+          {
+            "h": "5.4. Categorías de datos personales",
+            "blocks": [
+              "table|Categoría;Campos;Obligatoriedad|Identificación;`name`, `age`;Sí|Contacto;`email`, `contact`, `contactType`, `country`, `city`;`city` — no (los demás — sí)|Perfil;`shortBio`, `interests[]`, `skills[]`, `targetRoles[]`, `targetProject`, `whyLooking`;Parcialmente|Archivos;`portfolioFiles[]`, `portfolioLink`;No|Técnicos/de servicio;`sourceType`, `sourceId`, `sourceContext`, `tournamentId`, `moderationStatus`, `moderationComment`, `reviewedAt`, `isApproved`, `originalLanguage`, `createdAt`, `updatedAt`;Automáticamente|Cookie / localStorage;`navykus.cookieConsent` con el valor `accepted` o `dismissed`;Solo información sobre el consentimiento"
+            ]
+          },
+          {
+            "h": "5.5. Portafolio",
+            "blocks": [
+              "p|El campo `portfolioFiles[]` está destinado a la carga de archivos de portafolio.",
+              "p|Se permiten archivos de los siguientes tipos:",
+              "list|PDF\nDOC\nDOCX\nJPG\nPNG\nWebP",
+              "p|El tamaño de un archivo no debe superar los **10 MB**. El número máximo de archivos de portafolio es **5**.",
+              "p|También puede utilizarse el campo `portfolioLink`."
+            ]
+          },
+          {
+            "h": "5.6. Datos técnicos y de servicio",
+            "blocks": ["p|Los datos técnicos y de servicio incluyen la información generada automáticamente por el sistema para garantizar el funcionamiento, la moderación y la auditoría, incluidos `sourceType`, `sourceId`, `sourceContext`, `tournamentId`, `moderationStatus`, `moderationComment`, `reviewedAt`, `isApproved`, `originalLanguage`, `createdAt`, `updatedAt` y los datos de auditoría."]
+          },
+          {
+            "h": "5.7. Cookies",
+            "blocks": [
+              "p|El Sitio utiliza el almacenamiento técnico del valor del consentimiento del usuario en `localStorage` bajo la clave:",
+              "p|`navykus.cookieConsent`",
+              "p|Valores posibles:",
+              "list|`accepted`\n`dismissed`",
+              "p|Solo se utilizan cookies necesarias y almacenamiento técnico relacionado con el consentimiento y la sesión del administrador.",
+              "p|No se utilizan cookies analíticas ni de marketing."
+            ]
+          },
+          {
+            "h": "5.8. Plazos de conservación",
+            "blocks": [
+              "p|Los datos personales se conservan durante el período necesario para lograr las finalidades del tratamiento, hasta la revocación del consentimiento o hasta la expiración del plazo legal.",
+              "p|En particular:",
+              "table|Categoría;Plazo|Cuestionarios de participantes aprobados;Hasta la revocación del consentimiento o 3 años de inactividad contados desde el último inicio de sesión/actualización|Cuestionarios de participantes rechazados y cuestionarios en moderación;30 días después de la decisión del moderador, tras lo cual están sujetos a eliminación|Registros de auditoría `AuditLogs`;Al menos 3 años|Consentimiento de cookies;Hasta que el usuario borre `localStorage`"
+            ]
+          },
+          {
+            "h": "5.9. Eliminación",
+            "blocks": [
+              "p|No existe una eliminación automatizada de datos directamente en el código del sistema.",
+              "p|La eliminación de datos la realiza manualmente un moderador en el sistema administrativo o en relación con otra base prevista por la Política.",
+              "p|Principio general de conservación: los datos personales se conservan hasta que se logre la finalidad del tratamiento, se revoque el consentimiento o expire el plazo establecido por la legislación."
+            ]
+          },
+          {
+            "h": "5.10. Limitación del tratamiento",
+            "blocks": ["p|En los casos de necesidad de cesación temporal del tratamiento, los datos correspondientes pueden bloquearse o su estado puede cambiarse en el sistema administrativo de acuerdo con el procedimiento de consideración de la solicitud del interesado."]
+          }
+        ]
+      },
+      {
+        "title": "6. TRANSFERENCIA DE DATOS A TERCEROS",
+        "subs": [
+          {
+            "h": "6.1. Disposiciones generales",
+            "blocks": [
+              "p|El Operador no realiza la transferencia de datos personales a terceros con fines de venta de datos, publicidad dirigida o elaboración de perfiles de marketing.",
+              "p|Durante el tratamiento pueden utilizarse componentes tecnológicos individuales y soluciones de infraestructura directamente relacionados con el funcionamiento del sistema."
+            ]
+          },
+          {
+            "h": "6.2. Subencargados y componentes de infraestructura utilizados",
+            "blocks": [
+              "table|Subencargado / componente;Finalidad;Datos tratados;Base;Ubicación;DPA/SCC|Payload CMS / SQLite (`payload.db`);Almacenamiento de la base de datos;Todos los datos de los cuestionarios;Contrato;RF, localmente en el servidor del Operador;Interno|Nodemailer / SMTP;Notificaciones por correo al moderador y al usuario;Correo electrónico, nombre, datos del formulario;Contrato / interés legítimo;Depende del proveedor SMTP especificado en el entorno;Firmado|Payload Media / almacenamiento local `uploads/media`;Almacenamiento de archivos de portafolio;Archivos cargados;Contrato;RF, localmente;Interno"
+            ]
+          },
+          {
+            "h": "6.3. Payload CMS / SQLite",
+            "blocks": [
+              "p|La base de datos principal del sistema se almacena en el archivo `payload.db`, utilizado por Payload CMS en el servidor del Operador.",
+              "p|En esta base de datos pueden almacenarse todos los datos de los cuestionarios necesarios para las finalidades de tratamiento declaradas."
+            ]
+          },
+          {
+            "h": "6.4. Notificaciones por correo electrónico",
+            "blocks": [
+              "p|Para el envío de las notificaciones por correo previstas por el sistema, se utiliza Nodemailer con un proveedor SMTP especificado en las variables de entorno de la infraestructura correspondiente.",
+              "p|Dependiendo de la configuración del proveedor SMTP, los datos de correo electrónico pueden ser tratados por el proveedor SMTP correspondiente en la medida necesaria para la entrega de la notificación."
+            ]
+          },
+          {
+            "h": "6.5. Archivos de portafolio",
+            "blocks": ["p|Los archivos de portafolio se almacenan a través de Payload Media en el disco local en el directorio `uploads/media`."]
+          },
+          {
+            "h": "6.6. Servicios a los que no se transfieren los datos",
+            "blocks": [
+              "p|En el marco del sistema descrito, los datos personales no se transfieren a:",
+              "list|Google Analytics\nYandex.Metrica\nredes sociales\nredes publicitarias\npasarelas de pago\nsistemas CRM\nCDN con personalización\ntrackers de marketing"
+            ]
+          },
+          {
+            "h": "6.7. Órganos estatales",
+            "blocks": [
+              "p|La transferencia de datos personales a los órganos estatales se realiza solo cuando existe una base prevista por la legislación y en el orden establecido por la ley.",
+              "p|Tales casos incluyen, en particular, los requisitos previstos por la ley de los tribunales, Roskomnadzor, los órganos de investigación y otros órganos estatales autorizados."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "7. MEDIDAS DE SEGURIDAD",
+        "subs": [
+          {
+            "h": "7.1. Disposiciones generales",
+            "blocks": [
+              "p|El Operador adopta medidas organizativas y técnicas para proteger los datos personales contra el acceso ilegal o accidental, la destrucción, la modificación, el bloqueo y otras acciones ilegales.",
+              "p|Las medidas aplicadas corresponden a los mecanismos realmente implementados del sistema."
+            ]
+          },
+          {
+            "h": "7.2. Protección durante la transferencia",
+            "blocks": ["p|La transferencia de datos por la red se realiza mediante HTTPS y TLS en versión **1.2 o superior**."]
+          },
+          {
+            "h": "7.3. Autenticación de los usuarios administrativos",
+            "blocks": [
+              "p|Para el acceso administrativo se utiliza el mecanismo de autenticación Payload JWT.",
+              "p|El token JWT se almacena en:",
+              "list|una cookie HttpOnly\nuna cookie Secure\nuna cookie con el parámetro SameSite=Lax",
+              "p|El período de validez del token se determina mediante el parámetro `PAYLOAD_TOKEN_EXPIRATION_SECONDS`. El valor predeterminado es **4 horas**.",
+              "p|Tras **5 intentos fallidos de inicio de sesión**, el acceso se bloquea durante **15 minutos**."
+            ]
+          },
+          {
+            "h": "7.4. Control de acceso",
+            "blocks": [
+              "p|El sistema administrativo utiliza un modelo de acceso basado en roles, que incluye los roles:",
+              "list|`admin`\n`moderator`",
+              "p|El envío público de cuestionarios se realiza a través de:",
+              "p|`POST /api/team-members`",
+              "p|Una solicitud pública se procesa con el establecimiento forzoso del estado correspondiente:",
+              "list|`pending`\n`false` para el indicador de publicación",
+              "p|A un usuario público no se le concede acceso directo de lectura a la colección `TeamMembers`."
+            ]
+          },
+          {
+            "h": "7.5. Limitación de la frecuencia de las solicitudes",
+            "blocks": [
+              "p|Para la API se aplica el mecanismo de limitación de la frecuencia de solicitudes `express-rate-limit`.",
+              "p|Esta medida se utiliza para reducir el riesgo de abuso de los métodos públicos de la API y del envío automatizado de un gran número de solicitudes."
+            ]
+          },
+          {
+            "h": "7.6. Verificación de archivos",
+            "blocks": [
+              "p|Al cargar archivos, se aplica una lista blanca de tipos MIME permitidos:",
+              "list|PDF\nDOC\nDOCX\nJPG\nPNG\nWebP",
+              "p|También se aplican restricciones:",
+              "list|no más de 10 MB por archivo\nno más de 5 archivos de portafolio",
+              "p|La verificación se realiza tanto en el lado del cliente como en el del servidor."
+            ]
+          },
+          {
+            "h": "7.7. Validación y saneamiento",
+            "blocks": [
+              "p|Para comprobar la estructura y los valores permitidos de los datos, se utiliza la validación integrada de Payload.",
+              "p|No se utilizan consultas SQL sin procesar en el mecanismo descrito del funcionamiento del sistema."
+            ]
+          },
+          {
+            "h": "7.8. Auditoría",
+            "blocks": [
+              "p|Para controlar las operaciones se utiliza la colección `AuditLogs`.",
+              "p|En la auditoría pueden registrarse las operaciones de:",
+              "list|creación\nmodificación\neliminación",
+              "p|Para las operaciones de auditoría se registra, en particular:",
+              "list|quién realizó la acción\ncuándo se realizó la acción\nqué datos se modificaron\nel estado de los datos antes del cambio\nel estado de los datos después del cambio"
+            ]
+          },
+          {
+            "h": "7.9. Protección de los datos en reposo",
+            "blocks": [
+              "p|La base de datos `payload.db` se almacena en el servidor del Operador.",
+              "p|El cifrado de los datos en reposo se garantiza a nivel del sistema operativo/disco del servidor."
+            ]
+          },
+          {
+            "h": "7.10. Copias de seguridad",
+            "blocks": [
+              "p|La copia de seguridad automatizada no está implementada directamente en el código del sistema.",
+              "p|La responsabilidad de las copias de seguridad corresponde al Operador."
+            ]
+          },
+          {
+            "h": "7.11. Gestión de incidentes",
+            "blocks": ["p|El procedimiento de respuesta a los incidentes de seguridad de la información está fijado en los documentos internos del Operador."]
+          },
+          {
+            "h": "7.12. Responsable de protección de datos",
+            "blocks": ["p|No se ha designado un Delegado de Protección de Datos (DPO) separado debido a la escala de la actividad y a la ausencia de tratamiento de categorías especiales de datos personales, sobre la base del modelo de tratamiento descrito."]
+          }
+        ]
+      },
+      {
+        "title": "8. DERECHOS DEL INTERESADO",
+        "subs": [
+          {
+            "h": "8.1. Disposiciones generales",
+            "blocks": [
+              "p|El interesado tiene los derechos previstos por la legislación de la Federación de Rusia y, cuando corresponda, por la legislación de la jurisdicción correspondiente, incluidos los derechos previstos por el RGPD.",
+              "p|Para ejercer los derechos, se envía una solicitud escrita por correo electrónico a **{{contactsEmail}}** o por dirección postal **{{contactsPostalAddress}}**.",
+              "p|No existe un portal de usuario independiente para la gestión de datos personales en el sistema."
+            ]
+          },
+          {
+            "h": "8.2. Derecho de acceso",
+            "blocks": [
+              "p|El interesado tiene derecho a solicitar información sobre los datos personales tratados.",
+              "p|Para ejercer este derecho, debe enviarse una solicitud a **{{contactsEmail}}**.",
+              "p|Tras la consideración de la solicitud, el moderador puede exportar los datos correspondientes desde Payload Admin en formato JSON."
+            ]
+          },
+          {
+            "h": "8.3. Derecho de rectificación",
+            "blocks": [
+              "p|Al detectar imprecisiones o la necesidad de actualizar los datos personales, el interesado puede enviar la solicitud correspondiente a **{{contactsEmail}}**.",
+              "p|Tras la confirmación de la solicitud, el moderador puede realizar los cambios necesarios en el sistema administrativo."
+            ]
+          },
+          {
+            "h": "8.4. Derecho de supresión",
+            "blocks": [
+              "p|El interesado tiene derecho a solicitar la eliminación de los datos personales.",
+              "p|La solicitud se envía a **{{contactsEmail}}**.",
+              "p|Tras el procesamiento de la solicitud, el moderador elimina el documento correspondiente del sistema administrativo, incluida la eliminación en cascada prevista de los archivos Media relacionados."
+            ]
+          },
+          {
+            "h": "8.5. Derecho a la limitación del tratamiento",
+            "blocks": [
+              "p|En los casos previstos por la ley, el interesado tiene derecho a exigir la limitación del tratamiento de datos personales.",
+              "p|Para ejercer este derecho, se envía una solicitud a **{{contactsEmail}}**.",
+              "p|En el sistema administrativo, el tratamiento correspondiente puede limitarse cambiando el estado, incluso a:",
+              "list|`moderationStatus='rejected'`\n`moderationStatus='needs_edit'`"
+            ]
+          },
+          {
+            "h": "8.6. Derecho a la portabilidad",
+            "blocks": [
+              "p|En los casos en que este derecho sea aplicable, el interesado tiene derecho a solicitar los datos personales en un formato estructurado.",
+              "p|En el marco del sistema existente, dicha entrega se implementa mediante la exportación JSON de los datos desde el panel administrativo."
+            ]
+          },
+          {
+            "h": "8.7. Derecho a revocar el consentimiento",
+            "blocks": [
+              "p|El interesado tiene derecho a revocar el consentimiento prestado para el tratamiento de datos personales en los casos en que el tratamiento se realice sobre la base del consentimiento.",
+              "p|Para ello, debe enviarse una solicitud a **{{contactsEmail}}**.",
+              "p|En el marco de la implementación existente, la revocación del consentimiento se procesa de forma similar a una solicitud de eliminación de datos, salvo que se requiera otra cosa para continuar el tratamiento sobre otra base legal.",
+              "p|El consentimiento para las cookies técnicas puede estar relacionado con el valor `navykus.cookieConsent`. La limpieza del valor correspondiente en `localStorage` la realiza el propio usuario."
+            ]
+          },
+          {
+            "h": "8.8. Reclamación ante Roskomnadzor",
+            "blocks": [
+              "p|El interesado tiene derecho a presentar una reclamación ante el órgano autorizado, incluido Roskomnadzor, en el orden establecido por la legislación de la Federación de Rusia.",
+              "p|Los datos del Operador y la información sobre la inscripción en el registro de operadores de datos personales se indican en la sección 9 de la presente Política."
+            ]
+          },
+          {
+            "h": "8.9. Procedimiento de consideración de las solicitudes",
+            "blocks": [
+              "p|Al recibir una solicitud, el Operador la examina y, cuando existen fundamentos legales y técnicos, realiza las acciones correspondientes en el sistema administrativo.",
+              "p|El plazo de consideración de una solicitud es de **30 días naturales**, salvo que la legislación aplicable prevea otro plazo."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "9. CONTACTOS Y DISPOSICIONES FINALES",
+        "subs": [
+          {
+            "h": "9.1. Datos del Operador",
+            "blocks": [
+              "list|**Operador:** {{operatorName}}\n**NIF (INN):** {{operatorInn}}\n**OGRNIP:** {{operatorOgrnip}}\n**Dirección:** {{operatorAddress}}"
+            ]
+          },
+          {
+            "h": "9.2. Información sobre la inscripción en el registro",
+            "blocks": [
+              "p|Inscripción en el registro de operadores de datos personales:",
+              "p|**N.º {{operatorRegistryNumber}} de fecha {{operatorRegistryDate}}**",
+              "p|La información sobre el registro está disponible en el recurso oficial de Roskomnadzor:",
+              "p|https://pd.rkn.gov.ru/"
+            ]
+          },
+          {
+            "h": "9.3. Contactos",
+            "blocks": [
+              "list|**Correo electrónico:** {{contactsEmail}}\n**Dirección postal:** {{contactsPostalAddress}}",
+              "p|Sitio web:",
+              "p|**{{siteUrl}}**"
+            ]
+          },
+          {
+            "h": "9.4. Solicitudes de los interesados",
+            "blocks": [
+              "p|Todas las preguntas, exigencias y solicitudes relacionadas con el tratamiento de datos personales se envían al Operador a través de los datos de contacto indicados.",
+              "p|Para procesar una solicitud, el Operador puede solicitar la información necesaria para identificar al solicitante y verificar sus facultades, en la medida prevista por la legislación."
+            ]
+          },
+          {
+            "h": "9.5. Plazo de respuesta",
+            "blocks": ["p|El plazo de respuesta a una solicitud del interesado es de **30 días naturales**, salvo que la legislación aplicable establezca expresamente otro plazo."]
+          },
+          {
+            "h": "9.6. Derecho aplicable",
+            "blocks": [
+              "p|A la presente Política y a las relaciones entre el Operador y el interesado se aplica **la legislación de la Federación de Rusia**.",
+              "p|En los casos en que al tratamiento de datos personales sean aplicables los requisitos del RGPD u otras normas obligatorias de la jurisdicción correspondiente, el Operador los tiene en cuenta en la medida prevista por la ley."
+            ]
+          },
+          {
+            "h": "9.7. Procedimiento prejudicial",
+            "blocks": [
+              "p|Antes de acudir al tribunal, el interesado tiene derecho a enviar al Operador una reclamación u otra solicitud escrita exigiendo la solución voluntaria de la cuestión correspondiente.",
+              "p|El plazo de respuesta a una reclamación es de **30 días naturales**."
+            ]
+          },
+          {
+            "h": "9.8. Procedimiento judicial",
+            "blocks": [
+              "p|Si no es posible resolver la disputa de forma extrajudicial, la disputa se resuelve por el tribunal de acuerdo con la legislación aplicable.",
+              "p|Para las relaciones reguladas por la legislación de la Federación de Rusia, se aplica el procedimiento de presentación de demanda establecido por la legislación de la Federación de Rusia, teniendo en cuenta las reglas de competencia."
+            ]
+          },
+          {
+            "h": "9.9. Modificación de la Política",
+            "blocks": [
+              "p|El Operador tiene derecho a realizar cambios en la presente Política.",
+              "p|La nueva versión entra en vigor desde el momento de su publicación en el Sitio, salvo que la propia nueva versión disponga otra cosa.",
+              "p|La fecha actual de la versión se indica en el campo:",
+              "p|**{{lastUpdated}}**",
+              "p|En caso de un cambio sustancial de las condiciones del tratamiento de datos personales, la información sobre dichos cambios puede comunicarse adicionalmente a los usuarios mediante un banner en el Sitio y/o una notificación por correo electrónico, si el mecanismo correspondiente está implementado."
+            ]
+          },
+          {
+            "h": "9.10. Política de cookies",
+            "blocks": [
+              "p|El Sitio incluye un mecanismo separado de consentimiento de cookies (`CookieConsent`).",
+              "p|En el marco del sistema descrito, solo se utilizan cookies técnicas necesarias relacionadas con:",
+              "list|la sesión del administrador\nel almacenamiento de la información sobre el consentimiento del usuario",
+              "p|No se utilizan cookies analíticas ni de marketing."
+            ]
+          },
+          {
+            "h": "9.11. Ausencia de eliminación automatizada",
+            "blocks": [
+              "p|El Operador informa por separado a los interesados de que la eliminación automatizada de datos personales directamente en el código del programa del sistema no está implementada.",
+              "p|La eliminación se realiza manualmente por un moderador autorizado en el panel administrativo o de acuerdo con otra base prevista por la presente Política."
+            ]
+          },
+          {
+            "h": "9.12. Disposiciones finales",
+            "blocks": [
+              "p|La presente Política es un documento público y se aplica a todas las relaciones de tratamiento de datos personales comprendidas en su ámbito.",
+              "p|El uso del Sitio, la presentación de cuestionarios y el envío de otra información significan la familiarización con la presente Política en la parte correspondiente.",
+              "p|En caso de desacuerdo con las condiciones del tratamiento de datos personales, el interesado debe dejar de utilizar las funciones correspondientes del Sitio y no proporcionar datos cuyo tratamiento requiera su consentimiento.",
+              "p|**Última actualización: {{lastUpdated}}**"
+            ]
+          }
+        ]
+      }
+    ]
   },
   "data": {
     "tournaments": [

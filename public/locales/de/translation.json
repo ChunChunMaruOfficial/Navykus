@@ -136,7 +136,7 @@
       "ec3eba7deb": "Ratsexperten",
       "ce65e2cf6b": "Kontakte und Support",
       "ed16b5adfc": "Koordinator:",
-      "9e059272f1": "Privatsphäre",
+      "9e059272f1": "Datenschutzerklärung",
       "3a86197ba3": "Vereinbarung",
       "2060fe9f62": "Jury und Mentoren des Cups",
       "copyright": "© 2026 Navikus Global Education",
@@ -306,7 +306,8 @@
       "4b5dbcf3e2": "Fenster schließen",
       "maxFilesError": "Sie können bis zu {{count}} Dateien anhängen",
       "submitError": "Der Fragebogen konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
-      "moderationSuccess": "Der Fragebogen wurde zur Moderation gesendet. Nach der Prüfung erscheint er auf der Teamsuche-Seite."
+      "moderationSuccess": "Der Fragebogen wurde zur Moderation gesendet. Nach der Prüfung erscheint er auf der Teamsuche-Seite.",
+      "privacyConsentLabel": "Sie stimmen der Datenschutzerklärung zu"
     },
     "championshippage": {
       "75eb0d84": "Kann ich teilnehmen, wenn ich kein Team habe?",
@@ -716,6 +717,622 @@
       "accept": "Akzeptieren",
       "decline": "Nicht jetzt"
     }
+  },
+  "privacypolicy": {
+    "eyebrow": "Rechtliche Informationen",
+    "title": "Datenschutzerklärung des Navykus-Projekts",
+    "lastUpdatedLabel": "Zuletzt aktualisiert: {{lastUpdated}}",
+    "lastUpdatedDate": "5. August 2026",
+    "sections": [
+      {
+        "title": "1. ALLGEMEINE BESTIMMUNGEN",
+        "subs": [
+          {
+            "h": "1.1. Allgemeine Angaben",
+            "blocks": [
+              "p|Diese Datenschutzerklärung des Projekts „Навыкус“ (Navykus) (nachfolgend — die **Erklärung**) legt das Verfahren zur Verarbeitung und zum Schutz personenbezogener Daten natürlicher Personen fest, die bei der Nutzung der Website **{{siteUrl}}** (nachfolgend — die **Website**) sowie bei der Teilnahme an Meisterschaften, Fallstudien-Meisterschaften, Veranstaltungen, Workshops und sonstigen Projektaktivitäten von Navykus bereitgestellt werden.",
+              "p|Navykus ist eine internationale Bildungsplattform für Schüler und junge Menschen im Alter von 10 bis 22 Jahren.",
+              "p|Diese Erklärung wurde unter Berücksichtigung der Bestimmungen der Gesetzgebung der Russischen Föderation zum Schutz personenbezogener Daten erstellt, einschließlich des Bundesgesetzes Nr. 152-FZ vom 27.07.2006 „Über personenbezogene Daten“, sowie, soweit anwendbar, der Anforderungen der Datenschutz-Grundverordnung der Europäischen Union (DSGVO)."
+            ]
+          },
+          {
+            "h": "1.2. Verantwortlicher für personenbezogene Daten",
+            "blocks": [
+              "p|Der Verantwortliche für personenbezogene Daten ist eine natürliche Person — **{{operatorName}}**, die als Einzelunternehmer (selbstständig) tätig ist.",
+              "p|Angaben zum Verantwortlichen:",
+              "list|INN: **{{operatorInn}}**\nOGRNIP: **{{operatorOgrnip}}**\nAdresse: **{{operatorAddress}}**\nEintrag im Register der Verantwortlichen für personenbezogene Daten: Nr. **{{operatorRegistryNumber}}** vom **{{operatorRegistryDate}}**",
+              "p|Der Verantwortliche verarbeitet personenbezogene Daten zu den Zwecken, in der Weise und in dem Umfang, die durch diese Erklärung und die anwendbare Gesetzgebung festgelegt sind."
+            ]
+          },
+          {
+            "h": "1.3. Website und Kontaktinformationen",
+            "blocks": [
+              "p|Website des Projekts: **{{siteUrl}}**.",
+              "p|Für Anfragen im Zusammenhang mit der Verarbeitung personenbezogener Daten kann die betroffene Person oder ihr gesetzlicher Vertreter den Verantwortlichen kontaktieren:",
+              "list|per E-Mail: **{{contactsEmail}}**\nper Postanschrift: **{{contactsPostalAddress}}**"
+            ]
+          },
+          {
+            "h": "1.4. Geltungsbereich der Erklärung",
+            "blocks": [
+              "p|Diese Erklärung gilt für personenbezogene Daten, die der Verantwortliche direkt von der betroffenen Person bei der Nutzung der Website, beim Ausfüllen von Fragebögen, bei der Anmeldung zu Meisterschaften, Veranstaltungen und Workshops, bei der Teilnahme an Projektaktivitäten sowie im Rahmen der anschließenden Moderation, Veröffentlichung und Verwaltung der entsprechenden Inhalte erhält.",
+              "p|Die Erklärung gilt auch für technische und dienstliche Daten, die vom Informationssystem bei der Verarbeitung der entsprechenden Anträge und Fragebögen erzeugt werden, einschließlich der Informationen, die zur Gewährleistung von Sicherheit, Moderation und Audit erforderlich sind."
+            ]
+          },
+          {
+            "h": "1.5. Grundprinzipien der Verarbeitung",
+            "blocks": [
+              "p|Der Verantwortliche verarbeitet personenbezogene Daten auf der Grundlage folgender Prinzipien:",
+              "list|die Verarbeitung erfolgt zu rechtmäßigen und im Voraus bestimmten Zwecken\nder Umfang der verarbeiteten Daten entspricht den angegebenen Zwecken\nes werden nur die Datenkategorien verwendet, die für die jeweiligen Zwecke erforderlich sind\npersonenbezogene Daten werden nicht für Zwecke verwendet, die in dieser Erklärung nicht genannt sind\npersonenbezogene Daten werden nicht verkauft\npersonenbezogene Daten werden nicht für gezielte Werbung verwendet\nes wird kein Profiling der betroffenen Personen durchgeführt\nes wird keine automatisierte Entscheidungsfindung durchgeführt, die rechtliche oder ähnlich bedeutsame Folgen für die betroffene Person hat\nMarketing-Mailings werden ohne entsprechende Einwilligung nicht durchgeführt"
+            ]
+          },
+          {
+            "h": "1.6. Einwilligung der betroffenen Person",
+            "blocks": [
+              "p|In Fällen, in denen die Verarbeitung auf einer Einwilligung beruht, wird die entsprechende Einwilligung elektronisch über die Website erteilt.",
+              "p|Die Einwilligung wird dadurch erteilt, dass die betroffene Person die entsprechende Handlung auf einem Formular vornimmt, einschließlich der Abgabe der im Formular vorgesehenen Bestätigung über die Einwilligung in die Bedingungen der Verarbeitung personenbezogener Daten und die entsprechenden Regeln.",
+              "p|Für die Verarbeitung von Daten Minderjähriger gelten besondere Anforderungen, die in Abschnitt 4 dieser Erklärung festgelegt sind."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "2. GRUNDBEGRIFFE",
+        "subs": [
+          {
+            "h": "2.1. Personenbezogene Daten",
+            "blocks": ["p|**Personenbezogene Daten** — alle Informationen, die sich direkt oder indirekt auf eine bestimmte oder bestimmbare natürliche Person beziehen."]
+          },
+          {
+            "h": "2.2. Verantwortlicher",
+            "blocks": [
+              "p|**Verantwortlicher** — eine Person, die allein oder gemeinsam mit anderen Personen die Verarbeitung personenbezogener Daten organisiert und/oder durchführt und auch die Zwecke der Verarbeitung, die Zusammensetzung der personenbezogenen Daten und die mit ihnen vorgenommenen Handlungen bestimmt.",
+              "p|Im Rahmen dieser Erklärung ist der Verantwortliche **{{operatorName}}**."
+            ]
+          },
+          {
+            "h": "2.3. Betroffene Person",
+            "blocks": ["p|**Betroffene Person** — eine natürliche Person, auf die sich die verarbeiteten personenbezogenen Daten beziehen."]
+          },
+          {
+            "h": "2.4. Verarbeitung personenbezogener Daten",
+            "blocks": ["p|**Verarbeitung personenbezogener Daten** — jede Handlung oder jede Reihe von Handlungen, die mit personenbezogenen Daten mit oder ohne automatisierte Mittel durchgeführt wird, einschließlich Erhebung, Aufzeichnung, Systematisierung, Sammlung, Speicherung, Aktualisierung, Änderung, Entnahme, Nutzung, Übermittlung, Zugangsgewährung, Verbreitung, Anonymisierung, Sperrung, Löschung und Vernichtung."]
+          },
+          {
+            "h": "2.5. Einwilligung",
+            "blocks": ["p|**Einwilligung in die Verarbeitung personenbezogener Daten** — eine freiwillige, konkrete, sachbezogene, informierte und bewusste Willensäußerung der betroffenen Person, die in den gesetzlich und durch diese Erklärung vorgesehenen Fällen und in der vorgesehenen Weise erteilt wird."]
+          },
+          {
+            "h": "2.6. Anonymisierung",
+            "blocks": ["p|**Anonymisierung** — Handlungen, durch die es unmöglich wird, die Zugehörigkeit personenbezogener Daten zu einer bestimmten betroffenen Person ohne zusätzliche Informationen zu bestimmen."]
+          },
+          {
+            "h": "2.7. Sperrung",
+            "blocks": ["p|**Sperrung** — vorübergehende Einstellung der Verarbeitung personenbezogener Daten, außer in Fällen, in denen die Verarbeitung zur Klärung personenbezogener Daten erforderlich ist."]
+          },
+          {
+            "h": "2.8. Vernichtung",
+            "blocks": ["p|**Vernichtung** — Handlungen, durch die es unmöglich wird, den Inhalt personenbezogener Daten im Informationssystem wiederherzustellen und/oder durch die die materiellen Träger personenbezogener Daten vernichtet werden."]
+          },
+          {
+            "h": "2.9. Grenzüberschreitende Übermittlung",
+            "blocks": ["p|**Grenzüberschreitende Übermittlung personenbezogener Daten** — Übermittlung personenbezogener Daten in das Hoheitsgebiet eines ausländischen Staates an eine Behörde eines ausländischen Staates, eine ausländische natürliche oder juristische Person."]
+          },
+          {
+            "h": "2.10. Zulässige Behörde",
+            "blocks": ["p|**Zulässige Behörde** — eine staatliche Behörde, die Kontroll- und Aufsichtsfunktionen im Bereich personenbezogener Daten ausübt, einschließlich Roskomnadzor in den von der Gesetzgebung der Russischen Föderation vorgesehenen Fällen."]
+          },
+          {
+            "h": "2.11. Cookies",
+            "blocks": ["p|**Cookies** — ein kleines Datenelement, das von einem Browser oder einer anderen Software auf dem Gerät des Nutzers gespeichert und von der Website für die in dieser Erklärung vorgesehenen technischen Zwecke verwendet wird."]
+          },
+          {
+            "h": "2.12. IP-Adresse",
+            "blocks": ["p|**IP-Adresse** — eine eindeutige Netzwerkadresse eines Geräts oder Knotens in einem mit dem IP-Protokoll aufgebauten Computernetzwerk."]
+          },
+          {
+            "h": "2.13. Automatisierte Verarbeitung",
+            "blocks": ["p|**Automatisierte Verarbeitung** — Verarbeitung personenbezogener Daten mit Hilfe von Rechentechnik und Softwaremitteln."]
+          },
+          {
+            "h": "2.14. Moderation",
+            "blocks": ["p|**Moderation** — die von einer zulässigen Person durchgeführte Prüfung der vom Nutzer bereitgestellten Inhalte und Angaben, um über deren Genehmigung, Ablehnung, Notwendigkeit von Änderungen oder eine andere weitere Verarbeitung gemäß den Regeln des jeweiligen Abschnitts oder der jeweiligen Aktivität zu entscheiden."]
+          }
+        ]
+      },
+      {
+        "title": "3. ZWECKE DER VERARBEITUNG PERSONENBEZOGENER DATEN",
+        "subs": [
+          {
+            "h": "3.1. Allgemeine Bestimmungen",
+            "blocks": ["p|Der Verantwortliche verarbeitet personenbezogene Daten nur für im Voraus bestimmte und konkrete Zwecke, die direkt mit dem Betrieb von Navykus, der Organisation der Teilnahme an Veranstaltungen und Meisterschaften, der Veröffentlichung von Profilen in den vorgesehenen Abschnitten, der Moderation und der Gewährleistung der Sicherheit der Website zusammenhängen."]
+          },
+          {
+            "h": "3.2. Zwecke der Verarbeitung",
+            "blocks": [
+              "table|Nr.;Zweck der Verarbeitung;Kategorien personenbezogener Daten;Form/Quelle|1;Anmeldung zur Meisterschaft / Teilnahme an der Fallstudien-Meisterschaft;Identifikations-, Kontakt- und Profildaten, Portfolio-Dateien;Teilnehmerfragebogen (`sourceType=championship`)|2;Veröffentlichung des Fragebogens im Abschnitt \"Team finden\" nach der Moderation;Identifikations-, Profil- und Kontaktdaten (Telegram/E-Mail), Land;Teilnehmerfragebogen (`sourceType=find-team / modal / home / about / activities`)|3;Anmeldung zu Veranstaltungen und Workshops;Identifikations-, Kontakt- und Profildaten;Teilnehmerfragebogen (`sourceType=event / activities`)|4;Versand von Benachrichtigungen über den Moderationsstatus, Informationen über die Meisterschaft und Fristen;Name, E-Mail-Adresse;Automatisch bei Statusänderung oder Durchführung der vorgesehenen Handlung|5;Inhaltsmoderation, Sicherheit und Audit;Technische und dienstliche Daten (`sourceType`, `moderationStatus`, Audit-Aufzeichnungen und sonstige dienstliche Angaben);Systemprozesse|6;Erfüllung der Vertrags über die Teilnahme an der Meisterschaft;Für die jeweilige Teilnahme erforderliche Daten;Fragebogen und Einwilligung in die Verarbeitung personenbezogener Daten"
+            ]
+          },
+          {
+            "h": "3.3. Anmeldung und Teilnahme an Meisterschaften",
+            "blocks": [
+              "p|Personenbezogene Daten können verarbeitet werden, um den Fragebogen eines Teilnehmers anzunehmen, die Anmeldung zur jeweiligen Meisterschaft vorzunehmen, die Teilnahme an der Fallstudien-Meisterschaft zu organisieren, die eingereichten Materialien zu verarbeiten und organisatorische Handlungen im Zusammenhang mit der Teilnahme durchzuführen.",
+              "p|Im Rahmen dieses Zwecks können Identifikations-, Kontakt- und Profildaten sowie Portfolio-Dateien in dem durch diese Erklärung festgelegten Umfang verarbeitet werden."
+            ]
+          },
+          {
+            "h": "3.4. Veröffentlichung des Profils im Abschnitt \"Team finden\"",
+            "blocks": [
+              "p|Nach der vorgesehenen Moderation können die Fragebogendaten im Abschnitt \"Team finden\" in dem für den genannten Zweck erforderlichen Umfang veröffentlicht werden.",
+              "p|Die Veröffentlichung erfolgt erst nach der entsprechenden Verarbeitung des Fragebogens und dem Erlass der vorgesehenen Entscheidung über seine Veröffentlichung.",
+              "p|Zu den veröffentlichten Daten gehören die für diesen Zweck vorgesehenen Identifikations- und Profilangaben, Kontaktdaten in Form von Telegram/E-Mail sowie Angaben zum Land."
+            ]
+          },
+          {
+            "h": "3.5. Anmeldung zu Veranstaltungen und Workshops",
+            "blocks": ["p|Personenbezogene Daten können verarbeitet werden, um die betroffene Person zu Veranstaltungen, Workshops, Online-Treffen und sonstigen Projektaktivitäten von Navykus anzumelden."]
+          },
+          {
+            "h": "3.6. Benachrichtigungen",
+            "blocks": [
+              "p|Der Verantwortliche kann Benachrichtigungen versenden, die direkt mit der Teilnahme des Nutzers an der jeweiligen Aktivität zusammenhängen, einschließlich:",
+              "list|Benachrichtigungen über den Moderationsstatus\nInformationen über die Meisterschaft\nInformationen über Termine und Fristen\norganisatorische Benachrichtigungen, die direkt mit der jeweiligen Teilnahme zusammenhängen",
+              "p|Marketing-Mailings, die nicht direkt mit den genannten Zwecken zusammenhängen, gehören nicht zu den in dieser Erklärung genannten Verarbeitungszwecken."
+            ]
+          },
+          {
+            "h": "3.7. Moderation, Sicherheit und Audit",
+            "blocks": [
+              "p|Technische und dienstliche Angaben werden verarbeitet, um:",
+              "list|die Moderation durchzuführen\ndie Sicherheit der Website zu gewährleisten\nden Stand der Fragebogenverarbeitung zu kontrollieren\nHandlungen mit Daten zu erfassen\nAudits von Erstellungs-, Änderungs- und Löschvorgängen von Inhalten zu führen\ndie Untersuchung von Vorfällen und die Bestätigung der Handlungen zulässiger Personen zu ermöglichen"
+            ]
+          },
+          {
+            "h": "3.8. Zwecke, für die Daten nicht verwendet werden",
+            "blocks": [
+              "p|Der Verantwortliche **verwendet** personenbezogene Daten **nicht** für:",
+              "list|gezielte Werbung\nProfiling\nautomatisierte Entscheidungsfindung\nVerkauf personenbezogener Daten\nÜbermittlung personenbezogener Daten an Dritte für Marketingzwecke\nMarketing-Mailings ohne entsprechende Einwilligung",
+              "p|Google Analytics, Yandex.Metrica, Werbenetzwerke, Social-Media-Pixel und andere ähnliche Instrumente der analytischen oder werblichen Profilierung werden im Rahmen des beschriebenen Systems nicht verwendet."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "4. RECHTSGRUNDLAGEN DER VERARBEITUNG",
+        "subs": [
+          {
+            "h": "4.1. Allgemeine Bestimmungen",
+            "blocks": ["p|Die Verarbeitung personenbezogener Daten erfolgt bei Vorliegen einer Rechtsgrundlage, die durch die Gesetzgebung der Russischen Föderation und, soweit anwendbar, durch die Datenschutzgesetzgebung der jeweiligen Rechtsordnung vorgesehen ist."]
+          },
+          {
+            "h": "4.2. Rechtsgrundlagen",
+            "blocks": [
+              "table|Art der Verarbeitung;Grundlage nach 152-FZ;Grundlage nach DSGVO|Annahme eines Fragebogens, Moderation und Profilveröffentlichung;Einwilligung, Art. 6 Teil 1 Punkt 1;Art. 6(1)(a) DSGVO|Anmeldung zur Meisterschaft und Erfüllung vertraglicher Beziehungen;Vertragserfüllung, Art. 6 Teil 1 Punkt 2;Art. 6(1)(b) DSGVO|Benachrichtigungen über Teilnahme und Status;Berechtigtes Interesse, Art. 6 Teil 1 Punkt 5, und/oder Einwilligung;Art. 6(1)(f) und/oder Art. 6(1)(a) DSGVO|Audit, Sicherheit und Schutz von Rechten;Erfüllung einer rechtlichen Verpflichtung, Art. 6 Teil 1 Punkt 3, einschließlich der Anforderungen von 152-FZ Art. 18 und 19;Art. 6(1)(c) DSGVO|Technische Cookies und Erfassung der Cookie-Einwilligung;Einwilligung, Art. 9 152-FZ;ePrivacy / Art. 6(1)(a) DSGVO"
+            ]
+          },
+          {
+            "h": "4.3. Einwilligung in die Verarbeitung personenbezogener Daten",
+            "blocks": [
+              "p|In Fällen, in denen die Einwilligung die Grundlage ist, erteilt die betroffene Person sie über die Website-Oberfläche vor Beginn der jeweiligen Verarbeitung oder durch Vornahme einer vom System vorgesehenen Handlung, die eine solche Einwilligung bestätigt.",
+              "p|Das Einwilligungsformular muss es ermöglichen, ihren Gegenstand und die Tatsache der Einwilligungserteilung zu identifizieren."
+            ]
+          },
+          {
+            "h": "4.4. Vertragliche Beziehungen",
+            "blocks": ["p|In Fällen im Zusammenhang mit der Teilnahme an einer Meisterschaft kann die Verarbeitung auf der Grundlage der Notwendigkeit der Erfüllung vertraglicher Beziehungen zwischen der betroffenen Person und dem Verantwortlichen erfolgen, soweit die Verarbeitung für die Erfüllung der entsprechenden Verpflichtungen erforderlich ist."]
+          },
+          {
+            "h": "4.5. Rechtliche Verpflichtungen",
+            "blocks": ["p|Technische und dienstliche Daten können in dem Umfang verarbeitet werden, der erforderlich ist, um gesetzliche Anforderungen zu erfüllen, die Sicherheit des Informationssystems zu gewährleisten, Audits zu führen und die Rechte und berechtigten Interessen des Verantwortlichen und der betroffenen Personen zu schützen."]
+          },
+          {
+            "h": "4.6. Besondere Kategorien personenbezogener Daten",
+            "blocks": [
+              "p|Der Verantwortliche **verarbeitet keine besonderen Kategorien personenbezogener Daten**, die Angaben zu Rasse, Nationalität, politischen Ansichten, religiösen oder philosophischen Überzeugungen, Gesundheitszustand, Intimsphäre, genetischen Daten und biometrischen personenbezogenen Daten betreffen.",
+              "p|Das Alter, das im Fragebogen als Zahlenwert angegeben wird, wird vom Verantwortlichen nicht als besondere Kategorie personenbezogener Daten betrachtet."
+            ]
+          },
+          {
+            "h": "4.7. Minderjährige",
+            "blocks": [
+              "p|Navykus richtet sich an Nutzer im Alter von 10 bis 22 Jahren. In diesem Zusammenhang gelten für Minderjährige besondere Anforderungen an die Einwilligungserteilung.",
+              "p|Für Nutzer im Alter von **10–13 Jahren** verlangt diese Erklärung die Einwilligung eines gesetzlichen Vertreters.",
+              "p|Für Nutzer im Alter von **14–17 Jahren** gilt die eigene Einwilligung der betroffenen Person. Dabei wird empfohlen, die Eltern oder andere gesetzliche Vertreter zu benachrichtigen.",
+              "p|Für Nutzer im Alter von **18 Jahren und älter** wird die Einwilligung direkt von der betroffenen Person selbst erteilt.",
+              "p|Diese Anforderungen sind Anforderungen dieser Erklärung, unabhängig davon, ob der entsprechende technische Kontrollmechanismus direkt im Code der Website umgesetzt ist."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "5. METHODEN UND FRISTEN DER VERARBEITUNG",
+        "subs": [
+          {
+            "h": "5.1. Methoden der Verarbeitung",
+            "blocks": ["p|Personenbezogene Daten werden mit automatisierten und manuellen Methoden verarbeitet."]
+          },
+          {
+            "h": "5.2. Automatisierte Verarbeitung",
+            "blocks": [
+              "p|In automatisierter Form werden personenbezogene Daten insbesondere durch folgende Prozesse verarbeitet:",
+              "list|Entgegennahme der Fragebogendaten über `POST /api/team-members`\nSchreiben der Daten in die SQLite-Datenbank (`payload.db`)\nVersand von E-Mail-Benachrichtigungen über Nodemailer\nVeröffentlichung der entsprechenden Inhalte im Frontend nach der Moderation\nFühren von Audits der Vorgänge"
+            ]
+          },
+          {
+            "h": "5.3. Manuelle Verarbeitung",
+            "blocks": [
+              "p|Die manuelle Verarbeitung umfasst:",
+              "list|die Moderation von Fragebögen in Payload Admin\ndie Genehmigung von Fragebögen\ndie Ablehnung von Fragebögen\ndie Vornahme notwendiger Änderungen an Daten\nden Export von Daten auf Antrag der betroffenen Person\ndie Löschung von Daten auf Antrag der betroffenen Person"
+            ]
+          },
+          {
+            "h": "5.4. Kategorien personenbezogener Daten",
+            "blocks": [
+              "table|Kategorie;Felder;Erforderlichkeit|Identifikation;`name`, `age`;Ja|Kontakt;`email`, `contact`, `contactType`, `country`, `city`;`city` — nein (übrige — ja)|Profil;`shortBio`, `interests[]`, `skills[]`, `targetRoles[]`, `targetProject`, `whyLooking`;Teilweise|Dateien;`portfolioFiles[]`, `portfolioLink`;Nein|Technisch/dienstlich;`sourceType`, `sourceId`, `sourceContext`, `tournamentId`, `moderationStatus`, `moderationComment`, `reviewedAt`, `isApproved`, `originalLanguage`, `createdAt`, `updatedAt`;Automatisch|Cookie / localStorage;`navykus.cookieConsent` mit dem Wert `accepted` oder `dismissed`;Nur Angaben zur Einwilligung"
+            ]
+          },
+          {
+            "h": "5.5. Portfolio",
+            "blocks": [
+              "p|Das Feld `portfolioFiles[]` ist für das Hochladen von Portfolio-Dateien vorgesehen.",
+              "p|Dateien der folgenden Typen sind zulässig:",
+              "list|PDF\nDOC\nDOCX\nJPG\nPNG\nWebP",
+              "p|Die Größe einer Datei darf **10 MB** nicht überschreiten. Die maximale Anzahl der Portfolio-Dateien beträgt **5**.",
+              "p|Das Feld `portfolioLink` kann ebenfalls verwendet werden."
+            ]
+          },
+          {
+            "h": "5.6. Technische und dienstliche Daten",
+            "blocks": ["p|Zu den technischen und dienstlichen Daten gehören Angaben, die vom System automatisch erzeugt werden, um Funktion, Moderation und Audit zu gewährleisten, einschließlich `sourceType`, `sourceId`, `sourceContext`, `tournamentId`, `moderationStatus`, `moderationComment`, `reviewedAt`, `isApproved`, `originalLanguage`, `createdAt`, `updatedAt` und Audit-Daten."]
+          },
+          {
+            "h": "5.7. Cookies",
+            "blocks": [
+              "p|Die Website verwendet die technische Speicherung des Einwilligungswerts des Nutzers in `localStorage` unter dem Schlüssel:",
+              "p|`navykus.cookieConsent`",
+              "p|Mögliche Werte:",
+              "list|`accepted`\n`dismissed`",
+              "p|Es werden nur notwendige Cookies und technische Speicherung im Zusammenhang mit der Einwilligung und der Administratorsitzung verwendet.",
+              "p|Analytische und Marketing-Cookies werden nicht verwendet."
+            ]
+          },
+          {
+            "h": "5.8. Speicherfristen",
+            "blocks": [
+              "p|Personenbezogene Daten werden für den Zeitraum gespeichert, der zur Erreichung der Verarbeitungszwecke, bis zum Widerruf der Einwilligung oder bis zum Ablauf der gesetzlichen Frist erforderlich ist.",
+              "p|Insbesondere:",
+              "table|Kategorie;Frist|Fragebögen genehmigter Teilnehmer;Bis zum Widerruf der Einwilligung oder 3 Jahre ohne Aktivität, gerechnet ab dem letzten Login/Update|Fragebögen abgelehnter Teilnehmer und Fragebögen in Moderation;30 Tage nach der Entscheidung des Moderators, danach zu löschen|Audit-Logs `AuditLogs`;Mindestens 3 Jahre|Cookie-Einwilligung;Bis der Nutzer `localStorage` leert"
+            ]
+          },
+          {
+            "h": "5.9. Löschung",
+            "blocks": [
+              "p|Eine automatisierte Löschung von Daten direkt im Code des Systems gibt es nicht.",
+              "p|Die Löschung von Daten erfolgt manuell durch einen Moderator im Verwaltungssystem oder aufgrund einer anderen in der Erklärung vorgesehenen Grundlage.",
+              "p|Allgemeines Speicherprinzip: Personenbezogene Daten werden gespeichert, bis der Verarbeitungszweck erreicht ist, die Einwilligung widerrufen wird oder die gesetzliche Frist abläuft."
+            ]
+          },
+          {
+            "h": "5.10. Einschränkung der Verarbeitung",
+            "blocks": ["p|In Fällen, in denen eine vorübergehende Einstellung der Verarbeitung erforderlich ist, können die entsprechenden Daten gesperrt oder ihr Status im Verwaltungssystem gemäß dem Verfahren zur Prüfung des Antrags der betroffenen Person geändert werden."]
+          }
+        ]
+      },
+      {
+        "title": "6. ÜBERMITTLUNG VON DATEN AN DRITTE",
+        "subs": [
+          {
+            "h": "6.1. Allgemeine Bestimmungen",
+            "blocks": [
+              "p|Der Verantwortliche übermittelt personenbezogene Daten nicht an Dritte zum Zwecke des Datenverkaufs, der gezielten Werbung oder des werblichen Profilings.",
+              "p|Bei der Verarbeitung können einzelne technologische Komponenten und Infrastrukturlösungen verwendet werden, die direkt mit dem Funktionieren des Systems zusammenhängen."
+            ]
+          },
+          {
+            "h": "6.2. Verwendete Unterauftragsverarbeiter und Infrastrukturkomponenten",
+            "blocks": [
+              "table|Unterauftragsverarbeiter / Komponente;Zweck;Verarbeitete Daten;Grundlage;Standort;DPA/SCC|Payload CMS / SQLite (`payload.db`);Speicherung der Datenbank;Alle Fragebogendaten;Vertrag;RF, lokal auf dem Server des Verantwortlichen;Intern|Nodemailer / SMTP;E-Mail-Benachrichtigungen an Moderator und Nutzer;E-Mail, Name, Formulardaten;Vertrag / berechtigtes Interesse;Hängt vom in der Umgebung angegebenen SMTP-Anbieter ab;Unterzeichnet|Payload Media / lokaler Speicher `uploads/media`;Speicherung von Portfolio-Dateien;Hochgeladene Dateien;Vertrag;RF, lokal;Intern"
+            ]
+          },
+          {
+            "h": "6.3. Payload CMS / SQLite",
+            "blocks": [
+              "p|Die Hauptdatenbank des Systems wird in der Datei `payload.db` gespeichert, die von Payload CMS auf dem Server des Verantwortlichen verwendet wird.",
+              "p|In dieser Datenbank können alle für die genannten Verarbeitungszwecke erforderlichen Fragebogendaten gespeichert werden."
+            ]
+          },
+          {
+            "h": "6.4. E-Mail-Benachrichtigungen",
+            "blocks": [
+              "p|Für den Versand der vom System vorgesehenen E-Mail-Benachrichtigungen wird Nodemailer mit einem SMTP-Anbieter verwendet, der in den Umgebungsvariablen der jeweiligen Infrastruktur festgelegt ist.",
+              "p|Je nach den Einstellungen des SMTP-Anbieters können E-Mail-Daten vom jeweiligen SMTP-Anbieter in dem für die Zustellung der Benachrichtigung erforderlichen Umfang verarbeitet werden."
+            ]
+          },
+          {
+            "h": "6.5. Portfolio-Dateien",
+            "blocks": ["p|Portfolio-Dateien werden über Payload Media auf der lokalen Festplatte im Verzeichnis `uploads/media` gespeichert."]
+          },
+          {
+            "h": "6.6. Dienste, an die Daten nicht übermittelt werden",
+            "blocks": [
+              "p|Im Rahmen des beschriebenen Systems werden personenbezogene Daten nicht übermittelt an:",
+              "list|Google Analytics\nYandex.Metrica\nsoziale Netzwerke\nWerbenetzwerke\nZahlungsgateways\nCRM-Systeme\nCDNs mit Personalisierung\nMarketing-Tracker"
+            ]
+          },
+          {
+            "h": "6.7. Staatliche Behörden",
+            "blocks": [
+              "p|Die Übermittlung personenbezogener Daten an staatliche Behörden erfolgt nur bei Vorliegen einer gesetzlich vorgesehenen Grundlage und in der gesetzlich festgelegten Weise.",
+              "p|Zu solchen Fällen gehören insbesondere gesetzlich vorgesehene Anforderungen von Gerichten, Roskomnadzor, Ermittlungsbehörden und anderen zulässigen staatlichen Behörden."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "7. SICHERHEITSMASSNAHMEN",
+        "subs": [
+          {
+            "h": "7.1. Allgemeine Bestimmungen",
+            "blocks": [
+              "p|Der Verantwortliche ergreift organisatorische und technische Maßnahmen, um personenbezogene Daten vor unrechtmäßigem oder zufälligem Zugriff, Vernichtung, Änderung, Sperrung und anderen unrechtmäßigen Handlungen zu schützen.",
+              "p|Die ergriffenen Maßnahmen entsprechen den tatsächlich umgesetzten Mechanismen des Systems."
+            ]
+          },
+          {
+            "h": "7.2. Schutz bei der Übertragung",
+            "blocks": ["p|Die Übertragung von Daten über das Netzwerk erfolgt über HTTPS und TLS in Version **1.2 oder höher**."]
+          },
+          {
+            "h": "7.3. Authentifizierung administrativer Nutzer",
+            "blocks": [
+              "p|Für den administrativen Zugriff wird der Payload-JWT-Authentifizierungsmechanismus verwendet.",
+              "p|Das JWT-Token wird gespeichert in:",
+              "list|einem HttpOnly-Cookie\neinem Secure-Cookie\neinem Cookie mit dem Parameter SameSite=Lax",
+              "p|Die Gültigkeitsdauer des Tokens wird durch den Parameter `PAYLOAD_TOKEN_EXPIRATION_SECONDS` bestimmt. Der Standardwert beträgt **4 Stunden**.",
+              "p|Nach **5 fehlgeschlagenen Anmeldeversuchen** wird der Zugriff für **15 Minuten** blockiert."
+            ]
+          },
+          {
+            "h": "7.4. Zugriffskontrolle",
+            "blocks": [
+              "p|Im Verwaltungssystem wird ein rollenbasiertes Zugriffsmodell verwendet, das die Rollen umfasst:",
+              "list|`admin`\n`moderator`",
+              "p|Die öffentliche Übermittlung von Fragebögen erfolgt über:",
+              "p|`POST /api/team-members`",
+              "p|Eine öffentliche Anfrage wird mit der zwingenden Festlegung des entsprechenden Status verarbeitet:",
+              "list|`pending`\n`false` für das Veröffentlichungskennzeichen",
+              "p|Einem öffentlichen Nutzer wird kein direkter Lesezugriff auf die Sammlung `TeamMembers` gewährt."
+            ]
+          },
+          {
+            "h": "7.5. Begrenzung der Anfragehäufigkeit",
+            "blocks": [
+              "p|Für die API wird der Mechanismus zur Begrenzung der Anfragehäufigkeit `express-rate-limit` verwendet.",
+              "p|Diese Maßnahme dient dazu, das Risiko des Missbrauchs öffentlicher API-Methoden und der automatisierten Übermittlung einer großen Anzahl von Anfragen zu verringern."
+            ]
+          },
+          {
+            "h": "7.6. Dateiprüfung",
+            "blocks": [
+              "p|Beim Hochladen von Dateien wird eine Whitelist zulässiger MIME-Typen verwendet:",
+              "list|PDF\nDOC\nDOCX\nJPG\nPNG\nWebP",
+              "p|Es gelten außerdem Einschränkungen:",
+              "list|nicht mehr als 10 MB pro Datei\nnicht mehr als 5 Portfolio-Dateien",
+              "p|Die Prüfung erfolgt auf der Client- und der Serverseite."
+            ]
+          },
+          {
+            "h": "7.7. Validierung und Sanitisierung",
+            "blocks": [
+              "p|Zur Prüfung der Struktur und der zulässigen Werte von Daten wird die eingebaute Validierung von Payload verwendet.",
+              "p|Rohe SQL-Abfragen werden im beschriebenen Arbeitsmechanismus des Systems nicht verwendet."
+            ]
+          },
+          {
+            "h": "7.8. Audit",
+            "blocks": [
+              "p|Zur Kontrolle von Vorgängen wird die Sammlung `AuditLogs` verwendet.",
+              "p|Im Audit können folgende Vorgänge erfasst werden:",
+              "list|Erstellung\nÄnderung\nLöschung",
+              "p|Für Audit-Vorgänge wird insbesondere erfasst:",
+              "list|wer die Handlung ausgeführt hat\nwann die Handlung ausgeführt wurde\nwelche Daten geändert wurden\nder Zustand der Daten vor der Änderung\nder Zustand der Daten nach der Änderung"
+            ]
+          },
+          {
+            "h": "7.9. Schutz der Daten im Ruhezustand",
+            "blocks": [
+              "p|Die Datenbank `payload.db` wird auf dem Server des Verantwortlichen gespeichert.",
+              "p|Die Verschlüsselung der Daten im Ruhezustand wird auf der Ebene des Betriebssystems/der Festplatte des Servers gewährleistet."
+            ]
+          },
+          {
+            "h": "7.10. Sicherungskopien",
+            "blocks": [
+              "p|Eine automatisierte Sicherung direkt im Code des Systems ist nicht umgesetzt.",
+              "p|Die Verantwortung für Sicherungskopien liegt beim Verantwortlichen."
+            ]
+          },
+          {
+            "h": "7.11. Incident-Management",
+            "blocks": ["p|Das Verfahren zur Reaktion auf Informationssicherheitsvorfälle ist in den internen Dokumenten des Verantwortlichen festgelegt."]
+          },
+          {
+            "h": "7.12. Datenschutzbeauftragter",
+            "blocks": ["p|Ein separater Datenschutzbeauftragter (DPO) wurde aufgrund des Umfangs der Tätigkeit und des Fehlens der Verarbeitung besonderer Kategorien personenbezogener Daten auf der Grundlage des beschriebenen Verarbeitungsmodells nicht benannt."]
+          }
+        ]
+      },
+      {
+        "title": "8. RECHTE DER BETROFFENEN PERSON",
+        "subs": [
+          {
+            "h": "8.1. Allgemeine Bestimmungen",
+            "blocks": [
+              "p|Die betroffene Person hat die Rechte, die durch die Gesetzgebung der Russischen Föderation und, soweit anwendbar, durch die Gesetzgebung der jeweiligen Rechtsordnung vorgesehen sind, einschließlich der durch die DSGVO vorgesehenen Rechte.",
+              "p|Zur Ausübung der Rechte wird eine schriftliche Anfrage per E-Mail an **{{contactsEmail}}** oder an die Postanschrift **{{contactsPostalAddress}}** gesendet.",
+              "p|Ein eigenständiges Nutzerportal zur Verwaltung personenbezogener Daten gibt es im System nicht."
+            ]
+          },
+          {
+            "h": "8.2. Recht auf Auskunft",
+            "blocks": [
+              "p|Die betroffene Person hat das Recht, Auskunft über die verarbeiteten personenbezogenen Daten zu verlangen.",
+              "p|Zur Ausübung dieses Rechts muss eine Anfrage an **{{contactsEmail}}** gesendet werden.",
+              "p|Nach Prüfung der Anfrage kann der Moderator die entsprechenden Daten aus Payload Admin im JSON-Format exportieren."
+            ]
+          },
+          {
+            "h": "8.3. Recht auf Berichtigung",
+            "blocks": [
+              "p|Bei Feststellung von Ungenauigkeiten oder Notwendigkeit der Aktualisierung personenbezogener Daten kann die betroffene Person eine entsprechende Anfrage an **{{contactsEmail}}** senden.",
+              "p|Nach Bestätigung der Anfrage kann der Moderator die notwendigen Änderungen im Verwaltungssystem vornehmen."
+            ]
+          },
+          {
+            "h": "8.4. Recht auf Löschung",
+            "blocks": [
+              "p|Die betroffene Person hat das Recht, die Löschung personenbezogener Daten zu verlangen.",
+              "p|Die Anfrage wird an **{{contactsEmail}}** gesendet.",
+              "p|Nach Bearbeitung der Anfrage löscht der Moderator das entsprechende Dokument aus dem Verwaltungssystem, einschließlich der vorgesehenen kaskadierenden Löschung der zugehörigen Media-Dateien."
+            ]
+          },
+          {
+            "h": "8.5. Recht auf Einschränkung der Verarbeitung",
+            "blocks": [
+              "p|In den gesetzlich vorgesehenen Fällen hat die betroffene Person das Recht, die Einschränkung der Verarbeitung personenbezogener Daten zu verlangen.",
+              "p|Zur Ausübung dieses Rechts wird eine Anfrage an **{{contactsEmail}}** gesendet.",
+              "p|Im Verwaltungssystem kann die entsprechende Verarbeitung durch Änderung des Status eingeschränkt werden, unter anderem auf:",
+              "list|`moderationStatus='rejected'`\n`moderationStatus='needs_edit'`"
+            ]
+          },
+          {
+            "h": "8.6. Recht auf Datenübertragbarkeit",
+            "blocks": [
+              "p|In Fällen, in denen dieses Recht anwendbar ist, hat die betroffene Person das Recht, personenbezogene Daten in einem strukturierten Format zu verlangen.",
+              "p|Im Rahmen des bestehenden Systems wird diese Bereitstellung durch den JSON-Export von Daten aus der Verwaltungsoberfläche umgesetzt."
+            ]
+          },
+          {
+            "h": "8.7. Recht auf Widerruf der Einwilligung",
+            "blocks": [
+              "p|Die betroffene Person hat das Recht, die erteilte Einwilligung in die Verarbeitung personenbezogener Daten in Fällen zu widerrufen, in denen die Verarbeitung auf der Grundlage der Einwilligung erfolgt.",
+              "p|Dazu muss eine Anfrage an **{{contactsEmail}}** gesendet werden.",
+              "p|Im Rahmen der bestehenden Umsetzung wird der Widerruf der Einwilligung ähnlich wie eine Anfrage auf Löschung von Daten behandelt, sofern für die Fortsetzung der Verarbeitung auf einer anderen Rechtsgrundlage nichts anderes erforderlich ist.",
+              "p|Die Einwilligung in technische Cookies kann mit dem Wert `navykus.cookieConsent` verbunden sein. Die Löschung des entsprechenden Werts in `localStorage` erfolgt durch den Nutzer selbst."
+            ]
+          },
+          {
+            "h": "8.8. Beschwerde bei Roskomnadzor",
+            "blocks": [
+              "p|Die betroffene Person hat das Recht, in der durch die Gesetzgebung der Russischen Föderation festgelegten Weise eine Beschwerde bei der zulässigen Behörde, einschließlich Roskomnadzor, einzureichen.",
+              "p|Die Angaben zum Verantwortlichen und die Informationen über die Registrierung im Register der Verantwortlichen für personenbezogene Daten sind in Abschnitt 9 dieser Erklärung angegeben."
+            ]
+          },
+          {
+            "h": "8.9. Verfahren zur Prüfung von Anfragen",
+            "blocks": [
+              "p|Beim Erhalt einer Anfrage prüft der Verantwortliche sie und führt bei Vorliegen rechtlicher und technischer Grundlagen die entsprechenden Handlungen im Verwaltungssystem durch.",
+              "p|Die Frist für die Prüfung einer Anfrage beträgt **30 Kalendertage**, sofern die anwendbare Gesetzgebung keine andere Frist vorsieht."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "9. KONTAKTE UND SCHLUSSBESTIMMUNGEN",
+        "subs": [
+          {
+            "h": "9.1. Angaben zum Verantwortlichen",
+            "blocks": [
+              "list|**Verantwortlicher:** {{operatorName}}\n**INN:** {{operatorInn}}\n**OGRNIP:** {{operatorOgrnip}}\n**Adresse:** {{operatorAddress}}"
+            ]
+          },
+          {
+            "h": "9.2. Angaben zur Registereintragung",
+            "blocks": [
+              "p|Eintrag im Register der Verantwortlichen für personenbezogene Daten:",
+              "p|**Nr. {{operatorRegistryNumber}} vom {{operatorRegistryDate}}**",
+              "p|Die Informationen über das Register sind auf der offiziellen Ressource von Roskomnadzor verfügbar:",
+              "p|https://pd.rkn.gov.ru/"
+            ]
+          },
+          {
+            "h": "9.3. Kontakte",
+            "blocks": [
+              "list|**E-Mail:** {{contactsEmail}}\n**Postanschrift:** {{contactsPostalAddress}}",
+              "p|Website:",
+              "p|**{{siteUrl}}**"
+            ]
+          },
+          {
+            "h": "9.4. Anfragen der betroffenen Personen",
+            "blocks": [
+              "p|Alle Fragen, Forderungen und Anfragen im Zusammenhang mit der Verarbeitung personenbezogener Daten werden dem Verantwortlichen über die angegebenen Kontaktangaben übermittelt.",
+              "p|Zur Bearbeitung einer Anfrage kann der Verantwortliche Angaben anfordern, die zur Identifizierung des Antragstellers und zur Prüfung seiner Befugnisse erforderlich sind, in dem gesetzlich vorgesehenen Umfang."
+            ]
+          },
+          {
+            "h": "9.5. Antwortfrist",
+            "blocks": ["p|Die Antwortfrist auf eine Anfrage der betroffenen Person beträgt **30 Kalendertage**, sofern die anwendbare Gesetzgebung keine andere Frist ausdrücklich festlegt."]
+          },
+          {
+            "h": "9.6. Anwendbares Recht",
+            "blocks": [
+              "p|Auf diese Erklärung und die Beziehungen zwischen dem Verantwortlichen und der betroffenen Person findet **die Gesetzgebung der Russischen Föderation** Anwendung.",
+              "p|In Fällen, in denen auf die Verarbeitung personenbezogener Daten die Anforderungen der DSGVO oder anderer zwingender Normen der jeweiligen Rechtsordnung anwendbar sind, berücksichtigt der Verantwortliche sie in dem gesetzlich vorgesehenen Umfang."
+            ]
+          },
+          {
+            "h": "9.7. Vorgerichtliches Verfahren",
+            "blocks": [
+              "p|Vor der Klageerhebung hat die betroffene Person das Recht, dem Verantwortlichen eine Beschwerde oder eine andere schriftliche Anfrage mit der Forderung nach freiwilliger Beilegung der betreffenden Angelegenheit zu senden.",
+              "p|Die Antwortfrist auf eine Beschwerde beträgt **30 Kalendertage**."
+            ]
+          },
+          {
+            "h": "9.8. Gerichtliches Verfahren",
+            "blocks": [
+              "p|Bei Unmöglichkeit der außergerichtlichen Beilegung des Streits wird der Streit vom Gericht gemäß der anwendbaren Gesetzgebung entschieden.",
+              "p|Für Beziehungen, die durch die Gesetzgebung der Russischen Föderation geregelt sind, gilt das durch die Gesetzgebung der Russischen Föderation festgelegte Verfahren der Klageerhebung unter Berücksichtigung der Zuständigkeitsregeln."
+            ]
+          },
+          {
+            "h": "9.9. Änderungen der Erklärung",
+            "blocks": [
+              "p|Der Verantwortliche hat das Recht, Änderungen an dieser Erklärung vorzunehmen.",
+              "p|Eine neue Fassung tritt mit ihrer Veröffentlichung auf der Website in Kraft, sofern die neue Fassung selbst nichts anderes vorsieht.",
+              "p|Das aktuelle Datum der Fassung wird im Feld angegeben:",
+              "p|**{{lastUpdated}}**",
+              "p|Bei einer wesentlichen Änderung der Bedingungen der Verarbeitung personenbezogener Daten können Informationen über solche Änderungen den Nutzern zusätzlich über ein Banner auf der Website und/oder eine E-Mail-Benachrichtigung mitgeteilt werden, sofern der entsprechende Mechanismus umgesetzt ist."
+            ]
+          },
+          {
+            "h": "9.10. Cookie-Richtlinie",
+            "blocks": [
+              "p|Die Website enthält einen separaten Mechanismus für die Cookie-Einwilligung (`CookieConsent`).",
+              "p|Im Rahmen des beschriebenen Systems werden nur notwendige technische Cookies verwendet, die mit:",
+              "list|der Administratorsitzung\nder Speicherung von Angaben zur Einwilligung des Nutzers",
+              "p|Analytische und Marketing-Cookies werden nicht verwendet."
+            ]
+          },
+          {
+            "h": "9.11. Keine automatisierte Löschung",
+            "blocks": [
+              "p|Der Verantwortliche informiert die betroffenen Personen gesondert darüber, dass eine automatisierte Löschung personenbezogener Daten direkt im Programmcode des Systems nicht umgesetzt ist.",
+              "p|Die Löschung erfolgt manuell durch einen zulässigen Moderator in der Verwaltungsoberfläche oder gemäß einer anderen in dieser Erklärung vorgesehenen Grundlage."
+            ]
+          },
+          {
+            "h": "9.12. Schlussbestimmungen",
+            "blocks": [
+              "p|Diese Erklärung ist ein öffentliches Dokument und gilt für alle Beziehungen zur Verarbeitung personenbezogener Daten, die in ihren Geltungsbereich fallen.",
+              "p|Die Nutzung der Website, die Übermittlung von Fragebögen und die Bereitstellung sonstiger Angaben bedeuten die Kenntnisnahme dieser Erklärung im entsprechenden Teil.",
+              "p|Bei Nichtübereinstimmung mit den Bedingungen der Verarbeitung personenbezogener Daten sollte die betroffene Person die Nutzung der entsprechenden Funktionen der Website einstellen und keine Daten bereitstellen, deren Verarbeitung ihre Einwilligung erfordert.",
+              "p|**Zuletzt aktualisiert: {{lastUpdated}}**"
+            ]
+          }
+        ]
+      }
+    ]
   },
   "data": {
     "tournaments": [

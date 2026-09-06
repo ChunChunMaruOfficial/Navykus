@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import GlassCrystal from './components/GlassCrystal';
 import ApplicationModal from './components/ApplicationModal';
+import PrivacyConsentCheckbox from './components/PrivacyConsentCheckbox';
 import BrandImage from './components/BrandImage';
 import PageSkeleton from './components/PageSkeletons';
 import StudyBackground from './components/StudyBackground';
@@ -20,9 +21,11 @@ import GridBackground from './components/GridBackground';
 import AmbientLighting from './components/AmbientLighting';
 import NotFoundPage from './components/NotFoundPage';
 import LegalPage from './components/LegalPage';
+import PrivacyPolicyPage from './components/PrivacyPolicyPage';
 import AppFooter from './components/AppFooter';
 import ScrollToTop from './components/ScrollToTop';
 import { I18nGate } from './components/I18nGate';
+import CookieConsent from './components/CookieConsent';
 import useScrollBehavior from './hooks/useScrollBehavior';
 import usePageMeta from './hooks/usePageMeta';
 import { apiUrl, fetchContactSettings, type ContactSettings } from './api';
@@ -57,7 +60,7 @@ const ActivitiesPage = lazy(() => import('./components/ActivitiesPage'));
 const FindTeamPage = lazy(() => import('./components/FindTeamPage'));
 
 const PAGE_PATHS = ['about', 'championship', 'activities', 'find-team'] as const;
-type Page = 'home' | 'not-found' | 'legal' | typeof PAGE_PATHS[number];
+type Page = 'home' | 'not-found' | 'legal' | 'privacy' | typeof PAGE_PATHS[number];
 const REMOVED_PLATFORM_PATHS = ['/login', '/register', '/forgot-password', '/reset-password', '/profile', '/participants', '/championships', '/platform/admin'] as const;
 
 const ACTIVITIES_EVENTS_PATH = '/activities/events';
@@ -69,6 +72,7 @@ type InlineFormErrors = {
   age: boolean;
   location: boolean;
   contact: boolean;
+  consent: boolean;
 };
 
 const createInlineFormErrors = (): InlineFormErrors => ({
@@ -76,6 +80,7 @@ const createInlineFormErrors = (): InlineFormErrors => ({
   age: false,
   location: false,
   contact: false,
+  consent: false,
 });
 
 const cardStaggerContainer = {
@@ -132,6 +137,7 @@ const getPageFromPath = (): Page => {
   const page = path.slice(1).split('/')[0];
   if (isPagePath(page)) return page;
   if (page === 'legal') return 'legal';
+  if (page === 'privacy') return 'privacy';
   return 'not-found';
 };
 
@@ -151,7 +157,7 @@ const legalSubpageFromPath = (): 'privacy' | 'terms' | null => {
 };
 
 function PageFallback({ page }: { page: Page }) {
-  if (page === 'legal') return <PageSkeleton page="about" />;
+  if (page === 'legal' || page === 'privacy') return <PageSkeleton page="about" />;
   return <PageSkeleton page={page} />;
 }
 
@@ -261,6 +267,7 @@ export default function App() {
   const [formLocation, setFormLocation] = useState('');
   const [formContact, setFormContact] = useState('');
   const [formInterest, setFormInterest] = useState('projects');
+  const [formConsent, setFormConsent] = useState(false);
   const [formSubmitStatus, setFormSubmitStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [formErrors, setFormErrors] = useState<InlineFormErrors>(createInlineFormErrors);
 
@@ -399,6 +406,10 @@ export default function App() {
       errors.contact = true;
     }
 
+    if (!formConsent) {
+      errors.consent = true;
+    }
+
     if (Object.values(errors).some(Boolean)) {
       setFormErrors(errors);
       setFormSubmitStatus('error');
@@ -415,6 +426,7 @@ export default function App() {
     setFormAge('');
     setFormLocation('');
     setFormContact('');
+    setFormConsent(false);
     setFormSubmitStatus('idle');
   };
 
@@ -648,7 +660,7 @@ export default function App() {
         <>
           <section
             id="hero-intro"
-            className="relative z-10 pt-36 pb-16 md:pt-48 md:pb-24 max-w-7xl mx-auto px-[6%] md:px-[10%] grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center"
+            className="relative z-10 pt-28 pb-16 md:pt-36 md:pb-24 max-w-7xl mx-auto px-[6%] md:px-[10%] grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center"
           >
             <motion.div {...heroFadeUpLarge} className="lg:col-span-7 space-y-8 text-left z-10">
               <div className="flex flex-col gap-4">
@@ -902,6 +914,12 @@ export default function App() {
                         </select>
                       </div>
 
+                      <PrivacyConsentCheckbox
+                        checked={formConsent}
+                        onChange={setFormConsent}
+                        error={formErrors.consent}
+                      />
+
                       <div className="pt-2">
                         <button type="submit" disabled={false} className="w-full bg-brand-dark hover:bg-[#bc4638] text-white text-xs font-mono tracking-widest py-3.5 rounded-xl transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 font-medium">
                           <span>{t('ui.app.762a52a7bb')}</span>
@@ -968,6 +986,8 @@ export default function App() {
             </motion.div>
           </section>
         </>
+      ) : currentPage === 'privacy' ? (
+        <PrivacyPolicyPage onBackToHome={() => navigateToPage('home')} />
       ) : currentPage === 'about' ? (
         <div className="w-full">
           <AboutProjectPage
@@ -1018,6 +1038,7 @@ export default function App() {
         onClose={() => setIsModalOpen(false)}
         context={applicationContext}
       />
+      <CookieConsent />
       </I18nGate>
     </div>
   );

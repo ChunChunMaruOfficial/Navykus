@@ -74,11 +74,8 @@ const AppFooter = ({ contactSettings, onNavigate }: AppFooterProps) => {
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex flex-wrap gap-4 text-[11px] text-brand-slate/80 font-normal md:font-light">
             <span>{t('ui.app.copyright')}</span>
-            <a href={t('ui.app.a5307558')} className="hover:text-[#bc4638] transition-colors">
+            <a href="/privacy" className="hover:text-[#bc4638] transition-colors">
               {t('ui.app.9e059272f1')}
-            </a>
-            <a href={t('ui.app.4d9e7853')} className="hover:text-[#bc4638] transition-colors">
-              {t('ui.app.3a86197ba3')}
             </a>
           </div>
           <a

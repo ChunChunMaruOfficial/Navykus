@@ -136,7 +136,7 @@
       "ec3eba7deb": "Kengash ekspertlari",
       "ce65e2cf6b": "Kontaktlar va qo'llab-quvvatlash",
       "ed16b5adfc": "Koordinator:",
-      "9e059272f1": "Maxfiylik",
+      "9e059272f1": "Maxfiylik siyosati",
       "3a86197ba3": "Shartnoma",
       "2060fe9f62": "Kubok hakamlar hay'ati va mentorlar",
       "copyright": "© 2026 Navikus Global Education",
@@ -306,7 +306,8 @@
       "4b5dbcf3e2": "Oynani yoping",
       "maxFilesError": "{{count}} tagacha fayl biriktirish mumkin",
       "submitError": "Anketani yuborib bo‘lmadi. Yana urinib ko‘ring.",
-      "moderationSuccess": "Anketa moderatsiyaga yuborildi. Tekshiruvdan keyin jamoa qidiruv sahifasida paydo bo‘ladi."
+      "moderationSuccess": "Anketa moderatsiyaga yuborildi. Tekshiruvdan keyin jamoa qidiruv sahifasida paydo bo‘ladi.",
+      "privacyConsentLabel": "Maxfiylik siyosatini qabul qilasiz"
     },
     "championshippage": {
       "75eb0d84": "Agar jamoam bo'lmasa, ishtirok eta olamanmi?",
@@ -716,6 +717,622 @@
       "accept": "Qabul qilish",
       "decline": "Hozir emas"
     }
+  },
+  "privacypolicy": {
+    "eyebrow": "Yuridik ma'lumotlar",
+    "title": "Navykus loyihasining Maxfiylik siyosati",
+    "lastUpdatedLabel": "Oxirgi yangilanish: {{lastUpdated}}",
+    "lastUpdatedDate": "2026-yil 5-avgust",
+    "sections": [
+      {
+        "title": "1. UMUMIY QOIDALAR",
+        "subs": [
+          {
+            "h": "1.1. Umumiy ma'lumot",
+            "blocks": [
+              "p|Navykus loyihasining (keyingi o'rinlarda — **Siyosat**) ushbu Maxfiylik siyosati **{{siteUrl}}** veb-saytidan (keyingi o'rinlarda — **Sayt**) foydalanishda hamda Navykus chempionatlari, keys-chempionatlari, tadbirlari, vorkshoplari va boshqa loyiha faoliyatlarida ishtirok etishda taqdim etiladigan jismoniy shaxslarning shaxsiy ma'lumotlarini qayta ishlash va himoya qilish tartibini belgilaydi.",
+              "p|Navykus — 10 yoshdan 22 yoshgacha bo'lgan maktab o'quvchilari va yoshlar uchun xalqaro ta'lim platformasi.",
+              "p|Ushbu Siyosat Rossiya Federatsiyasining shaxsiy ma'lumotlar to'g'risidagi qonunchiligi, jumladan 27.07.2006-yildagi 152-FZ-sonli \"Shaxsiy ma'lumotlar to'g'risida\" Federal qonuni, shuningdek, amaldagi hollarda Yevropa Ittifoqining Ma'lumotlarni himoya qilish umumiy reglamenti (GDPR) talablari hisobga olingan holda ishlab chiqilgan."
+            ]
+          },
+          {
+            "h": "1.2. Shaxsiy ma'lumotlar operatori",
+            "blocks": [
+              "p|Shaxsiy ma'lumotlar operatori — yakka tartibdagi tadbirkor (o'zini o'zi band qilgan) sifatida faoliyat yurituvchi jismoniy shaxs — **{{operatorName}}**.",
+              "p|Operator rekvizitlari:",
+              "list|INN: **{{operatorInn}}**\nOGRNIP: **{{operatorOgrnip}}**\nmanzil: **{{operatorAddress}}**\nshaxsiy ma'lumotlar operatorlari reyestriga yozuv: № **{{operatorRegistryNumber}}** **{{operatorRegistryDate}}**-yildagi",
+              "p|Operator shaxsiy ma'lumotlarni ushbu Siyosat va amaldagi qonunchilikda belgilangan maqsadlar, tartib va doiralarda qayta ishlaydi."
+            ]
+          },
+          {
+            "h": "1.3. Sayt va aloqa ma'lumotlari",
+            "blocks": [
+              "p|Loyiha sayti: **{{siteUrl}}**.",
+              "p|Shaxsiy ma'lumotlarni qayta ishlash bilan bog'liq murojaatlarni yuborish uchun shaxsiy ma'lumotlar subyekti yoki uning qonuniy vakili Operatorga murojaat qilishi mumkin:",
+              "list|elektron pochta orqali: **{{contactsEmail}}**\npochta manzili orqali: **{{contactsPostalAddress}}**"
+            ]
+          },
+          {
+            "h": "1.4. Siyosatning amal qilish doirasi",
+            "blocks": [
+              "p|Ushbu Siyosat Operator Saytdan foydalanish, anketalarni to'ldirish, chempionatlar, tadbirlar va vorkshoplarga ro'yxatdan o'tish, loyiha faoliyatlarida ishtirok etish jarayonida, shuningdek tegishli kontentni keyingi moderatsiya qilish, e'lon qilish va boshqarish jarayonida shaxsiy ma'lumotlar subyektidan bevosita oladigan shaxsiy ma'lumotlarga nisbatan qo'llaniladi.",
+              "p|Siyosat, shuningdek, tegishli arizalar va anketalarni qayta ishlashda axborot tizimi tomonidan shakllantiriladigan, xavfsizlik, moderatsiya va auditni ta'minlash uchun zarur bo'lgan ma'lumotlarni o'z ichiga olgan texnik va xizmat ma'lumotlariga ham qo'llaniladi."
+            ]
+          },
+          {
+            "h": "1.5. Qayta ishlashning asosiy tamoyillari",
+            "blocks": [
+              "p|Operator shaxsiy ma'lumotlarni quyidagi tamoyillarga asoslanib qayta ishlaydi:",
+              "list|qayta ishlash qonuniy va oldindan belgilangan maqsadlarda amalga oshiriladi\nqayta ishlanadigan ma'lumotlar hajmi e'lon qilingan maqsadlarga mos keladi\nfagat tegishli maqsadlar uchun zarur bo'lgan ma'lumot toifalari ishlatiladi\nshaxsiy ma'lumotlar ushbu Siyosatda ko'rsatilmagan maqsadlar uchun ishlatilmaydi\nshaxsiy ma'lumotlar sotilmaydi\nshaxsiy ma'lumotlar maqsadli reklama uchun ishlatilmaydi\nshaxsiy ma'lumotlar subyektlarining profillashuvi amalga oshirilmaydi\nsubyekt uchun yuridik yoki shunga o'xshash muhim oqibatlarga olib keladigan avtomatlashtirilgan qaror qabul qilish amalga oshirilmaydi\ntegishli roziliksiz marketing xabarnomalari amalga oshirilmaydi"
+            ]
+          },
+          {
+            "h": "1.6. Subyektning roziligi",
+            "blocks": [
+              "p|Qayta ishlash rozilikka asoslangan hollarda, tegishli rozilik Sayt orqali elektron shaklda taqdim etiladi.",
+              "p|Rozilik subyekt tomonidan formada tegishli harakatni amalga oshirish orqali, jumladan shaxsiy ma'lumotlarni qayta ishlash shartlari va tegishli reglament bilan rozilik belgisini qo'yish orqali beriladi.",
+              "p|Voyaga etmaganlar ma'lumotlarini qayta ishlash maqsadlari uchun ushbu Siyosatning 4-bo'limida belgilangan maxsus talablar amal qiladi."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "2. ASOSIY TUSHUNCHALAR",
+        "subs": [
+          {
+            "h": "2.1. Shaxsiy ma'lumotlar",
+            "blocks": ["p|**Shaxsiy ma'lumotlar** — ma'lum yoki aniqlanadigan jismoniy shaxsga to'g'ridan-to'g'ri yoki bilvosita taalluqli har qanday ma'lumot."]
+          },
+          {
+            "h": "2.2. Operator",
+            "blocks": [
+              "p|**Operator** — shaxsiy ma'lumotlarni qayta ishlashni mustaqil ravishda yoki boshqa shaxslar bilan birgalikda tashkil etadigan va/yoki amalga oshiradigan, shuningdek qayta ishlash maqsadlarini, shaxsiy ma'lumotlar tarkibini va ular bilan bajariladigan harakatlarni belgilaydigan shaxs.",
+              "p|Ushbu Siyosat doirasida Operator **{{operatorName}}** hisoblanadi."
+            ]
+          },
+          {
+            "h": "2.3. Shaxsiy ma'lumotlar subyekti",
+            "blocks": ["p|**Shaxsiy ma'lumotlar subyekti** — qayta ishlanayotgan shaxsiy ma'lumotlar tegishli bo'lgan jismoniy shaxs."]
+          },
+          {
+            "h": "2.4. Shaxsiy ma'lumotlarni qayta ishlash",
+            "blocks": ["p|**Shaxsiy ma'lumotlarni qayta ishlash** — avtomatlashtirish vositalaridan foydalangan holda yoki foydalanmasdan shaxsiy ma'lumotlar bilan bajariladigan har qanday harakat yoki harakatlar majmui, jumladan to'plash, yozib olish, tizimlashtirish, jamlash, saqlash, aniqlashtirish, o'zgartirish, ajratib olish, ishlatish, uzatish, kirishni ta'minlash, tarqatish, anonimlashtirish, bloklash, o'chirish va yo'q qilish."]
+          },
+          {
+            "h": "2.5. Rozilik",
+            "blocks": ["p|**Shaxsiy ma'lumotlarni qayta ishlashga rozilik** — qonunchilik va ushbu Siyosatda nazarda tutilgan hollarda va tartibda taqdim etiladigan shaxsiy ma'lumotlar subyektining ixtiyoriy, aniq, predmetli, xabardor va ongli iroda bildirishi."]
+          },
+          {
+            "h": "2.6. Anonimlashtirish",
+            "blocks": ["p|**Anonimlashtirish** — natijasida qo'shimcha ma'lumotdan foydalanmasdan shaxsiy ma'lumotlarning aniq bir subyektga tegishliligini aniqlash imkonsiz bo'lib qoladigan harakatlar."]
+          },
+          {
+            "h": "2.7. Bloklash",
+            "blocks": ["p|**Bloklash** — shaxsiy ma'lumotlarni qayta ishlashni vaqtincha to'xtatish; qayta ishlash shaxsiy ma'lumotlarni aniqlashtirish uchun zarur bo'lgan hollar bundan mustasno."]
+          },
+          {
+            "h": "2.8. Yo'q qilish",
+            "blocks": ["p|**Yo'q qilish** — natijasida axborot tizimida shaxsiy ma'lumotlar mazmunini tiklash imkonsiz bo'lib qoladigan va/yoki natijasida shaxsiy ma'lumotlarning moddiy tashuvchilari yo'q qilinadigan harakatlar."]
+          },
+          {
+            "h": "2.9. Transchegaraviy uzatish",
+            "blocks": ["p|**Shaxsiy ma'lumotlarning transchegaraviy uzatilishi** — shaxsiy ma'lumotlarni xorijiy davlat hududiga xorijiy davlat davlat organiga, xorijiy jismoniy yoki yuridik shaxsga uzatish."]
+          },
+          {
+            "h": "2.10. Vakolatli organ",
+            "blocks": ["p|**Vakolatli organ** — shaxsiy ma'lumotlar sohasida nazorat va taftish funksiyalarini amalga oshiruvchi davlat organi; Rossiya Federatsiyasi qonunchiligida nazarda tutilgan hollarda Roskomnadzor ham kiradi."]
+          },
+          {
+            "h": "2.11. Cookie-fayllar",
+            "blocks": ["p|**Cookie-fayllar** — brauzer yoki boshqa dasturiy ta'minot tomonidan foydalanuvchi qurilmasida saqlanadigan va Sayt tomonidan ushbu Siyosatda nazarda tutilgan texnik maqsadlarda ishlatiladigan kichik ma'lumot bo'lagi."]
+          },
+          {
+            "h": "2.12. IP-manzil",
+            "blocks": ["p|**IP-manzil** — IP protokoli asosida qurilgan kompyuter tarmog'idagi qurilma yoki tugunning yagona tarmoq manzili."]
+          },
+          {
+            "h": "2.13. Avtomatlashtirilgan qayta ishlash",
+            "blocks": ["p|**Avtomatlashtirilgan qayta ishlash** — hisoblash texnikasi va dasturiy vositalar yordamida shaxsiy ma'lumotlarni qayta ishlash."]
+          },
+          {
+            "h": "2.14. Moderatsiya",
+            "blocks": ["p|**Moderatsiya** — foydalanuvchi taqdim etgan kontent va ma'lumotlarning, tegishli bo'lim yoki faoliyat qoidalariga muvofiq uni tasdiqlash, rad etish, o'zgartirish kiritish zarurligi yoki boshqa tarzda qayta ishlash to'g'risida qaror qabul qilish maqsadida vakolatli shaxs tomonidan amalga oshiriladigan tekshiruv."]
+          }
+        ]
+      },
+      {
+        "title": "3. SHAXSIY MA'LUMOTLARNI QAYTA ISHLASH MAQSADLARI",
+        "subs": [
+          {
+            "h": "3.1. Umumiy qoidalar",
+            "blocks": ["p|Operator shaxsiy ma'lumotlarni faqat Navykus faoliyati, tadbirlar va chempionatlarda ishtirokni tashkil etish, nazarda tutilgan bo'limlarda profillarni e'lon qilish, moderatsiya va Sayt xavfsizligini ta'minlash bilan bevosita bog'liq bo'lgan oldindan belgilangan va aniq maqsadlar uchun qayta ishlaydi."]
+          },
+          {
+            "h": "3.2. Qayta ishlash maqsadlari",
+            "blocks": [
+              "table|№;Qayta ishlash maqsadi;Shaxsiy ma'lumotlar toifalari;Forma/manba|1;Chempionatga ro'yxatdan o'tish / keys-chempionatida ishtirok etish;Identifikatsiya, aloqa va profil ma'lumotlari, portfoliolar fayllari;Ishtirokchi anketasi (`sourceType=championship`)|2;Moderatsiyadan so'ng anketani \"Jamoa topish\" bo'limida e'lon qilish;Identifikatsiya, profil va aloqa ma'lumotlari (Telegram/Email), davlat;Ishtirokchi anketasi (`sourceType=find-team / modal / home / about / activities`)|3;Tadbirlar va vorkshoplarga ro'yxatdan o'tish;Identifikatsiya, aloqa va profil ma'lumotlari;Ishtirokchi anketasi (`sourceType=event / activities`)|4;Moderatsiya holati, chempionat to'g'risidagi ma'lumotlar va muddatlar haqida xabarnomalar yuborish;Ism, elektron pochta manzili;Holat o'zgarganda yoki nazarda tutilgan harakat bajarilganda avtomatik|5;Kontent moderatsiyasi, xavfsizlikni ta'minlash va audit;Texnik va xizmat ma'lumotlari (`sourceType`, `moderationStatus`, audit yozuvlari va boshqa xizmat ma'lumotlari);Tizim jarayonlari|6;Chempionatda ishtirok etish shartnomasini bajarish;Tegishli ishtirok uchun zarur ma'lumotlar;Anketa va shaxsiy ma'lumotlarni qayta ishlashga rozilik"
+            ]
+          },
+          {
+            "h": "3.3. Chempionatlarga ro'yxatdan o'tish va ishtirok etish",
+            "blocks": [
+              "p|Shaxsiy ma'lumotlar ishtirokchi anketasini qabul qilish, tegishli chempionatga ro'yxatdan o'tish, keys-chempionatida ishtirokni tashkil etish, taqdim etilgan materiallarni qayta ishlash va ishtirok bilan bog'liq tashkiliy harakatlarni bajarish uchun qayta ishlanishi mumkin.",
+              "p|Ushbu maqsad doirasida ushbu Siyosatda belgilangan chegaralarda identifikatsiya, aloqa, profil ma'lumotlari va portfoliolar fayllari qayta ishlanishi mumkin."
+            ]
+          },
+          {
+            "h": "3.4. Profilni \"Jamoa topish\" bo'limida e'lon qilish",
+            "blocks": [
+              "p|Nazarda tutilgan moderatsiyadan so'ng, anketalar ma'lumotlari ko'rsatilgan maqsad uchun zarur hajmda \"Jamoa topish\" bo'limida e'lon qilinishi mumkin.",
+              "p|E'lon qilish faqat anketani tegishli qayta ishlash va uni e'lon qilish to'g'risida nazarda tutilgan qaror qabul qilingandan so'ng amalga oshiriladi.",
+              "p|E'lon qilingan ma'lumotlarga ushbu maqsad uchun nazarda tutilgan identifikatsiya va profil ma'lumotlari, Telegram/Email shaklidagi aloqa ma'lumotlari va davlat to'g'risidagi ma'lumotlar kiradi."
+            ]
+          },
+          {
+            "h": "3.5. Tadbirlar va vorkshoplarga ro'yxatdan o'tish",
+            "blocks": ["p|Shaxsiy ma'lumotlar subyektni tadbirlar, vorkshoplar, onlayn uchrashuvlar va Navykusning boshqa loyiha faoliyatlariga ro'yxatdan o'tkazish uchun qayta ishlanishi mumkin."]
+          },
+          {
+            "h": "3.6. Xabarnomalar",
+            "blocks": [
+              "p|Operator foydalanuvchining tegishli faoliyatda ishtiroki bilan bevosita bog'liq xabarnomalar yuborishi mumkin, jumladan:",
+              "list|moderatsiya holati haqidagi xabarnomalar\nchempionat to'g'risidagi ma'lumotlar\nmuddatlar haqidagi ma'lumotlar\ntegishli ishtirok bilan bevosita bog'liq tashkiliy xabarnomalar",
+              "p|Ko'rsatilgan maqsadlar bilan bevosita bog'liq bo'lmagan marketing xabarnomalari ushbu Siyosatda ko'rsatilgan qayta ishlash maqsadlariga kirmaydi."
+            ]
+          },
+          {
+            "h": "3.7. Moderatsiya, xavfsizlik va audit",
+            "blocks": [
+              "p|Texnik va xizmat ma'lumotlari quyidagilar uchun qayta ishlanadi:",
+              "list|moderatsiyani amalga oshirish\nSayt xavfsizligini ta'minlash\nanketani qayta ishlash holatini nazorat qilish\nma'lumotlar bilan harakatlarni qayd etish\nkontentni yaratish, o'zgartirish va o'chirish operatsiyalari auditini yuritish\nvoqealarni tekshirish va vakolatli shaxslar harakatlarini tasdiqlash imkoniyatini ta'minlash"
+            ]
+          },
+          {
+            "h": "3.8. Ma'lumotlar ishlatilmaydigan maqsadlar",
+            "blocks": [
+              "p|Operator shaxsiy ma'lumotlarni quyidagilar uchun **ishlatmaydi**:",
+              "list|maqsadli reklama\nprofillashuv\navtomatlashtirilgan qaror qabul qilish\nshaxsiy ma'lumotlarni sotish\nmarketing maqsadlarida shaxsiy ma'lumotlarni uchinchi shaxslarga uzatish\ntegishli roziliksiz marketing xabarnomalari",
+              "p|Google Analytics, Yandex.Metrica, reklama tarmoqlari, ijtimoiy tarmoqlar piksellari va boshqa shunga o'xshash analitik yoki reklama profillash vositalari tavsiflangan tizim doirasida ishlatilmaydi."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "4. QAYTA ISHLASHNING HUQUQIY ASOSLARI",
+        "subs": [
+          {
+            "h": "4.1. Umumiy qoidalar",
+            "blocks": ["p|Shaxsiy ma'lumotlarni qayta ishlash Rossiya Federatsiyasi qonunchiligi, amaldagi hollarda esa tegishli yurisdiktsiya shaxsiy ma'lumotlarni himoya qilish qonunchiligi nazarda tutgan huquqiy asos mavjud bo'lganda amalga oshiriladi."]
+          },
+          {
+            "h": "4.2. Huquqiy asoslar",
+            "blocks": [
+              "table|Qayta ishlash turi;152-FZ bo'yicha asos;GDPR bo'yicha asos|Anketani qabul qilish, moderatsiya va profilni e'lon qilish;Rozilik, 6-modda 1-qism 1-band;GDPR 6(1)(a)-moddasi|Chempionatga ro'yxatdan o'tish va shartnomaviy munosabatlarni bajarish;Shartnomani bajarish, 6-modda 1-qism 2-band;GDPR 6(1)(b)-moddasi|Ishtirok va holat to'g'risidagi xabarnomalar;Qonuniy manfaat, 6-modda 1-qism 5-band va/yoki rozilik;GDPR 6(1)(f) va/yoki 6(1)(a)-moddalari|Audit, xavfsizlik va huquqlarni himoya qilish;Yuridik majburiyatni bajarish, 6-modda 1-qism 3-band, 152-FZ 18 va 19-moddalari talablari jumladan;GDPR 6(1)(c)-moddasi|Texnik cookie-fayllar va cookie-roziligini qayd etish;Rozilik, 152-FZ 9-moddasi;ePrivacy / GDPR 6(1)(a)-moddasi"
+            ]
+          },
+          {
+            "h": "4.3. Shaxsiy ma'lumotlarni qayta ishlashga rozilik",
+            "blocks": [
+              "p|Asos rozilik bo'lgan hollarda, subyekt uni tegishli qayta ishlash boshlanishidan oldin Sayt interfeysi orqali yoki bunday rozilikni tasdiqlovchi tizimda nazarda tutilgan harakatni bajarish orqali taqdim etadi.",
+              "p|Rozilik formasi uning predmetini va rozilik berilganligi faktini aniqlashga imkon berishi kerak."
+            ]
+          },
+          {
+            "h": "4.4. Shartnomaviy munosabatlar",
+            "blocks": ["p|Chempionatda ishtirok etish bilan bog'liq hollarda, qayta ishlash subyekt va Operator o'rtasidagi shartnomaviy munosabatlarni bajarish zaruriyati asosida, qayta ishlash tegishli majburiyatlarni bajarish uchun zarur bo'lgan qismida amalga oshirilishi mumkin."]
+          },
+          {
+            "h": "4.5. Yuridik majburiyatlar",
+            "blocks": ["p|Texnik va xizmat ma'lumotlari qonun bilan belgilangan talablarni bajarish, axborot tizimi xavfsizligini ta'minlash, audit yuritish va Operator hamda shaxsiy ma'lumotlar subyektlarining huquqlari va qonuniy manfaatlarini himoya qilish uchun zarur hajmda qayta ishlanishi mumkin."]
+          },
+          {
+            "h": "4.6. Shaxsiy ma'lumotlarning maxsus toifalari",
+            "blocks": [
+              "p|Operator irq, millat, siyosiy qarashlar, diniy yoki falsafiy e'tiqodlar, sog'liq holati, intim hayot, genetik ma'lumotlar va biometrik shaxsiy ma'lumotlar haqidagi ma'lumotlarga taalluqli **shaxsiy ma'lumotlarning maxsus toifalarini qayta ishlashni amalga oshirmaydi**.",
+              "p|Anketada raqamli qiymat sifatida ko'rsatilgan yosh Operator tomonidan shaxsiy ma'lumotlarning maxsus toifasi sifatida ko'rib chiqilmaydi."
+            ]
+          },
+          {
+            "h": "4.7. Voyaga etmaganlar",
+            "blocks": [
+              "p|Navykus 10 yoshdan 22 yoshgacha bo'lgan foydalanuvchilarga mo'ljallangan. Shu munosabat bilan voyaga etmaganlar uchun rozilik berishga maxsus talablar qo'llaniladi.",
+              "p|**10–13 yosh**dagi foydalanuvchilar uchun ushbu Siyosat qonuniy vakilning roziligini talab qiladi.",
+              "p|**14–17 yosh**dagi foydalanuvchilar uchun subyektning o'z roziligi qo'llaniladi. Bunda ota-onalar yoki boshqa qonuniy vakillarni xabardor qilish tavsiya etiladi.",
+              "p|**18 yosh va undan katta** foydalanuvchilar uchun rozilik to'g'ridan-to'g'ri shaxsiy ma'lumotlar subyektining o'zi tomonidan beriladi.",
+              "p|Ko'rsatilgan talablar tegishli texnik nazorat mexanizmi to'g'ridan-to'g'ri Sayt kodida joriy etilganmi yoki yo'qmi, qat'i nazar, ushbu Siyosatning talablari hisoblanadi."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "5. QAYTA ISHLASH USULLARI VA MUDDATLARI",
+        "subs": [
+          {
+            "h": "5.1. Qayta ishlash usullari",
+            "blocks": ["p|Shaxsiy ma'lumotlar avtomatlashtirilgan va qo'lda usullar bilan qayta ishlanadi."]
+          },
+          {
+            "h": "5.2. Avtomatlashtirilgan qayta ishlash",
+            "blocks": [
+              "p|Avtomatlashtirilgan shaklda shaxsiy ma'lumotlar, xususan, quyidagi jarayonlar orqali qayta ishlanadi:",
+              "list|anketa ma'lumotlarini `POST /api/team-members` orqali qabul qilish\nma'lumotlarni SQLite ma'lumotlar bazasiga yozish (`payload.db`)\nNodemailer orqali elektron pochta xabarnomalarini yuborish\nmoderatsiyadan so'ng tegishli kontentni frontendda e'lon qilish\noperatsiyalar auditini yuritish"
+            ]
+          },
+          {
+            "h": "5.3. Qo'lda qayta ishlash",
+            "blocks": [
+              "p|Qo'lda qayta ishlash quyidagilarni o'z ichiga oladi:",
+              "list|Payload Admin'da anketalarni moderatsiya qilish\nanketalarni tasdiqlash\nanketalarni rad etish\nma'lumotlarga zarur o'zgartirishlar kiritish\nsubyekt so'roviga ko'ra ma'lumotlarni eksport qilish\nsubyekt so'roviga ko'ra ma'lumotlarni o'chirish"
+            ]
+          },
+          {
+            "h": "5.4. Shaxsiy ma'lumotlar toifalari",
+            "blocks": [
+              "table|Toifa;Maydonlar;Majburiylik|Identifikatsiya;`name`, `age`;Ha|Aloqa;`email`, `contact`, `contactType`, `country`, `city`;`city` — yo'q (qolganlari — ha)|Profil;`shortBio`, `interests[]`, `skills[]`, `targetRoles[]`, `targetProject`, `whyLooking`;Qisman|Fayllar;`portfolioFiles[]`, `portfolioLink`;Yo'q|Texnik/xizmat;`sourceType`, `sourceId`, `sourceContext`, `tournamentId`, `moderationStatus`, `moderationComment`, `reviewedAt`, `isApproved`, `originalLanguage`, `createdAt`, `updatedAt`;Avtomatik|Cookie / localStorage;`navykus.cookieConsent` `accepted` yoki `dismissed` qiymati bilan;Faqat rozilik to'g'risidagi ma'lumot"
+            ]
+          },
+          {
+            "h": "5.5. Portfolio",
+            "blocks": [
+              "p|`portfolioFiles[]` maydoni portfoliolar fayllarini yuklash uchun mo'ljallangan.",
+              "p|Quyidagi turdagi fayllarga ruxsat beriladi:",
+              "list|PDF\nDOC\nDOCX\nJPG\nPNG\nWebP",
+              "p|Bitta fayl hajmi **10 MB**dan oshmasligi kerak. Portfoliolar fayllarining maksimal soni — **5**.",
+              "p|`portfolioLink` maydonidan ham foydalanish mumkin."
+            ]
+          },
+          {
+            "h": "5.6. Texnik va xizmat ma'lumotlari",
+            "blocks": ["p|Texnik va xizmat ma'lumotlariga tizim tomonidan faoliyat, moderatsiya va auditni ta'minlash uchun avtomatik shakllantiriladigan ma'lumotlar kiradi: `sourceType`, `sourceId`, `sourceContext`, `tournamentId`, `moderationStatus`, `moderationComment`, `reviewedAt`, `isApproved`, `originalLanguage`, `createdAt`, `updatedAt` va audit ma'lumotlari."]
+          },
+          {
+            "h": "5.7. Cookie-fayllar",
+            "blocks": [
+              "p|Sayt foydalanuvchi roziligining qiymatini `localStorage`da quyidagi kalit ostida texnik saqlashdan foydalanadi:",
+              "p|`navykus.cookieConsent`",
+              "p|Mumkin bo'lgan qiymatlar:",
+              "list|`accepted`\n`dismissed`",
+              "p|Faqat zarur cookie-fayllar va rozilik hamda administrator sessiyasi bilan bog'liq texnik saqlash ishlatiladi.",
+              "p|Analitik va marketing cookie-fayllari ishlatilmaydi."
+            ]
+          },
+          {
+            "h": "5.8. Saqlash muddatlari",
+            "blocks": [
+              "p|Shaxsiy ma'lumotlar qayta ishlash maqsadlariga erishish, rozilikni qaytarib olish yoki qonun bilan belgilangan muddatning tugashi uchun zarur bo'lgan davr mobaynida saqlanadi.",
+              "p|Xususan:",
+              "table|Toifa;Muddat|Tasdiqlangan ishtirokchilar anketalari;Rozilik qaytarib olinmaguncha yoki oxirgi kirish/yangilanishdan boshlab 3 yil faollik bo'lmaguncha|Rad etilgan ishtirokchilar va moderatsiyadagi anketalar;Moderator qaroridan 30 kun o'tgach, keyin o'chirilishi kerak|Audit jurnallari `AuditLogs`;Kamida 3 yil|Cookie-roziligi;Foydalanuvchi `localStorage`ni tozalamaguncha"
+            ]
+          },
+          {
+            "h": "5.9. O'chirish",
+            "blocks": [
+              "p|Tizim kodida bevosita avtomatlashtirilgan ma'lumotlarni o'chirish mavjud emas.",
+              "p|Ma'lumotlarni o'chirish ma'muriy tizimda moderator tomonidan qo'lda yoki Siyosatda nazarda tutilgan boshqa asos bilan amalga oshiriladi.",
+              "p|Umumiy saqlash tamoyili: shaxsiy ma'lumotlar qayta ishlash maqsadiga erishilgunga qadar, rozilik qaytarib olinmaguncha yoki qonunchilikda belgilangan muddat tugaguncha saqlanadi."
+            ]
+          },
+          {
+            "h": "5.10. Qayta ishlashni cheklash",
+            "blocks": ["p|Qayta ishlashni vaqtincha to'xtatish zarur bo'lgan hollarda, tegishli ma'lumotlar bloklanishi yoki ularning holati subyekt murojaatini ko'rib chiqish tartibiga muvofiq ma'muriy tizimda o'zgartirilishi mumkin."]
+          }
+        ]
+      },
+      {
+        "title": "6. MA'LUMOTLARNI UCHINCHI SHAXSLARGA UZATISH",
+        "subs": [
+          {
+            "h": "6.1. Umumiy qoidalar",
+            "blocks": [
+              "p|Operator ma'lumotlarni sotish, maqsadli reklama yoki marketing profillashuvi maqsadlarida shaxsiy ma'lumotlarni uchinchi shaxslarga uzatishni amalga oshirmaydi.",
+              "p|Qayta ishlashda tizim faoliyati bilan bevosita bog'liq alohida texnologik komponentlar va infratuzilma yechimlari ishlatilishi mumkin."
+            ]
+          },
+          {
+            "h": "6.2. Ishlatiladigan subpudratchilar va infratuzilma komponentlari",
+            "blocks": [
+              "table|Subpudratchi / komponent;Vazifa;Qayta ishlanadigan ma'lumotlar;Asos;Joylashuv;DPA/SCC|Payload CMS / SQLite (`payload.db`);Ma'lumotlar bazasini saqlash;Barcha anketa ma'lumotlari;Shartnoma;RF, Operator serverida lokal;Ichki|Nodemailer / SMTP;Moderator va foydalanuvchiga elektron pochta xabarnomalari;Elektron pochta, ism, forma ma'lumotlari;Shartnoma / qonuniy manfaat;Atrof-muhitda ko'rsatilgan SMTP provayderiga bog'liq;Imzolangan|Payload Media / lokal saqlash `uploads/media`;Portfoliolar fayllarini saqlash;Yuklangan fayllar;Shartnoma;RF, lokal;Ichki"
+            ]
+          },
+          {
+            "h": "6.3. Payload CMS / SQLite",
+            "blocks": [
+              "p|Tizimning asosiy ma'lumotlar bazasi Operator serverida Payload CMS tomonidan ishlatiladigan `payload.db` faylida saqlanadi.",
+              "p|Ushbu bazada e'lon qilingan qayta ishlash maqsadlari uchun zarur bo'lgan barcha anketa ma'lumotlari saqlanishi mumkin."
+            ]
+          },
+          {
+            "h": "6.4. Elektron pochta xabarnomalari",
+            "blocks": [
+              "p|Tizimda nazarda tutilgan elektron pochta xabarnomalarini yuborish uchun tegishli infratuzilmaning atrof-muhit o'zgaruvchilarida ko'rsatilgan SMTP provayderi bilan Nodemailer ishlatiladi.",
+              "p|SMTP provayderi sozlamalariga qarab, elektron pochta ma'lumotlari xabarnomani yetkazish uchun zarur hajmda tegishli SMTP provayderi tomonidan qayta ishlanishi mumkin."
+            ]
+          },
+          {
+            "h": "6.5. Portfoliolar fayllari",
+            "blocks": ["p|Portfoliolar fayllari Payload Media orqali `uploads/media` katalogidagi lokal diskda saqlanadi."]
+          },
+          {
+            "h": "6.6. Ma'lumotlar uzatilmaydigan xizmatlar",
+            "blocks": [
+              "p|Tavsiflangan tizim doirasida shaxsiy ma'lumotlar quyidagilarga uzatilmaydi:",
+              "list|Google Analytics\nYandex.Metrica\nijtimoiy tarmoqlar\nreklama tarmoqlari\nto'lov shlyuzlari\nCRM tizimlari\npersonallashtirishli CDN\nmarketing trekerlari"
+            ]
+          },
+          {
+            "h": "6.7. Davlat organlari",
+            "blocks": [
+              "p|Shaxsiy ma'lumotlarni davlat organlariga uzatish faqat qonunchilikda nazarda tutilgan asos mavjud bo'lganda va qonun bilan belgilangan tartibda amalga oshiriladi.",
+              "p|Bunday holatlarga, xususan, sudlar, Roskomnadzor, tergov organlari va boshqa vakolatli davlat organlarining qonunda nazarda tutilgan talablari kiradi."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "7. XAVFSIZLIK CHORALARI",
+        "subs": [
+          {
+            "h": "7.1. Umumiy qoidalar",
+            "blocks": [
+              "p|Operator shaxsiy ma'lumotlarni noqonuniy yoki tasodifiy kirishdan, yo'q qilishdan, o'zgartirishdan, bloklashdan va boshqa noqonuniy harakatlardan himoya qilish uchun tashkiliy va texnik choralar ko'radi.",
+              "p|Qo'llaniladigan choralar tizimning amalda joriy etilgan mexanizmlariga mos keladi."
+            ]
+          },
+          {
+            "h": "7.2. Uzatishda himoya",
+            "blocks": ["p|Tarmoq orqali ma'lumotlarni uzatish HTTPS va **1.2 yoki undan yuqori** versiyadagi TLS yordamida amalga oshiriladi."]
+          },
+          {
+            "h": "7.3. Ma'muriy foydalanuvchilarni autentifikatsiya qilish",
+            "blocks": [
+              "p|Ma'muriy kirish uchun Payload JWT autentifikatsiya mexanizmi ishlatiladi.",
+              "p|JWT-token quyidagilarda saqlanadi:",
+              "list|HttpOnly cookie\nSecure cookie\nSameSite=Lax parametrli cookie",
+              "p|Tokenning amal qilish muddati `PAYLOAD_TOKEN_EXPIRATION_SECONDS` parametri bilan belgilanadi. Standart qiymat **4 soat**ni tashkil etadi.",
+              "p|**5 ta muvaffaqiyatsiz kirish urinishidan** so'ng kirish **15 daqiqaga** bloklanadi."
+            ]
+          },
+          {
+            "h": "7.4. Kirishni nazorat qilish",
+            "blocks": [
+              "p|Ma'muriy tizimda quyidagi rollarni o'z ichiga olgan rol asosidagi kirish modeli ishlatiladi:",
+              "list|`admin`\n`moderator`",
+              "p|Anketalarni ommaviy yuborish quyidagi orqali amalga oshiriladi:",
+              "p|`POST /api/team-members`",
+              "p|Ommaviy so'rov tegishli holatni majburiy o'rnatish bilan qayta ishlanadi:",
+              "list|`pending`\ne'lon qilish belgisi uchun `false`",
+              "p|Ommaviy foydalanuvchiga `TeamMembers` to'plamini o'qish uchun to'g'ridan-to'g'ri kirish berilmaydi."
+            ]
+          },
+          {
+            "h": "7.5. So'rovlar chastotasini cheklash",
+            "blocks": [
+              "p|API uchun `express-rate-limit` so'rovlar chastotasini cheklash mexanizmi qo'llaniladi.",
+              "p|Ushbu chora ommaviy API metodlaridan suiiste'mol qilish va ko'p miqdordagi so'rovlarni avtomatik yuborish xavfini kamaytirish uchun ishlatiladi."
+            ]
+          },
+          {
+            "h": "7.6. Fayllarni tekshirish",
+            "blocks": [
+              "p|Fayllarni yuklashda ruxsat etilgan MIME-turlarining oq ro'yxati qo'llaniladi:",
+              "list|PDF\nDOC\nDOCX\nJPG\nPNG\nWebP",
+              "p|Shuningdek, cheklovlar qo'llaniladi:",
+              "list|bitta fayl uchun 10 MB dan ko'p emas\n5 tadan ko'p bo'lmagan portfoliolar fayli",
+              "p|Tekshiruv mijoz va server tomonida amalga oshiriladi."
+            ]
+          },
+          {
+            "h": "7.7. Validatsiya va sanitarizatsiya",
+            "blocks": [
+              "p|Ma'lumotlar strukturasini va ruxsat etilgan qiymatlarini tekshirish uchun Payload'ning o'rnatilgan validatsiyasi qo'llaniladi.",
+              "p|Tizim ishlashining tavsiflangan mexanizmida xom SQL so'rovlari ishlatilmaydi."
+            ]
+          },
+          {
+            "h": "7.8. Audit",
+            "blocks": [
+              "p|Operatsiyalarni nazorat qilish uchun `AuditLogs` to'plami ishlatiladi.",
+              "p|Auditga quyidagi operatsiyalar yozilishi mumkin:",
+              "list|yaratish\no'zgartirish\no'chirish",
+              "p|Audit operatsiyalari uchun, xususan, quyidagilar qayd etiladi:",
+              "list|harakatni kim bajargan\nharakat qachon bajarilgan\nqaysi ma'lumotlar o'zgartirilgan\no'zgartirishdan oldingi ma'lumotlar holati\no'zgartirishdan keyingi ma'lumotlar holati"
+            ]
+          },
+          {
+            "h": "7.9. Saqlash holatidagi ma'lumotlarni himoya qilish",
+            "blocks": [
+              "p|`payload.db` ma'lumotlar bazasi Operator serverida saqlanadi.",
+              "p|Tinch holatdagi ma'lumotlarni shifrlash serverning operatsion tizimi/diski darajasida ta'minlanadi."
+            ]
+          },
+          {
+            "h": "7.10. Zaxira nusxalash",
+            "blocks": [
+              "p|Tizim kodida bevosita avtomatlashtirilgan zaxira nusxalash joriy etilmagan.",
+              "p|Zaxira nusxalash uchun javobgarlik Operatorga tegishli."
+            ]
+          },
+          {
+            "h": "7.11. Voqealarni boshqarish",
+            "blocks": ["p|Axborot xavfsizligi voqealariga javob berish tartibi Operatorning ichki hujjatlarida qayd etilgan."]
+          },
+          {
+            "h": "7.12. Ma'lumotlarni himoya qilish bo'yicha mas'ul",
+            "blocks": ["p|Alohida Ma'lumotlarni himoya qilish bo'yicha xodim (DPO) faoliyat ko'lami va tavsiflangan qayta ishlash modeliga ko'ra shaxsiy ma'lumotlarning maxsus toifalarini qayta ishlashning yo'qligi sababli tayinlanmagan."]
+          }
+        ]
+      },
+      {
+        "title": "8. SHAXSIY MA'LUMOTLAR SUBYEKTINING HUQUQLARI",
+        "subs": [
+          {
+            "h": "8.1. Umumiy qoidalar",
+            "blocks": [
+              "p|Shaxsiy ma'lumotlar subyekti Rossiya Federatsiyasi qonunchiligi, amaldagi hollarda esa tegishli yurisdiktsiya qonunchiligi nazarda tutgan huquqlarga ega; GDPR nazarda tutgan huquqlar jumladan.",
+              "p|Huquqlarni amalga oshirish uchun **{{contactsEmail}}** elektron pochtasiga yoki **{{contactsPostalAddress}}** pochta manziliga yozma murojaat yuboriladi.",
+              "p|Tizimda shaxsiy ma'lumotlarni boshqarish uchun mustaqil foydalanuvchi portali mavjud emas."
+            ]
+          },
+          {
+            "h": "8.2. Kirish huquqi",
+            "blocks": [
+              "p|Subyekt qayta ishlanayotgan shaxsiy ma'lumotlar to'g'risida ma'lumot so'rashga haqli.",
+              "p|Ushbu huquqni amalga oshirish uchun **{{contactsEmail}}** manziliga murojaat yuborish kerak.",
+              "p|Murojaat ko'rib chiqilgandan so'ng moderator tegishli ma'lumotlarni Payload Admin'dan JSON formatida eksport qilishi mumkin."
+            ]
+          },
+          {
+            "h": "8.3. Tuzatish huquqi",
+            "blocks": [
+              "p|Noaniqliklar aniqlanganda yoki shaxsiy ma'lumotlarni yangilash zarurati tug'ilganda, subyekt **{{contactsEmail}}** manziliga tegishli murojaat yuborishi mumkin.",
+              "p|Murojaat tasdiqlangandan so'ng moderator ma'muriy tizimda zarur o'zgartirishlarni kiritishi mumkin."
+            ]
+          },
+          {
+            "h": "8.4. O'chirish huquqi",
+            "blocks": [
+              "p|Subyekt shaxsiy ma'lumotlarni o'chirishni talab qilishga haqli.",
+              "p|So'rov **{{contactsEmail}}** manziliga yuboriladi.",
+              "p|So'rov qayta ishlangandan so'ng moderator tegishli hujjatni, tegishli Media fayllarini nazarda tutilgan kaskadli o'chirish jumladan, ma'muriy tizimdan o'chiradi."
+            ]
+          },
+          {
+            "h": "8.5. Qayta ishlashni cheklash huquqi",
+            "blocks": [
+              "p|Qonunda nazarda tutilgan hollarda subyekt shaxsiy ma'lumotlarni qayta ishlashni cheklashni talab qilishga haqli.",
+              "p|Ushbu huquqni amalga oshirish uchun **{{contactsEmail}}** manziliga murojaat yuboriladi.",
+              "p|Ma'muriy tizimda tegishli qayta ishlash holatni o'zgartirish orqali cheklanishi mumkin, jumladan:",
+              "list|`moderationStatus='rejected'`\n`moderationStatus='needs_edit'`"
+            ]
+          },
+          {
+            "h": "8.6. Ko'chirilish huquqi",
+            "blocks": [
+              "p|Ushbu huquq qo'llaniladigan hollarda subyekt shaxsiy ma'lumotlarni tizimlashtirilgan formatda taqdim etishni so'rashga haqli.",
+              "p|Mavjud tizim doirasida bunday taqdim etish ma'muriy paneldan ma'lumotlarni JSON-eksport qilish orqali amalga oshiriladi."
+            ]
+          },
+          {
+            "h": "8.7. Rozilikni qaytarib olish huquqi",
+            "blocks": [
+              "p|Qayta ishlash rozilik asosida amalga oshiriladigan hollarda subyekt shaxsiy ma'lumotlarni qayta ishlashga berilgan rozilikni qaytarib olishga haqli.",
+              "p|Buning uchun **{{contactsEmail}}** manziliga murojaat yuborish kerak.",
+              "p|Mavjud tatbiq doirasida rozilikni qaytarib olish, boshqa qonuniy asosda qayta ishlashni davom ettirish talab qilinmasa, ma'lumotlarni o'chirish so'roviga o'xshash tarzda ko'rib chiqiladi.",
+              "p|Texnik cookie-fayllarga rozilik `navykus.cookieConsent` qiymati bilan bog'liq bo'lishi mumkin. `localStorage`dagi tegishli qiymatni tozalash foydalanuvchining o'zi tomonidan amalga oshiriladi."
+            ]
+          },
+          {
+            "h": "8.8. Roskomnadzorga murojaat",
+            "blocks": [
+              "p|Shaxsiy ma'lumotlar subyekti Rossiya Federatsiyasi qonunchiligida belgilangan tartibda vakolatli organga, jumladan Roskomnadzorga shikoyat bilan murojaat qilishga haqli.",
+              "p|Operator rekvizitlari va shaxsiy ma'lumotlar operatorlari reyestrida ro'yxatdan o'tganlik to'g'risidagi ma'lumotlar ushbu Siyosatning 9-bo'limida ko'rsatiladi."
+            ]
+          },
+          {
+            "h": "8.9. Murojaatlarni ko'rib chiqish tartibi",
+            "blocks": [
+              "p|Murojaat olinganda Operator uni ko'rib chiqadi va huquqiy hamda texnik asoslar mavjud bo'lganda ma'muriy tizimda tegishli harakatlarni bajaradi.",
+              "p|Murojaatni ko'rib chiqish muddati **30 kalendar kun**ni tashkil etadi, agar amaldagi qonunchilikda boshqa muddat nazarda tutilmagan bo'lsa."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "9. ALOQA VA YAKUNIY QOIDALAR",
+        "subs": [
+          {
+            "h": "9.1. Operator rekvizitlari",
+            "blocks": [
+              "list|**Operator:** {{operatorName}}\n**INN:** {{operatorInn}}\n**OGRNIP:** {{operatorOgrnip}}\n**Manzil:** {{operatorAddress}}"
+            ]
+          },
+          {
+            "h": "9.2. Reyestrga kiritilganligi to'g'risidagi ma'lumot",
+            "blocks": [
+              "p|Shaxsiy ma'lumotlar operatorlari reyestriga yozuv:",
+              "p|**№ {{operatorRegistryNumber}} {{operatorRegistryDate}}**",
+              "p|Reyestr to'g'risidagi ma'lumotlar Roskomnadzorning rasmiy resursida mavjud:",
+              "p|https://pd.rkn.gov.ru/"
+            ]
+          },
+          {
+            "h": "9.3. Aloqa",
+            "blocks": [
+              "list|**Elektron pochta:** {{contactsEmail}}\n**Pochta manzili:** {{contactsPostalAddress}}",
+              "p|Sayt:",
+              "p|**{{siteUrl}}**"
+            ]
+          },
+          {
+            "h": "9.4. Shaxsiy ma'lumotlar subyektlarining murojaatlari",
+            "blocks": [
+              "p|Shaxsiy ma'lumotlarni qayta ishlash bilan bog'liq barcha savollar, talablar va murojaatlar ko'rsatilgan aloqa rekvizitlari orqali Operatorga yuboriladi.",
+              "p|Murojaatni qayta ishlash uchun Operator qonunchilikda nazarda tutilgan chegaralarda ariza beruvchini aniqlash va uning vakolatini tekshirish uchun zarur ma'lumotlarni so'rashga haqli."
+            ]
+          },
+          {
+            "h": "9.5. Javob muddati",
+            "blocks": ["p|Shaxsiy ma'lumotlar subyekti murojaatiga javob muddati **30 kalendar kun**ni tashkil etadi, agar amaldagi qonunchilikda boshqa muddat to'g'ridan-to'g'ri belgilanmagan bo'lsa."]
+          },
+          {
+            "h": "9.6. Qo'llaniladigan huquq",
+            "blocks": [
+              "p|Ushbu Siyosatga va Operator hamda shaxsiy ma'lumotlar subyekti o'rtasidagi munosabatlarga **Rossiya Federatsiyasi qonunchiligi** qo'llaniladi.",
+              "p|Shaxsiy ma'lumotlarni qayta ishlashga GDPR talablari yoki tegishli yurisdiktsiyaning boshqa majburiy normalari qo'llaniladigan hollarda Operator ularni qonunda nazarda tutilgan hajmda hisobga oladi."
+            ]
+          },
+          {
+            "h": "9.7. Sudgacha bo'lgan tartib",
+            "blocks": [
+              "p|Sudga murojaat qilishdan oldin subyekt Operatorga tegishli masalani ixtiyoriy hal qilish talabi bilan da'vo yoki boshqa yozma murojaat yuborishga haqli.",
+              "p|Da'voga javob muddati **30 kalendar kun**ni tashkil etadi."
+            ]
+          },
+          {
+            "h": "9.8. Sud tartibi",
+            "blocks": [
+              "p|Nizoni sudgacha hal qilish imkonsiz bo'lganda, nizo amaldagi qonunchilikka muvofiq sud tomonidan hal qilinadi.",
+              "p|Rossiya Federatsiyasi qonunchiligi bilan tartibga solinadigan munosabatlar uchun yurisdiktsiya qoidalari hisobga olingan holda Rossiya Federatsiyasi qonunchiligi bilan belgilangan sudga murojaat qilish tartibi qo'llaniladi."
+            ]
+          },
+          {
+            "h": "9.9. Siyosatga o'zgartirish kiritish",
+            "blocks": [
+              "p|Operator ushbu Siyosatga o'zgartirishlar kiritishga haqli.",
+              "p|Yangi tahrir, agar yangi tahrirning o'zida boshqacha nazarda tutilmagan bo'lsa, Saytda e'lon qilingan paytdan boshlab kuchga kiradi.",
+              "p|Tahrirning joriy sanasi quyidagi maydonda ko'rsatiladi:",
+              "p|**{{lastUpdated}}**",
+              "p|Shaxsiy ma'lumotlarni qayta ishlash shartlari sezilarli o'zgargan taqdirda, bunday o'zgarishlar to'g'risidagi ma'lumot, tegishli mexanizm joriy etilgan bo'lsa, Saytdagi banner va/yoki elektron pochta xabarnomasi orqali foydalanuvchilarga qo'shimcha yetkazilishi mumkin."
+            ]
+          },
+          {
+            "h": "9.10. Cookie-siyosati",
+            "blocks": [
+              "p|Sayt tarkibida alohida Cookie-roziligi mexanizmi (`CookieConsent`) ishlatiladi.",
+              "p|Tavsiflangan tizim doirasida faqat quyidagilar bilan bog'liq zarur texnik cookie-fayllar ishlatiladi:",
+              "list|administrator sessiyasi\nfoydalanuvchi roziligi to'g'risidagi ma'lumotlarni saqlash",
+              "p|Analitik va marketing cookie-fayllari ishlatilmaydi."
+            ]
+          },
+          {
+            "h": "9.11. Avtomatlashtirilgan o'chirishning yo'qligi",
+            "blocks": [
+              "p|Operator shaxsiy ma'lumotlarni tizimning dasturiy kodida bevosita avtomatlashtirilgan o'chirish joriy etilmaganligi to'g'risida shaxsiy ma'lumotlar subyektlarini alohida xabardor qiladi.",
+              "p|O'chirish vakolatli moderator tomonidan ma'muriy panelda qo'lda yoki ushbu Siyosatda nazarda tutilgan boshqa asosga muvofiq amalga oshiriladi."
+            ]
+          },
+          {
+            "h": "9.12. Yakuniy qoidalar",
+            "blocks": [
+              "p|Ushbu Siyosat ommaviy hujjat hisoblanadi va uning amal qilish doirasiga kiradigan shaxsiy ma'lumotlarni qayta ishlash bo'yicha barcha munosabatlarga qo'llaniladi.",
+              "p|Saytdan foydalanish, anketalar taqdim etish va boshqa ma'lumotlarni yuborish tegishli qismda ushbu Siyosat bilan tanishishni anglatadi.",
+              "p|Shaxsiy ma'lumotlarni qayta ishlash shartlariga rozi bo'lmagan taqdirda subyekt Saytning tegishli funksiyalaridan foydalanishni to'xtatishi va qayta ishlash uchun uning roziligi talab qilinadigan ma'lumotlarni taqdim etmasligi kerak.",
+              "p|**Oxirgi yangilanish sanasi: {{lastUpdated}}**"
+            ]
+          }
+        ]
+      }
+    ]
   },
   "data": {
     "tournaments": [

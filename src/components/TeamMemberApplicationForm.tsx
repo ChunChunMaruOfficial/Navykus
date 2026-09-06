@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowRight, Check, Link2, Upload, X } from 'lucide-react';
 
 import { submitTeamMemberApplication } from '../api';
+import PrivacyConsentCheckbox from './PrivacyConsentCheckbox';
 import type { ApplicationForm, TeamApplicationContext, TeamRole } from '../types';
 
 const FIELD_CLASS =
@@ -63,6 +64,7 @@ const emptyForm = (context?: TeamApplicationContext): ApplicationForm => ({
   sourceType: context?.sourceType || 'modal',
   sourceId: context?.sourceId,
   tournamentId: context?.tournamentId || context?.sourceId,
+  privacyConsent: false,
 });
 
 const splitList = (value: string) => value
@@ -122,6 +124,7 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
     if (!form.shortBio.trim()) nextErrors.push(t('ui.findteampage.bioRequired', { defaultValue: 'Add a short bio' }));
     if (!isParticipationForm && !form.whyLooking.trim()) nextErrors.push(t('ui.findteampage.whyRequired', { defaultValue: 'Explain why you are looking for a team' }));
     if (!isParticipationForm && !form.targetRoles.length) nextErrors.push(t('ui.findteampage.rolesRequired', { defaultValue: 'Choose a role' }));
+    if (!form.privacyConsent) nextErrors.push(t('ui.championshippage.b21fd1fe62'));
     setErrors(nextErrors);
     return nextErrors.length === 0;
   };
@@ -182,12 +185,14 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
 
   return (
     <form onSubmit={submit} className={compact ? 'space-y-3' : 'space-y-4'}>
-      <div>
-        <h2 id={titleId} className="text-xl font-serif tracking-tight text-brand-dark sm:text-2xl">{t('ui.applicationmodal.6b0f724b4e')}</h2>
-        <p className="mt-1 text-xs font-light text-brand-slate sm:text-sm">
-          {sourceLabel || t('ui.applicationmodal.21117adc83')}
-        </p>
-      </div>
+      {!compact && (
+        <div>
+          <h2 id={titleId} className="text-xl font-serif tracking-tight text-brand-dark sm:text-2xl">{t('ui.applicationmodal.6b0f724b4e')}</h2>
+          <p className="mt-1 text-xs font-light text-brand-slate sm:text-sm">
+            {sourceLabel || t('ui.applicationmodal.21117adc83')}
+          </p>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
@@ -355,6 +360,11 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
           </label>
         )}
       </div>
+
+      <PrivacyConsentCheckbox
+        checked={form.privacyConsent}
+        onChange={(value) => setField('privacyConsent', value)}
+      />
 
       {errors.length > 0 && (
         <div className="space-y-1 rounded-xl border border-rose-100 bg-rose-50 p-3 text-xs text-rose-800">

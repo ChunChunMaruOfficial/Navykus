@@ -41,6 +41,7 @@ export interface ApplicationForm {
   sourceId?: string;
   tournamentId?: string;
   portfolioFiles?: File[];
+  privacyConsent: boolean;
 }
 
 export type TeamApplicationContext = {

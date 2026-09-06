@@ -77,7 +77,7 @@ export default function ApplicationModal({ isOpen, onClose, context }: Applicati
   return (
     <AnimatePresence>
       {isOpen && (
-        <div id="modal-portal" className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div id="modal-portal" className="fixed inset-0 z-50 flex justify-center overflow-y-auto p-4">
           <motion.div
             id="modal-overlay"
             initial={{ opacity: 0 }}
@@ -97,7 +97,7 @@ export default function ApplicationModal({ isOpen, onClose, context }: Applicati
             role="dialog"
             aria-modal="true"
             aria-labelledby="application-modal-title"
-            className="relative z-10 max-h-[calc(100vh-2rem)] w-[96%] max-w-3xl overflow-y-auto rounded-3xl border border-white/60 bg-white/35 p-4 shadow-[inset_0_1.5px_3px_rgba(255,255,255,0.45),0_40px_120px_rgba(27,24,22,0.12)] backdrop-blur-3xl sm:w-full sm:p-6 lg:p-7"
+            className="relative z-10 my-auto w-[96%] max-w-3xl rounded-3xl border border-white/60 bg-white/35 p-4 shadow-[inset_0_1.5px_3px_rgba(255,255,255,0.45),0_40px_120px_rgba(27,24,22,0.12)] backdrop-blur-3xl sm:w-full sm:p-6 lg:p-7"
           >
             <button
               onClick={onClose}
@@ -108,13 +108,10 @@ export default function ApplicationModal({ isOpen, onClose, context }: Applicati
             </button>
             {isParticipationModal ? (
               <div className="space-y-8">
-                <div className="text-center space-y-2 pb-5">
+                <div className="text-center pb-5">
                   <h2 id="application-modal-title" className="text-2xl sm:text-3xl font-serif text-brand-dark">
                     {t('ui.championshippage.795d6a19a2')}
                   </h2>
-                  <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed max-w-md mx-auto">
-                    {t('ui.championshippage.5788077ace')}
-                  </p>
                 </div>
                 <TeamMemberApplicationForm compact context={context} />
               </div>
