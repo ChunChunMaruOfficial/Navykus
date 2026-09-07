@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   deploy:
-    name: Deploy navykus.online
+    name: Deploy navykus.tech
     runs-on: ubuntu-latest
     timeout-minutes: 15
 

@@ -30,7 +30,7 @@ export const ContactSettings: CollectionConfig = {
       name: 'email',
       type: 'email',
       label: 'Email',
-      defaultValue: 'info@navykus.online',
+      defaultValue: 'info@navykus.tech',
     },
   ],
 };

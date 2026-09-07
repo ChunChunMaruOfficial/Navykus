@@ -1839,7 +1839,7 @@ export const contact_settings = sqliteTable(
   {
     id: integer("id").primaryKey(),
     label: text("label").notNull().default("Site Contacts"),
-    email: text("email").default("info@navykus.online"),
+    email: text("email").default("info@navykus.tech"),
     updatedAt: text("updated_at")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
@@ -1864,7 +1864,7 @@ export const operator_settings = sqliteTable(
     operatorAddress: text("operator_address").default(""),
     operatorRegistryNumber: text("operator_registry_number").default(""),
     operatorRegistryDate: text("operator_registry_date").default(""),
-    contactsEmail: text("contacts_email").default("info@navykus.online"),
+    contactsEmail: text("contacts_email").default("info@navykus.tech"),
     contactsPostalAddress: text("contacts_postal_address").default(""),
     updatedAt: text("updated_at")
       .notNull()

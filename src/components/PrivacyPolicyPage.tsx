@@ -91,8 +91,8 @@ const parseBlock = (block: string): ParsedBlock => {
   return { type: 'p', text: block.startsWith('p|') ? block.slice(2) : block };
 };
 
-const SITE_URL_FALLBACK = 'https://navykus.online';
-const CONTACT_EMAIL_FALLBACK = 'info@navykus.online';
+const SITE_URL_FALLBACK = 'https://navykus.tech';
+const CONTACT_EMAIL_FALLBACK = 'info@navykus.tech';
 
 const buildPlaceholderValues = (
   t: (key: string) => string,

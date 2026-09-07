@@ -1,5 +1,5 @@
 const siteOrigin = () =>
-  (process.env.PUBLIC_SITE_URL || process.env.SITE_URL || process.env.SERVER_URL || 'https://navykus.online').replace(/\/+$/, '');
+  (process.env.PUBLIC_SITE_URL || process.env.SITE_URL || process.env.SERVER_URL || 'https://navykus.tech').replace(/\/+$/, '');
 
 const value = (doc: Record<string, unknown>, key: string) => String(doc[key] || '').trim();
 

@@ -338,7 +338,7 @@ const ensureDevelopmentSchema = async () => {
     operator_address text DEFAULT '',
     operator_registry_number text DEFAULT '',
     operator_registry_date text DEFAULT '',
-    contacts_email text DEFAULT 'info@navykus.online',
+    contacts_email text DEFAULT 'info@navykus.tech',
     contacts_postal_address text DEFAULT '',
     updated_at text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL,
     created_at text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL

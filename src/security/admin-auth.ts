@@ -1,5 +1,5 @@
-export const ADMIN_EMAIL = 'admin@navykus.online';
-export const ADMIN_VERIFICATION_EMAIL = 'info@navykus.online';
+export const ADMIN_EMAIL = 'admin@navykus.tech';
+export const ADMIN_VERIFICATION_EMAIL = 'info@navykus.tech';
 export const ADMIN_USER_ID = 1;
 
 export const normalizeEmail = (email: unknown) => String(email || '').trim().toLowerCase();

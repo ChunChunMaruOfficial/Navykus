@@ -94,7 +94,7 @@ export const OperatorSettings: CollectionConfig = {
       name: 'contactsEmail',
       type: 'email',
       label: 'Contact Email for data subjects',
-      defaultValue: 'info@navykus.online',
+      defaultValue: 'info@navykus.tech',
       admin: {
         description:
           'Email address where data subjects can send requests regarding their personal data.',

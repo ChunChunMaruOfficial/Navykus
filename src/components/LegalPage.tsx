@@ -204,8 +204,8 @@ export default function LegalPage({ page, onBackToHome }: LegalPageProps) {
               </p>
               <p>
                 <strong>{t('ui.legalpage.contactsEmailLabel')}</strong>{' '}
-                <a href={`mailto:${operatorSettings?.contactsEmail || 'info@navykus.online'}`} className={linkClass}>
-                  {operatorSettings?.contactsEmail || 'info@navykus.online'}
+                <a href={`mailto:${operatorSettings?.contactsEmail || 'info@navykus.tech'}`} className={linkClass}>
+                  {operatorSettings?.contactsEmail || 'info@navykus.tech'}
                 </a>
               </p>
               <p>

@@ -169,8 +169,8 @@ app.use((req, res, next) => {
   const configuredOrigins = configuredOrigin.split(',').map((origin) => origin.trim()).filter(Boolean);
   const allowedOrigins = new Set([
     ...configuredOrigins,
-    'https://navykus.online',
-    'https://www.navykus.online',
+    'https://navykus.tech',
+    'https://www.navykus.tech',
   ]);
   const requestOrigin = req.headers.origin;
   const allowOrigin = requestOrigin && allowedOrigins.has(requestOrigin) ? requestOrigin : configuredOrigins[0] || configuredOrigin;

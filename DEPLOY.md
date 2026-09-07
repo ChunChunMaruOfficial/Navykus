@@ -18,8 +18,8 @@ scp deploy.sh root@95.163.227.196:/root/deploy.sh
 ssh root@95.163.227.196
 
 # 3. РќР°СЃС‚СЂРѕРёС‚СЊ РїРµСЂРµРјРµРЅРЅС‹Рµ (Р·Р°РјРµРЅРёС‚Рµ РЅР° СЃРІРѕРё)
-export NAVYKUS_DOMAIN="navykus.online"
-export NAVYKUS_ADMIN_EMAIL="admin@navykus.online"
+export NAVYKUS_DOMAIN="navykus.tech"
+export NAVYKUS_ADMIN_EMAIL="admin@navykus.tech"
 export REPO_URL="https://github.com/your-org/navykus.git"  # РёР»Рё РєРѕРїРёСЂСѓР№С‚Рµ РІСЂСѓС‡РЅСѓСЋ
 
 # 4. Р—Р°РїСѓСЃС‚РёС‚СЊ
@@ -117,9 +117,9 @@ ADMIN_PASSWORD=$(openssl rand -base64 16)
 cat > .env <<EOF
 NODE_ENV=production
 API_PORT=4000
-SERVER_URL=https://navykus.online
-CORS_ORIGIN=https://navykus.online
-PAYLOAD_PUBLIC_SERVER_URL=https://navykus.online/admin
+SERVER_URL=https://navykus.tech
+CORS_ORIGIN=https://navykus.tech
+PAYLOAD_PUBLIC_SERVER_URL=https://navykus.tech/admin
 PAYLOAD_SECRET=${PAYLOAD_SECRET}
 DATABASE_URL=file:./payload.db
 SMTP_HOST=localhost
@@ -127,9 +127,9 @@ SMTP_PORT=25
 SMTP_SECURE=false
 SMTP_USER=
 SMTP_PASS=
-SMTP_FROM=noreply@navykus.online
+SMTP_FROM=noreply@navykus.tech
 SMTP_FROM_NAME=Navykus
-ADMIN_EMAIL=admin@navykus.online
+ADMIN_EMAIL=admin@navykus.tech
 ADMIN_PASSWORD=${ADMIN_PASSWORD}
 GOOGLE_GENAI_API_KEY=
 EOF
@@ -171,7 +171,7 @@ chown -R ubuntu:ubuntu uploads
 cat > /etc/nginx/sites-available/navykus <<'NGINXEOF'
 server {
     listen 80;
-    server_name navykus.online www.navykus.online;
+    server_name navykus.tech www.navykus.tech;
 
     client_max_body_size 20M;
 
@@ -216,8 +216,8 @@ pm2 startup systemd -u ubuntu --hp /home/ubuntu
 ### РЁР°Рі 10. SSL-СЃРµСЂС‚РёС„РёРєР°С‚ (Let's Encrypt)
 
 ```bash
-certbot --nginx -d navykus.online -d www.navykus.online \
-  --non-interactive --agree-tos --email admin@navykus.online
+certbot --nginx -d navykus.tech -d www.navykus.tech \
+  --non-interactive --agree-tos --email admin@navykus.tech
 ```
 
 ### РЁР°Рі 11. РџСЂРѕРІРµСЂРєР°

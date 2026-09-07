@@ -46,7 +46,7 @@ const productionServerURL = [
   process.env.PUBLIC_SITE_URL,
   process.env.SITE_URL,
   process.env.SERVER_URL,
-  'https://navykus.online',
+  'https://navykus.tech',
 ].map(normalizeServerURL).find((value) => value && !isLocalServerURL(value));
 const configuredServerURL = normalizeServerURL(process.env.PAYLOAD_PUBLIC_SERVER_URL || process.env.SERVER_URL);
 const payloadServerURL = isProduction && (!configuredServerURL || isLocalServerURL(configuredServerURL))
@@ -68,8 +68,8 @@ const csrfOrigins = Array.from(new Set([
   normalizeServerURL(process.env.PUBLIC_SITE_URL),
   normalizeServerURL(process.env.SITE_URL),
   normalizeServerURL(process.env.SERVER_URL),
-  'https://navykus.online',
-  'https://www.navykus.online',
+  'https://navykus.tech',
+  'https://www.navykus.tech',
   ...devLocalhostOrigins,
 ].filter((value): value is string => Boolean(value) && (isProduction ? !isLocalServerURL(value) : true))));
 const smtpHost = process.env.SMTP_HOST?.trim();
@@ -115,7 +115,7 @@ export default buildConfig({
   },
   email: smtpEnabled
     ? nodemailerAdapter({
-        defaultFromAddress: process.env.SMTP_FROM || 'noreply@navykus.online',
+        defaultFromAddress: process.env.SMTP_FROM || 'noreply@navykus.tech',
         defaultFromName: process.env.SMTP_FROM_NAME || 'Navykus',
         skipVerify: process.env.SMTP_SKIP_VERIFY !== 'false',
         transportOptions: {
