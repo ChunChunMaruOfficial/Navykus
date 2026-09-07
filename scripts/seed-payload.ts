@@ -461,6 +461,11 @@ const seed = async () => {
 
   for (const [index, item] of TEAM_MEMBERS.entries()) {
     const { id: _legacyTeamMemberId, ...teamMemberData } = item;
+
+    if (typeof teamMemberData.email === 'string' && !teamMemberData.email.trim()) {
+      delete teamMemberData.email;
+    }
+
     await ensureByNaturalKey('team-members', 'name', item.name, {
       ...teamMemberData,
       sortOrder: index,

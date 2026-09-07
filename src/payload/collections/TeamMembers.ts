@@ -34,7 +34,7 @@ export const TeamMembers: CollectionConfig = {
     sortOrderField,
     originalLanguageField,
     { name: 'name', label: 'Имя', type: 'text', required: true },
-    { name: 'email', label: 'Email', type: 'email', required: true, index: true },
+    { name: 'email', label: 'Email', type: 'email', required: false, index: true },
     { name: 'age', label: 'Возраст', type: 'number', required: true },
     { name: 'country', label: 'Страна', type: 'text', required: true },
     { name: 'city', label: 'Город', type: 'text' },

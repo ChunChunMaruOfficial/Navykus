@@ -610,6 +610,10 @@ export interface TeamMember {
   contact: string;
   contactType: 'telegram' | 'email';
   /**
+   * Подтверждение согласия на обработку персональных данных и принятие регламента.
+   */
+  privacyConsent?: boolean | null;
+  /**
    * Статус проверки анкеты участника.
    */
   moderationStatus: 'pending' | 'approved' | 'rejected' | 'needs_edit';
@@ -1360,6 +1364,7 @@ export interface TeamMembersSelect<T extends boolean = true> {
   whyLooking?: T;
   contact?: T;
   contactType?: T;
+  privacyConsent?: T;
   moderationStatus?: T;
   moderationComment?: T;
   reviewedAt?: T;
