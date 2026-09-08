@@ -2,13 +2,15 @@ import type { CollectionConfig } from 'payload';
 
 import { adminOrModerator, anyone } from '../access';
 import { mediaUploadDir } from '../paths';
+import { EDITABLE_PAGE_TEXT_PAGES } from '../../page-texts';
 
 export const Media: CollectionConfig = {
   slug: 'media',
   admin: {
     useAsTitle: 'alt',
-    group: 'System',
-    defaultColumns: ['alt', 'filename', 'mimeType', 'filesize', 'updatedAt'],
+    group: 'Content',
+    description: 'Медиафайлы, привязанные к страницам. Используйте «Дерево медиа» в боковом меню для иерархического просмотра и редактирования.',
+    defaultColumns: ['page', 'blockName', 'alt', 'filename', 'mimeType', 'filesize', 'updatedAt'],
   },
   upload: {
     staticDir: mediaUploadDir,
@@ -32,6 +34,46 @@ export const Media: CollectionConfig = {
       name: 'alt',
       type: 'text',
       required: true,
+    },
+    {
+      name: 'page',
+      label: 'Страница',
+      type: 'select',
+      required: true,
+      index: true,
+      options: EDITABLE_PAGE_TEXT_PAGES as unknown as Array<{ label: string; value: string }>,
+      admin: {
+        position: 'sidebar',
+        description: 'Страница сайта, к которой относится это медиа.',
+      },
+    },
+    {
+      name: 'blockName',
+      label: 'Название блока',
+      type: 'text',
+      index: true,
+      admin: {
+        position: 'sidebar',
+        description: 'Имя блока внутри страницы (на русском). Используется для группировки в дереве медиа.',
+      },
+    },
+    {
+      name: 'sortOrder',
+      type: 'number',
+      defaultValue: 0,
+      admin: {
+        position: 'sidebar',
+        description: 'Порядок в списке CMS.',
+      },
+    },
+    {
+      name: 'isPublished',
+      label: 'Опубликовано',
+      type: 'checkbox',
+      defaultValue: true,
+      admin: {
+        position: 'sidebar',
+      },
     },
   ],
 };

@@ -95,6 +95,8 @@ export default buildConfig({
       afterNavLinks: [
         '../../../src/admin/components/VersionBadge#VersionBadge',
         '../../../src/admin/components/PageTextsTreeNavLink#PageTextsTreeNavLink',
+        '../../../src/admin/components/MediaTreeNavLink#MediaTreeNavLink',
+        '../../../src/admin/components/TeamMembersModerationNavLink#TeamMembersModerationNavLink',
       ],
       views: {
         'page-texts-tree': {
@@ -104,6 +106,24 @@ export default buildConfig({
           meta: {
             title: 'Дерево текстов | Navykus',
             description: 'Иерархический редактор текстов сайта',
+          },
+        },
+        'media-tree': {
+          Component: '../../../src/admin/components/MediaTree#default',
+          path: '/media-tree',
+          exact: true,
+          meta: {
+            title: 'Дерево медиа | Navykus',
+            description: 'Иерархический редактор медиа сайта',
+          },
+        },
+        'team-members-moderation': {
+          Component: '../../../src/admin/components/TeamMembersModeration#default',
+          path: '/team-members-moderation',
+          exact: true,
+          meta: {
+            title: 'Модерация анкет | Navykus',
+            description: 'Очередь анкет участников на проверку',
           },
         },
       },
