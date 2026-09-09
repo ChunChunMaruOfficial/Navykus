@@ -371,14 +371,14 @@ export default function ChampionshipPage({
 
               {/* Themes list from CMS */}
               <div className="space-y-4">
-                <span className="text-xs sm:text-sm font-mono uppercase tracking-wider text-brand-dark font-semibold block">{t('ui.championshippage.5c807e4149')}</span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <span className="text-sm sm:text-base font-mono uppercase tracking-wider text-brand-dark font-semibold block">{t('ui.championshippage.5c807e4149')}</span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   {cmsData.themes.map((theme, idx) => (
-                    <div key={idx} className="bg-white/[0.12] glass-card surface-elevated-soft border border-white/[0.15] p-4 rounded-xl text-left flex items-start gap-3">
-                      <span className="w-6 h-6 rounded-full bg-[#bc4638]/5 border border-[#bc4638]/10 font-mono text-[10px] font-bold text-[#bc4638] flex items-center justify-center shrink-0 mt-0.5">
+                    <div key={idx} className="bg-white/[0.12] glass-card surface-elevated-soft border border-white/[0.15] p-4 sm:p-5 rounded-xl text-left flex items-start gap-3">
+                      <span className="w-7 h-7 rounded-full bg-[#bc4638]/5 border border-[#bc4638]/10 font-mono text-xs font-bold text-[#bc4638] flex items-center justify-center shrink-0 mt-0.5">
                         {idx + 1}
                       </span>
-                      <span className="text-sm text-brand-dark font-medium leading-snug">{theme}</span>
+                      <span className="text-base sm:text-lg text-brand-dark font-medium leading-snug">{theme}</span>
                     </div>
                   ))}
                 </div>
