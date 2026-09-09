@@ -22,20 +22,31 @@ jobs:
           SERVER_PORT: ${{ secrets.SERVER_PORT }}
           SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
         run: |
+          set -euo pipefail
+
+          if [ -z "${SERVER_HOST:-}" ] || [ -z "${SERVER_USER:-}" ] || [ -z "${SERVER_SSH_KEY:-}" ]; then
+            echo "::error::Missing SERVER_HOST / SERVER_USER / SERVER_SSH_KEY repository secrets."
+            exit 1
+          fi
+          SERVER_PORT="${SERVER_PORT:-22}"
+
           mkdir -p ~/.ssh
           printf '%s\n' "$SERVER_SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
-          ssh-keyscan -H -p "$SERVER_PORT" "$SERVER_HOST" >> ~/.ssh/known_hosts
+          # Refresh the host key every run so a server rebuild does not wedge the pipeline.
+          ssh-keyscan -H -p "$SERVER_PORT" "$SERVER_HOST" > ~/.ssh/known_hosts 2>/dev/null
 
+          # `bash -lc` → a login shell so nvm / PATH from the operator's profile is available.
           ssh \
             -i ~/.ssh/deploy_key \
             -o IdentitiesOnly=yes \
             -o StrictHostKeyChecking=yes \
             -o BatchMode=yes \
+            -o ConnectTimeout=15 \
             -p "$SERVER_PORT" \
             "$SERVER_USER@$SERVER_HOST" \
-            "cd /var/www/Navykus && git fetch origin && git reset --hard origin/main && ./deploy-prod.sh"
+            "bash -lc 'set -e; cd /var/www/Navykus && git fetch origin --prune && git reset --hard origin/main && bash deploy-prod.sh'"
 
       - name: Deployment finished
         run: echo "Production deployment completed successfully"
