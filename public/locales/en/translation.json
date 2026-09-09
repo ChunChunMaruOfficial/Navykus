@@ -538,9 +538,7 @@
       "rolesRequired": "Choose a role"
     },
     "enhancements": {
-      "championshipJuryEyebrow": "Who evaluates",
       "championshipJuryHeading": "Jury and mentors",
-      "championshipJurySubtitle": "The experts who score the projects and guide the teams throughout the cup.",
       "expertRoleJury": "Jury",
       "expertRoleMentor": "Mentor",
       "expertRoleExpert": "Expert",
