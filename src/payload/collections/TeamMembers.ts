@@ -4,6 +4,7 @@ import { adminOrModerator } from '../access';
 import { publicContentVersions, seoFields, sortOrderField, syncTeamMemberPublicationBeforeChange, textListField } from '../fields';
 import { auditAfterChange, auditAfterDelete } from '../audit';
 import { localizedAfterChange, localizedAfterDelete, originalLanguageField } from '../localization';
+import { moderationDecisionEmailAfterChange } from '../moderation-emails';
 import { publicPreview } from '../preview';
 
 export const TeamMembers: CollectionConfig = {
@@ -27,7 +28,11 @@ export const TeamMembers: CollectionConfig = {
   },
   hooks: {
     beforeChange: [syncTeamMemberPublicationBeforeChange],
-    afterChange: [localizedAfterChange('team-members'), auditAfterChange('team-members')],
+    afterChange: [
+      localizedAfterChange('team-members'),
+      auditAfterChange('team-members'),
+      moderationDecisionEmailAfterChange,
+    ],
     afterDelete: [localizedAfterDelete('team-members'), auditAfterDelete('team-members')],
   },
   fields: [

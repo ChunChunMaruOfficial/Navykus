@@ -1,3 +1,5 @@
+import './payload/load-env';
+
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 

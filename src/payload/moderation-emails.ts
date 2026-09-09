@@ -287,3 +287,30 @@ export const sendModerationDecisionEmail = async (
     console.error('[moderation-emails] failed to send decision email:', error);
   }
 };
+
+/**
+ * `afterChange` hook for the team-members collection: fires the approval /
+ * rejection letter to the applicant the moment a moderator flips
+ * `moderationStatus` to `approved` or `rejected`. Only sends on an actual
+ * status transition so re-saving an already-moderated profile does not
+ * re-notify. Never throws — a mail failure must not block the moderation save.
+ */
+export const moderationDecisionEmailAfterChange = async ({
+  doc,
+  previousDoc,
+  operation,
+  req,
+}: {
+  doc: Record<string, unknown>;
+  previousDoc?: Record<string, unknown>;
+  operation: 'create' | 'update';
+  req: { payload: Payload };
+}): Promise<void> => {
+  if (operation !== 'update') return;
+
+  const status = doc?.moderationStatus;
+  if (status !== 'approved' && status !== 'rejected') return;
+  if (previousDoc && previousDoc.moderationStatus === status) return;
+
+  await sendModerationDecisionEmail(req.payload, doc as Parameters<typeof sendModerationDecisionEmail>[1]);
+};
