@@ -158,27 +158,16 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
 
   if (status === 'success') {
     return (
-      <div className="space-y-5 py-2">
-        <div className="flex items-start gap-4">
-          <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-emerald-100 bg-emerald-50 text-emerald-600">
-            <Check className="h-6 w-6" />
-          </div>
-          <div>
-            <h2 id={titleId} className="text-lg font-serif tracking-tight text-brand-dark">{t('ui.app.0d65b9d27c')}</h2>
-            <p className="mt-1.5 max-w-sm text-sm text-brand-slate">
-              {isParticipationForm
-                ? t('ui.applicationmodal.15cd01515e', { defaultValue: 'Questionnaire sent for moderation.' })
-                : t('ui.applicationmodal.moderationSuccess', { defaultValue: 'The form was sent for moderation. After review it will appear on the team search page.' })}
-            </p>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={() => setStatus('idle')}
-          className="w-full rounded-xl bg-brand-dark py-3 text-xs font-medium text-white transition-colors hover:bg-brand-dark/95"
-        >
-          {t('ui.applicationmodal.467dd34c6e')}
-        </button>
+      <div
+        role="status"
+        className="flex items-start gap-3 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
+      >
+        <Check className="mt-0.5 h-4 w-4 shrink-0" />
+        <span id={titleId}>
+          {isParticipationForm
+            ? t('ui.applicationmodal.15cd01515e', { defaultValue: 'Questionnaire sent for moderation.' })
+            : t('ui.applicationmodal.moderationSuccess', { defaultValue: 'The form was sent for moderation. After review it will appear on the team search page.' })}
+        </span>
       </div>
     );
   }
