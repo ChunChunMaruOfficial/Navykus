@@ -270,6 +270,35 @@ const ensureDevelopmentSchema = async () => {
   await executeSafe('CREATE INDEX IF NOT EXISTS team_members_rels_parent_idx ON team_members_rels (parent_id);');
   await executeSafe('CREATE INDEX IF NOT EXISTS team_members_rels_path_idx ON team_members_rels (path);');
   await executeSafe('CREATE INDEX IF NOT EXISTS team_members_rels_media_id_idx ON team_members_rels (media_id);');
+  // Media: optional page/block grouping metadata (used by the media tree).
+  await ensureColumn('media', 'page', 'text');
+  await ensureColumn('media', 'block_name', 'text');
+  await ensureColumn('media', 'sort_order', 'numeric DEFAULT 0');
+  await ensureColumn('media', 'is_published', 'integer DEFAULT true');
+  await executeSafe('CREATE INDEX IF NOT EXISTS media_page_idx ON media (page);');
+  await executeSafe('CREATE INDEX IF NOT EXISTS media_block_name_idx ON media (block_name);');
+
+  // Page image slots: admin-managed replacements for the site's fixed images.
+  await executeSafe(`CREATE TABLE IF NOT EXISTS page_media_slots (
+    id integer PRIMARY KEY NOT NULL,
+    slot_key text NOT NULL,
+    page text,
+    block_name text,
+    label text,
+    image_id integer REFERENCES media(id) ON DELETE set null,
+    hidden integer DEFAULT false,
+    updated_at text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL,
+    created_at text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL
+  );`);
+  await executeSafe('CREATE UNIQUE INDEX IF NOT EXISTS page_media_slots_slot_key_idx ON page_media_slots (slot_key);');
+  await executeSafe('CREATE INDEX IF NOT EXISTS page_media_slots_page_idx ON page_media_slots (page);');
+  await executeSafe('CREATE INDEX IF NOT EXISTS page_media_slots_block_name_idx ON page_media_slots (block_name);');
+  await executeSafe('CREATE INDEX IF NOT EXISTS page_media_slots_image_idx ON page_media_slots (image_id);');
+  await executeSafe('CREATE INDEX IF NOT EXISTS page_media_slots_updated_at_idx ON page_media_slots (updated_at);');
+  await executeSafe('CREATE INDEX IF NOT EXISTS page_media_slots_created_at_idx ON page_media_slots (created_at);');
+  await ensureColumn('payload_locked_documents_rels', 'page_media_slots_id', 'integer REFERENCES page_media_slots(id)');
+  await executeSafe('CREATE INDEX IF NOT EXISTS payload_locked_documents_rels_page_media_slots_id_idx ON payload_locked_documents_rels (page_media_slots_id);');
+
   await ensureColumn('experts', 'original_language', "text DEFAULT 'ru'");
   await ensureColumn('experts', 'seo_title', 'text');
   await ensureColumn('experts', 'seo_description', 'text');

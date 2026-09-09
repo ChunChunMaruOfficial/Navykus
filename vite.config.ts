@@ -90,6 +90,10 @@ export default defineConfig(() => {
           target: 'http://localhost:4000',
           changeOrigin: true,
         },
+        '/media': {
+          target: 'http://localhost:4000',
+          changeOrigin: true,
+        },
       },
       hmr: process.env.DISABLE_HMR !== 'true',
       watch: process.env.DISABLE_HMR === 'true' ? null : {},

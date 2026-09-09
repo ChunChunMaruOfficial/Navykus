@@ -86,6 +86,20 @@ export const media = sqliteTable(
   {
     id: integer("id").primaryKey(),
     alt: text("alt").notNull(),
+    page: text("page", {
+      enum: [
+        "global",
+        "home",
+        "about",
+        "championship",
+        "activities",
+        "find-team",
+        "legal",
+      ],
+    }),
+    blockName: text("block_name"),
+    sortOrder: numeric("sort_order", { mode: "number" }).default(0),
+    isPublished: integer("is_published", { mode: "boolean" }).default(true),
     updatedAt: text("updated_at")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
@@ -103,6 +117,8 @@ export const media = sqliteTable(
     focalY: numeric("focal_y", { mode: "number" }),
   },
   (columns) => [
+    index("media_page_idx").on(columns.page),
+    index("media_block_name_idx").on(columns.blockName),
     index("media_updated_at_idx").on(columns.updatedAt),
     index("media_created_at_idx").on(columns.createdAt),
     uniqueIndex("media_filename_idx").on(columns.filename),
@@ -1431,6 +1447,9 @@ export const team_members = sqliteTable(
     whyLooking: text("why_looking"),
     contact: text("contact"),
     contactType: text("contact_type", { enum: ["telegram", "email"] }),
+    privacyConsent: integer("privacy_consent", { mode: "boolean" }).default(
+      false,
+    ),
     moderationStatus: text("moderation_status", {
       enum: ["pending", "approved", "rejected", "needs_edit"],
     }).default("pending"),
@@ -1603,6 +1622,9 @@ export const _team_members_v = sqliteTable(
     version_contactType: text("version_contact_type", {
       enum: ["telegram", "email"],
     }),
+    version_privacyConsent: integer("version_privacy_consent", {
+      mode: "boolean",
+    }).default(false),
     version_moderationStatus: text("version_moderation_status", {
       enum: ["pending", "approved", "rejected", "needs_edit"],
     }).default("pending"),
@@ -1965,6 +1987,45 @@ export const page_texts = sqliteTable(
   ],
 );
 
+export const page_media_slots = sqliteTable(
+  "page_media_slots",
+  {
+    id: integer("id").primaryKey(),
+    slotKey: text("slot_key").notNull(),
+    page: text("page", {
+      enum: [
+        "global",
+        "home",
+        "about",
+        "championship",
+        "activities",
+        "find-team",
+        "legal",
+      ],
+    }),
+    blockName: text("block_name"),
+    label: text("label"),
+    image: integer("image_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    hidden: integer("hidden", { mode: "boolean" }).default(false),
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+  },
+  (columns) => [
+    uniqueIndex("page_media_slots_slot_key_idx").on(columns.slotKey),
+    index("page_media_slots_page_idx").on(columns.page),
+    index("page_media_slots_block_name_idx").on(columns.blockName),
+    index("page_media_slots_image_idx").on(columns.image),
+    index("page_media_slots_updated_at_idx").on(columns.updatedAt),
+    index("page_media_slots_created_at_idx").on(columns.createdAt),
+  ],
+);
+
 export const content_localizations = sqliteTable(
   "content_localizations",
   {
@@ -2078,6 +2139,7 @@ export const payload_locked_documents_rels = sqliteTable(
     "operator-settingsID": integer("operator_settings_id"),
     "audit-logsID": integer("audit_logs_id"),
     "page-textsID": integer("page_texts_id"),
+    "page-media-slotsID": integer("page_media_slots_id"),
     "content-localizationsID": integer("content_localizations_id"),
   },
   (columns) => [
@@ -2120,6 +2182,9 @@ export const payload_locked_documents_rels = sqliteTable(
     ),
     index("payload_locked_documents_rels_page_texts_id_idx").on(
       columns["page-textsID"],
+    ),
+    index("payload_locked_documents_rels_page_media_slots_id_idx").on(
+      columns["page-media-slotsID"],
     ),
     index("payload_locked_documents_rels_content_localizations_id_idx").on(
       columns["content-localizationsID"],
@@ -2213,6 +2278,11 @@ export const payload_locked_documents_rels = sqliteTable(
       columns: [columns["page-textsID"]],
       foreignColumns: [page_texts.id],
       name: "payload_locked_documents_rels_page_texts_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["page-media-slotsID"]],
+      foreignColumns: [page_media_slots.id],
+      name: "payload_locked_documents_rels_page_media_slots_fk",
     }).onDelete("cascade"),
     foreignKey({
       columns: [columns["content-localizationsID"]],
@@ -2842,6 +2912,16 @@ export const relations_audit_logs = relations(audit_logs, ({ many }) => ({
   }),
 }));
 export const relations_page_texts = relations(page_texts, () => ({}));
+export const relations_page_media_slots = relations(
+  page_media_slots,
+  ({ one }) => ({
+    image: one(media, {
+      fields: [page_media_slots.image],
+      references: [media.id],
+      relationName: "image",
+    }),
+  }),
+);
 export const relations_content_localizations = relations(
   content_localizations,
   () => ({}),
@@ -2939,6 +3019,11 @@ export const relations_payload_locked_documents_rels = relations(
       fields: [payload_locked_documents_rels["page-textsID"]],
       references: [page_texts.id],
       relationName: "page-texts",
+    }),
+    "page-media-slotsID": one(page_media_slots, {
+      fields: [payload_locked_documents_rels["page-media-slotsID"]],
+      references: [page_media_slots.id],
+      relationName: "page-media-slots",
     }),
     "content-localizationsID": one(content_localizations, {
       fields: [payload_locked_documents_rels["content-localizationsID"]],
@@ -3040,6 +3125,7 @@ type DatabaseSchema = {
   audit_logs_changed_fields: typeof audit_logs_changed_fields;
   audit_logs: typeof audit_logs;
   page_texts: typeof page_texts;
+  page_media_slots: typeof page_media_slots;
   content_localizations: typeof content_localizations;
   payload_kv: typeof payload_kv;
   payload_locked_documents: typeof payload_locked_documents;
@@ -3103,6 +3189,7 @@ type DatabaseSchema = {
   relations_audit_logs_changed_fields: typeof relations_audit_logs_changed_fields;
   relations_audit_logs: typeof relations_audit_logs;
   relations_page_texts: typeof relations_page_texts;
+  relations_page_media_slots: typeof relations_page_media_slots;
   relations_content_localizations: typeof relations_content_localizations;
   relations_payload_kv: typeof relations_payload_kv;
   relations_payload_locked_documents_rels: typeof relations_payload_locked_documents_rels;

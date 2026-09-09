@@ -15,6 +15,7 @@ import { Faqs } from './payload/collections/Faqs';
 import { Media } from './payload/collections/Media';
 import { OperatorSettings } from './payload/collections/OperatorSettings';
 import { Opportunities } from './payload/collections/Opportunities';
+import { PageMediaSlots } from './payload/collections/PageMediaSlots';
 import { PageTexts } from './payload/collections/PageTexts';
 import { Pillars } from './payload/collections/Pillars';
 import { Scenarios } from './payload/collections/Scenarios';
@@ -178,6 +179,7 @@ export default buildConfig({
     OperatorSettings,
     AuditLogs,
     PageTexts,
+    PageMediaSlots,
     ContentLocalizations,
   ],
 });

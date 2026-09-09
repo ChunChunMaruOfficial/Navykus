@@ -12,8 +12,7 @@ import {
 } from 'lucide-react';
 import GlassCrystal from './components/GlassCrystal';
 import ApplicationModal from './components/ApplicationModal';
-import PrivacyConsentCheckbox from './components/PrivacyConsentCheckbox';
-import BrandImage from './components/BrandImage';
+import CmsImage from './components/CmsImage';
 import PageSkeleton from './components/PageSkeletons';
 import StudyBackground from './components/StudyBackground';
 import Logo from './components/Logo';
@@ -67,21 +66,6 @@ const ACTIVITIES_EVENTS_PATH = '/activities/events';
 const ACTIVITIES_OPPORTUNITIES_PATH = '/activities/opportunities';
 
 const cardEase: [number, number, number, number] = [0.22, 1, 0.36, 1];
-type InlineFormErrors = {
-  name: boolean;
-  age: boolean;
-  location: boolean;
-  contact: boolean;
-  consent: boolean;
-};
-
-const createInlineFormErrors = (): InlineFormErrors => ({
-  name: false,
-  age: false,
-  location: false,
-  contact: false,
-  consent: false,
-});
 
 const cardStaggerContainer = {
   initial: 'hidden',
@@ -262,14 +246,6 @@ export default function App() {
 
     const { showScrollTop, showHeader, scrollToTop } = useScrollBehavior();
 
-  const [formName, setFormName] = useState('');
-  const [formAge, setFormAge] = useState('');
-  const [formLocation, setFormLocation] = useState('');
-  const [formContact, setFormContact] = useState('');
-  const [formInterest, setFormInterest] = useState('projects');
-  const [formConsent, setFormConsent] = useState(false);
-  const [formSubmitStatus, setFormSubmitStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
-  const [formErrors, setFormErrors] = useState<InlineFormErrors>(createInlineFormErrors);
 
   useEffect(() => {
     const handleOutsideClick = () => {
@@ -385,51 +361,6 @@ export default function App() {
     }
   };
 
-  const handleInlineSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const errors = createInlineFormErrors();
-
-    if (!formName.trim()) {
-      errors.name = true;
-    }
-
-    if (!formAge.trim() || isNaN(Number(formAge)) || Number(formAge) < 10 || Number(formAge) > 22) {
-      errors.age = true;
-    }
-
-    if (!formLocation.trim()) {
-      errors.location = true;
-    }
-
-    if (!formContact.trim()) {
-      errors.contact = true;
-    }
-
-    if (!formConsent) {
-      errors.consent = true;
-    }
-
-    if (Object.values(errors).some(Boolean)) {
-      setFormErrors(errors);
-      setFormSubmitStatus('error');
-      return;
-    }
-
-    setFormErrors(createInlineFormErrors());
-    setApplicationContext({
-      sourceType: 'home',
-      sourceTitle: inlineInterestLabels[formInterest] || formInterest,
-    });
-    setIsModalOpen(true);
-    setFormName('');
-    setFormAge('');
-    setFormLocation('');
-    setFormContact('');
-    setFormConsent(false);
-    setFormSubmitStatus('idle');
-  };
-
   const firstCmsTournament = cmsTournaments[0];
   const nearestTournament = featuredTournament
     ? {
@@ -446,12 +377,6 @@ export default function App() {
         format: String(featuredTournament.format || firstCmsTournament?.format || ''),
       }
     : firstCmsTournament ?? null;
-  const inlineInterestLabels: Record<string, string> = {
-    projects: t('ui.app.d52e1ae8a0'),
-    cases: t('ui.app.852dca4487'),
-    debates: t('ui.app.b0f4d8ce6d'),
-    research: t('ui.app.ac41209943'),
-  };
   const resolvedLanguage = (i18n.resolvedLanguage || i18n.language || 'ru').split('-')[0];
   const currentLanguage = isSupportedLanguage(resolvedLanguage) ? resolvedLanguage : 'ru';
   const isAutoLanguage = !getSavedPreferredLanguage();
@@ -464,16 +389,6 @@ export default function App() {
   const heroBrand = t('ui.app.b1a2ec16fe');
   const heroLead = t('ui.app.b847f4a47a');
   const heroLeadRest = heroLead.startsWith(heroBrand) ? heroLead.slice(heroBrand.length).trimStart() : heroLead;
-  const inlineInputClass = (hasError: boolean) =>
-    `w-full bg-white hover:bg-white/90 focus:bg-white border rounded-xl px-4 py-2.5 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)] placeholder:text-brand-slate/40 ${
-      hasError
-        ? 'border-red-500/80 bg-red-50/40 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
-        : 'border-[#c1b8b0] focus:border-[#8f99a8]'
-    }`;
-  const clearInlineFieldError = (field: keyof InlineFormErrors) => {
-    setFormErrors((current) => ({ ...current, [field]: false }));
-  };
-
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-[#fff8f5] via-[#fffaf7] to-[#fdf6f4] text-[#111111] font-sans overflow-x-hidden selection:bg-brand-pink-dust/30 selection:text-brand-dark">
 
@@ -760,8 +675,8 @@ export default function App() {
               {...fadeUpLarge}
               className="overflow-hidden bg-white/[0.12] glass-xl surface-elevated border border-white/[0.15] rounded-3xl"
             >
-              <BrandImage
-                src="/images/championship/championship-presentation.jpg"
+              <CmsImage
+                slot="home.nearest-championship.cover"
                 alt={t('ui.enhancements.championshipCardAlt')}
                 aspectRatio="32 / 7"
                 objectPosition="50% 38%"
@@ -837,100 +752,6 @@ export default function App() {
             </motion.div>
           </section>
           )}
-
-          <section id="embedded-application-form" className="relative z-10 py-16 md:py-24 max-w-7xl mx-auto px-[6%] md:px-[10%]">
-            <motion.div
-              {...fadeUpLarge}
-              className="bg-white/[0.12] glass-xl surface-elevated border border-white/[0.15] rounded-3xl p-6 sm:p-10 lg:p-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
-            >
-              <div className="lg:col-span-5 space-y-4 text-left">
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-serif text-brand-dark tracking-tight leading-tight">{t('ui.app.031b5a9779')}</h2>
-
-                <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.app.8062a560c4')}</p>
-
-                <div className="space-y-2 pt-4">
-                  <div className="flex items-center gap-2 text-xs text-brand-slate">
-                    <span className="w-1.5 h-1.5 bg-emerald-600 rounded-full"></span>
-                    <span>{t('ui.app.a63c2f5651')}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-brand-slate">
-                    <span className="w-1.5 h-1.5 bg-emerald-600 rounded-full"></span>
-                    <span>{t('ui.app.fb613f5591')}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="lg:col-span-7 bg-white/[0.15] glass-panel surface-elevated-soft border border-white/[0.15] rounded-2xl p-6 sm:p-8">
-                <AnimatePresence mode="wait">
-                  {formSubmitStatus === 'success' ? (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="py-8"
-                    >
-                      <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-full flex items-center justify-center shrink-0 shadow-md">
-                          <CheckCircle2 className="w-6 h-6 animate-bounce" />
-                        </div>
-                        <div className="space-y-3 text-left">
-                          <h3 className="text-base font-serif text-brand-dark">{t('ui.app.0d65b9d27c')}</h3>
-                          <p className="text-xs sm:text-sm text-brand-slate max-w-md font-light leading-relaxed">{t('ui.app.eca55dace1')}</p>
-                          <button onClick={() => setFormSubmitStatus('idle')} className="px-6 py-2 bg-brand-dark text-white text-xs font-mono tracking-wider rounded-xl hover:bg-brand-dark/95 transition-all">{t('ui.app.b35da1ef1c')}</button>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ) : (
-                    <form onSubmit={handleInlineSubmit} className="space-y-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="text-left">
-                          <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase font-semibold">{t('ui.app.8b4a2775bb')}</label>
-                          <input type="text" value={formName} onChange={(e) => { setFormName(e.target.value); clearInlineFieldError('name'); }} placeholder={t('ui.app.c1830703d0')} aria-invalid={formErrors.name} className={inlineInputClass(formErrors.name)} />
-                        </div>
-                        <div className="text-left">
-                          <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase font-semibold">{t('ui.app.b7cc349dbb')}</label>
-                          <input type="text" value={formAge} onChange={(e) => { setFormAge(e.target.value); clearInlineFieldError('age'); }} placeholder="16" aria-invalid={formErrors.age} className={inlineInputClass(formErrors.age)} />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="text-left">
-                          <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase font-semibold">{t('ui.app.7acec174f3')}</label>
-                          <input type="text" value={formLocation} onChange={(e) => { setFormLocation(e.target.value); clearInlineFieldError('location'); }} placeholder={t('ui.app.1734a8f063')} aria-invalid={formErrors.location} className={inlineInputClass(formErrors.location)} />
-                        </div>
-                        <div className="text-left">
-                          <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase font-semibold">{t('ui.app.0751cc5d9c')}</label>
-                          <input type="text" value={formContact} onChange={(e) => { setFormContact(e.target.value); clearInlineFieldError('contact'); }} placeholder={t('ui.app.7d521595ce')} aria-invalid={formErrors.contact} className={inlineInputClass(formErrors.contact)} />
-                        </div>
-                      </div>
-
-                      <div className="text-left">
-                        <label className="block text-[10px] font-mono tracking-wider text-brand-dark/70 mb-1 uppercase font-semibold">{t('ui.app.d3e56289ef')}</label>
-                        <select value={formInterest} onChange={(e) => setFormInterest(e.target.value)} className="w-full bg-white hover:bg-white/90 focus:bg-white border border-[#c1b8b0] focus:border-[#8f99a8] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-brand-dark outline-none transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
-                          <option value="projects" className="bg-brand-bg-2 text-brand-dark">{t('ui.app.d52e1ae8a0')}</option>
-                          <option value="cases" className="bg-brand-bg-2 text-brand-dark">{t('ui.app.852dca4487')}</option>
-                          <option value="debates" className="bg-brand-bg-2 text-brand-dark">{t('ui.app.b0f4d8ce6d')}</option>
-                          <option value="research" className="bg-brand-bg-2 text-brand-dark">{t('ui.app.ac41209943')}</option>
-                        </select>
-                      </div>
-
-                      <PrivacyConsentCheckbox
-                        checked={formConsent}
-                        onChange={setFormConsent}
-                        error={formErrors.consent}
-                      />
-
-                      <div className="pt-2">
-                        <button type="submit" disabled={false} className="w-full bg-brand-dark hover:bg-[#bc4638] text-white text-xs font-mono tracking-widest py-3.5 rounded-xl transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 font-medium">
-                          <span>{t('ui.app.762a52a7bb')}</span>
-                        </button>
-                      </div>
-                    </form>
-                  )}
-                </AnimatePresence>
-              </div>
-            </motion.div>
-          </section>
 
           {shouldShowTrustBlock && (
             <section id="trust-block" className="relative z-10 py-16 md:py-24 max-w-7xl mx-auto px-[6%] md:px-[10%] space-y-12 section-accent-warm">

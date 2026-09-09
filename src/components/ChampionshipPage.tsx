@@ -14,9 +14,8 @@ import {
   Settings, 
   Edit, 
   RefreshCw, 
-  FileText, 
-  Check, 
-  Plus, 
+  FileText,
+  Plus,
   Trash2, 
   Sparkles, 
   TrendingUp, 
@@ -29,7 +28,7 @@ import { useCmsFaqs } from '../hooks/useCmsFaqs';
 import { useCmsPageTexts } from '../hooks/useCmsPageTexts';
 import { useCmsTournamentsState } from '../hooks/useCmsTournaments';
 import type { TeamApplicationContext } from '../types';
-import BrandImage from './BrandImage';
+import CmsImage from './CmsImage';
 import TeamMemberApplicationForm from './TeamMemberApplicationForm';
 
 interface ChampionshipData {
@@ -57,14 +56,6 @@ interface ChampionshipPageProps {
   onNavigateToSection: (sectionId: string) => void;
   onOpenApplyModal: (context?: TeamApplicationContext) => void;
 }
-
-const SUITABILITY_TABS = [
-  { id: 'all', label: 'ui.championshippage.228a84235a' },
-  { id: 'teamless', label: 'ui.championshippage.a950b9ee19' },
-  { id: 'creative', label: 'ui.championshippage.ca26c61c13' },
-] as const;
-
-type SuitabilityTab = typeof SUITABILITY_TABS[number]['id'];
 
 const keyInfoCardClass =
   "bg-[#fff4ed]/82 glass-card surface-elevated-soft border border-[#bc4638]/14 p-4 sm:p-5 rounded-2xl text-left flex flex-col justify-between space-y-3";
@@ -127,7 +118,6 @@ export default function ChampionshipPage({
 
   // Interactive UI states (scenarios, tabs, accordions)
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
-  const [selectedSuitabilityTab, setSelectedSuitabilityTab] = useState<SuitabilityTab>('all');
 
   const handleNavigateFromChampionship = (sectionId: string) => {
     onBackToHome();
@@ -218,8 +208,8 @@ export default function ChampionshipPage({
             >{t('ui.app.d13f387e64')}</button>
           </div>
           </div>
-          <BrandImage
-            src="/images/championship/championship-presentation.jpg"
+          <CmsImage
+            slot="championship.hero.image"
             alt={t('ui.enhancements.championshipHeroAlt')}
             aspectRatio="4 / 3"
             objectPosition="50% 36%"
@@ -328,8 +318,8 @@ export default function ChampionshipPage({
         >
           <div className="max-w-7xl mx-auto px-[6%] md:px-[10%] grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <div className="lg:col-span-5 space-y-6">
-              <BrandImage
-                src="/images/championship/technology-case.jpg"
+              <CmsImage
+                slot="championship.case.image"
                 alt={t('ui.enhancements.championshipCaseAlt')}
                 aspectRatio="16 / 10"
                 objectPosition="50% 45%"
@@ -382,129 +372,6 @@ export default function ChampionshipPage({
           </div>
           </div>
         </motion.section>
-
-        {/* 4. SUITABILITY SEGMENTATION */}
-        <section className="relative z-10 py-16 md:py-24 max-w-7xl mx-auto px-[6%] md:px-[10%]">
-          <div className="text-center space-y-3 mx-auto mb-8 md:mb-10">
-            <h2 className="text-2xl sm:text-3xl font-serif text-brand-dark tracking-tight">{t('ui.championshippage.930fc92538')}</h2>
-          </div>
-
-          {/* Interactive tabs for different archetypes */}
-           <div className="flex flex-wrap justify-center gap-2 pb-4 mx-auto">
-            {SUITABILITY_TABS.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setSelectedSuitabilityTab(tab.id)}
-                className={`px-4 py-2 text-xs font-mono rounded-xl transition-all border cursor-pointer ${
-                  selectedSuitabilityTab === tab.id 
-                    ? 'bg-brand-dark text-white border-brand-dark font-bold shadow-sm' 
-                    : 'bg-white/40 text-brand-slate hover:text-brand-dark border-white/60 hover:bg-white/60'
-                }`}
-              >
-                {t(tab.label)}
-              </button>
-            ))}
-          </div>
-
-          {/* Tab content renders based on selected suitability archetype */}
-          <div className="mx-auto">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={selectedSuitabilityTab}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-                className="bg-white/[0.10] glass-xl surface-elevated border border-white/[0.15] rounded-2xl p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-6 text-left"
-              >
-                {selectedSuitabilityTab === 'all' && (
-                  <>
-                    <div className="space-y-4">
-                      <h4 className="font-serif font-semibold text-lg text-brand-dark">{t('ui.championshippage.18b2b68608')}</h4>
-                      <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">{t('ui.championshippage.9913df95c5')}</p>
-                      <ul className="space-y-2">
-                        <li className="flex items-center gap-2.5 text-xs text-brand-slate font-light">
-                          <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <span>{t('ui.championshippage.de56ba7e8b')}</span>
-                        </li>
-                        <li className="flex items-center gap-2.5 text-xs text-brand-slate font-light">
-                          <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <span>{t('ui.championshippage.5e809fc67f')}</span>
-                        </li>
-                      </ul>
-                    </div>
-                    <div className="bg-gradient-to-br from-[#bc4638]/5 to-[#bd5b82]/5 rounded-xl p-5 flex flex-col justify-between border border-white/40">
-                      <div>
-                        <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bc4638] font-bold">{t('ui.championshippage.8f11566b38')}</span>
-                        <p className="text-xs text-brand-slate mt-1.5 font-light leading-relaxed">{t('ui.championshippage.7f6fbf84a6')}</p>
-                      </div>
-                      <a href="#apply-form-section" className="text-xs font-mono font-bold text-[#bc4638] hover:underline inline-flex items-center gap-1 mt-4">{t('ui.app.24cd8dc78d')}<ArrowRight className="w-3 h-3" />
-                      </a>
-                    </div>
-                  </>
-                )}
-
-                {selectedSuitabilityTab === 'teamless' && (
-                  <>
-                    <div className="space-y-4">
-                      <h4 className="font-serif font-semibold text-lg text-brand-dark">{t('ui.championshippage.3015b9f8')}</h4>
-                      <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">{t('ui.championshippage.3cb46975e1')}</p>
-                      <ul className="space-y-2">
-                        <li className="flex items-center gap-2.5 text-xs text-brand-slate font-light">
-                          <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <span>{t('ui.championshippage.d3da2f0b9c')}</span>
-                        </li>
-                        <li className="flex items-center gap-2.5 text-xs text-brand-slate font-light">
-                          <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <span>{t('ui.championshippage.9dee187e5f')}</span>
-                        </li>
-                      </ul>
-                    </div>
-                    <div className="bg-gradient-to-br from-[#bc4638]/5 to-[#bd5b82]/5 rounded-xl p-5 flex flex-col justify-between border border-white/40">
-                      <div>
-                        <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bc4638] font-bold">{t('ui.championshippage.9f228ac331')}</span>
-                        <p className="text-xs text-brand-slate mt-1.5 font-light leading-relaxed">{t('ui.championshippage.a3e6b0b4fd')}</p>
-                      </div>
-                      <button
-                        onClick={() => handleNavigateFromChampionship('scenarios')}
-                        className="text-xs font-mono font-bold text-[#bc4638] hover:underline inline-flex items-center gap-1 mt-4 cursor-pointer text-left"
-                      >{t('ui.championshippage.6e3ec9704e')}<ArrowRight className="w-3 h-3" />
-                      </button>
-                    </div>
-                  </>
-                )}
-
-                {selectedSuitabilityTab === 'creative' && (
-                  <>
-                    <div className="space-y-4">
-                      <h4 className="font-serif font-semibold text-lg text-brand-dark">{t('ui.championshippage.cec289e2df')}</h4>
-                      <p className="text-xs sm:text-sm text-brand-slate font-light leading-relaxed">{t('ui.championshippage.fe12153d63')}</p>
-                      <ul className="space-y-2">
-                        <li className="flex items-center gap-2.5 text-xs text-brand-slate font-light">
-                          <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <span>{t('ui.championshippage.5c275f89de')}</span>
-                        </li>
-                        <li className="flex items-center gap-2.5 text-xs text-brand-slate font-light">
-                          <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <span>{t('ui.championshippage.188450882a')}</span>
-                        </li>
-                      </ul>
-                    </div>
-                    <div className="bg-white p-5 rounded-xl border border-[#d8d1cc]/40 flex flex-col justify-between">
-                      <div>
-                        <span className="text-[11px] sm:text-[10px] font-mono uppercase tracking-wider text-[#bd5b82] font-bold font-semibold">{t('ui.championshippage.63db68249b')}</span>
-                        <p className="text-xs text-brand-slate mt-1.5 font-light leading-relaxed">{t('ui.championshippage.c174c67149')}</p>
-                      </div>
-                      <a href="#apply-form-section" className="text-xs font-mono font-bold text-[#bd5b82] hover:underline inline-flex items-center gap-1 mt-4">{t('ui.activitiespage.84d92abc92')}<ArrowRight className="w-3 h-3" />
-                      </a>
-                    </div>
-                  </>
-                )}
-
-              </motion.div>
-            </AnimatePresence>
-          </div>
-        </section>
 
         {/* 9. APPLICATION FORM */}
         <section id="apply-form-section" className="relative z-10 w-[88vw] md:w-[80vw] max-w-4xl mx-auto scroll-mt-24">

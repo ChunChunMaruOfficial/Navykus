@@ -84,6 +84,7 @@ export interface Config {
     'operator-settings': OperatorSetting;
     'audit-logs': AuditLog;
     'page-texts': PageText;
+    'page-media-slots': PageMediaSlot;
     'content-localizations': ContentLocalization;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -109,6 +110,7 @@ export interface Config {
     'operator-settings': OperatorSettingsSelect<false> | OperatorSettingsSelect<true>;
     'audit-logs': AuditLogsSelect<false> | AuditLogsSelect<true>;
     'page-texts': PageTextsSelect<false> | PageTextsSelect<true>;
+    'page-media-slots': PageMediaSlotsSelect<false> | PageMediaSlotsSelect<true>;
     'content-localizations': ContentLocalizationsSelect<false> | ContentLocalizationsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -181,12 +183,27 @@ export interface User {
   collection: 'users';
 }
 /**
+ * Медиафайлы, привязанные к страницам. Используйте «Дерево медиа» в боковом меню для иерархического просмотра и редактирования.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
 export interface Media {
   id: number;
   alt: string;
+  /**
+   * Необязательно. Страница сайта, к которой относится это медиа.
+   */
+  page?: ('global' | 'home' | 'about' | 'championship' | 'activities' | 'find-team' | 'legal') | null;
+  /**
+   * Имя блока внутри страницы (на русском). Используется для группировки в дереве медиа.
+   */
+  blockName?: string | null;
+  /**
+   * Порядок в списке CMS.
+   */
+  sortOrder?: number | null;
+  isPublished?: boolean | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -585,7 +602,7 @@ export interface TeamMember {
    */
   originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
   name: string;
-  email: string;
+  email?: string | null;
   age: number;
   country: string;
   city?: string | null;
@@ -865,6 +882,35 @@ export interface PageText {
   createdAt: string;
 }
 /**
+ * Изображения страниц сайта. Управляются через «Дерево медиа» в боковом меню.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "page-media-slots".
+ */
+export interface PageMediaSlot {
+  id: number;
+  /**
+   * Служебный идентификатор места на сайте. Не редактировать.
+   */
+  slotKey: string;
+  page?: ('global' | 'home' | 'about' | 'championship' | 'activities' | 'find-team' | 'legal') | null;
+  blockName?: string | null;
+  /**
+   * Человеческое описание места на сайте.
+   */
+  label?: string | null;
+  /**
+   * Загруженное изображение, которое заменит стандартное.
+   */
+  image?: (number | null) | Media;
+  /**
+   * Если включено — на сайте в этом месте не будет изображения.
+   */
+  hidden?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * AI-generated localized copies for public CMS content.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -997,6 +1043,10 @@ export interface PayloadLockedDocument {
         value: number | PageText;
       } | null)
     | ({
+        relationTo: 'page-media-slots';
+        value: number | PageMediaSlot;
+      } | null)
+    | ({
         relationTo: 'content-localizations';
         value: number | ContentLocalization;
       } | null);
@@ -1074,6 +1124,10 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  page?: T;
+  blockName?: T;
+  sortOrder?: T;
+  isPublished?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1505,6 +1559,20 @@ export interface PageTextsSelect<T extends boolean = true> {
   blockName?: T;
   label?: T;
   value?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "page-media-slots_select".
+ */
+export interface PageMediaSlotsSelect<T extends boolean = true> {
+  slotKey?: T;
+  page?: T;
+  blockName?: T;
+  label?: T;
+  image?: T;
+  hidden?: T;
   updatedAt?: T;
   createdAt?: T;
 }

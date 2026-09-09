@@ -29,7 +29,8 @@ import {
 } from '../motion-animations';
 import { useCmsFaqs } from '../hooks/useCmsFaqs';
 import { useCmsPageTexts } from '../hooks/useCmsPageTexts';
-import BrandImage from './BrandImage';
+import { useSlotImage } from '../hooks/useCmsPageMedia';
+import CmsImage from './CmsImage';
 import Logo from './Logo';
 
 interface Segment {
@@ -141,6 +142,7 @@ export default function AboutProjectPage({
   const [activeFaqIdx, setActiveFaqIdx] = useState<number | null>(null);
   useCmsPageTexts(['about']);
   const faqItems = useCmsFaqs('about');
+  const missionImage = useSlotImage('about.mission.image');
 
   const handleNavigateFromAbout = (sectionId: string) => {
     onBackToHome();
@@ -179,8 +181,8 @@ export default function AboutProjectPage({
             </div>
           </motion.div>
           <motion.div {...heroFadeUp} transition={{ duration: 0.6, delay: 0.1 }} className="relative">
-            <BrandImage
-              src="/images/about/about-community.jpg"
+            <CmsImage
+              slot="about.hero.image"
               alt={t('ui.enhancements.aboutHeroAlt')}
               aspectRatio="4 / 3"
               objectPosition="50% 36%"
@@ -202,17 +204,19 @@ export default function AboutProjectPage({
 
           <div className="relative z-10 mx-auto max-w-6xl space-y-8 text-left">
             <div className="grid gap-8 md:grid-cols-[0.9fr_1.1fr] md:items-center">
-              <div className="relative -mx-6 -mt-16 h-52 overflow-hidden rounded-t-3xl bg-gradient-to-br from-[#bc4638]/15 to-[#bd5b82]/15 sm:-mx-12 md:hidden">
-                <img
-                  src="/images/about/mentor-discussion.jpg"
-                  alt={t('ui.enhancements.aboutMissionAlt')}
-                  className="h-full w-full object-cover [mask-image:linear-gradient(to_bottom,#000_0%,#000_68%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,#000_0%,#000_68%,transparent_100%)]"
-                  loading="lazy"
-                />
-              </div>
+              {missionImage.src && (
+                <div className="relative -mx-6 -mt-16 h-52 overflow-hidden rounded-t-3xl bg-gradient-to-br from-[#bc4638]/15 to-[#bd5b82]/15 sm:-mx-12 md:hidden">
+                  <img
+                    src={missionImage.src}
+                    alt={missionImage.alt || t('ui.enhancements.aboutMissionAlt')}
+                    className="h-full w-full object-cover [mask-image:linear-gradient(to_bottom,#000_0%,#000_68%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,#000_0%,#000_68%,transparent_100%)]"
+                    loading="lazy"
+                  />
+                </div>
+              )}
               <div className="hidden md:block">
-                <BrandImage
-                  src="/images/about/mentor-discussion.jpg"
+                <CmsImage
+                  slot="about.mission.image"
                   alt={t('ui.enhancements.aboutMissionAlt')}
                   aspectRatio="4 / 3"
                   objectPosition="50% 40%"

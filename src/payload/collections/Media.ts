@@ -39,12 +39,11 @@ export const Media: CollectionConfig = {
       name: 'page',
       label: 'Страница',
       type: 'select',
-      required: true,
       index: true,
       options: EDITABLE_PAGE_TEXT_PAGES as unknown as Array<{ label: string; value: string }>,
       admin: {
         position: 'sidebar',
-        description: 'Страница сайта, к которой относится это медиа.',
+        description: 'Необязательно. Страница сайта, к которой относится это медиа.',
       },
     },
     {

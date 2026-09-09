@@ -25,6 +25,8 @@ import * as migration_20260815_030000_expand_page_texts_cms_coverage_pass2 from 
 import * as migration_20260815_040000_enqueue_content_collection_localizations from './20260815_040000_enqueue_content_collection_localizations';
 import * as migration_20260815_050000_backfill_page_text_block_names from './20260815_050000_backfill_page_text_block_names';
 import * as migration_20260820_000000_remove_legacy_id_columns from './20260820_000000_remove_legacy_id_columns';
+import * as migration_20260909_000000_remove_first_step_and_suitability_page_texts from './20260909_000000_remove_first_step_and_suitability_page_texts';
+import * as migration_20260909_020000_add_page_media_slots from './20260909_020000_add_page_media_slots';
 
 export const migrations = [
   {
@@ -161,5 +163,15 @@ export const migrations = [
     up: migration_20260820_000000_remove_legacy_id_columns.up,
     down: migration_20260820_000000_remove_legacy_id_columns.down,
     name: '20260820_000000_remove_legacy_id_columns',
+  },
+  {
+    up: migration_20260909_000000_remove_first_step_and_suitability_page_texts.up,
+    down: migration_20260909_000000_remove_first_step_and_suitability_page_texts.down,
+    name: '20260909_000000_remove_first_step_and_suitability_page_texts',
+  },
+  {
+    up: migration_20260909_020000_add_page_media_slots.up,
+    down: migration_20260909_020000_add_page_media_slots.down,
+    name: '20260909_020000_add_page_media_slots',
   },
 ];

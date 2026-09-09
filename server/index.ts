@@ -55,6 +55,7 @@ const publicReadOnlyApiPrefixes = [
   '/api/opportunities',
   '/api/faqs',
   '/api/page-texts',
+  '/api/page-media',
   '/api/pillars',
   '/api/scenarios',
   '/api/experts',
@@ -565,6 +566,43 @@ app.get('/api/page-texts', asyncRoute(async (req, res) => {
   }, {});
 
   res.json({ language, pages, texts });
+}));
+
+app.get('/api/page-media', asyncRoute(async (req, res) => {
+  const payload = await getPayloadClient();
+  const pages = pageTextPagesFromQuery(req.query.pages);
+  if (typeof req.query.pages === 'string' && pages.length === 0) {
+    res.json({ pages, media: {} });
+    return;
+  }
+
+  const result = await payload.find({
+    collection: 'page-media-slots' as any,
+    depth: 1,
+    limit: 500,
+    where: pages.length ? { page: { in: pages } } : {},
+    overrideAccess: true,
+  });
+
+  const media = (result.docs as Array<Record<string, unknown>>).reduce<
+    Record<string, { url: string | null; alt: string | null; hidden: boolean }>
+  >((acc, doc) => {
+    const slotKey = typeof doc.slotKey === 'string' ? doc.slotKey : '';
+    if (!slotKey) return acc;
+    const image = (doc.image && typeof doc.image === 'object' ? doc.image : null) as
+      | Record<string, unknown>
+      | null;
+    const filename = image && typeof image.filename === 'string' ? image.filename : '';
+    const rawUrl = image && typeof image.url === 'string' ? image.url : '';
+    acc[slotKey] = {
+      url: filename ? `/media/${filename}` : (rawUrl || null),
+      alt: image && typeof image.alt === 'string' ? image.alt : null,
+      hidden: Boolean(doc.hidden),
+    };
+    return acc;
+  }, {});
+
+  res.json({ pages, media });
 }));
 
 app.get('/api/pillars', asyncRoute(async (req, res) => {

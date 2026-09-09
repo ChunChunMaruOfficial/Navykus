@@ -1,23 +1,30 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useAuth } from '@payloadcms/ui';
 
-type MediaRecord = {
-  id: string | number;
-  page: string;
-  blockName?: string | null;
-  alt: string;
-  filename: string;
-  url: string;
-  mimeType: string;
-  filesize: number;
-  isPublished?: boolean | null;
-  sortOrder?: number | null;
-};
+import { PAGE_MEDIA_SLOTS, type PageImageSlot } from '../../page-media';
 
-const API_BASE = '';
+type SlotRow = {
+  id: string | number;
+  slotKey: string;
+  page?: string | null;
+  blockName?: string | null;
+  label?: string | null;
+  hidden?: boolean | null;
+  image?:
+    | {
+        id: string | number;
+        url?: string | null;
+        filename?: string | null;
+        alt?: string | null;
+        mimeType?: string | null;
+      }
+    | string
+    | number
+    | null;
+};
 
 const PAGE_LABELS: Record<string, string> = {
   global: 'Общие медиа',
@@ -29,238 +36,211 @@ const PAGE_LABELS: Record<string, string> = {
   legal: 'Юридические страницы',
 };
 
-const FAVORITE_PAGES = ['global', 'home', 'about', 'championship', 'activities', 'find-team', 'legal'];
+const PAGE_ORDER = ['home', 'about', 'championship', 'activities', 'find-team', 'legal', 'global'];
+
+const mediaFileUrl = (image: SlotRow['image']): string | null => {
+  if (!image || typeof image !== 'object') return null;
+  // Payload's own URL is served by the admin app; fall back to the site's
+  // static /media mount only when it is missing.
+  if (image.url) return image.url;
+  if (image.filename) return `/media/${image.filename}`;
+  return null;
+};
 
 const MediaTreeView = () => {
   const { token } = useAuth();
-  const [records, setRecords] = useState<MediaRecord[]>([]);
+  const [rows, setRows] = useState<SlotRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [editingId, setEditingId] = useState<string | number | null>(null);
-  const [draftAlt, setDraftAlt] = useState('');
-  const [draftBlockName, setDraftBlockName] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState<string | number | null>(null);
-  const [uploading, setUploading] = useState<string | null>(null);
+  const [busySlot, setBusySlot] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
-  const [query, setQuery] = useState('');
-  const [newMediaPage, setNewMediaPage] = useState('global');
-  const [newMediaBlock, setNewMediaBlock] = useState('');
+  const fileInputs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const authHeaders = useMemo(() => (token ? { Authorization: `JWT ${token}` } : {}), [token]);
 
-  const makeRequest = useCallback(async (url: string, options: RequestInit = {}) => {
-    const res = await fetch(`${API_BASE}${url}`, {
-      ...options,
-      credentials: 'include',
-      headers: {
-        ...options.headers,
-        ...authHeaders,
-        'Content-Type': 'application/json',
-      },
-    });
-    return res;
-  }, [authHeaders]);
+  const jsonRequest = useCallback(
+    async (url: string, options: RequestInit = {}) => {
+      const res = await fetch(url, {
+        ...options,
+        credentials: 'include',
+        headers: { ...options.headers, ...authHeaders, 'Content-Type': 'application/json' },
+      });
+      if (!res.ok) {
+        let message = `${options.method || 'GET'} ${url} → ${res.status}`;
+        try {
+          const body = await res.json();
+          if (body?.errors?.[0]?.message) message = body.errors[0].message;
+          else if (body?.message) message = body.message;
+        } catch {
+          /* ignore */
+        }
+        throw new Error(message);
+      }
+      return res.json();
+    },
+    [authHeaders],
+  );
 
-  const loadAll = useCallback(async () => {
+  const loadRows = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await makeRequest('/payload-api/media?limit=1000&depth=0');
-      if (!res.ok) throw new Error(`fetch failed ${res.status}`);
-      const json = await res.json();
-      const docs = (json.docs as MediaRecord[]).filter((d) => Boolean(d.filename));
-      setRecords(docs);
+      const json = await jsonRequest('/payload-api/page-media-slots?limit=500&depth=1');
+      setRows((json.docs as SlotRow[]) || []);
     } catch (e) {
-      setError((e as Error).message || 'load error');
+      setError((e as Error).message);
     } finally {
       setLoading(false);
     }
-  }, [makeRequest]);
+  }, [jsonRequest]);
 
   useEffect(() => {
-    loadAll();
-  }, [loadAll]);
+    loadRows();
+  }, [loadRows]);
+
+  const rowBySlot = useMemo(() => {
+    const map = new Map<string, SlotRow>();
+    for (const row of rows) map.set(row.slotKey, row);
+    return map;
+  }, [rows]);
 
   const grouped = useMemo(() => {
-    const byPageThenBlock: Record<string, Record<string, MediaRecord[]>> = {};
-    for (const r of records) {
-      const page = r.page || 'global';
-      const block = r.blockName || 'Прочее';
-      byPageThenBlock[page] = byPageThenBlock[page] || {};
-      byPageThenBlock[page][block] = byPageThenBlock[page][block] || [];
-      byPageThenBlock[page][block].push(r);
+    const byPage: Record<string, Record<string, PageImageSlot[]>> = {};
+    for (const slot of PAGE_MEDIA_SLOTS) {
+      byPage[slot.page] = byPage[slot.page] || {};
+      byPage[slot.page][slot.blockName] = byPage[slot.page][slot.blockName] || [];
+      byPage[slot.page][slot.blockName].push(slot);
     }
-    for (const page of Object.keys(byPageThenBlock)) {
-      for (const block of Object.keys(byPageThenBlock[page])) {
-        byPageThenBlock[page][block].sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
-      }
-    }
-    return byPageThenBlock;
-  }, [records]);
+    return byPage;
+  }, []);
 
-  const blockOrderForPage = useCallback((page: string): string[] => {
-    const blocks = grouped[page] || {};
-    const present = Object.keys(blocks);
-    const order: string[] = [];
-    const seen = new Set<string>();
-    for (const block of present.sort((a, b) => a.localeCompare(b))) {
-      if (!seen.has(block)) {
-        seen.add(block);
-        order.push(block);
-      }
-    }
-    return order;
-  }, [grouped]);
+  const orphanRows = useMemo(() => {
+    const known = new Set(PAGE_MEDIA_SLOTS.map((s) => s.slotKey));
+    return rows.filter((r) => !known.has(r.slotKey));
+  }, [rows]);
 
-  const normalizedQuery = query.trim().toLowerCase();
-  const searchMatches = useMemo(() => {
-    if (!normalizedQuery) return null;
-    const matches = new Map<string, { page: string; block: string; record: MediaRecord }>();
-    for (const r of records) {
-      const haystack = `${r.alt || ''} ${r.filename || ''} ${r.blockName || ''} ${r.page || ''}`.toLowerCase();
-      if (haystack.includes(normalizedQuery)) {
-        const page = r.page || 'global';
-        const block = r.blockName || 'Прочее';
-        matches.set(String(r.id), { page, block, record: r });
-      }
-    }
-    return matches;
-  }, [records, normalizedQuery]);
+  const pages = useMemo(
+    () => PAGE_ORDER.filter((p) => grouped[p]),
+    [grouped],
+  );
 
   const toggle = (key: string) => setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
-  const expandAll = useCallback(() => {
-    const all: Record<string, boolean> = {};
-    for (const page of Object.keys(grouped)) {
-      all[`p:${page}`] = true;
-      for (const block of Object.keys(grouped[page])) {
-        all[`b:${page}:${block}`] = true;
+
+  const upsertRow = useCallback(
+    async (slot: PageImageSlot, patch: Record<string, unknown>) => {
+      const existing = rowBySlot.get(slot.slotKey);
+      if (existing) {
+        await jsonRequest(`/payload-api/page-media-slots/${existing.id}`, {
+          method: 'PATCH',
+          body: JSON.stringify(patch),
+        });
+      } else {
+        await jsonRequest('/payload-api/page-media-slots', {
+          method: 'POST',
+          body: JSON.stringify({
+            slotKey: slot.slotKey,
+            page: slot.page,
+            blockName: slot.blockName,
+            label: slot.label,
+            hidden: false,
+            ...patch,
+          }),
+        });
       }
-    }
-    setExpanded(all);
-  }, [grouped]);
+    },
+    [jsonRequest, rowBySlot],
+  );
 
-  const expandToSearch = useCallback(() => {
-    if (!searchMatches) return;
-    const all: Record<string, boolean> = {};
-    for (const [, { page, block }] of searchMatches) {
-      all[`p:${page}`] = true;
-      all[`b:${page}:${block}`] = true;
-    }
-    setExpanded((prev) => ({ ...prev, ...all }));
-  }, [searchMatches]);
-
-  useEffect(() => {
-    if (normalizedQuery) expandToSearch();
-  }, [normalizedQuery, expandToSearch]);
-
-  const startEdit = (r: MediaRecord) => {
-    setEditingId(r.id);
-    setDraftAlt(r.alt || '');
-    setDraftBlockName(r.blockName || '');
-  };
-  const cancelEdit = () => {
-    setEditingId(null);
-    setDraftAlt('');
-    setDraftBlockName('');
-  };
-
-  const saveEdit = async (r: MediaRecord) => {
-    setSaving(true);
-    try {
-      const res = await makeRequest(`/payload-api/media/${r.id}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ alt: draftAlt, blockName: draftBlockName || undefined }),
-      });
-      if (!res.ok) throw new Error(`save failed ${res.status}`);
-      const json = await res.json();
-      const updated = json.doc as MediaRecord | undefined;
-      setRecords((prev) => prev.map((p) => (p.id === r.id ? { ...p, alt: draftAlt, blockName: draftBlockName || p.blockName, ...updated } : p)));
-      setEditingId(null);
-      setDraftAlt('');
-      setDraftBlockName('');
-    } catch (e) {
-      setError((e as Error).message || 'save error');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const deleteRecord = async (id: string | number) => {
-    if (!window.confirm('Удалить этот медиафайл? Это действие необратимо.')) return;
-    setDeleting(id);
-    try {
-      const res = await makeRequest(`/payload-api/media/${id}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) throw new Error(`delete failed ${res.status}`);
-      setRecords((prev) => prev.filter((p) => p.id !== id));
-    } catch (e) {
-      setError((e as Error).message || 'delete error');
-    } finally {
-      setDeleting(null);
-    }
-  };
-
-  const handleFileUpload = async (page: string, block: string, file: File) => {
-    setUploading(file.name);
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('page', page);
-    formData.append('blockName', block);
-    formData.append('alt', file.name.replace(/\.[^/.]+$/, ''));
-    try {
-      const res = await fetch(`${API_BASE}/payload-api/media`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          ...authHeaders,
-        },
-        body: formData,
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.message || `upload failed ${res.status}`);
+  const handleReplace = useCallback(
+    async (slot: PageImageSlot, file: File) => {
+      setBusySlot(slot.slotKey);
+      setError(null);
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('alt', slot.label);
+        formData.append('page', slot.page);
+        formData.append('blockName', slot.blockName);
+        const uploadRes = await fetch('/payload-api/media', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { ...authHeaders },
+          body: formData,
+        });
+        if (!uploadRes.ok) {
+          const body = await uploadRes.json().catch(() => ({}));
+          throw new Error(body?.errors?.[0]?.message || body?.message || `upload → ${uploadRes.status}`);
+        }
+        const uploaded = await uploadRes.json();
+        const mediaId = uploaded?.doc?.id ?? uploaded?.id;
+        if (!mediaId) throw new Error('Не удалось получить ID загруженного файла');
+        await upsertRow(slot, { image: mediaId, hidden: false });
+        await loadRows();
+      } catch (e) {
+        setError((e as Error).message);
+      } finally {
+        setBusySlot(null);
       }
-      await loadAll();
-    } catch (e) {
-      setError((e as Error).message || 'upload error');
-    } finally {
-      setUploading(null);
-    }
-  };
+    },
+    [authHeaders, upsertRow, loadRows],
+  );
 
-  const handleNewMediaSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const fileInput = form.querySelector('input[type="file"]') as HTMLInputElement;
-    const file = fileInput?.files?.[0];
-    if (!file) return;
-    await handleFileUpload(newMediaPage, newMediaBlock, file);
-    fileInput.value = '';
-  };
+  const handleToggleHidden = useCallback(
+    async (slot: PageImageSlot, hidden: boolean) => {
+      setBusySlot(slot.slotKey);
+      setError(null);
+      try {
+        await upsertRow(slot, { hidden });
+        await loadRows();
+      } catch (e) {
+        setError((e as Error).message);
+      } finally {
+        setBusySlot(null);
+      }
+    },
+    [upsertRow, loadRows],
+  );
 
-  const themeVars: React.CSSProperties = {
-    background: 'var(--theme-bg)',
-    color: 'var(--theme-text)',
-  };
+  const handleResetToOriginal = useCallback(
+    async (slot: PageImageSlot) => {
+      const existing = rowBySlot.get(slot.slotKey);
+      if (!existing) return;
+      if (!window.confirm('Вернуть стандартное изображение для этого блока?')) return;
+      setBusySlot(slot.slotKey);
+      setError(null);
+      try {
+        await jsonRequest(`/payload-api/page-media-slots/${existing.id}`, { method: 'DELETE' });
+        await loadRows();
+      } catch (e) {
+        setError((e as Error).message);
+      } finally {
+        setBusySlot(null);
+      }
+    },
+    [jsonRequest, loadRows, rowBySlot],
+  );
+
+  const deleteOrphan = useCallback(
+    async (row: SlotRow) => {
+      if (!window.confirm(`Удалить запись «${row.slotKey}»?`)) return;
+      setError(null);
+      try {
+        await jsonRequest(`/payload-api/page-media-slots/${row.id}`, { method: 'DELETE' });
+        await loadRows();
+      } catch (e) {
+        setError((e as Error).message);
+      }
+    },
+    [jsonRequest, loadRows],
+  );
+
+  const themeVars: React.CSSProperties = { background: 'var(--theme-bg)', color: 'var(--theme-text)' };
   const cardStyle: React.CSSProperties = {
     background: 'var(--theme-elevation-100)',
     border: '1px solid var(--theme-elevation-150)',
     borderRadius: 8,
-    padding: 10,
-    margin: '6px 0',
-  };
-  const inputStyle: React.CSSProperties = {
-    width: '100%',
-    fontFamily: 'inherit',
-    fontSize: 14,
-    padding: 8,
-    boxSizing: 'border-box',
-    border: '1px solid var(--theme-elevation-150)',
-    borderRadius: 4,
-    background: 'var(--theme-input-bg, var(--theme-bg))',
-    color: 'var(--theme-text)',
+    padding: 12,
+    margin: '8px 0',
   };
   const btnStyle: React.CSSProperties = {
     background: 'var(--theme-elevation-150)',
@@ -277,277 +257,217 @@ const MediaTreeView = () => {
     color: 'var(--theme-elevation-0)',
     borderColor: 'var(--theme-elevation-700)',
   };
+  const dangerBtnStyle: React.CSSProperties = {
+    ...btnStyle,
+    background: 'var(--theme-error-100)',
+    color: 'var(--theme-error-500)',
+    borderColor: 'var(--theme-error-300)',
+  };
+  const previewStyle: React.CSSProperties = {
+    width: 140,
+    height: 88,
+    objectFit: 'cover',
+    borderRadius: 6,
+    border: '1px solid var(--theme-elevation-150)',
+    background: 'var(--theme-elevation-50)',
+    flexShrink: 0,
+  };
 
   if (loading) return <div style={{ padding: 24, ...themeVars }}>Загрузка…</div>;
-  if (error)
+
+  const renderSlotCard = (slot: PageImageSlot) => {
+    const row = rowBySlot.get(slot.slotKey);
+    const image = row && typeof row.image === 'object' ? row.image : null;
+    const overrideUrl = mediaFileUrl(row?.image ?? null);
+    const isHidden = Boolean(row?.hidden);
+    const isReplaced = Boolean(overrideUrl) && !isHidden;
+    const previewUrl = isHidden ? null : overrideUrl || slot.fallbackSrc;
+    const busy = busySlot === slot.slotKey;
+
+    let status = 'Стандартное изображение';
+    let statusColor = 'var(--theme-elevation-500)';
+    if (isHidden) {
+      status = 'Скрыто на сайте';
+      statusColor = 'var(--theme-error-500)';
+    } else if (isReplaced) {
+      status = 'Заменено администратором';
+      statusColor = 'var(--theme-success-500)';
+    }
+
     return (
-      <div style={{ padding: 24, ...themeVars }}>
-        <div style={{ color: 'var(--theme-error-500)' }}>Ошибка: {error}</div>
-        <button onClick={loadAll} style={btnStyle}>Повторить</button>
+      <div key={slot.slotKey} style={cardStyle}>
+        <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+          {previewUrl ? (
+            <img src={previewUrl} alt={slot.label} style={previewStyle} />
+          ) : (
+            <div
+              style={{
+                ...previewStyle,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 12,
+                color: 'var(--theme-elevation-500)',
+              }}
+            >
+              нет изображения
+            </div>
+          )}
+          <div style={{ flex: 1, minWidth: 220 }}>
+            <div style={{ fontSize: 14, fontWeight: 600 }}>{slot.label}</div>
+            <div style={{ fontSize: 12, color: statusColor, marginTop: 2 }}>{status}</div>
+            <div style={{ fontSize: 11, color: 'var(--theme-elevation-400)', fontFamily: 'monospace', marginTop: 4 }}>
+              {slot.slotKey}
+              {image?.filename ? ` · ${image.filename}` : ''}
+            </div>
+
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 10 }}>
+              <input
+                ref={(el) => {
+                  fileInputs.current[slot.slotKey] = el;
+                }}
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleReplace(slot, file);
+                  e.target.value = '';
+                }}
+              />
+              <button
+                type="button"
+                style={primaryBtnStyle}
+                disabled={busy}
+                onClick={() => fileInputs.current[slot.slotKey]?.click()}
+              >
+                {busy ? 'Загрузка…' : isReplaced ? 'Загрузить другое' : 'Заменить изображение'}
+              </button>
+
+              {isHidden ? (
+                <button type="button" style={btnStyle} disabled={busy} onClick={() => handleToggleHidden(slot, false)}>
+                  Показать на сайте
+                </button>
+              ) : (
+                <button type="button" style={btnStyle} disabled={busy} onClick={() => handleToggleHidden(slot, true)}>
+                  Убрать с сайта
+                </button>
+              )}
+
+              {row && (
+                <button
+                  type="button"
+                  style={dangerBtnStyle}
+                  disabled={busy}
+                  onClick={() => handleResetToOriginal(slot)}
+                >
+                  Вернуть стандартное
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     );
-
-  const searchResults = searchMatches ? Array.from(searchMatches.values()) : null;
+  };
 
   return (
     <div style={{ fontFamily: 'inherit', padding: 24, maxWidth: 1100, margin: '0 auto', ...themeVars }}>
       <h1 style={{ fontSize: 24, marginBottom: 8, marginTop: 0 }}>Дерево медиа</h1>
       <p style={{ color: 'var(--theme-elevation-600)', marginTop: 0, marginBottom: 16 }}>
-        Иерархический редактор медиа: Страница → Блок → Файлы. Загружайте, заменяйте и удаляйте изображения для каждой страницы.
+        Изображения страниц сайта: Страница → Блок → Изображение. Замените картинку своим файлом,
+        уберите её с сайта или верните стандартную.
       </p>
 
-      <div style={{ marginBottom: 16 }}>
-        <input
-          type="search"
-          placeholder="Поиск по alt, имени файла или блоку…"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          style={{ ...inputStyle, maxWidth: 480, marginBottom: 8, display: 'block' }}
-        />
-        {!normalizedQuery && (
-          <div>
-            <button onClick={expandAll} style={{ ...btnStyle, marginRight: 8 }}>Раскрыть все</button>
-            <button onClick={() => setExpanded({})} style={btnStyle}>Свернуть все</button>
-          </div>
-        )}
-        {normalizedQuery && (
-          <div style={{ fontSize: 13, color: 'var(--theme-elevation-600)' }}>
-            Найдено: <strong style={{ color: 'var(--theme-text)' }}>{searchResults?.length || 0}</strong>
-          </div>
-        )}
-      </div>
-
-      <div style={{ marginBottom: 24, padding: 16, border: '1px solid var(--theme-elevation-150)', borderRadius: 8, background: 'var(--theme-elevation-100)' }}>
-        <h3 style={{ marginTop: 0, marginBottom: 12, fontSize: 16 }}>Добавить медиа</h3>
-        <form onSubmit={handleNewMediaSubmit} style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'flex-end' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <label style={{ fontSize: 12, color: 'var(--theme-elevation-600)' }}>Страница</label>
-            <select value={newMediaPage} onChange={(e) => setNewMediaPage(e.target.value)} style={inputStyle}>
-              {FAVORITE_PAGES.map((p) => (
-                <option key={p} value={p}>{PAGE_LABELS[p] || p}</option>
-              ))}
-            </select>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <label style={{ fontSize: 12, color: 'var(--theme-elevation-600)' }}>Блок</label>
-            <input value={newMediaBlock} onChange={(e) => setNewMediaBlock(e.target.value)} placeholder="Название блока" style={inputStyle} />
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <label style={{ fontSize: 12, color: 'var(--theme-elevation-600)' }}>Файл</label>
-            <input type="file" accept="image/*,application/pdf" style={inputStyle} required />
-          </div>
-          <button type="submit" disabled={Boolean(uploading) || saving} style={{ ...primaryBtnStyle, alignSelf: 'flex-end' }}>
-            {uploading ? `Загрузка: ${uploading}…` : 'Загрузить'}
-          </button>
-        </form>
-      </div>
-
-      {normalizedQuery && searchResults && searchResults.length === 0 && (
-        <div style={{ padding: 32, textAlign: 'center', color: 'var(--theme-elevation-600)' }}>
-          Ничего не найдено по запросу «{query}».
+      {error && (
+        <div
+          style={{
+            padding: '10px 14px',
+            marginBottom: 16,
+            borderRadius: 6,
+            background: 'var(--theme-error-100)',
+            color: 'var(--theme-error-500)',
+            border: '1px solid var(--theme-error-300)',
+          }}
+        >
+          {error}
         </div>
       )}
 
-      {normalizedQuery && searchResults && searchResults.length > 0 && (
-        <div>
-          {searchResults.map(({ page, block, record }) => {
-            const editing = editingId === record.id;
-            const isImage = record.mimeType?.startsWith('image/');
-            return (
-              <div key={record.id} style={cardStyle}>
-                <div style={{ fontSize: 11, color: 'var(--theme-elevation-500)', marginBottom: 4, fontFamily: 'monospace' }}>
-                  {PAGE_LABELS[page] || page} › {block} › {record.filename}
-                </div>
-                {editing ? (
-                  <div>
-                    <input value={draftAlt} onChange={(e) => setDraftAlt(e.target.value)} placeholder="Alt текст" style={inputStyle} />
-                    <label style={{ display: 'block', fontSize: 12, color: 'var(--theme-elevation-600)', margin: '6px 0 2px' }}>
-                      Название блока (для группировки)
-                    </label>
-                    <input value={draftBlockName} onChange={(e) => setDraftBlockName(e.target.value)} style={inputStyle} />
-                    <div style={{ marginTop: 8 }}>
-                      <button onClick={() => saveEdit(record)} disabled={saving} style={{ ...primaryBtnStyle, marginRight: 8 }}>Сохранить</button>
-                      <button onClick={cancelEdit} style={btnStyle}>Отмена</button>
+      {pages.map((page) => {
+        const blocks = grouped[page];
+        const pKey = `p:${page}`;
+        const pOpen = expanded[pKey] ?? true;
+        const blockNames = Object.keys(blocks);
+        const slotCount = blockNames.reduce((n, b) => n + blocks[b].length, 0);
+        return (
+          <div
+            key={page}
+            style={{
+              border: '1px solid var(--theme-elevation-150)',
+              borderRadius: 8,
+              margin: '10px 0',
+              overflow: 'hidden',
+            }}
+          >
+            <div
+              onClick={() => toggle(pKey)}
+              style={{
+                padding: '12px 16px',
+                cursor: 'pointer',
+                background: 'var(--theme-elevation-100)',
+                fontWeight: 600,
+                userSelect: 'none',
+              }}
+            >
+              <span style={{ width: 16, display: 'inline-block' }}>{pOpen ? '▾' : '▸'}</span>
+              {PAGE_LABELS[page] || page}{' '}
+              <span style={{ color: 'var(--theme-elevation-500)', fontWeight: 400, fontSize: 13 }}>
+                ({slotCount})
+              </span>
+            </div>
+            {pOpen && (
+              <div style={{ padding: '4px 16px 12px' }}>
+                {blockNames.map((blockName) => (
+                  <div key={blockName} style={{ marginTop: 10 }}>
+                    <div
+                      style={{
+                        fontSize: 12,
+                        textTransform: 'uppercase',
+                        letterSpacing: 0.4,
+                        color: 'var(--theme-elevation-500)',
+                        fontWeight: 600,
+                      }}
+                    >
+                      {blockName}
                     </div>
+                    {blocks[blockName].map(renderSlotCard)}
                   </div>
-                ) : (
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 }}>
-                      {isImage && record.url && (
-                        <img src={record.url} alt={record.alt} style={{ width: 80, height: 60, objectFit: 'cover', borderRadius: 4, border: '1px solid var(--theme-elevation-150)' }} />
-                      )}
-                      {!isImage && (
-                        <div style={{ width: 80, height: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 4, border: '1px solid var(--theme-elevation-150)', background: 'var(--theme-elevation-100)', fontSize: 11, color: 'var(--theme-elevation-500)' }}>
-                          {record.mimeType}
-                        </div>
-                      )}
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ whiteSpace: 'pre-wrap', fontSize: 14, color: 'var(--theme-text)' }}>
-                          <strong>{record.filename}</strong>
-                          <span style={{ marginLeft: 8, fontSize: 12, color: 'var(--theme-elevation-500)' }}>
-                            {record.alt ? `Alt: ${record.alt}` : '<нет alt>'}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div style={{ marginTop: 6 }}>
-                      <button onClick={() => startEdit(record)} style={{ ...btnStyle, marginRight: 8 }}>Редактировать</button>
-                      <button
-                        onClick={() => deleteRecord(record.id)}
-                        disabled={deleting === record.id}
-                        style={{ ...btnStyle, marginRight: 8, background: 'var(--theme-error-100)', color: 'var(--theme-error-500)', borderColor: 'var(--theme-error-300)' }}
-                      >
-                        {deleting === record.id ? 'Удаление...' : 'Удалить'}
-                      </button>
-                      <span style={{ fontSize: 11, color: 'var(--theme-elevation-500)' }}>
-                        {record.isPublished === false ? 'не опубликовано' : 'опубликовано'}
-                      </span>
-                    </div>
-                  </div>
-                )}
+                ))}
               </div>
-            );
-          })}
+            )}
+          </div>
+        );
+      })}
+
+      {orphanRows.length > 0 && (
+        <div style={{ marginTop: 24 }}>
+          <h3 style={{ fontSize: 16 }}>Прочие записи</h3>
+          <p style={{ fontSize: 12, color: 'var(--theme-elevation-500)', marginTop: 0 }}>
+            Эти слоты больше не используются на сайте — их можно удалить.
+          </p>
+          {orphanRows.map((row) => (
+            <div key={row.id} style={cardStyle}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{row.slotKey}</span>
+                <button type="button" style={dangerBtnStyle} onClick={() => deleteOrphan(row)}>
+                  Удалить
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
-
-      {!normalizedQuery && (
-        <>
-          {FAVORITE_PAGES.map((page) => {
-            const blocks = grouped[page];
-            if (!blocks) return null;
-            const pKey = `p:${page}`;
-            const pOpen = expanded[pKey];
-            const orderedBlocks = blockOrderForPage(page);
-            return (
-              <div
-                key={page}
-                style={{
-                  border: '1px solid var(--theme-elevation-150)',
-                  borderRadius: 8,
-                  margin: '8px 0',
-                  overflow: 'hidden',
-                  background: 'var(--theme-bg)',
-                }}
-              >
-                <div
-                  onClick={() => toggle(pKey)}
-                  style={{
-                    padding: '12px 16px',
-                    cursor: 'pointer',
-                    background: 'var(--theme-elevation-100)',
-                    fontWeight: 600,
-                    userSelect: 'none',
-                    color: 'var(--theme-text)',
-                  }}
-                >
-                  <span style={{ width: 16, display: 'inline-block' }}>{pOpen ? '▾' : '▸'}</span>
-                  {PAGE_LABELS[page] || page}{' '}
-                  <span style={{ color: 'var(--theme-elevation-500)', fontWeight: 400, fontSize: 13 }}>
-                    ({orderedBlocks.length} блоков)
-                  </span>
-                </div>
-                {pOpen && (
-                  <div>
-                    {orderedBlocks.map((block) => {
-                      const blockRecords = blocks[block];
-                      if (!blockRecords || blockRecords.length === 0) return null;
-                      const bKey = `b:${page}:${block}`;
-                      const bOpen = expanded[bKey];
-                      return (
-                        <div key={block} style={{ borderTop: '1px solid var(--theme-elevation-100)' }}>
-                          <div
-                            onClick={() => toggle(bKey)}
-                            style={{
-                              padding: '10px 32px',
-                              cursor: 'pointer',
-                              color: 'var(--theme-text)',
-                              fontWeight: 500,
-                              userSelect: 'none',
-                            }}
-                          >
-                            <span style={{ width: 16, display: 'inline-block' }}>{bOpen ? '▾' : '▸'}</span>
-                            {block}{' '}
-                            <span style={{ color: 'var(--theme-elevation-500)', fontWeight: 400, fontSize: 12 }}>
-                              ({blockRecords.length})
-                            </span>
-                          </div>
-                          {bOpen && (
-                            <div style={{ padding: '0 0 12px 48px' }}>
-                              {blockRecords.map((r) => {
-                                const editing = editingId === r.id;
-                                const isImage = r.mimeType?.startsWith('image/');
-                                return (
-                                  <div key={r.id} style={cardStyle}>
-                                    <div style={{ fontSize: 11, color: 'var(--theme-elevation-500)', marginBottom: 4, fontFamily: 'monospace' }}>
-                                      {r.filename}
-                                    </div>
-                                    {editing ? (
-                                      <div>
-                                        <input value={draftAlt} onChange={(e) => setDraftAlt(e.target.value)} placeholder="Alt текст" style={inputStyle} />
-                                        <label style={{ display: 'block', fontSize: 12, color: 'var(--theme-elevation-600)', margin: '6px 0 2px' }}>
-                                          Название блока (для группировки)
-                                        </label>
-                                        <input value={draftBlockName} onChange={(e) => setDraftBlockName(e.target.value)} style={inputStyle} />
-                                        <div style={{ marginTop: 8 }}>
-                                          <button onClick={() => saveEdit(r)} disabled={saving} style={{ ...primaryBtnStyle, marginRight: 8 }}>
-                                            Сохранить
-                                          </button>
-                                          <button onClick={cancelEdit} style={btnStyle}>Отмена</button>
-                                        </div>
-                                      </div>
-                                    ) : (
-                                      <div>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 }}>
-                                          {isImage && r.url && (
-                                            <img src={r.url} alt={r.alt} style={{ width: 80, height: 60, objectFit: 'cover', borderRadius: 4, border: '1px solid var(--theme-elevation-150)' }} />
-                                          )}
-                                          {!isImage && (
-                                            <div style={{ width: 80, height: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 4, border: '1px solid var(--theme-elevation-150)', background: 'var(--theme-elevation-100)', fontSize: 11, color: 'var(--theme-elevation-500)' }}>
-                                              {r.mimeType}
-                                            </div>
-                                          )}
-                                          <div style={{ flex: 1, minWidth: 0 }}>
-                                            <div style={{ whiteSpace: 'pre-wrap', fontSize: 14, color: 'var(--theme-text)' }}>
-                                              <strong>{r.filename}</strong>
-                                              <span style={{ marginLeft: 8, fontSize: 12, color: 'var(--theme-elevation-500)' }}>
-                                                {r.alt ? `Alt: ${r.alt}` : '<нет alt>'}
-                                              </span>
-                                            </div>
-                                          </div>
-                                        </div>
-                                        <div style={{ marginTop: 6 }}>
-                                          <button onClick={() => startEdit(r)} style={{ ...btnStyle, marginRight: 8 }}>Редактировать</button>
-                                          <button
-                                            onClick={() => deleteRecord(r.id)}
-                                            disabled={deleting === r.id}
-                                            style={{ ...btnStyle, marginRight: 8, background: 'var(--theme-error-100)', color: 'var(--theme-error-500)', borderColor: 'var(--theme-error-300)' }}
-                                          >
-                                            {deleting === r.id ? 'Удаление...' : 'Удалить'}
-                                          </button>
-                                          <span style={{ fontSize: 11, color: 'var(--theme-elevation-500)' }}>
-                                            {r.isPublished === false ? 'не опубликовано' : 'опубликовано'}
-                                          </span>
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </>
-      )}
-
-      {records.length === 0 && <div style={{ color: 'var(--theme-elevation-500)' }}>Нет записей. Добавьте медиа через форму выше.</div>}
     </div>
   );
 };

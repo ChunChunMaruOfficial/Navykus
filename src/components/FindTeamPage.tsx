@@ -27,7 +27,7 @@ import {
   cardStaggerContainer,
   cardItemFadeUp,
 } from '../motion-animations';
-import BrandImage from './BrandImage';
+import CmsImage from './CmsImage';
 import StudyBackground from './StudyBackground';
 
 const heroFadeUpLarge = {
@@ -897,8 +897,8 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
               )}
             </div>
           </div>
-          <BrandImage
-            src="/images/find-team/team-discussion.jpg"
+          <CmsImage
+            slot="find-team.hero.image"
             alt={t('ui.enhancements.findTeamHeroAlt')}
             aspectRatio="4 / 3"
             objectPosition="50% 38%"

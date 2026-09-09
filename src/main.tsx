@@ -1,5 +1,6 @@
 import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
+import { CmsMediaProvider } from './hooks/useCmsPageMedia.tsx';
 import i18n, { i18nReady } from './i18n';
 import './index.css';
 
@@ -42,5 +43,7 @@ if ('serviceWorker' in navigator) {
 }
 
 createRoot(document.getElementById('root')!).render(
-    <App />
+    <CmsMediaProvider>
+      <App />
+    </CmsMediaProvider>
 );
