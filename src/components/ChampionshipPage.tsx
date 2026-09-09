@@ -316,60 +316,69 @@ export default function ChampionshipPage({
           {...fadeUpLarge}
           className="relative z-10 py-10 md:py-14 bg-white/[0.10] glass-xl surface-elevated border border-white/[0.15] rounded-3xl card-blush"
         >
-          <div className="max-w-7xl mx-auto px-[6%] md:px-[10%] grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            <div className="lg:col-span-5 space-y-6">
-              <CmsImage
-                slot="championship.case.image"
-                alt={t('ui.enhancements.championshipCaseAlt')}
-                aspectRatio="16 / 10"
-                objectPosition="50% 45%"
-                sizes="(min-width: 1024px) 35vw, 100vw"
-              />
-              <h2 className="text-3xl font-serif text-brand-dark leading-tight">{t('ui.championshippage.f30417ddf0')}</h2>
-              <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">
-                {cmsData.description}
-              </p>
-            </div>
+          <div className="max-w-7xl mx-auto px-[6%] md:px-[10%] flex flex-col gap-10 md:gap-12">
 
-            <div className="lg:col-span-7 space-y-6">
-            
-            {/* Themes list from CMS */}
-            <div className="space-y-3">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-brand-dark font-semibold mb-1 block">{t('ui.championshippage.5c807e4149')}</span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {cmsData.themes.map((theme, idx) => (
-                  <div key={idx} className="bg-white/[0.12] glass-card surface-elevated-soft border border-white/[0.15] p-3.5 rounded-xl text-left flex items-start gap-3">
-                    <span className="w-5 h-5 rounded-full bg-[#bc4638]/5 border border-[#bc4638]/10 font-mono text-[9px] font-bold text-[#bc4638] flex items-center justify-center shrink-0 mt-0.5">
-                      {idx + 1}
-                    </span>
-                    <span className="text-xs text-brand-dark font-medium leading-normal">{theme}</span>
-                  </div>
-                ))}
+            {/* Intro: image + title + description — stacked on top, full width on desktop */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center">
+              <div className="lg:col-span-5">
+                <CmsImage
+                  slot="championship.case.image"
+                  alt={t('ui.enhancements.championshipCaseAlt')}
+                  aspectRatio="16 / 10"
+                  objectPosition="50% 45%"
+                  sizes="(min-width: 1024px) 40vw, 100vw"
+                />
               </div>
-            </div>
-
-            {/* Evaluation Criteria */}
-            <div className="space-y-3 pt-2">
-              <span className="text-[11px] sm:text-xs font-mono uppercase tracking-wider text-brand-dark font-semibold mb-1 block">{t('ui.championshippage.9ab00a25e1')}</span>
-              <div className="space-y-2.5">
-                {cmsData.evaluationCriteria.map((crit, idx) => (
-                  <div key={idx} className="flex items-start gap-2.5 text-sm sm:text-base text-brand-slate font-normal md:font-light">
-                    <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600 mt-0.5 shrink-0" />
-                    <span>{crit}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Expected Result (MVP) */}
-            <div className="p-4 bg-white/[0.12] glass-panel surface-elevated-soft rounded-2xl border border-white/[0.12]">
-                <span className="text-[11px] sm:text-xs font-mono uppercase tracking-wider text-brand-slate block mb-1.5">{t('ui.championshippage.d50e039adb')}</span>
-                <p className="text-base sm:text-lg text-brand-dark font-medium leading-relaxed font-serif">
-                  {cmsData.expectedResult}
+              <div className="lg:col-span-7 space-y-4">
+                <h2 className="text-3xl lg:text-4xl font-serif text-brand-dark leading-tight">{t('ui.championshippage.f30417ddf0')}</h2>
+                <p className="text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed max-w-2xl">
+                  {cmsData.description}
                 </p>
               </div>
+            </div>
 
-          </div>
+            {/* Details: themes, evaluation criteria, expected result — full width */}
+            <div className="space-y-8">
+
+              {/* Themes list from CMS */}
+              <div className="space-y-4">
+                <span className="text-xs sm:text-sm font-mono uppercase tracking-wider text-brand-dark font-semibold block">{t('ui.championshippage.5c807e4149')}</span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {cmsData.themes.map((theme, idx) => (
+                    <div key={idx} className="bg-white/[0.12] glass-card surface-elevated-soft border border-white/[0.15] p-4 rounded-xl text-left flex items-start gap-3">
+                      <span className="w-6 h-6 rounded-full bg-[#bc4638]/5 border border-[#bc4638]/10 font-mono text-[10px] font-bold text-[#bc4638] flex items-center justify-center shrink-0 mt-0.5">
+                        {idx + 1}
+                      </span>
+                      <span className="text-sm text-brand-dark font-medium leading-snug">{theme}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
+                {/* Evaluation Criteria */}
+                <div className="space-y-3">
+                  <span className="text-[11px] font-mono uppercase tracking-wider text-brand-dark font-semibold block">{t('ui.championshippage.9ab00a25e1')}</span>
+                  <div className="space-y-2">
+                    {cmsData.evaluationCriteria.map((crit, idx) => (
+                      <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                        <span>{crit}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Expected Result (MVP) */}
+                <div className="p-4 sm:p-5 bg-white/[0.12] glass-panel surface-elevated-soft rounded-2xl border border-white/[0.12]">
+                  <span className="text-[11px] font-mono uppercase tracking-wider text-brand-slate block mb-1.5">{t('ui.championshippage.d50e039adb')}</span>
+                  <p className="text-sm sm:text-base text-brand-dark font-medium leading-relaxed font-serif">
+                    {cmsData.expectedResult}
+                  </p>
+                </div>
+              </div>
+
+            </div>
           </div>
         </motion.section>
 
