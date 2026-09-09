@@ -11,10 +11,14 @@ import { slugBeforeValidate } from '../slug';
 
 export const Tournaments: CollectionConfig = {
   slug: 'tournaments',
+  labels: {
+    singular: 'Чемпионат',
+    plural: 'Чемпионаты',
+  },
   admin: {
     useAsTitle: 'title',
     group: 'Content',
-    description: 'Case championships & competitions for students',
+    description: 'Чемпионаты и кубки для школьников. Один чемпионат = одна запись. Отметьте «Показывать на главной», чтобы он появился на главной странице и на странице «Чемпионат».',
     defaultColumns: ['title', 'type', 'date', 'registrationDeadline', 'maxParticipants', 'isFeatured', 'isPublished'],
     preview: publicPreview('tournaments'),
   },
@@ -51,11 +55,31 @@ export const Tournaments: CollectionConfig = {
         {
           label: 'Основное',
           fields: [
-            { name: 'title', label: 'Заголовок', type: 'text', required: true },
-            { name: 'slug', label: 'Slug', type: 'text', unique: true, index: true, admin: { description: 'Генерируется автоматически из заголовка, если пусто.' } },
-            { name: 'type', label: 'Тип', type: 'text', required: true, admin: { description: 'Например: "Кейс-чемпионат", "Хакатон"' } },
-            { name: 'description', label: 'Описание', type: 'textarea', required: true, admin: { rows: 10 } },
-            { name: 'pitch', label: 'Короткий текст для хиро-блока', type: 'textarea', admin: { rows: 6, description: 'Если пусто, используется описание.' } },
+            { name: 'title', label: 'Название', type: 'text', required: true, admin: { description: 'Показывается в шапке страницы чемпионата и в карточке на главной.' } },
+            { name: 'slug', label: 'Slug', type: 'text', unique: true, index: true, admin: { description: 'Генерируется автоматически из названия, если пусто.' } },
+            { name: 'type', label: 'Тип', type: 'text', required: true, admin: { description: 'Например: «Кейс-чемпионат», «Хакатон»' } },
+            { name: 'description', label: 'Описание', type: 'textarea', required: true, admin: { rows: 10, description: 'Основной текст о чемпионате: полностью — в блоке «О чемпионате» на странице чемпионата, в укороченном виде — в карточке на главной.' } },
+            { name: 'pitch', label: 'Короткий текст для шапки', type: 'textarea', admin: { rows: 6, description: 'Одно-два предложения под названием в шапке страницы чемпионата. Если пусто, используется описание.' } },
+          ],
+        },
+        {
+          label: 'Фото',
+          description: 'Фотографии чемпионата. Если поле пустое — используется изображение из «Дерева медиа».',
+          fields: [
+            {
+              name: 'coverImage',
+              label: 'Обложка для главной страницы',
+              type: 'upload',
+              relationTo: 'media',
+              admin: { description: 'Широкая обложка в карточке чемпионата на главной (пропорции примерно 32:7).' },
+            },
+            {
+              name: 'heroImage',
+              label: 'Фото в шапке страницы чемпионата',
+              type: 'upload',
+              relationTo: 'media',
+              admin: { description: 'Основное фото в шапке страницы чемпионата (пропорции примерно 4:3).' },
+            },
           ],
         },
         {
@@ -101,6 +125,23 @@ export const Tournaments: CollectionConfig = {
             newlineListField('themesText', 'Темы кейса'),
             newlineListField('evaluationCriteriaText', 'Критерии оценки'),
             ...seoFields,
+          ],
+        },
+        {
+          label: 'Жюри и наставники',
+          description: 'Члены жюри, наставники и эксперты этого чемпионата. Показываются на странице чемпионата и на главной.',
+          fields: [
+            {
+              name: 'jury',
+              type: 'join',
+              collection: 'experts',
+              on: 'tournamentId',
+              label: 'Состав',
+              admin: {
+                description: 'Каждая карточка — отдельный человек. Кнопка «Создать» сразу привяжет его к этому чемпионату. Порядок задаётся полем «Порядок» внутри карточки.',
+                defaultColumns: ['name', 'type', 'role'],
+              },
+            } as Field,
           ],
         },
       ],

@@ -24,10 +24,12 @@ import {
   Lock,
   ChevronDown,
 } from 'lucide-react';
+import { apiAssetUrl } from '../api';
+import { useCmsExperts } from '../hooks/useCmsExperts';
 import { useCmsFaqs } from '../hooks/useCmsFaqs';
 import { useCmsPageTexts } from '../hooks/useCmsPageTexts';
 import { useCmsTournamentsState } from '../hooks/useCmsTournaments';
-import type { TeamApplicationContext } from '../types';
+import type { Expert, TeamApplicationContext } from '../types';
 import CmsImage from './CmsImage';
 import TeamMemberApplicationForm from './TeamMemberApplicationForm';
 
@@ -48,6 +50,8 @@ interface ChampionshipData {
   expectedResult: string;
   evaluationCriteria: string[];
   themes: string[];
+  heroImage: string;
+  coverImage: string;
   registrationStatus: 'open' | 'suspended' | 'closed';
 }
 
@@ -112,9 +116,18 @@ export default function ChampionshipPage({
       expectedResult: tourney.expectedResult,
       evaluationCriteria: evaluationCriteria.length ? evaluationCriteria : tourney.mentors,
       themes: themes.length ? themes : tourney.skills,
+      heroImage: tourney.heroImage || '',
+      coverImage: tourney.coverImage || '',
       registrationStatus: tourney.registrationStatus,
     };
   }, [cmsTournaments]);
+
+  const juryFromCms = useCmsExperts(cmsData?.id);
+  const juryMembers = useMemo<Expert[]>(() => {
+    if (!cmsData) return [];
+    const scoped = juryFromCms.filter((expert) => !expert.tournamentId || expert.tournamentId === cmsData.id);
+    return scoped.length ? scoped : juryFromCms;
+  }, [juryFromCms, cmsData]);
 
   // Interactive UI states (scenarios, tabs, accordions)
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
@@ -141,6 +154,21 @@ export default function ChampionshipPage({
   }
 
   const formatDisplay = splitDisplayText(cmsData.format);
+
+  const expertTypeLabel = (type: Expert['type']) =>
+    type === 'jury'
+      ? t('ui.enhancements.expertRoleJury')
+      : type === 'mentor'
+        ? t('ui.enhancements.expertRoleMentor')
+        : t('ui.enhancements.expertRoleExpert');
+
+  const expertInitials = (name: string) =>
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((word) => word[0]?.toUpperCase() || '')
+      .join('');
 
   return (
     <div className="relative w-full text-brand-dark pb-16 pt-24">
@@ -210,6 +238,7 @@ export default function ChampionshipPage({
           </div>
           <CmsImage
             slot="championship.hero.image"
+            overrideSrc={cmsData.heroImage || cmsData.coverImage}
             alt={t('ui.enhancements.championshipHeroAlt')}
             aspectRatio="4 / 3"
             objectPosition="50% 36%"
@@ -381,6 +410,72 @@ export default function ChampionshipPage({
             </div>
           </div>
         </motion.section>
+
+        {/* 4. JURY & MENTORS */}
+        {juryMembers.length > 0 && (
+          <motion.section
+            {...fadeUpLarge}
+            className="relative z-10 py-10 md:py-14 bg-white/[0.10] glass-xl surface-elevated border border-white/[0.15] rounded-3xl card-blush"
+          >
+            <div className="max-w-7xl mx-auto px-[6%] md:px-[10%] space-y-8 md:space-y-10">
+              <div className="max-w-2xl space-y-3">
+                <span className="inline-flex items-center gap-2 text-[11px] font-mono uppercase tracking-wider text-[#bc4638] font-semibold">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  {t('ui.enhancements.championshipJuryEyebrow')}
+                </span>
+                <h2 className="text-3xl lg:text-4xl font-serif text-brand-dark leading-tight">
+                  {t('ui.enhancements.championshipJuryHeading')}
+                </h2>
+                <p className="text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed">
+                  {t('ui.enhancements.championshipJurySubtitle')}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+                {juryMembers.map((member, idx) => {
+                  const photo = member.photo ? apiAssetUrl(member.photo) : undefined;
+                  return (
+                    <motion.div
+                      key={member.id}
+                      initial={{ opacity: 0, y: 24 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: '-40px' }}
+                      transition={{ duration: 0.45, ease: 'easeOut', delay: Math.min(idx * 0.06, 0.3) }}
+                      className="flex flex-col gap-4 bg-white/[0.14] glass-card surface-elevated-soft border border-white/[0.16] p-5 rounded-2xl text-left"
+                    >
+                      <div className="flex items-center gap-4">
+                        {photo ? (
+                          <img
+                            src={photo}
+                            alt={member.name}
+                            loading="lazy"
+                            className="w-16 h-16 rounded-full object-cover border border-white/60 shadow-sm shrink-0"
+                          />
+                        ) : (
+                          <div className="w-16 h-16 rounded-full shrink-0 flex items-center justify-center font-serif text-lg font-semibold text-white bg-gradient-to-br from-[#bc4638] to-[#bd5b82] shadow-sm">
+                            {expertInitials(member.name)}
+                          </div>
+                        )}
+                        <div className="min-w-0 space-y-1">
+                          <span className="inline-block text-[10px] font-mono uppercase tracking-wider text-[#bc4638] bg-[#bc4638]/10 px-2 py-0.5 rounded-md">
+                            {expertTypeLabel(member.type)}
+                          </span>
+                          <p className="text-base font-serif font-semibold text-brand-dark leading-tight truncate">{member.name}</p>
+                        </div>
+                      </div>
+                      {member.role && (
+                        <p className="text-sm text-brand-dark/80 font-medium leading-snug">{member.role}</p>
+                      )}
+                      {member.expertise && (
+                        <p className="text-xs sm:text-[13px] text-brand-slate font-normal md:font-light leading-relaxed">{member.expertise}</p>
+                      )}
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </div>
+          </motion.section>
+        )}
 
         {/* 9. APPLICATION FORM */}
         <section id="apply-form-section" className="relative z-10 w-[88vw] md:w-[80vw] max-w-4xl mx-auto scroll-mt-24">

@@ -23,6 +23,21 @@ const listValues = (items: unknown): string[] => {
 
 const publicId = (doc: any) => String(doc.id);
 
+/**
+ * Resolves a Payload upload relation (populated at depth >= 1) to a URL the
+ * public Express server can serve. Files live at `uploads/media/<filename>`
+ * and are served from `/media/<filename>`; `doc.url` is not reliable here
+ * (it points at the Payload API route), so prefer the filename.
+ */
+export const mediaUrlFromRelation = (relation: unknown): string | null => {
+  if (typeof relation === 'string') return relation || null;
+  if (!relation || typeof relation !== 'object') return null;
+  const record = relation as Record<string, unknown>;
+  if (typeof record.filename === 'string' && record.filename) return `/media/${record.filename}`;
+  if (typeof record.url === 'string' && record.url) return record.url;
+  return null;
+};
+
 export const normalizeTournament = (doc: any): Tournament => ({
   id: publicId(doc),
   title: doc.title,
@@ -43,6 +58,8 @@ export const normalizeTournament = (doc: any): Tournament => ({
   expectedResult: doc.expectedResult,
   themesText: doc.themesText,
   evaluationCriteriaText: doc.evaluationCriteriaText,
+  coverImage: mediaUrlFromRelation(doc.coverImage) ?? undefined,
+  heroImage: mediaUrlFromRelation(doc.heroImage) ?? undefined,
   registrationStatus: ['open', 'suspended', 'closed'].includes(doc.registrationStatus) ? doc.registrationStatus : 'open',
 });
 
@@ -70,7 +87,7 @@ export const normalizeExpert = (doc: any): Expert => ({
   role: doc.role,
   expertise: doc.expertise,
   description: doc.description,
-  photo: typeof doc.photo === 'object' && doc.photo ? doc.photo.url : doc.photo,
+  photo: mediaUrlFromRelation(doc.photo) ?? undefined,
   tournamentId: typeof doc.tournamentId === 'object' && doc.tournamentId
     ? publicId(doc.tournamentId)
     : doc.tournamentId || undefined,

@@ -20,6 +20,8 @@ export type CmsTournamentDoc = {
   expectedResult?: string;
   themesText?: string;
   evaluationCriteriaText?: string;
+  coverImage?: string | null;
+  heroImage?: string | null;
   registrationStatus?: 'open' | 'suspended' | 'closed';
 };
 
@@ -43,6 +45,8 @@ export type CmsMappedTournament = {
   expectedResult: string;
   themesText: string;
   evaluationCriteriaText: string;
+  coverImage: string;
+  heroImage: string;
   registrationStatus: 'open' | 'suspended' | 'closed';
 };
 
@@ -75,6 +79,8 @@ const mapCmsDoc = (doc: CmsTournamentDoc): CmsMappedTournament => ({
   expectedResult: doc.expectedResult || '',
   themesText: doc.themesText || '',
   evaluationCriteriaText: doc.evaluationCriteriaText || '',
+  coverImage: typeof doc.coverImage === 'string' ? doc.coverImage : '',
+  heroImage: typeof doc.heroImage === 'string' ? doc.heroImage : '',
   registrationStatus: ['open', 'suspended', 'closed'].includes(doc.registrationStatus || '')
     ? doc.registrationStatus as CmsMappedTournament['registrationStatus']
     : 'open',

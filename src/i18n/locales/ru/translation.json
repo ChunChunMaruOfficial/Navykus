@@ -538,6 +538,12 @@
       "rolesRequired": "Выберите роль"
     },
     "enhancements": {
+      "championshipJuryEyebrow": "Кто оценивает",
+      "championshipJuryHeading": "Жюри и наставники",
+      "championshipJurySubtitle": "Эксперты, которые оценивают проекты и помогают командам на протяжении всего кубка.",
+      "expertRoleJury": "Жюри",
+      "expertRoleMentor": "Наставник",
+      "expertRoleExpert": "Эксперт",
       "proofCountries": "стран",
       "proofParticipants": "участников",
       "proofExperts": "экспертов",

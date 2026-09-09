@@ -167,6 +167,15 @@ const ensureDevelopmentSchema = async () => {
   await ensureColumn('tournaments', 'seo_title', 'text');
   await ensureColumn('tournaments', 'seo_description', 'text');
   await ensureColumn('tournaments', '_status', "text DEFAULT 'published'");
+  // Чемпионат как объект: собственные фото (обложка для главной + фото в шапке).
+  await ensureColumn('tournaments', 'cover_image_id', 'integer REFERENCES media(id) ON DELETE set null');
+  await ensureColumn('tournaments', 'hero_image_id', 'integer REFERENCES media(id) ON DELETE set null');
+  await executeSafe('CREATE INDEX IF NOT EXISTS tournaments_cover_image_idx ON tournaments (cover_image_id);');
+  await executeSafe('CREATE INDEX IF NOT EXISTS tournaments_hero_image_idx ON tournaments (hero_image_id);');
+  await ensureColumn('_tournaments_v', 'version_cover_image_id', 'integer REFERENCES media(id) ON DELETE set null');
+  await ensureColumn('_tournaments_v', 'version_hero_image_id', 'integer REFERENCES media(id) ON DELETE set null');
+  await executeSafe('CREATE INDEX IF NOT EXISTS _tournaments_v_version_version_cover_image_idx ON _tournaments_v (version_cover_image_id);');
+  await executeSafe('CREATE INDEX IF NOT EXISTS _tournaments_v_version_version_hero_image_idx ON _tournaments_v (version_hero_image_id);');
   await ensureColumn('events', 'original_language', "text DEFAULT 'ru'");
   await ensureColumn('events', '_status', "text DEFAULT 'published'");
   await ensureColumn('opportunities', 'original_language', "text DEFAULT 'ru'");

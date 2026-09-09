@@ -178,6 +178,12 @@ export const tournaments = sqliteTable(
     type: text("type"),
     description: text("description"),
     pitch: text("pitch"),
+    coverImage: integer("cover_image_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    heroImage: integer("hero_image_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
     date: text("date"),
     registrationDeadline: text("registration_deadline"),
     registrationStatus: text("registration_status", {
@@ -206,6 +212,8 @@ export const tournaments = sqliteTable(
   (columns) => [
     index("tournaments_original_language_idx").on(columns.originalLanguage),
     uniqueIndex("tournaments_slug_idx").on(columns.slug),
+    index("tournaments_cover_image_idx").on(columns.coverImage),
+    index("tournaments_hero_image_idx").on(columns.heroImage),
     index("tournaments_updated_at_idx").on(columns.updatedAt),
     index("tournaments_created_at_idx").on(columns.createdAt),
     index("tournaments__status_idx").on(columns._status),
@@ -276,6 +284,18 @@ export const _tournaments_v = sqliteTable(
     version_type: text("version_type"),
     version_description: text("version_description"),
     version_pitch: text("version_pitch"),
+    version_coverImage: integer("version_cover_image_id").references(
+      () => media.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_heroImage: integer("version_hero_image_id").references(
+      () => media.id,
+      {
+        onDelete: "set null",
+      },
+    ),
     version_date: text("version_date"),
     version_registrationDeadline: text("version_registration_deadline"),
     version_registrationStatus: text("version_registration_status", {
@@ -318,6 +338,12 @@ export const _tournaments_v = sqliteTable(
       columns.version_originalLanguage,
     ),
     index("_tournaments_v_version_version_slug_idx").on(columns.version_slug),
+    index("_tournaments_v_version_version_cover_image_idx").on(
+      columns.version_coverImage,
+    ),
+    index("_tournaments_v_version_version_hero_image_idx").on(
+      columns.version_heroImage,
+    ),
     index("_tournaments_v_version_version_updated_at_idx").on(
       columns.version_updatedAt,
     ),
@@ -2394,14 +2420,27 @@ export const relations_tournaments_mentors = relations(
     }),
   }),
 );
-export const relations_tournaments = relations(tournaments, ({ many }) => ({
-  skills: many(tournaments_skills, {
-    relationName: "skills",
+export const relations_tournaments = relations(
+  tournaments,
+  ({ one, many }) => ({
+    coverImage: one(media, {
+      fields: [tournaments.coverImage],
+      references: [media.id],
+      relationName: "coverImage",
+    }),
+    heroImage: one(media, {
+      fields: [tournaments.heroImage],
+      references: [media.id],
+      relationName: "heroImage",
+    }),
+    skills: many(tournaments_skills, {
+      relationName: "skills",
+    }),
+    mentors: many(tournaments_mentors, {
+      relationName: "mentors",
+    }),
   }),
-  mentors: many(tournaments_mentors, {
-    relationName: "mentors",
-  }),
-}));
+);
 export const relations__tournaments_v_version_skills = relations(
   _tournaments_v_version_skills,
   ({ one }) => ({
@@ -2429,6 +2468,16 @@ export const relations__tournaments_v = relations(
       fields: [_tournaments_v.parent],
       references: [tournaments.id],
       relationName: "parent",
+    }),
+    version_coverImage: one(media, {
+      fields: [_tournaments_v.version_coverImage],
+      references: [media.id],
+      relationName: "version_coverImage",
+    }),
+    version_heroImage: one(media, {
+      fields: [_tournaments_v.version_heroImage],
+      references: [media.id],
+      relationName: "version_heroImage",
     }),
     version_skills: many(_tournaments_v_version_skills, {
       relationName: "version_skills",

@@ -375,6 +375,7 @@ export default function App() {
         maxParticipants: Number(featuredTournament.maxParticipants) || firstCmsTournament?.maxParticipants || 0,
         suitableFor: String(featuredTournament.suitableFor || firstCmsTournament?.suitableFor || ''),
         format: String(featuredTournament.format || firstCmsTournament?.format || ''),
+        coverImage: String(featuredTournament.coverImage || firstCmsTournament?.coverImage || ''),
       }
     : firstCmsTournament ?? null;
   const resolvedLanguage = (i18n.resolvedLanguage || i18n.language || 'ru').split('-')[0];
@@ -677,6 +678,7 @@ export default function App() {
             >
               <CmsImage
                 slot="home.nearest-championship.cover"
+                overrideSrc={nearestTournament.coverImage}
                 alt={t('ui.enhancements.championshipCardAlt')}
                 aspectRatio="32 / 7"
                 objectPosition="50% 38%"

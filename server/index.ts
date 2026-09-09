@@ -31,6 +31,7 @@ import { getPayloadClient } from './payload';
 import { startTranslationWorker } from './translation-worker';
 import { applyLocalizations, languageFromRequest } from './content-localizations';
 import {
+  mediaUrlFromRelation,
   normalizeActivity,
   normalizeExpert,
   normalizeFaq,
@@ -474,7 +475,14 @@ app.get('/api/championships/featured', asyncRoute(async (req, res) => {
     return;
   }
   await applyLocalizations(payload, 'tournaments', result.docs as Array<Record<string, unknown>>, languageFromRequest(req));
-  res.json({ doc: result.docs[0] });
+  const doc = result.docs[0] as Record<string, unknown>;
+  res.json({
+    doc: {
+      ...doc,
+      coverImage: mediaUrlFromRelation(doc.coverImage),
+      heroImage: mediaUrlFromRelation(doc.heroImage),
+    },
+  });
 }));
 
 app.get('/api/events', asyncRoute(async (req, res) => {

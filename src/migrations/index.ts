@@ -27,6 +27,7 @@ import * as migration_20260815_050000_backfill_page_text_block_names from './202
 import * as migration_20260820_000000_remove_legacy_id_columns from './20260820_000000_remove_legacy_id_columns';
 import * as migration_20260909_000000_remove_first_step_and_suitability_page_texts from './20260909_000000_remove_first_step_and_suitability_page_texts';
 import * as migration_20260909_020000_add_page_media_slots from './20260909_020000_add_page_media_slots';
+import * as migration_20260910_000000_add_tournament_images from './20260910_000000_add_tournament_images';
 
 export const migrations = [
   {
@@ -173,5 +174,10 @@ export const migrations = [
     up: migration_20260909_020000_add_page_media_slots.up,
     down: migration_20260909_020000_add_page_media_slots.down,
     name: '20260909_020000_add_page_media_slots',
+  },
+  {
+    up: migration_20260910_000000_add_tournament_images.up,
+    down: migration_20260910_000000_add_tournament_images.down,
+    name: '20260910_000000_add_tournament_images',
   },
 ];

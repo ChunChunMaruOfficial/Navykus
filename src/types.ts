@@ -18,6 +18,10 @@ export interface Tournament {
   expectedResult?: string;
   themesText?: string;
   evaluationCriteriaText?: string;
+  /** URL of the championship's own cover image (home card). Falls back to the media tree slot. */
+  coverImage?: string;
+  /** URL of the championship's own hero image (championship page). Falls back to the media tree slot. */
+  heroImage?: string;
   registrationStatus?: 'open' | 'suspended' | 'closed';
 }
 

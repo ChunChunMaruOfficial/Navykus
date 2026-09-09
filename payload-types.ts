@@ -91,7 +91,11 @@ export interface Config {
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    tournaments: {
+      jury: 'experts';
+    };
+  };
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -217,7 +221,7 @@ export interface Media {
   focalY?: number | null;
 }
 /**
- * Case championships & competitions for students
+ * Чемпионаты и кубки для школьников. Один чемпионат = одна запись. Отметьте «Показывать на главной», чтобы он появился на главной странице и на странице «Чемпионат».
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tournaments".
@@ -234,20 +238,34 @@ export interface Tournament {
    * Отметьте, чтобы чемпионат появился на главной странице
    */
   isFeatured?: boolean | null;
+  /**
+   * Показывается в шапке страницы чемпионата и в карточке на главной.
+   */
   title: string;
   /**
-   * Генерируется автоматически из заголовка, если пусто.
+   * Генерируется автоматически из названия, если пусто.
    */
   slug?: string | null;
   /**
-   * Например: "Кейс-чемпионат", "Хакатон"
+   * Например: «Кейс-чемпионат», «Хакатон»
    */
   type: string;
+  /**
+   * Основной текст о чемпионате: полностью — в блоке «О чемпионате» на странице чемпионата, в укороченном виде — в карточке на главной.
+   */
   description: string;
   /**
-   * Если пусто, используется описание.
+   * Одно-два предложения под названием в шапке страницы чемпионата. Если пусто, используется описание.
    */
   pitch?: string | null;
+  /**
+   * Широкая обложка в карточке чемпионата на главной (пропорции примерно 32:7).
+   */
+  coverImage?: (number | null) | Media;
+  /**
+   * Основное фото в шапке страницы чемпионата (пропорции примерно 4:3).
+   */
+  heroImage?: (number | null) | Media;
   /**
    * Даты события (текстом)
    */
@@ -290,6 +308,48 @@ export interface Tournament {
   evaluationCriteriaText?: string | null;
   seoTitle?: string | null;
   seoDescription?: string | null;
+  /**
+   * Каждая карточка — отдельный человек. Кнопка «Создать» сразу привяжет его к этому чемпионату. Порядок задаётся полем «Порядок» внутри карточки.
+   */
+  jury?: {
+    docs?: (number | Expert)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "experts".
+ */
+export interface Expert {
+  id: number;
+  sortOrder?: number | null;
+  isPublished?: boolean | null;
+  /**
+   * Язык, используемый как источник для AI-перевода.
+   */
+  originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
+  name: string;
+  /**
+   * Роль в чемпионате: жюри, наставник или эксперт
+   */
+  type: 'jury' | 'mentor' | 'expert';
+  role: string;
+  /**
+   * К какому чемпионату привязан эксперт
+   */
+  tournamentId?: (number | null) | Tournament;
+  expertise: string;
+  description: string;
+  /**
+   * Фото эксперта, наставника или жюри
+   */
+  photo?: (number | null) | Media;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -328,40 +388,6 @@ export interface Activity {
   seoDescription?: string | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "experts".
- */
-export interface Expert {
-  id: number;
-  sortOrder?: number | null;
-  isPublished?: boolean | null;
-  /**
-   * Язык, используемый как источник для AI-перевода.
-   */
-  originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
-  name: string;
-  /**
-   * Роль в чемпионате: жюри, наставник или эксперт
-   */
-  type: 'jury' | 'mentor' | 'expert';
-  role: string;
-  /**
-   * К какому чемпионату привязан эксперт
-   */
-  tournamentId?: (number | null) | Tournament;
-  expertise: string;
-  description: string;
-  /**
-   * Фото эксперта, наставника или жюри
-   */
-  photo?: (number | null) | Media;
-  seoTitle?: string | null;
-  seoDescription?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1154,6 +1180,8 @@ export interface TournamentsSelect<T extends boolean = true> {
   type?: T;
   description?: T;
   pitch?: T;
+  coverImage?: T;
+  heroImage?: T;
   date?: T;
   registrationDeadline?: T;
   registrationStatus?: T;
@@ -1181,6 +1209,7 @@ export interface TournamentsSelect<T extends boolean = true> {
   evaluationCriteriaText?: T;
   seoTitle?: T;
   seoDescription?: T;
+  jury?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;

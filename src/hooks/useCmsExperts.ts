@@ -19,7 +19,11 @@ const mapCmsExpert = (doc: CmsExpertDoc): Expert => ({
   role: doc.role?.trim() || '',
   expertise: doc.expertise?.trim() || '',
   description: doc.description?.trim() || '',
-  photo: typeof doc.photo === 'object' && doc.photo ? (doc.photo as { url?: string }).url : undefined,
+  photo: typeof doc.photo === 'string' && doc.photo
+    ? doc.photo
+    : typeof doc.photo === 'object' && doc.photo
+      ? (doc.photo as { url?: string }).url
+      : undefined,
   tournamentId: typeof doc.tournamentId === 'object' && doc.tournamentId
     ? String((doc.tournamentId as { id: string | number }).id)
     : typeof doc.tournamentId === 'string' ? doc.tournamentId : undefined,
