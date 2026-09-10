@@ -82,6 +82,9 @@ const ABOUT_PAGE_KEYS = [
   'ui.aboutprojectpage.4d545fb6ff',
   'ui.aboutprojectpage.d1728b4c',
   'ui.aboutprojectpage.7cea9cf73e',
+  'ui.aboutprojectpage.faqHeading',
+  'ui.aboutprojectpage.ctaApply',
+  'ui.aboutprojectpage.ctaFindTeam',
   'ui.enhancements.aboutHeroAlt',
   'ui.enhancements.aboutMissionAlt',
 ] as const;
@@ -193,9 +196,12 @@ const pageTextKeyMatchers: Record<EditablePageTextPage, readonly ((key: string) 
     (key) => key === 'meta.championship.title',
     (key) => key === 'ui.enhancements.championshipHeroAlt',
     (key) => key === 'ui.enhancements.championshipCaseAlt',
+    (key) => key === 'ui.enhancements.championshipJuryHeading',
   ],
   activities: [
     (key) => key.startsWith('ui.activitiespage.'),
+    // «Возможности» catalogue (tab of the activities page).
+    (key) => key.startsWith('ui.opportunitiespage.'),
     (key) => key === 'meta.activities.title',
   ],
   'find-team': [
@@ -206,18 +212,35 @@ const pageTextKeyMatchers: Record<EditablePageTextPage, readonly ((key: string) 
   ],
   legal: [
     (key) => key.startsWith('ui.legalpage.'),
+    // Privacy policy document (sections are arrays: privacypolicy.sections.<n>.title / .blocks.<m>).
+    (key) => key.startsWith('privacypolicy.'),
   ],
 };
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
   Boolean(value && typeof value === 'object' && !Array.isArray(value));
 
-export const flattenLocaleText = (value: unknown, prefix = ''): Record<string, string> => {
+/**
+ * Flattens a locale file into dotted keys. With `includeArrays`, array items get numeric
+ * segments (`privacypolicy.sections.0.title`) — i18next resolves such paths too, so they can
+ * be overridden from the CMS like any other text.
+ */
+export const flattenLocaleText = (
+  value: unknown,
+  prefix = '',
+  options: { includeArrays?: boolean } = {},
+): Record<string, string> => {
   if (typeof value === 'string') return prefix ? { [prefix]: value } : {};
+  if (Array.isArray(value) && options.includeArrays) {
+    return value.reduce<Record<string, string>>((acc, nested, index) => {
+      Object.assign(acc, flattenLocaleText(nested, prefix ? `${prefix}.${index}` : String(index), options));
+      return acc;
+    }, {});
+  }
   if (!isObject(value)) return {};
 
   return Object.entries(value).reduce<Record<string, string>>((acc, [key, nested]) => {
-    Object.assign(acc, flattenLocaleText(nested, prefix ? `${prefix}.${key}` : key));
+    Object.assign(acc, flattenLocaleText(nested, prefix ? `${prefix}.${key}` : key, options));
     return acc;
   }, {});
 };

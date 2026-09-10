@@ -1,5 +1,6 @@
 /**
- * Seed CMS collections (pillars, experts, trustPoints) from translation.json.
+ * Seed the CMS experts collection from translation.json.
+ * (Pillars and trust points are page texts now — they ship in the locale files.)
  * Run on the server: npx tsx scripts/seed-cms-content.ts
  *
  * If records already exist in a collection, they are skipped (no duplicates).
@@ -15,17 +16,6 @@ type SeedDoc = Record<string, unknown>;
 
 const SEED_CONFIGS = [
   {
-    slug: 'pillars',
-    dataKey: 'pillars',
-    map: (item: SeedDoc, idx: number) => ({
-      label: item.label as string,
-      title: item.title as string,
-      description: item.description as string,
-      sortOrder: idx + 1,
-      isPublished: true,
-    }),
-  },
-  {
     slug: 'experts',
     dataKey: 'experts',
     map: (item: SeedDoc, idx: number) => ({
@@ -37,20 +27,9 @@ const SEED_CONFIGS = [
       isPublished: true,
     }),
   },
-  {
-    slug: 'trust-points',
-    dataKey: 'trustPoints',
-    map: (item: SeedDoc, idx: number) => ({
-      title: item.title as string,
-      description: item.description as string,
-      sortOrder: idx + 1,
-      isPublished: true,
-    }),
-  },
 ];
 
 const displayName = (slug: string, item: SeedDoc): string => {
-  if (slug === 'pillars') return (item.label as string) || (item.title as string) || '';
   if (slug === 'experts') return (item.name as string) || '';
   return (item.title as string) || '';
 };

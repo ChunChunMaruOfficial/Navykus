@@ -6,12 +6,8 @@ import path from 'node:path';
 import {
   ACTIVITIES,
   EXPERTS,
-  PILLARS,
-  SCENARIOS,
-  STATS,
   TEAM_MEMBERS,
   TOURNAMENTS,
-  TRUST_POINTS,
 } from '../src/data';
 import { OPPORTUNITIES } from '../src/components/OpportunitiesPage';
 import { DEFAULT_LANGUAGE, type SupportedLanguage } from '../src/i18n/languages';
@@ -197,23 +193,6 @@ const OPPORTUNITY_SEED = OPPORTUNITIES.map((item) => ({
   documents: list([]),
 }));
 
-const TRUST_POINT_SEED = [
-  ...TRUST_POINTS,
-  {
-    id: 'tr-6',
-    title: tr('ui.app.trustGrowthTitle'),
-    description: tr('ui.app.trustGrowthDescription'),
-  },
-].filter((item, index, items) => items.findIndex((candidate) => candidate.id === item.id) === index);
-
-const STAT_SEED = STATS.length > 0
-  ? STATS
-  : [
-      {
-        value: '15+',
-        label: tr('ui.app.ffecc101e5'),
-      },
-    ];
 
 // Idempotent seeding: match existing docs by a stable natural key (title/name/slug)
 // instead of the removed legacyId field.
@@ -477,39 +456,8 @@ const seed = async () => {
     });
   }
 
-  for (const [index, item] of TRUST_POINT_SEED.entries()) {
-    const { id: _legacyTrustPointId, ...trustPointData } = item;
-    await ensureByNaturalKey('trust-points', 'title', item.title, {
-      ...trustPointData,
-      sortOrder: index,
-      isPublished: true,
-    });
-  }
-
-  for (const [index, item] of PILLARS.entries()) {
-    await ensureByNaturalKey('pillars', 'label', item.label, {
-      ...item,
-      sortOrder: index,
-      isPublished: true,
-    });
-  }
-
-  for (const [index, item] of SCENARIOS.entries()) {
-    const { id: _legacyScenarioId, ...scenarioData } = item;
-    await ensureByNaturalKey('scenarios', 'title', item.title, {
-      ...scenarioData,
-      sortOrder: index,
-      isPublished: true,
-    });
-  }
-
-  for (const [index, item] of STAT_SEED.entries()) {
-    await ensureByNaturalKey('stats', 'label', item.label, {
-      ...item,
-      sortOrder: index,
-      isPublished: true,
-    });
-  }
+  // Pillars, trust points, scenarios and stats are page texts now (ui.app.pillar*/trust*/stat*,
+  // ui.activitiespage.scenario* in the locale files) — nothing to seed into the CMS.
 
   for (const [index, [, page, questionKey, answerKey]] of FAQ_SEED.entries()) {
     await ensureByNaturalKey('faqs', 'question', tr(questionKey), {

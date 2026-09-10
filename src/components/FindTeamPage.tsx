@@ -350,7 +350,7 @@ function DetailedProfileModal({
                   </span>
                 </div>
                 <div className="absolute bottom-4 left-4 right-4 rounded-xl border border-white/35 bg-white/18 px-3 py-2 text-left text-white shadow-sm backdrop-blur-md">
-                  <div className="text-[10px] font-mono uppercase tracking-widest text-white/70">participant photo</div>
+                  <div className="text-[10px] font-mono uppercase tracking-widest text-white/70">{t('ui.findteampage.participantPhotoLabel')}</div>
                   <div className="mt-0.5 truncate text-sm font-semibold">{member.name}</div>
                 </div>
               </div>                  {/* Contact Info */}
@@ -375,7 +375,7 @@ function DetailedProfileModal({
                   <button
                     onClick={handleOpenContact}
                     className="shrink-0 rounded-lg border border-white/50 bg-white/40 p-2 text-brand-slate hover:text-brand-dark hover:bg-white/70 transition-all cursor-pointer"
-                    title="Open"
+                    title={t('ui.findteampage.openContact')}
                   >
                     <ArrowUpRight className="h-3.5 w-3.5" />
                   </button>
@@ -462,7 +462,6 @@ function ProfileCard({
                 <span className="flex items-center gap-0.5">
                   <MapPin className="w-3 h-3" /> {COUNTRY_FLAGS[member.country] || ''} {member.country}
                 </span>
-                <span>UTC+3</span>
               </div>
             </div>
           </div>
@@ -1003,8 +1002,9 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
                       className={FIND_TEAM_SELECT_CLASS}
                     >
                       <option value="all">{t('ui.findteampage.803266d644')}</option>
-                      {tournaments.map((t) => (
-                        <option key={t.id}>{t.type}</option>
+                      {/* Several championships share a type («Кейс-чемпионат») — list each type once. */}
+                      {Array.from(new Set(tournaments.map((tournament) => tournament.type).filter(Boolean))).map((type) => (
+                        <option key={type}>{type}</option>
                       ))}
                     </select>
                   </div>

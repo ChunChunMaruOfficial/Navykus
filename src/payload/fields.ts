@@ -42,6 +42,18 @@ export const newlineListField = (name: string, label: string): Field => ({
   },
 });
 
+/** Sidebar panel with the state of the automatic translations into every site language. */
+export const translationStatusField: Field = {
+  name: 'translationStatus',
+  type: 'ui',
+  admin: {
+    position: 'sidebar',
+    components: {
+      Field: '../../../src/admin/components/TranslationStatusField#TranslationStatusField',
+    },
+  },
+};
+
 export const seoFields: Field[] = [
   {
     name: 'seoTitle',
@@ -160,6 +172,25 @@ export const syncTeamMemberPublicationData = (
   }
   return data;
 };
+
+/**
+ * Several legacy SQLite columns are NOT NULL, but Payload skips `required` validation when a
+ * draft is saved — so «Сохранить черновик» on a half-filled new document used to fail with a
+ * raw «NOT NULL constraint failed» error. Fill those columns with neutral values instead.
+ */
+export const fillNotNullDefaults = (
+  defaults: Record<string, string | number | (() => string | number)>,
+): CollectionBeforeChangeHook =>
+  ({ data, originalDoc }) => {
+    if (!data) return data;
+    for (const [field, fallback] of Object.entries(defaults)) {
+      const current = data[field] ?? originalDoc?.[field];
+      if (current === undefined || current === null || (typeof current === 'number' && Number.isNaN(current))) {
+        data[field] = typeof fallback === 'function' ? fallback() : fallback;
+      }
+    }
+    return data;
+  };
 
 export const syncPublishedDraftBeforeChange: CollectionBeforeChangeHook = ({ data, originalDoc }) =>
   syncPublishedDraftData(data as PublicationRecord, originalDoc as PublicationRecord | undefined);

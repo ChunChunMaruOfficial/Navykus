@@ -76,10 +76,6 @@ export interface Config {
     events: Event;
     opportunities: Opportunity;
     'team-members': TeamMember;
-    'trust-points': TrustPoint;
-    pillars: Pillar;
-    scenarios: Scenario;
-    stats: Stat;
     'contact-settings': ContactSetting;
     'operator-settings': OperatorSetting;
     'audit-logs': AuditLog;
@@ -106,10 +102,6 @@ export interface Config {
     events: EventsSelect<false> | EventsSelect<true>;
     opportunities: OpportunitiesSelect<false> | OpportunitiesSelect<true>;
     'team-members': TeamMembersSelect<false> | TeamMembersSelect<true>;
-    'trust-points': TrustPointsSelect<false> | TrustPointsSelect<true>;
-    pillars: PillarsSelect<false> | PillarsSelect<true>;
-    scenarios: ScenariosSelect<false> | ScenariosSelect<true>;
-    stats: StatsSelect<false> | StatsSelect<true>;
     'contact-settings': ContactSettingsSelect<false> | ContactSettingsSelect<true>;
     'operator-settings': OperatorSettingsSelect<false> | OperatorSettingsSelect<true>;
     'audit-logs': AuditLogsSelect<false> | AuditLogsSelect<true>;
@@ -221,101 +213,127 @@ export interface Media {
   focalY?: number | null;
 }
 /**
- * Чемпионаты и кубки для школьников. Один чемпионат = одна запись. Отметьте «Показывать на главной», чтобы он появился на главной странице и на странице «Чемпионат».
+ * Текущий чемпионат: всё, что показывается в блоке чемпионата на главной и на странице «Чемпионат». Прошлые чемпионаты — в разделе «Архив чемпионатов».
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tournaments".
  */
 export interface Tournament {
   id: number;
-  sortOrder?: number | null;
+  /**
+   * Активный чемпионат может быть только один. Чтобы сделать активным другой, откройте «Архив чемпионатов» и нажмите «Сделать активным» — текущий автоматически уйдёт в архив.
+   */
+  isFeatured?: boolean | null;
   isPublished?: boolean | null;
   /**
    * Язык, используемый как источник для AI-перевода.
    */
   originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
+  sortOrder?: number | null;
   /**
-   * Отметьте, чтобы чемпионат появился на главной странице
-   */
-  isFeatured?: boolean | null;
-  /**
-   * Показывается в шапке страницы чемпионата и в карточке на главной.
+   * Крупный заголовок в шапке страницы чемпионата и в карточке на главной.
    */
   title: string;
   /**
-   * Генерируется автоматически из названия, если пусто.
-   */
-  slug?: string | null;
-  /**
-   * Например: «Кейс-чемпионат», «Хакатон»
-   */
-  type: string;
-  /**
-   * Основной текст о чемпионате: полностью — в блоке «О чемпионате» на странице чемпионата, в укороченном виде — в карточке на главной.
-   */
-  description: string;
-  /**
-   * Одно-два предложения под названием в шапке страницы чемпионата. Если пусто, используется описание.
+   * Одно-два предложения под названием в шапке страницы чемпионата. Если пусто — показывается «Описание».
    */
   pitch?: string | null;
   /**
-   * Широкая обложка в карточке чемпионата на главной (пропорции примерно 32:7).
+   * Плашка в шапке и доступность формы заявки.
    */
-  coverImage?: (number | null) | Media;
+  registrationStatus: 'open' | 'suspended' | 'closed';
   /**
-   * Основное фото в шапке страницы чемпионата (пропорции примерно 4:3).
+   * Текстом. Показывается в плашке «Подача анкет открыта • До …», в карточке фактов и на главной.
+   */
+  registrationDeadline: string;
+  /**
+   * Справа от названия, пропорции примерно 4:3. Если пусто — берётся обложка, затем фото из «Дерева медиа».
    */
   heroImage?: (number | null) | Media;
   /**
-   * Даты события (текстом)
+   * Заполняется автоматически из названия.
+   */
+  slug?: string | null;
+  /**
+   * Карточка «Даты проведения» и строка «Сроки» на главной.
    */
   date: string;
   /**
-   * Дата окончания регистрации
+   * Карточка «Формат участия» и плашка в карточке на главной.
    */
-  registrationDeadline: string;
-  registrationStatus: 'open' | 'suspended' | 'closed';
+  format?: string | null;
+  /**
+   * Карточка «Кто участвует».
+   */
+  ageLimit?: string | null;
+  language?: string | null;
+  teamsAllowed?: string | null;
+  /**
+   * Если пусто — используется стандартный заголовок из «Дерева текстов».
+   */
+  aboutHeading?: string | null;
+  /**
+   * Основной текст о чемпионате. Также показывается в карточке на главной.
+   */
+  description: string;
+  /**
+   * Слева от описания, пропорции примерно 16:10. Если пусто — фото из «Дерева медиа».
+   */
+  aboutImage?: (number | null) | Media;
+  /**
+   * Одна тема на строку. Каждая строка — отдельная пронумерованная карточка.
+   */
+  themesText?: string | null;
+  /**
+   * Один критерий на строку.
+   */
+  evaluationCriteriaText?: string | null;
+  /**
+   * Блок «Ожидаемый результат». Пустое поле скрывает блок.
+   */
+  expectedResult?: string | null;
+  /**
+   * Широкая полоса сверху карточки (примерно 32:7). Если пусто — фото из «Дерева медиа».
+   */
+  coverImage?: (number | null) | Media;
+  /**
+   * Колонка «Кому подходит». Пустое поле скрывает колонку.
+   */
+  suitableFor?: string | null;
+  /**
+   * Колонка «Осталось мест». 0 — колонка скрыта.
+   */
   maxParticipants: number;
+  /**
+   * Теги внизу карточки на главной. Если на странице чемпионата не заполнены «Темы кейса», показываются они.
+   */
   skills?:
     | {
         value: string;
         id?: string | null;
       }[]
     | null;
-  mentors?:
-    | {
-        value: string;
-        id?: string | null;
-      }[]
-    | null;
-  suitableFor?: string | null;
   /**
-   * Карточка "Формат участия" на странице чемпионата. Первая строка - крупный текст, остальные строки - подпись. Пустое поле скрывает карточку.
+   * Например «Кейс-чемпионат». Используется в фильтре на странице «Поиск команды».
    */
-  format?: string | null;
-  targetAudience?: string | null;
-  ageLimit?: string | null;
-  teamsAllowed?: string | null;
-  language?: string | null;
-  expectedResult?: string | null;
+  type: string;
   /**
-   * Один пункт на строку.
-   */
-  themesText?: string | null;
-  /**
-   * Один пункт на строку.
-   */
-  evaluationCriteriaText?: string | null;
-  seoTitle?: string | null;
-  seoDescription?: string | null;
-  /**
-   * Каждая карточка — отдельный человек. Кнопка «Создать» сразу привяжет его к этому чемпионату. Порядок задаётся полем «Порядок» внутри карточки.
+   * Каждая строка — отдельный человек. Кнопка «Создать» сразу привяжет его к этому чемпионату. Порядок задаётся полем «Порядок» внутри карточки.
    */
   jury?: {
     docs?: (number | Expert)[];
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  mentors?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  targetAudience?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -411,91 +429,104 @@ export interface Faq {
   _status?: ('draft' | 'published') | null;
 }
 /**
- * Online & offline events (workshops, lectures, meetups)
+ * Карточки на странице «Активности»: воркшопы, лекции, хакатоны, встречи. Пишите на исходном языке — переводы на все языки сайта делаются автоматически сразу после сохранения.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "events".
  */
 export interface Event {
   id: number;
-  sortOrder?: number | null;
   isPublished?: boolean | null;
   /**
    * Язык, используемый как источник для AI-перевода.
    */
   originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
+  sortOrder?: number | null;
   title: string;
   /**
-   * Генерируется автоматически из заголовка, если пусто.
+   * Плашка на карточке и фильтр на странице.
    */
-  slug?: string | null;
+  eventType: 'educational' | 'project' | 'social' | 'online-meeting' | 'workshop' | 'team';
+  /**
+   * Переводится на сайте автоматически.
+   */
+  format: 'online' | 'offline' | 'hybrid';
+  /**
+   * 1–2 предложения для карточки.
+   */
   shortDescription: string;
   /**
-   * Подробное описание (необязательно)
+   * Обложка карточки (16:9). Если пусто — цветной фон категории.
    */
-  fullDescription?: string | null;
+  image?: (number | null) | Media;
+  /**
+   * Необязательно: ссылка на картинку, если файл не загружен выше.
+   */
   imageUrl?: string | null;
   /**
-   * Например: воркшоп, лекция, мастер-класс
+   * Заполняется автоматически из названия.
    */
-  eventType: string;
+  slug?: string | null;
   /**
-   * Техническая дата для сортировки и статуса. Время можно не показывать на сайте ниже.
+   * По ней сайт сортирует активности и ставит статус «Скоро» / «Завершено».
    */
   eventDate: string;
+  showTime?: boolean | null;
   /**
-   * Необязательно. Если заполнено, сайт покажет этот текст вместо автоматической даты.
+   * Если заполнено, сайт покажет этот текст вместо автоматической даты (переводится автоматически).
    */
   displayDate?: string | null;
-  /**
-   * Выключено по умолчанию: на карточках и в модалке показывается только дата.
-   */
-  showTime?: boolean | null;
-  timeZone?: string | null;
-  /**
-   * Дата без времени для блока предварительного опыта/условий.
-   */
-  registrationDeadline?: string | null;
-  participantLimit?: number | null;
-  format: 'online' | 'offline' | 'hybrid';
   country?: string | null;
   /**
-   * Физический адрес
+   * Адрес или площадка.
    */
   venue?: string | null;
   /**
-   * Ссылка Zoom/Google Meet
+   * Zoom / Google Meet. На сайте не показывается.
    */
   onlineLink?: string | null;
   /**
-   * Внешняя ссылка на регистрацию/заявку
+   * Показывается в блоке «Предварительный опыт», если тот пуст.
+   */
+  registrationDeadline?: string | null;
+  /**
+   * Показывается в блоке «Кому подходит» («до N участников»).
+   */
+  participantLimit?: number | null;
+  /**
+   * Куда ведёт кнопка «Принять участие».
    */
   registrationUrl: string;
-  speaker?: string | null;
-  languages?:
-    | {
-        value: string;
-        id?: string | null;
-      }[]
-    | null;
-  materials?:
-    | {
-        value: string;
-        id?: string | null;
-      }[]
-    | null;
+  timeZone?: string | null;
   /**
-   * Текст для блока "Кому подходит" в модальном окне активности.
+   * Если пусто — показывается короткое описание.
    */
+  fullDescription?: string | null;
   audience?: string | null;
   /**
    * Один пункт на строку.
    */
   outcomesText?: string | null;
   /**
-   * Если оставить пустым, сайт покажет дедлайн регистрации, если он заполнен.
+   * Если пусто — сайт покажет дедлайн регистрации.
    */
   prerequisites?: string | null;
+  speaker?: string | null;
+  languages?:
+    | {
+        value: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Добавляются в блок «Что вы получите».
+   */
+  materials?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
   seoTitle?: string | null;
   seoDescription?: string | null;
   updatedAt: string;
@@ -503,85 +534,104 @@ export interface Event {
   _status?: ('draft' | 'published') | null;
 }
 /**
- * External & internal opportunities for students (grants, internships, olympiads, etc.)
+ * Каталог «Возможности»: олимпиады, стажировки, гранты, летние школы. Пишите на исходном языке — переводы на все языки сайта делаются автоматически сразу после сохранения.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "opportunities".
  */
 export interface Opportunity {
   id: number;
-  sortOrder?: number | null;
   isPublished?: boolean | null;
   /**
    * Язык, используемый как источник для AI-перевода.
    */
   originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
+  sortOrder?: number | null;
   title: string;
   /**
-   * Генерируется автоматически из заголовка, если пусто.
+   * Показывается под названием.
    */
-  slug?: string | null;
   organization: string;
   /**
-   * Например: чемпионат, олимпиада, стажировка, грант
+   * Фильтр «Категория» в каталоге.
    */
-  opportunityType: string;
-  source?: ('navykus' | 'verified' | 'partner') | null;
-  /**
-   * ID категории фронтенда, например: championships, olympiads, internships, projects
-   */
-  category?: string | null;
+  category:
+    | 'championships'
+    | 'olympiads'
+    | 'contests'
+    | 'internships'
+    | 'projects'
+    | 'research'
+    | 'volunteering'
+    | 'grants'
+    | 'scholarships'
+    | 'hackathons'
+    | 'exchanges'
+    | 'summer'
+    | 'online';
   direction?: ('business' | 'science' | 'tech' | 'social' | 'creative' | 'leadership') | null;
-  participation?: ('individual' | 'team' | 'both') | null;
+  /**
+   * 1–2 предложения для карточки.
+   */
   shortDescription: string;
   /**
-   * Подробное описание (необязательно)
+   * Обложка карточки (16:9).
    */
-  fullDescription?: string | null;
-  logoUrl?: string | null;
+  image?: (number | null) | Media;
   /**
-   * Изображение карточки/деталей. Если пусто, используется логотип.
+   * Если файл не загружен.
    */
   imageUrl?: string | null;
+  /**
+   * Запасной вариант картинки.
+   */
+  logoUrl?: string | null;
+  /**
+   * Плашка на карточке.
+   */
+  source?: ('navykus' | 'verified' | 'partner') | null;
+  editorPick?: boolean | null;
+  recommended?: boolean | null;
+  /**
+   * Пусто — «приём заявок постоянно».
+   */
+  deadline?: string | null;
+  startDate?: string | null;
+  registrationOpen?: boolean | null;
+  format?: ('online' | 'offline' | 'hybrid') | null;
+  participation?: ('individual' | 'team' | 'both') | null;
+  cost?: ('free' | 'paid' | 'scholarship') | null;
   country?: string | null;
   city?: string | null;
-  format?: ('online' | 'offline' | 'hybrid') | null;
   ageMin?: number | null;
   ageMax?: number | null;
   /**
-   * Описание стоимости (например: "Бесплатно", "$50")
+   * Попадает в подборку «Скоро дедлайн» за 14 дней до срока.
    */
-  cost?: string | null;
-  funding?: boolean | null;
-  deadline?: string | null;
-  startDate?: string | null;
   finalDeadline?: boolean | null;
-  registrationOpen?: boolean | null;
-  seats?: number | null;
-  savedCount?: number | null;
-  editorPick?: boolean | null;
-  recommended?: boolean | null;
-  portfolioValue?: number | null;
-  publishedAt?: string | null;
   languages?:
     | {
-        value: string;
+        value: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
         id?: string | null;
       }[]
     | null;
-  skills?:
-    | {
-        value: string;
-        id?: string | null;
-      }[]
-    | null;
-  keywords?:
-    | {
-        value: string;
-        id?: string | null;
-      }[]
-    | null;
+  /**
+   * Номера классов, например 8, 9, 10. Используется фильтром «Класс».
+   */
   grades?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Если пусто — показывается короткое описание.
+   */
+  fullDescription?: string | null;
+  /**
+   * Первые три показываются тегами на карточке.
+   */
+  skills?:
     | {
         value: string;
         id?: string | null;
@@ -593,6 +643,9 @@ export interface Opportunity {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Блок «Что получите».
+   */
   benefits?:
     | {
         value: string;
@@ -606,9 +659,37 @@ export interface Opportunity {
       }[]
     | null;
   /**
-   * Внешняя ссылка на заявку
+   * Куда ведёт кнопка подачи заявки.
    */
   officialUrl: string;
+  /**
+   * Заполняется автоматически из названия.
+   */
+  slug?: string | null;
+  /**
+   * Не показываются, но помогают найти возможность поиском.
+   */
+  keywords?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * 70 и выше — попадает в фильтр «Ценно для портфолио».
+   */
+  portfolioValue?: number | null;
+  /**
+   * Чем больше, тем выше в сортировке «Популярные».
+   */
+  savedCount?: number | null;
+  /**
+   * Для сортировки «Новые». Если пусто — дата создания.
+   */
+  publishedAt?: string | null;
+  opportunityType?: string | null;
+  seats?: number | null;
+  funding?: boolean | null;
   internalApplicationsEnabled?: boolean | null;
   seoTitle?: string | null;
   seoDescription?: string | null;
@@ -650,8 +731,8 @@ export interface TeamMember {
   )[];
   targetProject?: string | null;
   whyLooking: string;
-  contact: string;
-  contactType: 'telegram' | 'email';
+  contact?: string | null;
+  contactType?: ('telegram' | 'email') | null;
   /**
    * Подтверждение согласия на обработку персональных данных и принятие регламента.
    */
@@ -690,104 +771,6 @@ export interface TeamMember {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "trust-points".
- */
-export interface TrustPoint {
-  id: number;
-  sortOrder?: number | null;
-  isPublished?: boolean | null;
-  /**
-   * Язык, используемый как источник для AI-перевода.
-   */
-  originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
-  title?: string | null;
-  description?: string | null;
-  seoTitle?: string | null;
-  seoDescription?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pillars".
- */
-export interface Pillar {
-  id: number;
-  sortOrder?: number | null;
-  isPublished?: boolean | null;
-  /**
-   * Язык, используемый как источник для AI-перевода.
-   */
-  originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
-  label: string;
-  title: string;
-  description: string;
-  seoTitle?: string | null;
-  seoDescription?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "scenarios".
- */
-export interface Scenario {
-  id: number;
-  sortOrder?: number | null;
-  isPublished?: boolean | null;
-  /**
-   * Язык, используемый как источник для AI-перевода.
-   */
-  originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
-  /**
-   * Название сценария, например: "Хочу попробовать"
-   */
-  title: string;
-  /**
-   * Кому подходит этот сценарий
-   */
-  who: string;
-  /**
-   * Почему стоит участвовать
-   */
-  why: string;
-  /**
-   * Текст кнопки действия
-   */
-  ctaText: string;
-  actionType: 'apply' | 'team' | 'activity' | 'general';
-  seoTitle?: string | null;
-  seoDescription?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "stats".
- */
-export interface Stat {
-  id: number;
-  sortOrder?: number | null;
-  isPublished?: boolean | null;
-  /**
-   * Язык, используемый как источник для AI-перевода.
-   */
-  originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
-  /**
-   * Например: "15+", "1000+"
-   */
-  value: string;
-  /**
-   * Например: "стран", "участников"
-   */
-  label: string;
-  seoTitle?: string | null;
-  seoDescription?: string | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * Contact information displayed in the site footer.
@@ -945,18 +928,7 @@ export interface PageMediaSlot {
 export interface ContentLocalization {
   id: number;
   sourceCollection:
-    | 'team-members'
-    | 'activities'
-    | 'events'
-    | 'experts'
-    | 'faqs'
-    | 'opportunities'
-    | 'pillars'
-    | 'scenarios'
-    | 'stats'
-    | 'trust-points'
-    | 'tournaments'
-    | 'page-texts';
+    'team-members' | 'activities' | 'events' | 'experts' | 'faqs' | 'opportunities' | 'tournaments' | 'page-texts';
   sourceId: string;
   language: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
   localizedData:
@@ -1035,22 +1007,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'team-members';
         value: number | TeamMember;
-      } | null)
-    | ({
-        relationTo: 'trust-points';
-        value: number | TrustPoint;
-      } | null)
-    | ({
-        relationTo: 'pillars';
-        value: number | Pillar;
-      } | null)
-    | ({
-        relationTo: 'scenarios';
-        value: number | Scenario;
-      } | null)
-    | ({
-        relationTo: 'stats';
-        value: number | Stat;
       } | null)
     | ({
         relationTo: 'contact-settings';
@@ -1171,20 +1127,29 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "tournaments_select".
  */
 export interface TournamentsSelect<T extends boolean = true> {
-  sortOrder?: T;
+  isFeatured?: T;
   isPublished?: T;
   originalLanguage?: T;
-  isFeatured?: T;
+  sortOrder?: T;
   title?: T;
-  slug?: T;
-  type?: T;
-  description?: T;
   pitch?: T;
-  coverImage?: T;
-  heroImage?: T;
-  date?: T;
-  registrationDeadline?: T;
   registrationStatus?: T;
+  registrationDeadline?: T;
+  heroImage?: T;
+  slug?: T;
+  date?: T;
+  format?: T;
+  ageLimit?: T;
+  language?: T;
+  teamsAllowed?: T;
+  aboutHeading?: T;
+  description?: T;
+  aboutImage?: T;
+  themesText?: T;
+  evaluationCriteriaText?: T;
+  expectedResult?: T;
+  coverImage?: T;
+  suitableFor?: T;
   maxParticipants?: T;
   skills?:
     | T
@@ -1192,24 +1157,17 @@ export interface TournamentsSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  type?: T;
+  jury?: T;
+  seoTitle?: T;
+  seoDescription?: T;
   mentors?:
     | T
     | {
         value?: T;
         id?: T;
       };
-  suitableFor?: T;
-  format?: T;
   targetAudience?: T;
-  ageLimit?: T;
-  teamsAllowed?: T;
-  language?: T;
-  expectedResult?: T;
-  themesText?: T;
-  evaluationCriteriaText?: T;
-  seoTitle?: T;
-  seoDescription?: T;
-  jury?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1288,26 +1246,30 @@ export interface FaqsSelect<T extends boolean = true> {
  * via the `definition` "events_select".
  */
 export interface EventsSelect<T extends boolean = true> {
-  sortOrder?: T;
   isPublished?: T;
   originalLanguage?: T;
+  sortOrder?: T;
   title?: T;
-  slug?: T;
-  shortDescription?: T;
-  fullDescription?: T;
-  imageUrl?: T;
   eventType?: T;
-  eventDate?: T;
-  displayDate?: T;
-  showTime?: T;
-  timeZone?: T;
-  registrationDeadline?: T;
-  participantLimit?: T;
   format?: T;
+  shortDescription?: T;
+  image?: T;
+  imageUrl?: T;
+  slug?: T;
+  eventDate?: T;
+  showTime?: T;
+  displayDate?: T;
   country?: T;
   venue?: T;
   onlineLink?: T;
+  registrationDeadline?: T;
+  participantLimit?: T;
   registrationUrl?: T;
+  timeZone?: T;
+  fullDescription?: T;
+  audience?: T;
+  outcomesText?: T;
+  prerequisites?: T;
   speaker?: T;
   languages?:
     | T
@@ -1321,9 +1283,6 @@ export interface EventsSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
-  audience?: T;
-  outcomesText?: T;
-  prerequisites?: T;
   seoTitle?: T;
   seoDescription?: T;
   updatedAt?: T;
@@ -1335,57 +1294,45 @@ export interface EventsSelect<T extends boolean = true> {
  * via the `definition` "opportunities_select".
  */
 export interface OpportunitiesSelect<T extends boolean = true> {
-  sortOrder?: T;
   isPublished?: T;
   originalLanguage?: T;
+  sortOrder?: T;
   title?: T;
-  slug?: T;
   organization?: T;
-  opportunityType?: T;
-  source?: T;
   category?: T;
   direction?: T;
-  participation?: T;
   shortDescription?: T;
-  fullDescription?: T;
-  logoUrl?: T;
+  image?: T;
   imageUrl?: T;
-  country?: T;
-  city?: T;
-  format?: T;
-  ageMin?: T;
-  ageMax?: T;
-  cost?: T;
-  funding?: T;
-  deadline?: T;
-  startDate?: T;
-  finalDeadline?: T;
-  registrationOpen?: T;
-  seats?: T;
-  savedCount?: T;
+  logoUrl?: T;
+  source?: T;
   editorPick?: T;
   recommended?: T;
-  portfolioValue?: T;
-  publishedAt?: T;
+  deadline?: T;
+  startDate?: T;
+  registrationOpen?: T;
+  format?: T;
+  participation?: T;
+  cost?: T;
+  country?: T;
+  city?: T;
+  ageMin?: T;
+  ageMax?: T;
+  finalDeadline?: T;
   languages?:
     | T
     | {
         value?: T;
         id?: T;
       };
-  skills?:
-    | T
-    | {
-        value?: T;
-        id?: T;
-      };
-  keywords?:
-    | T
-    | {
-        value?: T;
-        id?: T;
-      };
   grades?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  fullDescription?: T;
+  skills?:
     | T
     | {
         value?: T;
@@ -1410,6 +1357,19 @@ export interface OpportunitiesSelect<T extends boolean = true> {
         id?: T;
       };
   officialUrl?: T;
+  slug?: T;
+  keywords?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  portfolioValue?: T;
+  savedCount?: T;
+  publishedAt?: T;
+  opportunityType?: T;
+  seats?: T;
+  funding?: T;
   internalApplicationsEnabled?: T;
   seoTitle?: T;
   seoDescription?: T;
@@ -1463,70 +1423,6 @@ export interface TeamMembersSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "trust-points_select".
- */
-export interface TrustPointsSelect<T extends boolean = true> {
-  sortOrder?: T;
-  isPublished?: T;
-  originalLanguage?: T;
-  title?: T;
-  description?: T;
-  seoTitle?: T;
-  seoDescription?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pillars_select".
- */
-export interface PillarsSelect<T extends boolean = true> {
-  sortOrder?: T;
-  isPublished?: T;
-  originalLanguage?: T;
-  label?: T;
-  title?: T;
-  description?: T;
-  seoTitle?: T;
-  seoDescription?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "scenarios_select".
- */
-export interface ScenariosSelect<T extends boolean = true> {
-  sortOrder?: T;
-  isPublished?: T;
-  originalLanguage?: T;
-  title?: T;
-  who?: T;
-  why?: T;
-  ctaText?: T;
-  actionType?: T;
-  seoTitle?: T;
-  seoDescription?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "stats_select".
- */
-export interface StatsSelect<T extends boolean = true> {
-  sortOrder?: T;
-  isPublished?: T;
-  originalLanguage?: T;
-  value?: T;
-  label?: T;
-  seoTitle?: T;
-  seoDescription?: T;
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

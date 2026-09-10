@@ -6,6 +6,7 @@ export type CmsTournamentDoc = {
   type: string;
   description: string;
   pitch?: string;
+  aboutHeading?: string;
   date: string;
   registrationDeadline: string;
   maxParticipants: number;
@@ -22,7 +23,10 @@ export type CmsTournamentDoc = {
   evaluationCriteriaText?: string;
   coverImage?: string | null;
   heroImage?: string | null;
+  aboutImage?: string | null;
   registrationStatus?: 'open' | 'suspended' | 'closed';
+  seoTitle?: string;
+  seoDescription?: string;
 };
 
 export type CmsMappedTournament = {
@@ -31,6 +35,7 @@ export type CmsMappedTournament = {
   type: string;
   description: string;
   pitch: string;
+  aboutHeading: string;
   date: string;
   registrationDeadline: string;
   maxParticipants: number;
@@ -47,7 +52,10 @@ export type CmsMappedTournament = {
   evaluationCriteriaText: string;
   coverImage: string;
   heroImage: string;
+  aboutImage: string;
   registrationStatus: 'open' | 'suspended' | 'closed';
+  seoTitle: string;
+  seoDescription: string;
 };
 
 const listValues = (items: unknown): string[] => {
@@ -59,36 +67,43 @@ const listValues = (items: unknown): string[] => {
   }).filter(Boolean);
 };
 
+const text = (value: unknown) => (typeof value === 'string' ? value.trim() : '');
+
 const mapCmsDoc = (doc: CmsTournamentDoc): CmsMappedTournament => ({
   id: String(doc.id),
-  title: doc.title?.trim() || '',
-  type: doc.type || '',
-  description: doc.description || '',
-  pitch: doc.pitch || '',
-  date: doc.date || '',
-  registrationDeadline: doc.registrationDeadline || '',
-  maxParticipants: doc.maxParticipants || 0,
+  title: text(doc.title),
+  type: text(doc.type),
+  description: text(doc.description),
+  pitch: text(doc.pitch),
+  aboutHeading: text(doc.aboutHeading),
+  date: text(doc.date),
+  registrationDeadline: text(doc.registrationDeadline),
+  maxParticipants: Number(doc.maxParticipants) || 0,
   skills: listValues(doc.skills),
   mentors: listValues(doc.mentors),
-  suitableFor: doc.suitableFor || '',
-  format: doc.format || '',
-  targetAudience: doc.targetAudience || '',
-  ageLimit: doc.ageLimit || '',
-  teamsAllowed: doc.teamsAllowed || '',
-  language: doc.language || '',
-  expectedResult: doc.expectedResult || '',
-  themesText: doc.themesText || '',
-  evaluationCriteriaText: doc.evaluationCriteriaText || '',
-  coverImage: typeof doc.coverImage === 'string' ? doc.coverImage : '',
-  heroImage: typeof doc.heroImage === 'string' ? doc.heroImage : '',
+  suitableFor: text(doc.suitableFor),
+  format: text(doc.format),
+  targetAudience: text(doc.targetAudience),
+  ageLimit: text(doc.ageLimit),
+  teamsAllowed: text(doc.teamsAllowed),
+  language: text(doc.language),
+  expectedResult: text(doc.expectedResult),
+  themesText: text(doc.themesText),
+  evaluationCriteriaText: text(doc.evaluationCriteriaText),
+  coverImage: text(doc.coverImage),
+  heroImage: text(doc.heroImage),
+  aboutImage: text(doc.aboutImage),
   registrationStatus: ['open', 'suspended', 'closed'].includes(doc.registrationStatus || '')
     ? doc.registrationStatus as CmsMappedTournament['registrationStatus']
     : 'open',
+  seoTitle: text(doc.seoTitle),
+  seoDescription: text(doc.seoDescription),
 });
 
 const hasVisibleTournamentText = (doc: CmsMappedTournament) =>
   Boolean(doc.title || doc.description || doc.pitch || doc.type);
 
+/** All published championships (active + archive). Used for filters, not for display. */
 export const useCmsTournamentsState = () => {
   const language = useCmsLanguage();
   const collection = useCmsCollection<CmsTournamentDoc, CmsMappedTournament>({
@@ -104,4 +119,22 @@ export const useCmsTournamentsState = () => {
 
 export const useCmsTournaments = () => {
   return useCmsTournamentsState().data;
+};
+
+/**
+ * The single active championship (the one editors see under «Чемпионат» in the CMS).
+ * Drives both the home page block and the championship page.
+ */
+export const useActiveChampionship = () => {
+  const language = useCmsLanguage();
+  const collection = useCmsCollection<CmsTournamentDoc, CmsMappedTournament>({
+    path: `/api/championships/active?lang=${encodeURIComponent(language)}`,
+    map: mapCmsDoc,
+    filter: hasVisibleTournamentText,
+  });
+  return {
+    championship: collection.data?.[0] ?? null,
+    isLoading: collection.isLoading,
+    hasLoadError: collection.hasLoadError,
+  };
 };

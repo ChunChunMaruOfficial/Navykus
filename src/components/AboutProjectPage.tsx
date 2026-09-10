@@ -414,7 +414,7 @@ export default function AboutProjectPage({
             {...fadeUp}
             className="mb-10 text-center space-y-3"
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif text-brand-dark tracking-tight">{t('ui.findteampage.f119ad282e')}</h2>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif text-brand-dark tracking-tight">{t('ui.aboutprojectpage.faqHeading')}</h2>
           </motion.div>
 
           <div className="space-y-4">
@@ -470,11 +470,11 @@ export default function AboutProjectPage({
               <button
                 onClick={onOpenApplyModal}
                 className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white hover:opacity-95 text-xs font-mono tracking-widest rounded-xl transition-all shadow-lg shadow-[#bc4638]/15 cursor-pointer font-bold uppercase"
-              >{t('ui.app.24cd8dc78d')}</button>
+              >{t('ui.aboutprojectpage.ctaApply')}</button>
               <button
                 onClick={() => handleNavigateFromAbout('scenarios')}
                 className="w-full sm:w-auto px-8 py-3.5 bg-white/50 border border-[#d8d1cc] text-[#5b6472] hover:border-[#bc4638]/60 text-xs font-mono tracking-widest rounded-xl transition-all cursor-pointer uppercase font-semibold"
-              >{t('ui.app.d4b60991e4')}</button>
+              >{t('ui.aboutprojectpage.ctaFindTeam')}</button>
             </div>
           </motion.div>
         </section>

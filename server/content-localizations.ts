@@ -2,7 +2,11 @@ import type { Request } from 'express';
 import type { Payload } from 'payload';
 
 import { DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES, type SupportedLanguage } from '../src/i18n/languages';
-import type { SupportedContentCollection } from '../src/payload/localization';
+import {
+  localizableContentFields,
+  localizationSourceLanguage,
+  type SupportedContentCollection,
+} from '../src/payload/localization';
 
 const payloadId = (value: string | number) => (typeof value === 'number' ? value : /^\d+$/.test(value) ? Number(value) : value);
 
@@ -32,8 +36,14 @@ const parseLocalizedData = (value: unknown): Record<string, unknown> => {
   return typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
 };
 
-const mergeLocalizedData = (doc: Record<string, unknown>, localizedData: Record<string, unknown>) => {
+const mergeLocalizedData = (
+  doc: Record<string, unknown>,
+  localizedData: Record<string, unknown>,
+  allowedFields: ReadonlySet<string>,
+) => {
   for (const [key, value] of Object.entries(localizedData)) {
+    // Older translations may still carry fields that are no longer translated (slug, codes…).
+    if (!allowedFields.has(key)) continue;
     if (Array.isArray(value)) {
       doc[key] = value.flatMap((item) => {
         if (Array.isArray(item)) return item;
@@ -46,26 +56,12 @@ const mergeLocalizedData = (doc: Record<string, unknown>, localizedData: Record<
   }
 };
 
-const PENDING_CLEAR_FIELDS: Record<SupportedContentCollection, readonly string[]> = {
-  'team-members': ['country', 'city', 'shortBio', 'interests', 'skills', 'targetProject', 'whyLooking'],
-  activities: ['title', 'shortDescription', 'fullDescription', 'format', 'date', 'category', 'status', 'who', 'benefits', 'prerequisites', 'ctaText', 'seoTitle', 'seoDescription'],
-  events: ['title', 'shortDescription', 'fullDescription', 'eventType', 'displayDate', 'country', 'venue', 'speaker', 'languages', 'materials', 'audience', 'outcomesText', 'prerequisites', 'seoTitle', 'seoDescription'],
-  experts: ['name', 'role', 'expertise', 'description', 'seoTitle', 'seoDescription'],
-  faqs: ['question', 'answer', 'seoTitle', 'seoDescription'],
-  opportunities: ['title', 'opportunityType', 'shortDescription', 'fullDescription', 'country', 'cost', 'languages', 'requirements', 'benefits', 'documents', 'seoTitle', 'seoDescription'],
-  pillars: ['label', 'title', 'description', 'seoTitle', 'seoDescription'],
-  scenarios: ['title', 'who', 'why', 'ctaText', 'actionType', 'seoTitle', 'seoDescription'],
-  stats: ['value', 'label', 'seoTitle', 'seoDescription'],
-  'trust-points': ['title', 'description', 'seoTitle', 'seoDescription'],
-  tournaments: ['title', 'type', 'description', 'pitch', 'date', 'registrationDeadline', 'skills', 'mentors', 'suitableFor', 'format', 'targetAudience', 'ageLimit', 'teamsAllowed', 'language', 'expectedResult', 'themesText', 'evaluationCriteriaText', 'seoTitle', 'seoDescription'],
-  'page-texts': ['value'],
-};
 
 const clearPendingLocalizedFields = (
   doc: Record<string, unknown>,
   collection: SupportedContentCollection,
 ) => {
-  for (const field of PENDING_CLEAR_FIELDS[collection]) {
+  for (const field of localizableContentFields(collection)) {
     if (!Object.prototype.hasOwnProperty.call(doc, field)) continue;
     doc[field] = Array.isArray(doc[field]) ? [] : '';
   }
@@ -78,9 +74,13 @@ export const applyLocalizations = async <T extends Record<string, unknown>>(
   docs: T[],
   language: SupportedLanguage,
 ) => {
-  if (!docs.length || language === DEFAULT_LANGUAGE) return docs;
+  if (!docs.length) return docs;
 
-  const ids = docs.map((doc) => String(doc.id || '')).filter(Boolean);
+  // Documents written in the requested language are shown as they are (no translation exists
+  // for them); every other document needs the translation into `language` — including Russian
+  // visitors looking at content that was originally written in another language.
+  const translatable = docs.filter((doc) => localizationSourceLanguage(collection, doc) !== language);
+  const ids = translatable.map((doc) => String(doc.id || '')).filter(Boolean);
   if (!ids.length) return docs;
 
   const result = await payload.find({
@@ -90,25 +90,26 @@ export const applyLocalizations = async <T extends Record<string, unknown>>(
         { sourceCollection: { equals: collection } },
         { sourceId: { in: ids } },
         { language: { equals: language } },
-        { translationStatus: { equals: 'ready' } },
       ],
     },
-    limit: ids.length,
+    limit: ids.length * 2,
     overrideAccess: true,
   });
 
-  const localizedBySource = new Map(
-    (result.docs as Array<Record<string, unknown>>).map((doc) => [
-      String(doc.sourceId || relationId(doc.sourceId)),
-      parseLocalizedData(doc.localizedData),
-    ]),
+  const records = new Map(
+    (result.docs as Array<Record<string, unknown>>).map((doc) => [String(doc.sourceId || relationId(doc.sourceId)), doc]),
   );
+  const allowedFields = new Set(localizableContentFields(collection));
 
-  for (const doc of docs) {
-    const localizedData = localizedBySource.get(String(doc.id || ''));
-    if (localizedData) {
-      mergeLocalizedData(doc, localizedData);
+  for (const doc of translatable) {
+    const record = records.get(String(doc.id || ''));
+    if (record?.translationStatus === 'ready') {
+      mergeLocalizedData(doc, parseLocalizedData(record.localizedData), allowedFields);
+    } else if (record?.translationStatus === 'failed') {
+      // The translator gave up (for now): show the original text rather than an empty card.
+      continue;
     } else {
+      // Translation is queued / running: hide the untranslated text until it is ready.
       clearPendingLocalizedFields(doc, collection);
     }
   }

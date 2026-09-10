@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import i18next from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'motion/react';
 import {
@@ -109,6 +110,7 @@ type Opportunity = {
   recommended: boolean;
   requirements: LText[];
   outcomes: LText[];
+  documents?: LText[];
   externalUrl?: string;
   portfolioValue: number;
   publishedAt: string;
@@ -168,126 +170,117 @@ const lt = (value: Record<string, string>): LText => ({
   tr: value.tr,
 });
 
-const pick = (value: LText, language: SupportedLanguage) => value[language] || value.ru;
+// Interface copy lives in the locale files (ui.opportunitiespage.*) so it can be edited in
+// «Дерево текстов» → «Активности»; CMS content arrives already translated as plain LText.
+type TextKey = { key: string };
+type UIText = LText | TextKey;
+const tk = (key: string): TextKey => ({ key });
 
-export const OPPORTUNITIES_NAV_LABELS: LText = lt({
-  ru: '\u0412\u043e\u0437\u043c\u043e\u0436\u043d\u043e\u0441\u0442\u0438',
-  en: 'Opportunities',
-  kk: '\u041c\u04af\u043c\u043a\u0456\u043d\u0434\u0456\u043a\u0442\u0435\u0440',
-  uz: 'Imkoniyatlar',
-  ar: 'الفرص',
-  de: 'Chancen',
-  es: 'Oportunidades',
-  tr: 'Fırsatlar',
-});
+const pick = (value: UIText, language: SupportedLanguage) =>
+  'key' in value ? i18next.t(value.key, { lng: language }) : value[language] || value.ru;
+
+export const OPPORTUNITIES_NAV_LABELS: UIText = tk('ui.opportunitiespage.navLabel');
 
 const UI = {
-  breadcrumbHome: lt({ ru: '\u0413\u043b\u0430\u0432\u043d\u0430\u044f', en: 'Home', kk: '\u0411\u0430\u0441\u0442\u044b \u0431\u0435\u0442', uz: 'Bosh sahifa', ar: 'الرئيسية', de: 'Startseite', es: 'Inicio', tr: 'Ana sayfa' }),
-  title: lt({ ru: '\u0412\u043e\u0437\u043c\u043e\u0436\u043d\u043e\u0441\u0442\u0438 \u0434\u043b\u044f \u0448\u043a\u043e\u043b\u044c\u043d\u0438\u043a\u043e\u0432', en: 'Opportunities for students', kk: '\u041e\u049b\u0443\u0448\u044b\u043b\u0430\u0440\u0493\u0430 \u0430\u0440\u043d\u0430\u043b\u0493\u0430\u043d \u043c\u04af\u043c\u043a\u0456\u043d\u0434\u0456\u043a\u0442\u0435\u0440', uz: 'Oquvchilar uchun imkoniyatlar', ar: 'فرص للطلاب', de: 'Chancen für Schüler', es: 'Oportunidades para estudiantes', tr: 'Öğrenciler için fırsatlar' }),
-  heroText: lt({
-    ru: '\u041d\u0430\u0445\u043e\u0434\u0438\u0442\u0435 \u0447\u0435\u043c\u043f\u0438\u043e\u043d\u0430\u0442\u044b, \u0441\u0442\u0430\u0436\u0438\u0440\u043e\u0432\u043a\u0438, \u0433\u0440\u0430\u043d\u0442\u044b, \u0438\u0441\u0441\u043b\u0435\u0434\u043e\u0432\u0430\u043d\u0438\u044f, \u043f\u0440\u043e\u0435\u043a\u0442\u043d\u044b\u0435 \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u043c\u044b \u0438 \u043c\u0435\u0436\u0434\u0443\u043d\u0430\u0440\u043e\u0434\u043d\u044b\u0435 \u043c\u0435\u0440\u043e\u043f\u0440\u0438\u044f\u0442\u0438\u044f, \u043a\u043e\u0442\u043e\u0440\u044b\u0435 \u043f\u043e\u043c\u043e\u0433\u0443\u0442 \u0440\u0430\u0437\u0432\u0438\u0432\u0430\u0442\u044c \u043d\u0430\u0432\u044b\u043a\u0438 \u0438 \u0441\u043e\u0437\u0434\u0430\u0432\u0430\u0442\u044c \u0440\u0435\u0430\u043b\u044c\u043d\u044b\u0435 \u043f\u0440\u043e\u0435\u043a\u0442\u044b.',
-    en: 'Find championships, internships, grants, research, project programs and global events that help build skills and real projects.',
-    kk: '\u0414\u0430\u0493\u0434\u044b\u043b\u0430\u0440\u0434\u044b \u0434\u0430\u043c\u044b\u0442\u044b\u043f, \u043d\u0430\u049b\u0442\u044b \u0436\u043e\u0431\u0430\u043b\u0430\u0440 \u0436\u0430\u0441\u0430\u0443\u0493\u0430 \u043a\u04e9\u043c\u0435\u043a\u0442\u0435\u0441\u0435\u0442\u0456\u043d \u0447\u0435\u043c\u043f\u0438\u043e\u043d\u0430\u0442\u0442\u0430\u0440, \u0442\u0430\u0493\u044b\u043b\u044b\u043c\u0434\u0430\u043c\u0430\u043b\u0430\u0440, \u0433\u0440\u0430\u043d\u0442\u0442\u0430\u0440, \u0437\u0435\u0440\u0442\u0442\u0435\u0443\u043b\u0435\u0440 \u0436\u04d9\u043d\u0435 \u0445\u0430\u043b\u044b\u049b\u0430\u0440\u0430\u043b\u044b\u049b \u0431\u0430\u0493\u0434\u0430\u0440\u043b\u0430\u043c\u0430\u043b\u0430\u0440\u0434\u044b \u0442\u0430\u0431\u044b\u04a3\u044b\u0437.',
-    uz: 'Konikmalarni rivojlantiradigan va haqiqiy loyihalar yaratishga yordam beradigan chempionatlar, amaliyotlar, grantlar va xalqaro dasturlarni toping.',
-    ar: 'اعثر على بطولات وتدريبات ومنح وبرامج بحث ومشاريع دولية تساعدك على بناء المهارات والمشاريع الحقيقية.',
-    de: 'Finde Wettbewerbe, Praktika, Stipendien, Forschung, Projektprogramme und internationale Events für echte Skills und Projekte.',
-    es: 'Encuentra campeonatos, prácticas, becas, investigación, programas de proyectos y eventos internacionales para crear proyectos reales.',
-    tr: 'Becerileri geliştiren ve gerçek projeler üretmeye yardımcı olan şampiyonaları, stajları, hibeleri, araştırmaları ve uluslararası programları keşfet.',
-  }),
-  search: lt({ ru: '\u041f\u043e\u0438\u0441\u043a \u043f\u043e \u043d\u0430\u0437\u0432\u0430\u043d\u0438\u044e, \u043d\u0430\u0432\u044b\u043a\u0430\u043c, \u0441\u0442\u0440\u0430\u043d\u0435, \u043e\u0440\u0433\u0430\u043d\u0438\u0437\u0430\u0442\u043e\u0440\u0443...', en: 'Search by title, skills, country, organizer...', kk: '\u0410\u0442\u0430\u0443\u044b, \u0434\u0430\u0493\u0434\u044b\u043b\u0430\u0440, \u0435\u043b, \u04b1\u0439\u044b\u043c\u0434\u0430\u0441\u0442\u044b\u0440\u0443\u0448\u044b \u0431\u043e\u0439\u044b\u043d\u0448\u0430 \u0456\u0437\u0434\u0435\u0443...', uz: 'Nomi, konikmalar, mamlakat, tashkilotchi boyicha qidirish...', ar: 'ابحث بالعنوان أو المهارات أو البلد أو المنظم...', de: 'Suche nach Titel, Skills, Land, Organisation...', es: 'Buscar por título, habilidades, país u organizador...', tr: 'Başlık, beceri, ülke veya düzenleyici ile ara...' }),
-  published: lt({ ru: '\u043e\u043f\u0443\u0431\u043b\u0438\u043a\u043e\u0432\u0430\u043d\u043d\u044b\u0445 \u0432\u043e\u0437\u043c\u043e\u0436\u043d\u043e\u0441\u0442\u0435\u0439', en: 'published opportunities', kk: '\u0436\u0430\u0440\u0438\u044f\u043b\u0430\u043d\u0493\u0430\u043d \u043c\u04af\u043c\u043a\u0456\u043d\u0434\u0456\u043a', uz: 'e’lon qilingan imkoniyat', ar: 'فرصة منشورة', de: 'veröffentlichte Chancen', es: 'oportunidades publicadas', tr: 'yayındaki fırsat' }),
-  recommended: lt({ ru: '\u0420\u0435\u043a\u043e\u043c\u0435\u043d\u0434\u0443\u0435\u043c', en: 'Recommended', kk: '\u04b0\u0441\u044b\u043d\u044b\u043b\u0430\u0434\u044b', uz: 'Tavsiya qilamiz', ar: 'موصى به', de: 'Empfohlen', es: 'Recomendamos', tr: 'Önerilen' }),
-  urgent: lt({ ru: '\u0423\u0441\u043f\u0435\u0439 \u043f\u043e\u0434\u0430\u0442\u044c \u0437\u0430\u044f\u0432\u043a\u0443', en: 'Apply soon', kk: '\u04e8\u0442\u0456\u043d\u0456\u043c \u0431\u0435\u0440\u0443\u0433\u0435 \u04af\u043b\u0433\u0435\u0440', uz: 'Ariza berishga ulgur', ar: 'قدّم قريباً', de: 'Bald bewerben', es: 'Postula pronto', tr: 'Yakında başvur' }),
-  filters: lt({ ru: '\u0424\u0438\u043b\u044c\u0442\u0440\u044b', en: 'Filters', kk: '\u0421\u04af\u0437\u0433\u0456\u043b\u0435\u0440', uz: 'Filtrlar', ar: 'الفلاتر', de: 'Filter', es: 'Filtros', tr: 'Filtreler' }),
-  results: lt({ ru: '\u0440\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442\u043e\u0432', en: 'results', kk: '\u043d\u04d9\u0442\u0438\u0436\u0435', uz: 'natija', ar: 'نتيجة', de: 'Ergebnisse', es: 'resultados', tr: 'sonuç' }),
-  sort: lt({ ru: '\u0421\u043e\u0440\u0442\u0438\u0440\u043e\u0432\u043a\u0430', en: 'Sort', kk: '\u0421\u04b1\u0440\u044b\u043f\u0442\u0430\u0443', uz: 'Saralash', ar: 'الترتيب', de: 'Sortieren', es: 'Ordenar', tr: 'Sırala' }),
-  loadMore: lt({ ru: '\u041f\u043e\u043a\u0430\u0437\u0430\u0442\u044c \u0435\u0449\u0451', en: 'Show more', kk: '\u0422\u0430\u0493\u044b \u043a\u04e9\u0440\u0441\u0435\u0442\u0443', uz: 'Yana korsatish', ar: 'عرض المزيد', de: 'Mehr anzeigen', es: 'Mostrar más', tr: 'Daha fazla göster' }),
-  details: lt({ ru: '\u041f\u043e\u0434\u0440\u043e\u0431\u043d\u0435\u0435', en: 'Details', kk: '\u0422\u043e\u043b\u044b\u0493\u044b\u0440\u0430\u049b', uz: 'Batafsil', ar: 'تفاصيل', de: 'Details', es: 'Detalles', tr: 'Detaylar' }),
-  compare: lt({ ru: '\u0421\u0440\u0430\u0432\u043d\u0438\u0442\u044c', en: 'Compare', kk: '\u0421\u0430\u043b\u044b\u0441\u0442\u044b\u0440\u0443', uz: 'Solishtirish', ar: 'قارن', de: 'Vergleichen', es: 'Comparar', tr: 'Karşılaştır' }),
-  fromNavykus: lt({ ru: '\u041e\u0442 \u041d\u0430\u0432\u044b\u043a\u0443\u0441', en: 'By Navykus', kk: '\u041d\u0430\u0432\u044b\u043a\u0443\u0441\u0442\u0430\u043d', uz: 'Navykusdan', ar: 'من Navykus', de: 'Von Navykus', es: 'De Navykus', tr: 'Navykus tarafından' }),
-  verified: lt({ ru: '\u041f\u0440\u043e\u0432\u0435\u0440\u0435\u043d\u043e', en: 'Verified', kk: '\u0422\u0435\u043a\u0441\u0435\u0440\u0456\u043b\u0433\u0435\u043d', uz: 'Tekshirilgan', ar: 'موثّق', de: 'Geprüft', es: 'Verificado', tr: 'Doğrulandı' }),
-  partner: lt({ ru: '\u041f\u0430\u0440\u0442\u043d\u0451\u0440', en: 'Partner', kk: '\u0421\u0435\u0440\u0456\u043a\u0442\u0435\u0441', uz: 'Hamkor', ar: 'شريك', de: 'Partner', es: 'Socio', tr: 'Ortak' }),
-  deadline: lt({ ru: '\u0414\u0435\u0434\u043b\u0430\u0439\u043d', en: 'Deadline', kk: '\u041c\u0435\u0440\u0437\u0456\u043c', uz: 'Muddat', ar: 'الموعد النهائي', de: 'Frist', es: 'Fecha límite', tr: 'Son tarih' }),
-  daysLeft: lt({ ru: '\u0434\u043d. \u043e\u0441\u0442\u0430\u043b\u043e\u0441\u044c', en: 'days left', kk: '\u043a\u04af\u043d \u049b\u0430\u043b\u0434\u044b', uz: 'kun qoldi', ar: 'أيام متبقية', de: 'Tage übrig', es: 'días restantes', tr: 'gün kaldı' }),
-  rolling: lt({ ru: '\u041f\u043e\u0441\u0442\u043e\u044f\u043d\u043d\u044b\u0439 \u043d\u0430\u0431\u043e\u0440', en: 'Rolling intake', kk: '\u0422\u04b1\u0440\u0430\u049b\u0442\u044b \u049b\u0430\u0431\u044b\u043b\u0434\u0430\u0443', uz: 'Doimiy qabul', ar: 'قبول مستمر', de: 'Laufende Aufnahme', es: 'Convocatoria continua', tr: 'Sürekli kayıt' }),
-  registrationOpen: lt({ ru: '\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044f \u043e\u0442\u043a\u0440\u044b\u0442\u0430', en: 'Registration open', kk: '\u0422\u0456\u0440\u043a\u0435\u0443 \u0430\u0448\u044b\u049b', uz: 'Royxatdan otish ochiq', ar: 'التسجيل مفتوح', de: 'Anmeldung offen', es: 'Inscripción abierta', tr: 'Kayıt açık' }),
-  registrationClosed: lt({ ru: '\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044f \u0437\u0430\u043a\u0440\u044b\u0442\u0430', en: 'Registration closed', kk: '\u0422\u0456\u0440\u043a\u0435\u0443 \u0436\u0430\u0431\u044b\u049b', uz: 'Royxatdan otish yopiq', ar: 'التسجيل مغلق', de: 'Anmeldung geschlossen', es: 'Inscripción cerrada', tr: 'Kayıt kapalı' }),
-  apply: lt({ ru: '\u041f\u043e\u0434\u0430\u0442\u044c \u0437\u0430\u044f\u0432\u043a\u0443', en: 'Apply', kk: '\u04e8\u0442\u0456\u043d\u0456\u043c \u0431\u0435\u0440\u0443', uz: 'Ariza berish', ar: 'تقديم', de: 'Bewerben', es: 'Postular', tr: 'Başvur' }),
-  noResults: lt({ ru: '\u041d\u0438\u0447\u0435\u0433\u043e \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e', en: 'No results', kk: '\u0415\u0448\u0442\u0435\u04a3\u0435 \u0442\u0430\u0431\u044b\u043b\u043c\u0430\u0434\u044b', uz: 'Natija topilmadi', ar: 'لا توجد نتائج', de: 'Keine Ergebnisse', es: 'Sin resultados', tr: 'Sonuç yok' }),
-  clearFilters: lt({ ru: '\u041e\u0447\u0438\u0441\u0442\u0438\u0442\u044c \u0444\u0438\u043b\u044c\u0442\u0440\u044b', en: 'Clear filters', kk: '\u0421\u04af\u0437\u0433\u0456\u043b\u0435\u0440\u0434\u0456 \u0442\u0430\u0437\u0430\u043b\u0430\u0443', uz: 'Filtrlarni tozalash', ar: 'مسح الفلاتر', de: 'Filter löschen', es: 'Limpiar filtros', tr: 'Filtreleri temizle' }),
-  compareTitle: lt({ ru: '\u0421\u0440\u0430\u0432\u043d\u0435\u043d\u0438\u0435 \u0432\u043e\u0437\u043c\u043e\u0436\u043d\u043e\u0441\u0442\u0435\u0439', en: 'Opportunity comparison', kk: '\u041c\u04af\u043c\u043a\u0456\u043d\u0434\u0456\u043a\u0442\u0435\u0440\u0434\u0456 \u0441\u0430\u043b\u044b\u0441\u0442\u044b\u0440\u0443', uz: 'Imkoniyatlarni solishtirish', ar: 'مقارنة الفرص', de: 'Chancenvergleich', es: 'Comparación de oportunidades', tr: 'Fırsat karşılaştırması' }),
-  submitTitle: lt({ ru: '\u041f\u0440\u0435\u0434\u043b\u043e\u0436\u0438\u0442\u044c \u0432\u043e\u0437\u043c\u043e\u0436\u043d\u043e\u0441\u0442\u044c', en: 'Submit an opportunity', kk: '\u041c\u04af\u043c\u043a\u0456\u043d\u0434\u0456\u043a \u04b1\u0441\u044b\u043d\u0443', uz: 'Imkoniyat taklif qilish', ar: 'اقترح فرصة', de: 'Chance einreichen', es: 'Proponer oportunidad', tr: 'Fırsat öner' }),
-  portfolio: lt({ ru: '\u041f\u043e\u0440\u0442\u0444\u043e\u043b\u0438\u043e', en: 'Portfolio', kk: '\u041f\u043e\u0440\u0442\u0444\u043e\u043b\u0438\u043e', uz: 'Portfolio', ar: 'الملف الشخصي', de: 'Portfolio', es: 'Portafolio', tr: 'Portfolyo' }),
-  findTeam: lt({ ru: '\u041d\u0430\u0439\u0442\u0438 \u043a\u043e\u043c\u0430\u043d\u0434\u0443', en: 'Find a team', kk: '\u041a\u043e\u043c\u0430\u043d\u0434\u0430 \u0442\u0430\u0431\u0443', uz: 'Jamoa topish', ar: 'ابحث عن فريق', de: 'Team finden', es: 'Encontrar equipo', tr: 'Takım bul' }),
-  proposalSaved: lt({ ru: '\u041f\u0440\u0435\u0434\u043b\u043e\u0436\u0435\u043d\u0438\u0435 \u043e\u0442\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u043e \u043d\u0430 \u043c\u043e\u0434\u0435\u0440\u0430\u0446\u0438\u044e', en: 'Proposal sent to moderation', kk: '\u04b0\u0441\u044b\u043d\u044b\u0441 \u043c\u043e\u0434\u0435\u0440\u0430\u0446\u0438\u044f\u0493\u0430 \u0436\u0456\u0431\u0435\u0440\u0456\u043b\u0434\u0456', uz: 'Taklif moderatsiyaga yuborildi', ar: 'تم إرسال الاقتراح للمراجعة', de: 'Vorschlag zur Prüfung gesendet', es: 'Propuesta enviada a moderación', tr: 'Öneri moderasyona gönderildi' }),
-  all: lt({ ru: '\u0412\u0441\u0435', en: 'All', kk: '\u0411\u0430\u0440\u043b\u044b\u0493\u044b', uz: 'Hammasi', ar: '\u0627\u0644\u0643\u0644', de: 'Alle', es: 'Todo', tr: 'Tumu' }),
-  any: lt({ ru: '\u041b\u044e\u0431\u043e\u0439', en: 'Any', kk: '\u041a\u0435\u0437 \u043a\u0435\u043b\u0433\u0435\u043d', uz: 'Istalgan', ar: '\u0623\u064a', de: 'Beliebig', es: 'Cualquiera', tr: 'Herhangi' }),
-  formatLabel: lt({ ru: '\u0424\u043e\u0440\u043c\u0430\u0442', en: 'Format', kk: '\u0424\u043e\u0440\u043c\u0430\u0442', uz: 'Format', ar: '\u0627\u0644\u0635\u064a\u063a\u0629', de: 'Format', es: 'Formato', tr: 'Format' }),
-  sourceLabel: lt({ ru: '\u0418\u0441\u0442\u043e\u0447\u043d\u0438\u043a', en: 'Source', kk: '\u0414\u0435\u0440\u0435\u043a\u043a\u04e9\u0437', uz: 'Manba', ar: '\u0627\u0644\u0645\u0635\u062f\u0631', de: 'Quelle', es: 'Fuente', tr: 'Kaynak' }),
-  costLabel: lt({ ru: '\u0421\u0442\u043e\u0438\u043c\u043e\u0441\u0442\u044c', en: 'Cost', kk: '\u049a\u04b1\u043d\u044b', uz: 'Narx', ar: '\u0627\u0644\u062a\u0643\u0644\u0641\u0629', de: 'Kosten', es: 'Costo', tr: 'Ucret' }),
-  countryLabel: lt({ ru: '\u0421\u0442\u0440\u0430\u043d\u0430', en: 'Country', kk: '\u0415\u043b', uz: 'Mamlakat', ar: '\u0627\u0644\u0628\u0644\u062f', de: 'Land', es: 'Pais', tr: 'Ulke' }),
-  ageLabel: lt({ ru: '\u0412\u043e\u0437\u0440\u0430\u0441\u0442', en: 'Age', kk: '\u0416\u0430\u0441', uz: 'Yosh', ar: '\u0627\u0644\u0639\u0645\u0631', de: 'Alter', es: 'Edad', tr: 'Yas' }),
-  gradeLabel: lt({ ru: '\u041a\u043b\u0430\u0441\u0441', en: 'Grade', kk: '\u0421\u044b\u043d\u044b\u043f', uz: 'Sinf', ar: '\u0627\u0644\u0635\u0641', de: 'Klasse', es: 'Grado', tr: 'Sinif' }),
-  onlineOnly: lt({ ru: '\u0422\u043e\u043b\u044c\u043a\u043e \u043e\u043d\u043b\u0430\u0439\u043d', en: 'Online only', kk: '\u0422\u0435\u043a \u043e\u043d\u043b\u0430\u0439\u043d', uz: 'Faqat onlayn', ar: '\u0639\u0628\u0631 \u0627\u0644\u0625\u0646\u062a\u0631\u0646\u062a \u0641\u0642\u0637', de: 'Nur online', es: 'Solo online', tr: 'Sadece online' }),
-  beginner: lt({ ru: '\u0414\u043b\u044f \u043d\u043e\u0432\u0438\u0447\u043a\u043e\u0432', en: 'Beginner', kk: '\u0416\u0430\u04a3\u0430 \u0431\u0430\u0441\u0442\u0430\u0493\u0430\u043d', uz: 'Boshlovchi', ar: '\u0644\u0644\u0645\u0628\u062a\u062f\u0626\u064a\u0646', de: 'Einsteiger', es: 'Principiante', tr: 'Baslangic' }),
-  portfolioValue: lt({ ru: '\u0426\u0435\u043d\u043d\u043e \u0434\u043b\u044f \u043f\u043e\u0440\u0442\u0444\u043e\u043b\u0438\u043e', en: 'Portfolio value', kk: '\u041f\u043e\u0440\u0442\u0444\u043e\u043b\u0438\u043e\u0493\u0430 \u049b\u04b1\u043d\u0434\u044b', uz: 'Portfolio uchun foydali', ar: '\u0642\u064a\u0645\u0629 \u0644\u0644\u0645\u0644\u0641', de: 'Portfolio-Wert', es: 'Valor para portafolio', tr: 'Portfolyo degeri' }),
-  newest: lt({ ru: '\u041d\u043e\u0432\u044b\u0435', en: 'Newest', kk: '\u0416\u0430\u04a3\u0430', uz: 'Yangi', ar: '\u0627\u0644\u0623\u062d\u062f\u062b', de: 'Neueste', es: 'Nuevas', tr: 'Yeni' }),
-  popular: lt({ ru: '\u041f\u043e\u043f\u0443\u043b\u044f\u0440\u043d\u044b\u0435', en: 'Popular', kk: '\u0422\u0430\u043d\u044b\u043c\u0430\u043b', uz: 'Mashhur', ar: '\u0627\u0644\u0623\u0634\u0647\u0631', de: 'Beliebt', es: 'Populares', tr: 'Populer' }),
-  languagesLabel: lt({ ru: '\u042f\u0437\u044b\u043a\u0438', en: 'Languages', kk: '\u0422\u0456\u043b\u0434\u0435\u0440', uz: 'Tillar', ar: '\u0627\u0644\u0644\u063a\u0627\u062a', de: 'Sprachen', es: 'Idiomas', tr: 'Diller' }),
-  requirementsLabel: lt({ ru: '\u0422\u0440\u0435\u0431\u043e\u0432\u0430\u043d\u0438\u044f', en: 'Requirements', kk: '\u0422\u0430\u043b\u0430\u043f\u0442\u0430\u0440', uz: 'Talablar', ar: '\u0627\u0644\u0645\u062a\u0637\u0644\u0628\u0627\u062a', de: 'Anforderungen', es: 'Requisitos', tr: 'Gereksinimler' }),
-  motivationLabel: lt({ ru: '\u041c\u043e\u0442\u0438\u0432\u0430\u0446\u0438\u044f', en: 'Motivation', kk: '\u041c\u043e\u0442\u0438\u0432\u0430\u0446\u0438\u044f', uz: 'Motivatsiya', ar: '\u0627\u0644\u062f\u0627\u0641\u0639', de: 'Motivation', es: 'Motivacion', tr: 'Motivasyon' }),
-  teamLabel: lt({ ru: '\u041a\u043e\u043c\u0430\u043d\u0434\u0430', en: 'Team', kk: '\u041a\u043e\u043c\u0430\u043d\u0434\u0430', uz: 'Jamoa', ar: '\u0627\u0644\u0641\u0631\u064a\u0642', de: 'Team', es: 'Equipo', tr: 'Takim' }),
-  interestsLabel: lt({ ru: '\u0418\u043d\u0442\u0435\u0440\u0435\u0441\u044b', en: 'Interests', kk: '\u049a\u044b\u0437\u044b\u0493\u0443\u0448\u044b\u043b\u044b\u049b\u0442\u0430\u0440', uz: 'Qiziqishlar', ar: '\u0627\u0644\u0627\u0647\u062a\u0645\u0627\u0645\u0627\u062a', de: 'Interessen', es: 'Intereses', tr: 'Ilgi alanlari' }),
-  titleLabel: lt({ ru: '\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435', en: 'Title', kk: '\u0410\u0442\u0430\u0443\u044b', uz: 'Nomi', ar: '\u0627\u0644\u0639\u0646\u0648\u0627\u0646', de: 'Titel', es: 'Titulo', tr: 'Baslik' }),
-  organizerLabel: lt({ ru: '\u041e\u0440\u0433\u0430\u043d\u0438\u0437\u0430\u0442\u043e\u0440', en: 'Organizer', kk: '\u04b0\u0439\u044b\u043c\u0434\u0430\u0441\u0442\u044b\u0440\u0443\u0448\u044b', uz: 'Tashkilotchi', ar: '\u0627\u0644\u0645\u0646\u0638\u0645', de: 'Organisator', es: 'Organizador', tr: 'Duzenleyen' }),
-  linkLabel: lt({ ru: '\u0421\u0441\u044b\u043b\u043a\u0430', en: 'Link', kk: '\u0421\u0456\u043b\u0442\u0435\u043c\u0435', uz: 'Havola', ar: '\u0627\u0644\u0631\u0627\u0628\u0637', de: 'Link', es: 'Enlace', tr: 'Baglanti' }),
-  noteLabel: lt({ ru: '\u041a\u043e\u043c\u043c\u0435\u043d\u0442\u0430\u0440\u0438\u0439', en: 'Note', kk: '\u0415\u0441\u043a\u0435\u0440\u0442\u043f\u0435', uz: 'Izoh', ar: '\u0645\u0644\u0627\u062d\u0638\u0629', de: 'Notiz', es: 'Nota', tr: 'Not' }),
-  days7: lt({ ru: '7 \u0434\u043d\u0435\u0439', en: '7 days', kk: '7 \u043a\u04af\u043d', uz: '7 kun', ar: '7 \u0623\u064a\u0627\u0645', de: '7 Tage', es: '7 dias', tr: '7 gun' }),
-  days14: lt({ ru: '14 \u0434\u043d\u0435\u0439', en: '14 days', kk: '14 \u043a\u04af\u043d', uz: '14 kun', ar: '14 \u064a\u0648\u0645\u0627', de: '14 Tage', es: '14 dias', tr: '14 gun' }),
-  days30: lt({ ru: '30 \u0434\u043d\u0435\u0439', en: '30 days', kk: '30 \u043a\u04af\u043d', uz: '30 kun', ar: '30 \u064a\u0648\u0645\u0627', de: '30 Tage', es: '30 dias', tr: '30 gun' }),
+  breadcrumbHome: tk('ui.opportunitiespage.breadcrumbHome'),
+  title: tk('ui.opportunitiespage.title'),
+  heroText: tk('ui.opportunitiespage.heroText'),
+  search: tk('ui.opportunitiespage.search'),
+  published: tk('ui.opportunitiespage.published'),
+  recommended: tk('ui.opportunitiespage.recommended'),
+  urgent: tk('ui.opportunitiespage.urgent'),
+  filters: tk('ui.opportunitiespage.filters'),
+  results: tk('ui.opportunitiespage.results'),
+  sort: tk('ui.opportunitiespage.sort'),
+  loadMore: tk('ui.opportunitiespage.loadMore'),
+  details: tk('ui.opportunitiespage.details'),
+  compare: tk('ui.opportunitiespage.compare'),
+  fromNavykus: tk('ui.opportunitiespage.fromNavykus'),
+  verified: tk('ui.opportunitiespage.verified'),
+  partner: tk('ui.opportunitiespage.partner'),
+  deadline: tk('ui.opportunitiespage.deadline'),
+  daysLeft: tk('ui.opportunitiespage.daysLeft'),
+  rolling: tk('ui.opportunitiespage.rolling'),
+  registrationOpen: tk('ui.opportunitiespage.registrationOpen'),
+  registrationClosed: tk('ui.opportunitiespage.registrationClosed'),
+  apply: tk('ui.opportunitiespage.apply'),
+  noResults: tk('ui.opportunitiespage.noResults'),
+  clearFilters: tk('ui.opportunitiespage.clearFilters'),
+  compareTitle: tk('ui.opportunitiespage.compareTitle'),
+  submitTitle: tk('ui.opportunitiespage.submitTitle'),
+  portfolio: tk('ui.opportunitiespage.portfolio'),
+  findTeam: tk('ui.opportunitiespage.findTeam'),
+  proposalSaved: tk('ui.opportunitiespage.proposalSaved'),
+  all: tk('ui.opportunitiespage.all'),
+  any: tk('ui.opportunitiespage.any'),
+  formatLabel: tk('ui.opportunitiespage.formatLabel'),
+  sourceLabel: tk('ui.opportunitiespage.sourceLabel'),
+  costLabel: tk('ui.opportunitiespage.costLabel'),
+  countryLabel: tk('ui.opportunitiespage.countryLabel'),
+  ageLabel: tk('ui.opportunitiespage.ageLabel'),
+  gradeLabel: tk('ui.opportunitiespage.gradeLabel'),
+  onlineOnly: tk('ui.opportunitiespage.onlineOnly'),
+  beginner: tk('ui.opportunitiespage.beginner'),
+  portfolioValue: tk('ui.opportunitiespage.portfolioValue'),
+  newest: tk('ui.opportunitiespage.newest'),
+  popular: tk('ui.opportunitiespage.popular'),
+  languagesLabel: tk('ui.opportunitiespage.languagesLabel'),
+  documentsLabel: tk('ui.opportunitiespage.documentsLabel'),
+  startLabel: tk('ui.opportunitiespage.startLabel'),
+  requirementsLabel: tk('ui.opportunitiespage.requirementsLabel'),
+  motivationLabel: tk('ui.opportunitiespage.motivationLabel'),
+  teamLabel: tk('ui.opportunitiespage.teamLabel'),
+  interestsLabel: tk('ui.opportunitiespage.interestsLabel'),
+  titleLabel: tk('ui.opportunitiespage.titleLabel'),
+  organizerLabel: tk('ui.opportunitiespage.organizerLabel'),
+  linkLabel: tk('ui.opportunitiespage.linkLabel'),
+  noteLabel: tk('ui.opportunitiespage.noteLabel'),
+  days7: tk('ui.opportunitiespage.days7'),
+  days14: tk('ui.opportunitiespage.days14'),
+  days30: tk('ui.opportunitiespage.days30'),
 };
 
-const CATEGORIES: Array<{ id: CategoryId; label: LText; icon: React.ReactNode }> = [
-  { id: 'championships', label: lt({ ru: '\u0427\u0435\u043c\u043f\u0438\u043e\u043d\u0430\u0442\u044b', en: 'Championships', kk: '\u0427\u0435\u043c\u043f\u0438\u043e\u043d\u0430\u0442\u0442\u0430\u0440', uz: 'Chempionatlar', ar: 'بطولات', de: 'Meisterschaften', es: 'Campeonatos', tr: 'Şampiyonalar' }), icon: <Trophy className="h-4 w-4" /> },
-  { id: 'olympiads', label: lt({ ru: '\u041e\u043b\u0438\u043c\u043f\u0438\u0430\u0434\u044b', en: 'Olympiads', kk: '\u041e\u043b\u0438\u043c\u043f\u0438\u0430\u0434\u0430\u043b\u0430\u0440', uz: 'Olimpiadalar', ar: 'أولمبيادات', de: 'Olympiaden', es: 'Olimpiadas', tr: 'Olimpiyatlar' }), icon: <Medal className="h-4 w-4" /> },
-  { id: 'contests', label: lt({ ru: '\u041a\u043e\u043d\u043a\u0443\u0440\u0441\u044b', en: 'Contests', kk: '\u0411\u0430\u0439\u049b\u0430\u0443\u043b\u0430\u0440', uz: 'Tanlovlar', ar: 'مسابقات', de: 'Wettbewerbe', es: 'Concursos', tr: 'Yarışmalar' }), icon: <Award className="h-4 w-4" /> },
-  { id: 'internships', label: lt({ ru: '\u0421\u0442\u0430\u0436\u0438\u0440\u043e\u0432\u043a\u0438', en: 'Internships', kk: '\u0422\u0430\u0493\u044b\u043b\u044b\u043c\u0434\u0430\u043c\u0430\u043b\u0430\u0440', uz: 'Amaliyotlar', ar: 'تدريبات', de: 'Praktika', es: 'Prácticas', tr: 'Stajlar' }), icon: <BriefcaseBusiness className="h-4 w-4" /> },
-  { id: 'projects', label: lt({ ru: '\u041f\u0440\u043e\u0435\u043a\u0442\u043d\u044b\u0435 \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u043c\u044b', en: 'Project programs', kk: '\u0416\u043e\u0431\u0430\u043b\u044b\u049b \u0431\u0430\u0493\u0434\u0430\u0440\u043b\u0430\u043c\u0430\u043b\u0430\u0440', uz: 'Loyiha dasturlari', ar: 'برامج مشاريع', de: 'Projektprogramme', es: 'Programas de proyecto', tr: 'Proje programları' }), icon: <Target className="h-4 w-4" /> },
-  { id: 'research', label: lt({ ru: '\u0418\u0441\u0441\u043b\u0435\u0434\u043e\u0432\u0430\u043d\u0438\u044f', en: 'Research', kk: '\u0417\u0435\u0440\u0442\u0442\u0435\u0443\u043b\u0435\u0440', uz: 'Tadqiqotlar', ar: 'بحث', de: 'Forschung', es: 'Investigación', tr: 'Araştırma' }), icon: <BookOpen className="h-4 w-4" /> },
-  { id: 'volunteering', label: lt({ ru: '\u0412\u043e\u043b\u043e\u043d\u0442\u0451\u0440\u0441\u0442\u0432\u043e', en: 'Volunteering', kk: '\u0415\u0440\u0456\u043a\u0442\u0456\u043b\u0456\u043a', uz: 'Volontyorlik', ar: 'تطوع', de: 'Ehrenamt', es: 'Voluntariado', tr: 'Gönüllülük' }), icon: <Users className="h-4 w-4" /> },
-  { id: 'grants', label: lt({ ru: '\u0413\u0440\u0430\u043d\u0442\u044b', en: 'Grants', kk: '\u0413\u0440\u0430\u043d\u0442\u0442\u0430\u0440', uz: 'Grantlar', ar: 'منح', de: 'Förderungen', es: 'Subvenciones', tr: 'Hibeler' }), icon: <CircleDollarSign className="h-4 w-4" /> },
-  { id: 'scholarships', label: lt({ ru: '\u0421\u0442\u0438\u043f\u0435\u043d\u0434\u0438\u0438', en: 'Scholarships', kk: '\u0421\u0442\u0438\u043f\u0435\u043d\u0434\u0438\u044f\u043b\u0430\u0440', uz: 'Stipendiyalar', ar: 'منح دراسية', de: 'Stipendien', es: 'Becas', tr: 'Burslar' }), icon: <GraduationCap className="h-4 w-4" /> },
-  { id: 'hackathons', label: lt({ ru: '\u0425\u0430\u043a\u0430\u0442\u043e\u043d\u044b', en: 'Hackathons', kk: '\u0425\u0430\u043a\u0430\u0442\u043e\u043d\u0434\u0430\u0440', uz: 'Xakatonlar', ar: 'هاكاثونات', de: 'Hackathons', es: 'Hackatones', tr: 'Hackathonlar' }), icon: <Code2 className="h-4 w-4" /> },
-  { id: 'exchanges', label: lt({ ru: '\u041c\u0435\u0436\u0434\u0443\u043d\u0430\u0440\u043e\u0434\u043d\u044b\u0435 \u043e\u0431\u043c\u0435\u043d\u044b', en: 'Exchanges', kk: '\u0425\u0430\u043b\u044b\u049b\u0430\u0440\u0430\u043b\u044b\u049b \u0430\u043b\u043c\u0430\u0441\u0443', uz: 'Xalqaro almashinuv', ar: 'تبادل دولي', de: 'Austausch', es: 'Intercambios', tr: 'Değişim programları' }), icon: <Landmark className="h-4 w-4" /> },
-  { id: 'summer', label: lt({ ru: '\u041b\u0435\u0442\u043d\u0438\u0435 \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u043c\u044b', en: 'Summer programs', kk: '\u0416\u0430\u0437\u0493\u044b \u0431\u0430\u0493\u0434\u0430\u0440\u043b\u0430\u043c\u0430\u043b\u0430\u0440', uz: 'Yozgi dasturlar', ar: 'برامج صيفية', de: 'Sommerprogramme', es: 'Programas de verano', tr: 'Yaz programları' }), icon: <Sparkles className="h-4 w-4" /> },
-  { id: 'online', label: lt({ ru: '\u041e\u043d\u043b\u0430\u0439\u043d-\u043f\u0440\u043e\u0433\u0440\u0430\u043c\u043c\u044b', en: 'Online programs', kk: '\u041e\u043d\u043b\u0430\u0439\u043d \u0431\u0430\u0493\u0434\u0430\u0440\u043b\u0430\u043c\u0430\u043b\u0430\u0440', uz: 'Onlayn dasturlar', ar: 'برامج عبر الإنترنت', de: 'Onlineprogramme', es: 'Programas online', tr: 'Çevrim içi programlar' }), icon: <Compass className="h-4 w-4" /> },
+const CATEGORIES: Array<{ id: CategoryId; label: UIText; icon: React.ReactNode }> = [
+  { id: 'championships', label: tk('ui.opportunitiespage.categoryChampionships'), icon: <Trophy className="h-4 w-4" /> },
+  { id: 'olympiads', label: tk('ui.opportunitiespage.categoryOlympiads'), icon: <Medal className="h-4 w-4" /> },
+  { id: 'contests', label: tk('ui.opportunitiespage.categoryContests'), icon: <Award className="h-4 w-4" /> },
+  { id: 'internships', label: tk('ui.opportunitiespage.categoryInternships'), icon: <BriefcaseBusiness className="h-4 w-4" /> },
+  { id: 'projects', label: tk('ui.opportunitiespage.categoryProjects'), icon: <Target className="h-4 w-4" /> },
+  { id: 'research', label: tk('ui.opportunitiespage.categoryResearch'), icon: <BookOpen className="h-4 w-4" /> },
+  { id: 'volunteering', label: tk('ui.opportunitiespage.categoryVolunteering'), icon: <Users className="h-4 w-4" /> },
+  { id: 'grants', label: tk('ui.opportunitiespage.categoryGrants'), icon: <CircleDollarSign className="h-4 w-4" /> },
+  { id: 'scholarships', label: tk('ui.opportunitiespage.categoryScholarships'), icon: <GraduationCap className="h-4 w-4" /> },
+  { id: 'hackathons', label: tk('ui.opportunitiespage.categoryHackathons'), icon: <Code2 className="h-4 w-4" /> },
+  { id: 'exchanges', label: tk('ui.opportunitiespage.categoryExchanges'), icon: <Landmark className="h-4 w-4" /> },
+  { id: 'summer', label: tk('ui.opportunitiespage.categorySummer'), icon: <Sparkles className="h-4 w-4" /> },
+  { id: 'online', label: tk('ui.opportunitiespage.categoryOnline'), icon: <Compass className="h-4 w-4" /> },
 ];
 
-const DIRECTIONS: Record<DirectionId, LText> = {
-  business: lt({ ru: '\u0411\u0438\u0437\u043d\u0435\u0441 \u0438 \u043f\u0440\u0435\u0434\u043f\u0440\u0438\u043d\u0438\u043c\u0430\u0442\u0435\u043b\u044c\u0441\u0442\u0432\u043e', en: 'Business', kk: '\u0411\u0438\u0437\u043d\u0435\u0441', uz: 'Biznes', ar: 'الأعمال', de: 'Business', es: 'Negocios', tr: 'İş dünyası' }),
-  science: lt({ ru: '\u041d\u0430\u0443\u043a\u0430 \u0438 \u0438\u0441\u0441\u043b\u0435\u0434\u043e\u0432\u0430\u043d\u0438\u044f', en: 'Science', kk: '\u0492\u044b\u043b\u044b\u043c', uz: 'Fan', ar: 'العلوم', de: 'Wissenschaft', es: 'Ciencia', tr: 'Bilim' }),
-  tech: lt({ ru: '\u0422\u0435\u0445\u043d\u043e\u043b\u043e\u0433\u0438\u0438', en: 'Technology', kk: '\u0422\u0435\u0445\u043d\u043e\u043b\u043e\u0433\u0438\u044f', uz: 'Texnologiya', ar: 'التقنية', de: 'Technologie', es: 'Tecnología', tr: 'Teknoloji' }),
-  social: lt({ ru: '\u0421\u043e\u0446\u0438\u0430\u043b\u044c\u043d\u044b\u0435 \u043f\u0440\u043e\u0435\u043a\u0442\u044b', en: 'Social impact', kk: '\u04d8\u043b\u0435\u0443\u043c\u0435\u0442\u0442\u0456\u043a \u0436\u043e\u0431\u0430\u043b\u0430\u0440', uz: 'Ijtimoiy loyihalar', ar: 'الأثر الاجتماعي', de: 'Soziale Wirkung', es: 'Impacto social', tr: 'Sosyal etki' }),
-  creative: lt({ ru: '\u041a\u0440\u0435\u0430\u0442\u0438\u0432\u043d\u044b\u0435 \u0438\u043d\u0434\u0443\u0441\u0442\u0440\u0438\u0438', en: 'Creative industries', kk: '\u041a\u0440\u0435\u0430\u0442\u0438\u0432 \u0438\u043d\u0434\u0443\u0441\u0442\u0440\u0438\u044f\u043b\u0430\u0440', uz: 'Kreativ sohalar', ar: 'الصناعات الإبداعية', de: 'Kreativwirtschaft', es: 'Industrias creativas', tr: 'Yaratıcı endüstriler' }),
-  leadership: lt({ ru: '\u041b\u0438\u0434\u0435\u0440\u0441\u0442\u0432\u043e', en: 'Leadership', kk: '\u041a\u04e9\u0448\u0431\u0430\u0441\u0448\u044b\u043b\u044b\u049b', uz: 'Yetakchilik', ar: 'القيادة', de: 'Leadership', es: 'Liderazgo', tr: 'Liderlik' }),
+const DIRECTIONS: Record<DirectionId, UIText> = {
+  business: tk('ui.opportunitiespage.directionBusiness'),
+  science: tk('ui.opportunitiespage.directionScience'),
+  tech: tk('ui.opportunitiespage.directionTech'),
+  social: tk('ui.opportunitiespage.directionSocial'),
+  creative: tk('ui.opportunitiespage.directionCreative'),
+  leadership: tk('ui.opportunitiespage.directionLeadership'),
 };
 
-const FORMATS: Record<FormatId, LText> = {
-  online: lt({ ru: '\u041e\u043d\u043b\u0430\u0439\u043d', en: 'Online', kk: '\u041e\u043d\u043b\u0430\u0439\u043d', uz: 'Onlayn', ar: 'عن بعد', de: 'Online', es: 'Online', tr: 'Çevrim içi' }),
-  offline: lt({ ru: '\u041e\u0447\u043d\u043e', en: 'In person', kk: '\u041e\u0444\u043b\u0430\u0439\u043d', uz: 'Oflayn', ar: 'حضوري', de: 'Vor Ort', es: 'Presencial', tr: 'Yüz yüze' }),
-  hybrid: lt({ ru: '\u0413\u0438\u0431\u0440\u0438\u0434', en: 'Hybrid', kk: '\u0413\u0438\u0431\u0440\u0438\u0434', uz: 'Gibrid', ar: 'هجين', de: 'Hybrid', es: 'Híbrido', tr: 'Hibrit' }),
+const FORMATS: Record<FormatId, UIText> = {
+  online: tk('ui.opportunitiespage.formatOnline'),
+  offline: tk('ui.opportunitiespage.formatOffline'),
+  hybrid: tk('ui.opportunitiespage.formatHybrid'),
 };
 
-const COSTS: Record<CostId, LText> = {
-  free: lt({ ru: '\u0411\u0435\u0441\u043f\u043b\u0430\u0442\u043d\u043e', en: 'Free', kk: '\u0422\u0435\u0433\u0456\u043d', uz: 'Bepul', ar: 'مجاني', de: 'Kostenlos', es: 'Gratis', tr: 'Ücretsiz' }),
-  paid: lt({ ru: '\u041f\u043b\u0430\u0442\u043d\u043e', en: 'Paid', kk: '\u0410\u049b\u044b\u043b\u044b', uz: 'Pullik', ar: 'مدفوع', de: 'Kostenpflichtig', es: 'De pago', tr: 'Ücretli' }),
-  scholarship: lt({ ru: '\u0415\u0441\u0442\u044c \u0441\u0442\u0438\u043f\u0435\u043d\u0434\u0438\u044f', en: 'Scholarship available', kk: '\u0421\u0442\u0438\u043f\u0435\u043d\u0434\u0438\u044f \u0431\u0430\u0440', uz: 'Stipendiya bor', ar: 'توجد منحة', de: 'Stipendium verfügbar', es: 'Beca disponible', tr: 'Burs var' }),
+const COSTS: Record<CostId, UIText> = {
+  free: tk('ui.opportunitiespage.costFree'),
+  paid: tk('ui.opportunitiespage.costPaid'),
+  scholarship: tk('ui.opportunitiespage.costScholarship'),
 };
 
-const PARTICIPATION: Record<ParticipationId, LText> = {
-  individual: lt({ ru: '\u0418\u043d\u0434\u0438\u0432\u0438\u0434\u0443\u0430\u043b\u044c\u043d\u043e', en: 'Individual', kk: '\u0416\u0435\u043a\u0435', uz: 'Yakka', ar: 'فردي', de: 'Einzeln', es: 'Individual', tr: 'Bireysel' }),
-  team: lt({ ru: '\u041a\u043e\u043c\u0430\u043d\u0434\u0430', en: 'Team', kk: '\u041a\u043e\u043c\u0430\u043d\u0434\u0430', uz: 'Jamoa', ar: 'فريق', de: 'Team', es: 'Equipo', tr: 'Takım' }),
-  both: lt({ ru: '\u0418\u043d\u0434\u0438\u0432\u0438\u0434\u0443\u0430\u043b\u044c\u043d\u043e \u0438\u043b\u0438 \u043a\u043e\u043c\u0430\u043d\u0434\u0430', en: 'Individual or team', kk: '\u0416\u0435\u043a\u0435 \u043d\u0435\u043c\u0435\u0441\u0435 \u043a\u043e\u043c\u0430\u043d\u0434\u0430', uz: 'Yakka yoki jamoa', ar: 'فردي أو فريق', de: 'Einzeln oder Team', es: 'Individual o equipo', tr: 'Bireysel veya takım' }),
+const PARTICIPATION: Record<ParticipationId, UIText> = {
+  individual: tk('ui.opportunitiespage.participationIndividual'),
+  team: tk('ui.opportunitiespage.participationTeam'),
+  both: tk('ui.opportunitiespage.participationBoth'),
 };
 
 const skill = (ru: string, en: string, kk: string, uz: string, ar: string, de: string, es: string, tr: string) => lt({ ru, en, kk, uz, ar, de, es, tr });
@@ -607,11 +600,30 @@ const writeJson = (key: string, value: unknown) => {
   localStorage.setItem(key, JSON.stringify(value));
 };
 
+// CMS dates arrive as full ISO timestamps ("2026-07-18T00:00:00.000Z"); the catalogue works
+// with calendar days ("2026-07-18") in the visitor's timezone.
+const toCalendarDay = (value?: string | null) => {
+  if (!value) return undefined;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return undefined;
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+};
+
+const formatCalendarDay = (day: string | undefined, language: SupportedLanguage) => {
+  if (!day) return '';
+  const date = new Date(`${day}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return day;
+  return new Intl.DateTimeFormat(language, { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
+};
+
 const getDaysLeft = (deadline?: string) => {
   if (!deadline) return null;
   const start = new Date();
   start.setHours(0, 0, 0, 0);
   const end = new Date(`${deadline}T00:00:00`);
+  if (Number.isNaN(end.getTime())) return null;
   return Math.ceil((end.getTime() - start.getTime()) / 86400000);
 };
 
@@ -720,7 +732,7 @@ function OpportunityCard({
           {opportunity.editorPick && (
             <span className="inline-flex items-center gap-1 rounded-full bg-[#bd5b82]/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#8a3859]">
               <Star className="h-3 w-3" />
-              editor
+              {pick(tk('ui.opportunitiespage.editorPick'), language)}
             </span>
           )}
         </div>
@@ -843,8 +855,8 @@ export default function OpportunitiesPage({
       minAge: doc.ageMin || 0,
       maxAge: doc.ageMax || 25,
       grades: normalizeGrades(doc.grades),
-      deadline: doc.deadline,
-      startDate: doc.startDate || '',
+      deadline: toCalendarDay(doc.deadline),
+      startDate: toCalendarDay(doc.startDate) || '',
       finalDeadline: doc.finalDeadline,
       registrationOpen: doc.registrationOpen ?? (!doc.deadline || new Date(doc.deadline) > new Date()),
       seats: doc.seats,
@@ -854,6 +866,7 @@ export default function OpportunitiesPage({
       recommended: doc.recommended,
       requirements: localizedList(doc.requirements),
       outcomes: localizedList(doc.benefits),
+      documents: localizedList(doc.documents),
       externalUrl: doc.officialUrl,
       portfolioValue: doc.portfolioValue,
       publishedAt: doc.publishedAt || doc.createdAt,
@@ -1304,7 +1317,7 @@ export default function OpportunitiesPage({
               <tbody>
                 {[
                   [pick(UI.titleLabel, language), (item: Opportunity) => pick(item.title, language)],
-                  [pick(UI.deadline, language), (item: Opportunity) => item.deadline || pick(UI.rolling, language)],
+                  [pick(UI.deadline, language), (item: Opportunity) => formatCalendarDay(item.deadline, language) || pick(UI.rolling, language)],
                   [pick(UI.formatLabel, language), (item: Opportunity) => pick(FORMATS[item.format], language)],
                   [pick(UI.costLabel, language), (item: Opportunity) => pick(COSTS[item.cost], language)],
                   [pick(UI.ageLabel, language), (item: Opportunity) => `${item.minAge}-${item.maxAge}`],
@@ -1438,7 +1451,6 @@ function OpportunityDetailsModal({
       <button
         type="button"
         disabled
-        title="Official URL is not configured in CMS"
         className={`${className} cursor-not-allowed opacity-60`}
       >
         <span>{pick(UI.apply, language)}</span>
@@ -1501,7 +1513,7 @@ function OpportunityDetailsModal({
               {opportunity.editorPick && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-[#bd5b82]/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#8a3859]">
                   <Star className="h-3 w-3" />
-                  editor
+                  {pick(tk('ui.opportunitiespage.editorPick'), language)}
                 </span>
               )}
             </div>
@@ -1517,7 +1529,10 @@ function OpportunityDetailsModal({
           <div className="grid grid-cols-1 gap-2 text-[11px] font-medium text-brand-slate sm:grid-cols-2">
             <span className="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-white/60 bg-white/55 px-3 py-2">
               <CalendarClock className="h-3.5 w-3.5 shrink-0 text-[#bc4638]" />
-              <span>{opportunity.deadline || pick(UI.rolling, language)}</span>
+              <span>
+                {opportunity.deadline ? formatCalendarDay(opportunity.deadline, language) : pick(UI.rolling, language)}
+                {opportunity.startDate ? ` · ${pick(UI.startLabel, language)} ${formatCalendarDay(opportunity.startDate, language)}` : ''}
+              </span>
             </span>
             <span className="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-white/60 bg-white/55 px-3 py-2">
               <MapPin className="h-3.5 w-3.5 shrink-0 text-[#bd5b82]" />
@@ -1535,6 +1550,7 @@ function OpportunityDetailsModal({
 
           <p className="text-sm leading-relaxed text-brand-slate sm:text-base">{pick(opportunity.description, language)}</p>
 
+          {opportunity.requirements.length > 0 && (
           <DetailBlock title={pick(UI.requirementsLabel, language)}>
             <ul className="space-y-2">
               {opportunity.requirements.map((item) => (
@@ -1545,7 +1561,9 @@ function OpportunityDetailsModal({
               ))}
             </ul>
           </DetailBlock>
+          )}
 
+          {opportunity.outcomes.length > 0 && (
           <DetailBlock title={pick(UI.portfolio, language)}>
             <ul className="space-y-2">
               {opportunity.outcomes.map((item) => (
@@ -1556,6 +1574,20 @@ function OpportunityDetailsModal({
               ))}
             </ul>
           </DetailBlock>
+          )}
+
+          {(opportunity.documents?.length ?? 0) > 0 && (
+          <DetailBlock title={pick(UI.documentsLabel, language)}>
+            <ul className="space-y-2">
+              {opportunity.documents?.map((item) => (
+                <li key={pick(item, language)} className="flex items-start gap-2">
+                  <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#bc4638]" />
+                  <span>{pick(item, language)}</span>
+                </li>
+              ))}
+            </ul>
+          </DetailBlock>
+          )}
 
           {applyContent("inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-[11px] font-bold uppercase tracking-widest text-white shadow-lg shadow-[#bc4638]/12 transition-all hover:opacity-95")}
 

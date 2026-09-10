@@ -2,11 +2,8 @@ import type {
   ActivityItem,
   Expert,
   FaqItem,
-  ParticipationScenario,
-  Pillar,
   TeamMember,
   Tournament,
-  TrustPoint,
 } from '../src/types';
 
 const listValues = (items: unknown): string[] => {
@@ -46,6 +43,7 @@ export const normalizeTournament = (doc: any): Tournament => ({
   registrationDeadline: doc.registrationDeadline,
   description: doc.description,
   pitch: doc.pitch,
+  aboutHeading: doc.aboutHeading || undefined,
   skills: listValues(doc.skills),
   mentors: listValues(doc.mentors),
   maxParticipants: Number(doc.maxParticipants || 0),
@@ -60,7 +58,10 @@ export const normalizeTournament = (doc: any): Tournament => ({
   evaluationCriteriaText: doc.evaluationCriteriaText,
   coverImage: mediaUrlFromRelation(doc.coverImage) ?? undefined,
   heroImage: mediaUrlFromRelation(doc.heroImage) ?? undefined,
+  aboutImage: mediaUrlFromRelation(doc.aboutImage) ?? undefined,
   registrationStatus: ['open', 'suspended', 'closed'].includes(doc.registrationStatus) ? doc.registrationStatus : 'open',
+  seoTitle: doc.seoTitle || undefined,
+  seoDescription: doc.seoDescription || undefined,
 });
 
 export const normalizeActivity = (doc: any): ActivityItem => ({
@@ -113,35 +114,9 @@ export const normalizeTeamMember = (doc: any): TeamMember => ({
   isApproved: Boolean(doc.isApproved),
 });
 
-export const normalizeTrustPoint = (doc: any): TrustPoint => ({
-  id: publicId(doc),
-  title: doc.title || '',
-  description: doc.description || '',
-});
-
-export const normalizePillar = (doc: any): Pillar => ({
-  label: doc.label,
-  title: doc.title,
-  description: doc.description,
-});
-
 export const normalizeFaq = (doc: any): FaqItem => ({
   id: publicId(doc),
   page: doc.page,
   question: doc.question,
   answer: doc.answer,
-});
-
-export const normalizeStat = (doc: any) => ({
-  value: doc.value,
-  label: doc.label,
-});
-
-export const normalizeScenario = (doc: any): ParticipationScenario => ({
-  id: publicId(doc),
-  title: doc.title,
-  who: doc.who,
-  why: doc.why,
-  ctaText: doc.ctaText,
-  actionType: doc.actionType || 'general',
 });

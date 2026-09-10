@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -26,7 +26,7 @@ import {
 import { useCmsExperts } from '../hooks/useCmsExperts';
 import { useCmsFaqs } from '../hooks/useCmsFaqs';
 import { useCmsPageTexts } from '../hooks/useCmsPageTexts';
-import { useCmsTournamentsState } from '../hooks/useCmsTournaments';
+import { useActiveChampionship } from '../hooks/useCmsTournaments';
 import type { Expert, TeamApplicationContext } from '../types';
 import CmsImage from './CmsImage';
 import TeamMemberApplicationForm from './TeamMemberApplicationForm';
@@ -39,6 +39,7 @@ interface ChampionshipData {
   registrationDeadline: string;
   description: string;
   pitch: string;
+  aboutHeading: string;
   targetAudience: string;
   ageLimit: string;
   format: string;
@@ -50,6 +51,7 @@ interface ChampionshipData {
   themes: string[];
   heroImage: string;
   coverImage: string;
+  aboutImage: string;
   registrationStatus: 'open' | 'suspended' | 'closed';
 }
 
@@ -63,7 +65,6 @@ const keyInfoCardClass =
   "bg-[#fff4ed]/82 glass-card surface-elevated-soft border border-[#bc4638]/14 p-4 sm:p-5 rounded-2xl text-left flex flex-col justify-between space-y-3";
 const keyInfoLabelClass = "text-xs sm:text-[13px] lg:text-sm font-mono uppercase tracking-wider";
 const keyInfoValueClass = "text-base sm:text-lg lg:text-xl font-serif font-bold leading-tight";
-const keyInfoSubtextClass = "text-sm sm:text-base text-brand-slate font-normal md:font-light leading-snug";
 
 const splitCmsList = (value?: string) =>
   (value || '')
@@ -71,13 +72,7 @@ const splitCmsList = (value?: string) =>
     .map((item) => item.trim())
     .filter(Boolean);
 
-const splitDisplayText = (value?: string) => {
-  const lines = splitCmsList(value);
-  return {
-    title: lines[0] || '',
-    description: lines.slice(1).join(' · '),
-  };
-};
+const firstDisplayLine = (value?: string) => splitCmsList(value)[0] || '';
 
 export default function ChampionshipPage({ 
   onBackToHome, 
@@ -87,12 +82,11 @@ export default function ChampionshipPage({
   const { t } = useTranslation();
   useCmsPageTexts(['championship']);
   const {
-    data: cmsTournaments,
+    championship: tourney,
     isLoading: isCmsLoading,
     hasLoadError: hasCmsLoadError,
-  } = useCmsTournamentsState();
+  } = useActiveChampionship();
   const cmsData = useMemo<ChampionshipData | null>(() => {
-    const tourney = cmsTournaments[0];
     if (!tourney) return null;
     const themes = splitCmsList(tourney.themesText);
     const evaluationCriteria = splitCmsList(tourney.evaluationCriteriaText);
@@ -105,6 +99,7 @@ export default function ChampionshipPage({
       registrationDeadline: tourney.registrationDeadline,
       description: tourney.description,
       pitch: tourney.pitch || tourney.description,
+      aboutHeading: tourney.aboutHeading,
       targetAudience: tourney.targetAudience || tourney.suitableFor,
       ageLimit: tourney.ageLimit,
       format: tourney.format,
@@ -116,26 +111,25 @@ export default function ChampionshipPage({
       themes: themes.length ? themes : tourney.skills,
       heroImage: tourney.heroImage || '',
       coverImage: tourney.coverImage || '',
+      aboutImage: tourney.aboutImage || '',
       registrationStatus: tourney.registrationStatus,
     };
-  }, [cmsTournaments]);
+  }, [tourney]);
 
-  const juryFromCms = useCmsExperts(cmsData?.id);
-  const juryMembers = useMemo<Expert[]>(() => {
-    if (!cmsData) return [];
-    const scoped = juryFromCms.filter((expert) => !expert.tournamentId || expert.tournamentId === cmsData.id);
-    return scoped.length ? scoped : juryFromCms;
-  }, [juryFromCms, cmsData]);
+  // SEO fields of the championship (CMS tab «SEO») override the generic page meta once loaded.
+  useEffect(() => {
+    if (!tourney) return;
+    if (tourney.seoTitle) document.title = tourney.seoTitle;
+    const description = tourney.seoDescription || tourney.pitch || tourney.description;
+    const meta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
+    if (meta && description) meta.content = description.slice(0, 180);
+  }, [tourney]);
+
+  // The API already scopes experts to this championship (tournamentId filter).
+  const juryMembers: Expert[] = useCmsExperts(cmsData?.id);
 
   // Interactive UI states (scenarios, tabs, accordions)
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
-
-  const handleNavigateFromChampionship = (sectionId: string) => {
-    onBackToHome();
-    setTimeout(() => {
-      onNavigateToSection(sectionId);
-    }, 150);
-  };
 
   const faqItems = useCmsFaqs('championship');
 
@@ -151,7 +145,16 @@ export default function ChampionshipPage({
     );
   }
 
-  const formatDisplay = splitDisplayText(cmsData.format);
+  const formatTitle = firstDisplayLine(cmsData.format);
+  // Fact cards under the hero; a card without a value in the CMS is not shown.
+  const keyInfoCards = [
+    { key: 'date', label: t('ui.championshippage.8d4a5a0ee6'), value: cmsData.date },
+    { key: 'format', label: t('ui.championshippage.f94a9af829'), value: formatTitle },
+    { key: 'age', label: t('ui.championshippage.e70496e65c'), value: cmsData.ageLimit ? `${t('ui.championshippage.ff03252b22')} ${cmsData.ageLimit}`.trim() : '' },
+    { key: 'language', label: t('ui.championshippage.d48444dfb4'), value: cmsData.lang },
+    { key: 'deadline', label: t('ui.championshippage.4ec991f17a'), value: cmsData.registrationDeadline, accent: true },
+    { key: 'team', label: t('ui.championshippage.a7fbd7c9e4'), value: cmsData.teamsAllowed || t('ui.championshippage.0df738a56f') },
+  ].filter((card) => card.value);
 
   return (
     <div className="relative w-full text-brand-dark pb-16 pt-24">
@@ -214,7 +217,7 @@ export default function ChampionshipPage({
             )}
 
             <button
-              onClick={() => handleNavigateFromChampionship('scenarios')}
+              onClick={() => onNavigateToSection('find-team')}
               className="w-full sm:w-auto px-8 py-3.5 bg-white border border-[#d8d1cc] text-[#5b6472] hover:border-[#bc4638]/60 hover:text-brand-dark rounded-xl text-xs font-mono tracking-widest uppercase transition-all text-center cursor-pointer"
             >{t('ui.app.d13f387e64')}</button>
           </div>
@@ -233,93 +236,21 @@ export default function ChampionshipPage({
         {/* 2. COMPACT KEY INFO CARDS BLOCK */}
         <section className="relative z-10 max-w-7xl mx-auto px-[6%] md:px-[10%]">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.5, ease: "easeOut", delay: 0 }}
-              className={keyInfoCardClass}
-            >
-              <span className={`${keyInfoLabelClass} text-[#bc4638]`}>{t('ui.championshippage.8d4a5a0ee6')}</span>
-              <div className="space-y-1">
-                <p className={`${keyInfoValueClass} text-brand-dark`}>{cmsData.date}</p>
-                <p className={keyInfoSubtextClass}>{t('ui.app.aa324b069f')}</p>
-              </div>
-            </motion.div>
-
-            {formatDisplay.title && (
+            {keyInfoCards.map((card, index) => (
               <motion.div
+                key={card.key}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.5, ease: "easeOut", delay: 0.08 }}
+                transition={{ duration: 0.5, ease: "easeOut", delay: index * 0.08 }}
                 className={keyInfoCardClass}
               >
-                <span className={`${keyInfoLabelClass} text-[#bd5b82]`}>{t('ui.championshippage.f94a9af829')}</span>
+                <span className={`${keyInfoLabelClass} ${index % 2 === 0 ? 'text-[#bc4638]' : 'text-[#bd5b82]'}`}>{card.label}</span>
                 <div className="space-y-1">
-                  <p className={`${keyInfoValueClass} text-brand-dark`}>{formatDisplay.title}</p>
-                  {formatDisplay.description && <p className={keyInfoSubtextClass}>{formatDisplay.description}</p>}
+                  <p className={`${keyInfoValueClass} ${card.accent ? 'text-[#bc4638]' : 'text-brand-dark'}`}>{card.value}</p>
                 </div>
               </motion.div>
-            )}
-
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.5, ease: "easeOut", delay: 0.16 }}
-              className={keyInfoCardClass}
-            >
-              <span className={`${keyInfoLabelClass} text-[#bc4638]`}>{t('ui.championshippage.e70496e65c')}</span>
-              <div className="space-y-1">
-                <p className={`${keyInfoValueClass} text-brand-dark`}>{t('ui.championshippage.ff03252b22')}{cmsData.ageLimit}</p>
-                <p className={keyInfoSubtextClass}>{t('ui.championshippage.05679f1a9a')}</p>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.5, ease: "easeOut", delay: 0.24 }}
-              className={keyInfoCardClass}
-            >
-              <span className={`${keyInfoLabelClass} text-[#bd5b82]`}>{t('ui.championshippage.d48444dfb4')}</span>
-              <div className="space-y-1">
-                <p className={`${keyInfoValueClass} text-brand-dark`}>{cmsData.lang}</p>
-                <p className={keyInfoSubtextClass}>{t('ui.championshippage.1185c79f59')}</p>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.5, ease: "easeOut", delay: 0.32 }}
-              className={keyInfoCardClass}
-            >
-              <span className={`${keyInfoLabelClass} text-[#bc4638]`}>{t('ui.championshippage.4ec991f17a')}</span>
-              <div className="space-y-1">
-                <p className={`${keyInfoValueClass} text-[#bc4638]`}>{cmsData.registrationDeadline}</p>
-                <p className={keyInfoSubtextClass}>{t('ui.championshippage.593bb47761')}</p>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.5, ease: "easeOut", delay: 0.40 }}
-              className={keyInfoCardClass}
-            >
-              <span className={`${keyInfoLabelClass} text-[#bd5b82]`}>{t('ui.championshippage.a7fbd7c9e4')}</span>
-              <div className="space-y-1">
-                <p className={`${keyInfoValueClass} text-brand-dark`}>{t('ui.championshippage.0df738a56f')}</p>
-                <p className="text-sm sm:text-base text-[#bd5b82] font-semibold leading-snug">{t('ui.championshippage.04aa324d68')}</p>
-              </div>
-            </motion.div>
-
+            ))}
           </div>
         </section>
 
@@ -335,6 +266,7 @@ export default function ChampionshipPage({
               <div className="lg:col-span-5">
                 <CmsImage
                   slot="championship.case.image"
+                  overrideSrc={cmsData.aboutImage}
                   alt={t('ui.enhancements.championshipCaseAlt')}
                   aspectRatio="16 / 10"
                   objectPosition="50% 45%"
@@ -342,7 +274,7 @@ export default function ChampionshipPage({
                 />
               </div>
               <div className="lg:col-span-7 space-y-4">
-                <h2 className="text-3xl lg:text-4xl font-serif text-brand-dark leading-tight">{t('ui.championshippage.f30417ddf0')}</h2>
+                <h2 className="text-3xl lg:text-4xl font-serif text-brand-dark leading-tight">{cmsData.aboutHeading || t('ui.championshippage.f30417ddf0')}</h2>
                 <p className="text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed max-w-2xl">
                   {cmsData.description}
                 </p>
@@ -353,22 +285,26 @@ export default function ChampionshipPage({
             <div className="space-y-8">
 
               {/* Themes list from CMS */}
+              {cmsData.themes.length > 0 && (
               <div className="space-y-4">
-                <span className="text-sm sm:text-base font-mono uppercase tracking-wider text-brand-dark font-semibold block">{t('ui.championshippage.5c807e4149')}</span>
+                <span className="text-[11px] font-mono uppercase tracking-wider text-brand-dark font-semibold block">{t('ui.championshippage.5c807e4149')}</span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   {cmsData.themes.map((theme, idx) => (
                     <div key={idx} className="bg-white/[0.12] glass-card surface-elevated-soft border border-white/[0.15] p-4 sm:p-5 rounded-xl text-left flex items-start gap-3">
                       <span className="w-7 h-7 rounded-full bg-[#bc4638]/5 border border-[#bc4638]/10 font-mono text-xs font-bold text-[#bc4638] flex items-center justify-center shrink-0 mt-0.5">
                         {idx + 1}
                       </span>
-                      <span className="text-base sm:text-lg text-brand-dark font-medium leading-snug">{theme}</span>
+                      <span className="text-xs sm:text-sm text-brand-dark font-normal md:font-light leading-relaxed">{theme}</span>
                     </div>
                   ))}
                 </div>
               </div>
+              )}
 
+              {(cmsData.evaluationCriteria.length > 0 || cmsData.expectedResult) && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
                 {/* Evaluation Criteria */}
+                {cmsData.evaluationCriteria.length > 0 && (
                 <div className="space-y-3">
                   <span className="text-[11px] font-mono uppercase tracking-wider text-brand-dark font-semibold block">{t('ui.championshippage.9ab00a25e1')}</span>
                   <div className="space-y-2">
@@ -380,15 +316,19 @@ export default function ChampionshipPage({
                     ))}
                   </div>
                 </div>
+                )}
 
                 {/* Expected Result (MVP) */}
+                {cmsData.expectedResult && (
                 <div className="p-4 sm:p-5 bg-white/[0.12] glass-panel surface-elevated-soft rounded-2xl border border-white/[0.12]">
                   <span className="text-[11px] font-mono uppercase tracking-wider text-brand-slate block mb-1.5">{t('ui.championshippage.d50e039adb')}</span>
                   <p className="text-sm sm:text-base text-brand-dark font-medium leading-relaxed font-serif">
                     {cmsData.expectedResult}
                   </p>
                 </div>
+                )}
               </div>
+              )}
 
               {/* Jury & mentors — compact cards, same style as the home page */}
               {juryMembers.length > 0 && (

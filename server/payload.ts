@@ -1,8 +1,20 @@
+import { createHash } from 'node:crypto';
+import fs from 'node:fs';
+import path from 'node:path';
+
 import { getPayload } from 'payload';
 import { createClient } from '@libsql/client';
 
 import config from '../src/payload.config';
-import { databaseUrl } from '../src/payload/paths';
+import {
+  ACTIVITY_CATEGORY_VALUES,
+  CONTENT_LANGUAGE_VALUES,
+  OPPORTUNITY_CATEGORY_VALUES,
+  OPPORTUNITY_COST_VALUES,
+} from '../src/payload/options';
+import { databaseUrl, projectRoot } from '../src/payload/paths';
+import { EDITABLE_PAGE_TEXT_PAGES, flattenLocaleText, getEditablePageTextKeys } from '../src/page-texts';
+import { PAGE_TEXT_KEY_INFO } from '../src/admin/pageTextBlockMap';
 
 type PayloadInstance = Awaited<ReturnType<typeof getPayload>>;
 
@@ -118,29 +130,9 @@ const ensureDevelopmentSchema = async () => {
   await executeSafe('CREATE INDEX IF NOT EXISTS experts_updated_at_idx ON experts (updated_at);');
   await executeSafe('CREATE INDEX IF NOT EXISTS experts_created_at_idx ON experts (created_at);');
 
-  await executeSafe(`CREATE TABLE IF NOT EXISTS scenarios (
-    id integer PRIMARY KEY NOT NULL,
-    sort_order numeric DEFAULT 0,
-    is_published integer DEFAULT true,
-    title text NOT NULL,
-    who text NOT NULL,
-    why text NOT NULL,
-    cta_text text NOT NULL,
-    action_type text DEFAULT 'general' NOT NULL,
-    updated_at text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL,
-    created_at text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL
-  );`);
-  await ensureColumn('scenarios', 'sort_order', 'numeric DEFAULT 0');
-  await ensureColumn('scenarios', 'is_published', 'integer DEFAULT true');
-  await ensureColumn('scenarios', 'title', "text DEFAULT '' NOT NULL");
-  await ensureColumn('scenarios', 'who', "text DEFAULT '' NOT NULL");
-  await ensureColumn('scenarios', 'why', "text DEFAULT '' NOT NULL");
-  await ensureColumn('scenarios', 'cta_text', "text DEFAULT '' NOT NULL");
-  await ensureColumn('scenarios', 'action_type', "text DEFAULT 'general' NOT NULL");
-  await ensureColumn('scenarios', 'updated_at', "text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL");
-  await ensureColumn('scenarios', 'created_at', "text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL");
-  await executeSafe('CREATE INDEX IF NOT EXISTS scenarios_updated_at_idx ON scenarios (updated_at);');
-  await executeSafe('CREATE INDEX IF NOT EXISTS scenarios_created_at_idx ON scenarios (created_at);');
+  // The `scenarios`, `pillars`, `stats` and `trust_points` tables belong to CMS collections
+  // that were removed (their copy now lives in page texts, see migrateLegacyContentToPageTexts).
+  // The tables are intentionally left in place as a read-only backup.
 
   await ensureColumn('tournaments', 'pitch', 'text');
   await ensureColumn('tournaments', 'registration_status', "text DEFAULT 'open'");
@@ -176,6 +168,22 @@ const ensureDevelopmentSchema = async () => {
   await ensureColumn('_tournaments_v', 'version_hero_image_id', 'integer REFERENCES media(id) ON DELETE set null');
   await executeSafe('CREATE INDEX IF NOT EXISTS _tournaments_v_version_version_cover_image_idx ON _tournaments_v (version_cover_image_id);');
   await executeSafe('CREATE INDEX IF NOT EXISTS _tournaments_v_version_version_hero_image_idx ON _tournaments_v (version_hero_image_id);');
+  // Блок «О чемпионате»: собственный заголовок и фото.
+  await ensureColumn('tournaments', 'about_heading', 'text');
+  await ensureColumn('tournaments', 'about_image_id', 'integer REFERENCES media(id) ON DELETE set null');
+  await executeSafe('CREATE INDEX IF NOT EXISTS tournaments_about_image_idx ON tournaments (about_image_id);');
+  await ensureColumn('_tournaments_v', 'version_about_heading', 'text');
+  await ensureColumn('_tournaments_v', 'version_about_image_id', 'integer REFERENCES media(id) ON DELETE set null');
+  await executeSafe('CREATE INDEX IF NOT EXISTS _tournaments_v_version_version_about_image_idx ON _tournaments_v (version_about_image_id);');
+  // Активности и возможности: картинка загружается файлом (раньше — только ссылкой).
+  await ensureColumn('events', 'image_id', 'integer REFERENCES media(id) ON DELETE set null');
+  await executeSafe('CREATE INDEX IF NOT EXISTS events_image_idx ON events (image_id);');
+  await ensureColumn('_events_v', 'version_image_id', 'integer REFERENCES media(id) ON DELETE set null');
+  await executeSafe('CREATE INDEX IF NOT EXISTS _events_v_version_version_image_idx ON _events_v (version_image_id);');
+  await ensureColumn('opportunities', 'image_id', 'integer REFERENCES media(id) ON DELETE set null');
+  await executeSafe('CREATE INDEX IF NOT EXISTS opportunities_image_idx ON opportunities (image_id);');
+  await ensureColumn('_opportunities_v', 'version_image_id', 'integer REFERENCES media(id) ON DELETE set null');
+  await executeSafe('CREATE INDEX IF NOT EXISTS _opportunities_v_version_version_image_idx ON _opportunities_v (version_image_id);');
   await ensureColumn('events', 'original_language', "text DEFAULT 'ru'");
   await ensureColumn('events', '_status', "text DEFAULT 'published'");
   await ensureColumn('opportunities', 'original_language', "text DEFAULT 'ru'");
@@ -248,7 +256,7 @@ const ensureDevelopmentSchema = async () => {
     await executeSafe(`CREATE INDEX IF NOT EXISTS ${table}_order_idx ON ${table} (_order);`);
     await executeSafe(`CREATE INDEX IF NOT EXISTS ${table}_parent_id_idx ON ${table} (_parent_id);`);
   }
-  for (const table of ['activities', 'pillars', 'scenarios', 'stats', 'trust_points']) {
+  for (const table of ['activities']) {
     await ensureColumn(table, 'original_language', "text DEFAULT 'ru'");
     await ensureColumn(table, 'seo_title', 'text');
     await ensureColumn(table, 'seo_description', 'text');
@@ -386,11 +394,371 @@ const ensureDevelopmentSchema = async () => {
   await ensureColumn('payload_locked_documents_rels', 'operator_settings_id', 'integer REFERENCES operator_settings(id)');
   await executeSafe('CREATE INDEX IF NOT EXISTS payload_locked_documents_rels_operator_settings_id_idx ON payload_locked_documents_rels (operator_settings_id);');
   await ensureColumn('payload_locked_documents_rels', 'experts_id', 'integer REFERENCES experts(id)');
-  await ensureColumn('payload_locked_documents_rels', 'scenarios_id', 'integer REFERENCES scenarios(id)');
   await ensureColumn('payload_locked_documents_rels', 'content_localizations_id', 'integer REFERENCES content_localizations(id)');
   await executeSafe('CREATE INDEX IF NOT EXISTS payload_locked_documents_rels_experts_id_idx ON payload_locked_documents_rels (experts_id);');
-  await executeSafe('CREATE INDEX IF NOT EXISTS payload_locked_documents_rels_scenarios_id_idx ON payload_locked_documents_rels (scenarios_id);');
   await executeSafe('CREATE INDEX IF NOT EXISTS payload_locked_documents_rels_content_localizations_id_idx ON payload_locked_documents_rels (content_localizations_id);');
+
+  await syncCmsTextFixes();
+  await migrateLegacyContentToPageTexts();
+  await ensurePageTextRows();
+  await ensureSingleActiveChampionship();
+  await normalizeEventAndOpportunityCodes();
+};
+
+/**
+ * One-off, idempotent corrections to CMS-stored copy that ships with the codebase.
+ * Every write is guarded so a manual edit made by an editor in the admin panel is
+ * never overwritten (we only touch rows that still hold the previous seeded value).
+ */
+const syncCmsTextFixes = async () => {
+  const pageTexts = await getFirst<{ name?: string }>(
+    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'page_texts' LIMIT 1",
+  );
+  if (!pageTexts?.name) return;
+
+  const client = getSchemaClient();
+  const now = "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')";
+
+  // --- «Жюри и наставники» → «Жюри» -----------------------------------------
+  await client.execute({
+    sql: `UPDATE page_texts SET value = ?, updated_at = ${now}
+          WHERE translation_key = 'ui.app.2060fe9f62' AND value = 'Жюри и наставники кубка'`,
+    args: ['Жюри кубка'],
+  });
+  await client.execute({
+    sql: `UPDATE page_texts SET block_name = 'Жюри кубка', updated_at = ${now}
+          WHERE block_name = 'Жюри и наставники кубка'`,
+  });
+
+  const hasLocalizations = await getFirst<{ name?: string }>(
+    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'content_localizations' LIMIT 1",
+  );
+  if (hasLocalizations?.name) {
+    const juryCupByLang: Record<string, [string, string]> = {
+      en: ['Cup jury and mentors', 'Cup jury'],
+      kk: ['Кубок қазылары мен тәлімгерлері', 'Кубок қазылары'],
+      uz: ["Kubok hakamlar hay'ati va mentorlar", "Kubok hakamlar hay'ati"],
+      ar: ['لجنة تحكيم الكأس والمرشدون', 'لجنة تحكيم الكأس'],
+      de: ['Jury und Mentoren des Cups', 'Jury des Cups'],
+      es: ['Jurado y mentores de la copa', 'Jurado de la copa'],
+      tr: ['Kupa jürisi ve mentorlar', 'Kupa jürisi'],
+    };
+    for (const [lang, [oldValue, newValue]] of Object.entries(juryCupByLang)) {
+      await client.execute({
+        sql: `UPDATE content_localizations
+              SET localized_data = json_set(localized_data, '$.value', ?), updated_at = ${now}
+              WHERE source_collection = 'page-texts' AND language = ?
+                AND source_id IN (SELECT CAST(id AS TEXT) FROM page_texts WHERE translation_key = 'ui.app.2060fe9f62')
+                AND json_extract(localized_data, '$.value') = ?`,
+        args: [newValue, lang, oldValue],
+      });
+    }
+  }
+
+  // --- Тексты страницы «О проекте», которых не было в дереве «Тексты страниц» -
+  const aboutRows: Array<[string, string, string]> = [
+    ['ui.aboutprojectpage.faqHeading', 'Часто задаваемые вопросы', 'Часто задаваемые вопросы'],
+    ['ui.aboutprojectpage.ctaApply', 'Подать заявку', 'Финальный призыв'],
+    ['ui.aboutprojectpage.ctaFindTeam', 'НАЙТИ КОМАНДУ', 'Финальный призыв'],
+  ];
+  for (const [key, value, blockName] of aboutRows) {
+    await client.execute({
+      sql: `INSERT INTO page_texts (page, translation_key, label, value, block_name, is_published, sort_order, updated_at, created_at)
+            SELECT 'about', ?, ?, ?, ?, 1, 900, ${now}, ${now}
+            WHERE NOT EXISTS (SELECT 1 FROM page_texts WHERE translation_key = ?)`,
+      args: [key, key.replace(/^ui\./, ''), value, blockName, key],
+    });
+  }
+};
+
+const nowSql = "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')";
+const sqlList = (values: readonly string[]) => values.map((value) => `'${value.replace(/'/g, "''")}'`).join(', ');
+
+/** Runs `run` once per database; the marker lives in a tiny bookkeeping table. */
+const runOnce = async (name: string, run: () => Promise<void>) => {
+  await executeSafe(`CREATE TABLE IF NOT EXISTS navykus_data_fixes (
+    name text PRIMARY KEY NOT NULL,
+    applied_at text DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) NOT NULL
+  );`);
+  const done = await getFirst<{ name?: string }>('SELECT name FROM navykus_data_fixes WHERE name = ? LIMIT 1', [name]);
+  if (done?.name) return;
+  await run();
+  await getSchemaClient().execute({ sql: 'INSERT OR IGNORE INTO navykus_data_fixes (name) VALUES (?)', args: [name] });
+};
+
+// Same hash as `contentHash` in src/payload/localization.ts for a page-texts source
+// (page texts have no originalLanguage field, so the source language is always 'ru').
+const pageTextContentHash = (value: string) =>
+  createHash('sha256').update(JSON.stringify({ sourceLanguage: 'ru', content: { value: value.trim() } })).digest('hex');
+
+type LegacyTextMigration = {
+  table: string;
+  collection: string;
+  page: 'home' | 'activities';
+  blockName: string;
+  limit: number;
+  /** [db column, localized-data key, page-text key with {n} for the 1-based position] */
+  fields: Array<[string, string, string]>;
+};
+
+const LEGACY_TEXT_MIGRATIONS: LegacyTextMigration[] = [
+  {
+    table: 'pillars', collection: 'pillars', page: 'home', blockName: 'Что такое Навыкус — карточки', limit: 3,
+    fields: [['label', 'label', 'ui.app.pillar{n}Label'], ['title', 'title', 'ui.app.pillar{n}Title'], ['description', 'description', 'ui.app.pillar{n}Text']],
+  },
+  {
+    table: 'trust_points', collection: 'trust-points', page: 'home', blockName: 'Блок доверия — карточки', limit: 6,
+    fields: [['title', 'title', 'ui.app.trust{n}Title'], ['description', 'description', 'ui.app.trust{n}Text']],
+  },
+  {
+    table: 'stats', collection: 'stats', page: 'home', blockName: 'Цифры и статистика', limit: 1,
+    fields: [['value', 'value', 'ui.app.statValue'], ['label', 'label', 'ui.app.statLabel']],
+  },
+  {
+    table: 'scenarios', collection: 'scenarios', page: 'activities', blockName: 'Сценарии участия', limit: 2,
+    fields: [['title', 'title', 'ui.activitiespage.scenario{n}Title'], ['who', 'who', 'ui.activitiespage.scenario{n}Text'], ['cta_text', 'ctaText', 'ui.activitiespage.scenario{n}Cta']],
+  },
+];
+
+/**
+ * The «Stats», «Scenarios», «Pillars» and «Trust points» CMS collections were removed; their
+ * copy is shown on the site through page texts now («Дерево текстов»). This moves whatever the
+ * editors had in those collections — including the ready AI translations — into page texts once,
+ * so nothing on the site changes. The legacy tables are kept untouched as a backup.
+ */
+const migrateLegacyContentToPageTexts = async () => {
+  if (!(await hasTable('page_texts'))) return;
+  await runOnce('legacy-collections-to-page-texts', async () => {
+    const client = getSchemaClient();
+    const hasLocalizations = await hasTable('content_localizations');
+
+    for (const migration of LEGACY_TEXT_MIGRATIONS) {
+      if (!(await hasTable(migration.table))) continue;
+      const rows = (await client.execute(
+        `SELECT * FROM ${tableName(migration.table)} WHERE is_published = 1 OR is_published IS NULL ORDER BY sort_order, id LIMIT ${migration.limit}`,
+      )).rows as unknown as Array<Record<string, unknown>>;
+
+      for (const [index, row] of rows.entries()) {
+        const translations = hasLocalizations
+          ? (await client.execute({
+              sql: `SELECT language, localized_data FROM content_localizations
+                    WHERE source_collection = ? AND source_id = ? AND translation_status = 'ready'`,
+              args: [migration.collection, String(row.id)],
+            })).rows as unknown as Array<{ language: string; localized_data: string }>
+          : [];
+
+        for (const [column, localizedKey, keyTemplate] of migration.fields) {
+          const value = typeof row[column] === 'string' ? String(row[column]).trim() : '';
+          if (!value) continue;
+          const translationKey = keyTemplate.replace('{n}', String(index + 1));
+          const inserted = await client.execute({
+            sql: `INSERT INTO page_texts (page, translation_key, label, value, block_name, is_published, sort_order, updated_at, created_at)
+                  SELECT ?, ?, ?, ?, ?, 1, ?, ${nowSql}, ${nowSql}
+                  WHERE NOT EXISTS (SELECT 1 FROM page_texts WHERE translation_key = ?)`,
+            args: [migration.page, translationKey, translationKey.replace(/^ui\./, ''), value, migration.blockName, 800 + index, translationKey],
+          });
+          if (!inserted.rowsAffected || !hasLocalizations) continue;
+          const pageTextId = String(inserted.lastInsertRowid);
+          for (const translation of translations) {
+            let localized: Record<string, unknown> = {};
+            try { localized = JSON.parse(translation.localized_data || '{}'); } catch { /* ignore broken rows */ }
+            const translated = typeof localized[localizedKey] === 'string' ? String(localized[localizedKey]).trim() : '';
+            if (!translated) continue;
+            await client.execute({
+              sql: `INSERT OR IGNORE INTO content_localizations
+                      (source_collection, source_id, language, localized_data, translation_status, content_hash, error_message, generated_at, attempts, updated_at, created_at)
+                    VALUES ('page-texts', ?, ?, ?, 'ready', ?, '', ${nowSql}, 0, ${nowSql}, ${nowSql})`,
+              args: [pageTextId, translation.language, JSON.stringify({ value: translated }), pageTextContentHash(value)],
+            });
+          }
+        }
+      }
+    }
+
+    // Queue records of removed collections would otherwise be retried by the translation worker forever.
+    if (hasLocalizations) {
+      await executeSafe("DELETE FROM content_localizations WHERE source_collection IN ('pillars', 'scenarios', 'stats', 'trust-points');");
+    }
+  });
+};
+
+/**
+ * Exactly one championship is «active» (column is_featured): it is the one shown on the home
+ * page and on /championship. Everything else is the archive. Repairs databases that have zero
+ * or several active championships.
+ */
+const ensureSingleActiveChampionship = async () => {
+  if (!(await hasTable('tournaments'))) return;
+  const client = getSchemaClient();
+  // «Формат участия» became a one-line field (the site only ever showed the first line).
+  await runOnce('tournament-format-single-line', async () => {
+    await executeSafe(`UPDATE tournaments SET format = replace(format, char(13), '') WHERE instr(format, char(13)) > 0;`);
+    await executeSafe(`UPDATE tournaments SET format = trim(substr(format, 1, instr(format, char(10)) - 1)) WHERE instr(format, char(10)) > 0;`);
+  });
+  const active = (await client.execute(
+    `SELECT id FROM tournaments WHERE is_featured = 1
+     ORDER BY CASE WHEN _status = 'published' THEN 0 ELSE 1 END, sort_order, id`,
+  )).rows as unknown as Array<{ id: number }>;
+  let activeId = active[0]?.id;
+  if (activeId == null) {
+    const fallback = await getFirst<{ id?: number }>(
+      `SELECT id FROM tournaments ORDER BY CASE WHEN _status = 'published' THEN 0 ELSE 1 END, sort_order, id LIMIT 1`,
+    );
+    activeId = fallback?.id;
+  }
+  if (activeId == null || (active.length === 1 && active[0].id === activeId)) return;
+  await client.execute({ sql: 'UPDATE tournaments SET is_featured = CASE WHEN id = ? THEN 1 ELSE 0 END', args: [activeId] });
+  if (await hasTable('_tournaments_v')) {
+    await client.execute({
+      sql: 'UPDATE _tournaments_v SET version_is_featured = CASE WHEN parent_id = ? THEN 1 ELSE 0 END WHERE latest = 1',
+      args: [activeId],
+    });
+  }
+};
+
+/**
+ * Fields that the site reads as codes (event category, opportunity category/cost, language
+ * lists) used to be free text in the CMS. They are selects now; legacy values are mapped to
+ * the closest code so old records stay valid and editable.
+ */
+const normalizeEventAndOpportunityCodes = async () => {
+  const eventCategoryCase = (column: string) => `CASE
+      WHEN ${column} IN (${sqlList(ACTIVITY_CATEGORY_VALUES)}) THEN ${column}
+      WHEN lower(${column}) LIKE '%hack%' OR lower(${column}) LIKE '%project%' OR lower(${column}) LIKE '%case%'
+        OR ${column} LIKE '%хакатон%' OR ${column} LIKE '%проект%' OR ${column} LIKE '%кейс%' THEN 'project'
+      WHEN lower(${column}) LIKE '%workshop%' OR lower(${column}) LIKE '%master%'
+        OR ${column} LIKE '%воркшоп%' OR ${column} LIKE '%мастер%' THEN 'workshop'
+      WHEN lower(${column}) LIKE '%webinar%' OR lower(${column}) LIKE '%online%'
+        OR ${column} LIKE '%вебинар%' OR ${column} LIKE '%онлайн%' THEN 'online-meeting'
+      WHEN lower(${column}) LIKE '%network%' OR lower(${column}) LIKE '%forum%' OR lower(${column}) LIKE '%meet%'
+        OR ${column} LIKE '%форум%' OR ${column} LIKE '%нетворк%' OR ${column} LIKE '%встреч%' THEN 'social'
+      WHEN lower(${column}) LIKE '%team%' OR ${column} LIKE '%команд%' THEN 'team'
+      ELSE 'educational' END`;
+  if (await hasTable('events')) {
+    await executeSafe(`UPDATE events SET event_type = ${eventCategoryCase('event_type')} WHERE event_type IS NULL OR event_type NOT IN (${sqlList(ACTIVITY_CATEGORY_VALUES)});`);
+  }
+  if (await hasTable('_events_v')) {
+    await executeSafe(`UPDATE _events_v SET version_event_type = ${eventCategoryCase('version_event_type')} WHERE version_event_type IS NOT NULL AND version_event_type NOT IN (${sqlList(ACTIVITY_CATEGORY_VALUES)});`);
+  }
+
+  const categoryCase = (column: string, typeColumn: string) => `CASE
+      WHEN ${column} IN (${sqlList(OPPORTUNITY_CATEGORY_VALUES)}) THEN ${column}
+      WHEN ${column} = 'olympiad' THEN 'olympiads'
+      WHEN ${column} = 'internship' THEN 'internships'
+      WHEN ${typeColumn} IN (${sqlList(OPPORTUNITY_CATEGORY_VALUES)}) THEN ${typeColumn}
+      ELSE 'projects' END`;
+  const costCase = (column: string) => `CASE
+      WHEN ${column} IN (${sqlList(OPPORTUNITY_COST_VALUES)}) THEN ${column}
+      WHEN ${column} IS NULL OR trim(${column}) = '' OR lower(${column}) LIKE '%free%' OR ${column} LIKE '%есплатн%' THEN 'free'
+      WHEN lower(${column}) LIKE '%scholar%' OR ${column} LIKE '%типенд%' OR ${column} LIKE '%грант%' THEN 'scholarship'
+      ELSE 'paid' END`;
+  if (await hasTable('opportunities')) {
+    await executeSafe(`UPDATE opportunities SET category = ${categoryCase('category', 'opportunity_type')} WHERE category IS NULL OR category NOT IN (${sqlList(OPPORTUNITY_CATEGORY_VALUES)});`);
+    await executeSafe(`UPDATE opportunities SET cost = ${costCase('cost')} WHERE cost IS NULL OR cost NOT IN (${sqlList(OPPORTUNITY_COST_VALUES)});`);
+  }
+  if (await hasTable('_opportunities_v')) {
+    await executeSafe(`UPDATE _opportunities_v SET version_category = ${categoryCase('version_category', 'version_opportunity_type')} WHERE version_category IS NOT NULL AND version_category NOT IN (${sqlList(OPPORTUNITY_CATEGORY_VALUES)});`);
+    await executeSafe(`UPDATE _opportunities_v SET version_cost = ${costCase('version_cost')} WHERE version_cost IS NOT NULL AND version_cost NOT IN (${sqlList(OPPORTUNITY_COST_VALUES)});`);
+  }
+
+  // «Идёт сейчас» was machine-translated as «running» (jogging). Only rows that still hold
+  // the broken value are touched, so an editor's own wording is never overwritten.
+  if (await hasTable('content_localizations') && await hasTable('page_texts')) {
+    const ongoingFixes: Record<string, [string, string]> = {
+      en: ['Running now', 'Happening now'],
+      kk: ['Қазір жүгіру', 'Қазір өтуде'],
+      uz: ['Hozir yugurish', 'Hozir oʻtmoqda'],
+      es: ['Corriendo ahora', 'En curso'],
+      tr: ['Şimdi koşuyorum', 'Şu anda devam ediyor'],
+      ar: ['تشغيل الآن', 'جارٍ الآن'],
+    };
+    for (const [language, [broken, fixed]] of Object.entries(ongoingFixes)) {
+      await getSchemaClient().execute({
+        sql: `UPDATE content_localizations SET localized_data = json_set(localized_data, '$.value', ?), updated_at = ${nowSql}
+              WHERE source_collection = 'page-texts' AND language = ?
+                AND source_id IN (SELECT CAST(id AS TEXT) FROM page_texts WHERE translation_key = 'ui.activitiespage.2f96e6c2aa')
+                AND json_extract(localized_data, '$.value') = ?`,
+        args: [fixed, language, broken],
+      });
+    }
+  }
+
+  // The upload hint listed PPT/TXT/ZIP, which the server rejects. Replace only the old wording.
+  if (await hasTable('page_texts')) {
+    const client = getSchemaClient();
+    await client.execute(`UPDATE page_texts SET value = replace(value, 'PDF, DOC, PPT, TXT, ZIP, PNG', 'PDF, DOC, DOCX, JPG, PNG, WebP'), updated_at = ${nowSql}
+      WHERE translation_key = 'ui.applicationmodal.6272f20d22' AND value LIKE 'PDF, DOC, PPT, TXT, ZIP, PNG%'`);
+    if (await hasTable('content_localizations')) {
+      await client.execute(`UPDATE content_localizations
+        SET localized_data = json_set(localized_data, '$.value',
+              replace(replace(json_extract(localized_data, '$.value'), 'PDF, DOC, PPT, TXT, ZIP, PNG', 'PDF, DOC, DOCX, JPG, PNG, WebP'), 'PDF، DOC، PPT، TXT، ZIP، PNG', 'PDF، DOC، DOCX، JPG، PNG، WebP')),
+            updated_at = ${nowSql}
+        WHERE source_collection = 'page-texts'
+          AND source_id IN (SELECT CAST(id AS TEXT) FROM page_texts WHERE translation_key = 'ui.applicationmodal.6272f20d22')
+          AND (json_extract(localized_data, '$.value') LIKE '%PPT, TXT, ZIP%' OR json_extract(localized_data, '$.value') LIKE '%PPT، TXT، ZIP%')`);
+    }
+  }
+
+  // Organizer, city and skills of opportunities are shown on the cards but were never translated.
+  if (await hasTable('content_localizations')) {
+    await runOnce('retranslate-opportunities-v2', async () => {
+      await executeSafe("UPDATE content_localizations SET translation_status = 'pending', attempts = 0, error_message = '' WHERE source_collection = 'opportunities';");
+    });
+  }
+
+  for (const table of ['events_languages', '_events_v_version_languages', 'opportunities_languages', '_opportunities_v_version_languages']) {
+    if (!(await hasTable(table))) continue;
+    await executeSafe(`UPDATE ${tableName(table)} SET value = lower(trim(value)) WHERE value IS NOT NULL AND value <> lower(trim(value));`);
+    await executeSafe(`DELETE FROM ${tableName(table)} WHERE value IS NULL OR value NOT IN (${sqlList(CONTENT_LANGUAGE_VALUES)});`);
+  }
+};
+
+const PAGE_FALLBACK_BLOCK: Record<string, string> = {
+  global: 'Общие тексты — Прочее',
+  home: 'Главная — Прочее',
+  about: 'О проекте — Прочее',
+  championship: 'Чемпионат — Прочее',
+  activities: 'Активности — Прочее',
+  'find-team': 'Поиск команды — Прочее',
+  legal: 'Юридические страницы — Прочее',
+};
+
+/**
+ * «Дерево текстов» only lists rows of `page_texts`. Every interface text of the site that is
+ * editable (see src/page-texts.ts) gets a row here — new texts shipped with the code appear in
+ * the tree automatically, with the Russian copy as the starting value. Existing rows (and the
+ * editors' changes in them) are never touched.
+ */
+const ensurePageTextRows = async () => {
+  if (!(await hasTable('page_texts'))) return;
+  const localePath = path.join(projectRoot, 'src', 'i18n', 'locales', 'ru', 'translation.json');
+  if (!fs.existsSync(localePath)) return;
+  const flatLocale = flattenLocaleText(JSON.parse(fs.readFileSync(localePath, 'utf8')), '', { includeArrays: true });
+  const existing = new Set(
+    ((await getSchemaClient().execute('SELECT translation_key FROM page_texts')).rows as unknown as Array<{ translation_key: string }>)
+      .map((row) => row.translation_key),
+  );
+  for (const { value: page } of EDITABLE_PAGE_TEXT_PAGES) {
+    for (const key of getEditablePageTextKeys(page, flatLocale)) {
+      if (existing.has(key)) continue;
+      const value = flatLocale[key];
+      if (typeof value !== 'string' || !value.trim()) continue;
+      const policySection = key.match(/^privacypolicy\.sections\.(\d+)\./)?.[1];
+      const blockName = key.startsWith('ui.opportunitiespage.')
+        ? 'Каталог «Возможности»'
+        : policySection !== undefined
+          ? `Политика: ${Number(policySection) + 1}. ${(flatLocale[`privacypolicy.sections.${policySection}.title`] || '').slice(0, 60)}`
+          : key.startsWith('privacypolicy.')
+            ? 'Политика конфиденциальности'
+            : PAGE_TEXT_KEY_INFO[key]?.page === page ? PAGE_TEXT_KEY_INFO[key].blockName : PAGE_FALLBACK_BLOCK[page];
+      await getSchemaClient().execute({
+        sql: `INSERT INTO page_texts (page, translation_key, label, value, block_name, is_published, sort_order, updated_at, created_at)
+              VALUES (?, ?, ?, ?, ?, 1, 900, ${nowSql}, ${nowSql})`,
+        args: [page, key, key.replace(/^ui\./, ''), value, blockName || null],
+      });
+      existing.add(key);
+    }
+  }
 };
 
 export const getPayloadClient = () => {

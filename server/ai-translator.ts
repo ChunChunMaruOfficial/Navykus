@@ -57,7 +57,9 @@ const translateWithGoogle = async (text: string, from: SupportedLanguage, to: Su
   const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
   const body = await response.text();
   if (!response.ok) {
-    throw new Error(`Google Translate failed with ${response.status}: ${body.slice(0, 300)}`);
+    // Google answers rate limiting with a large HTML page — keep the message short and readable.
+    const details = body.trimStart().startsWith('<') ? (response.status === 429 ? 'rate limited' : 'HTML error page') : body.slice(0, 200);
+    throw new Error(`Google Translate failed with ${response.status}: ${details}`);
   }
 
   const translated = parseGoogleTranslateResponse(JSON.parse(body));
@@ -102,6 +104,10 @@ const translateWithMyMemory = async (text: string, from: SupportedLanguage, to: 
   if (data.responseStatus && data.responseStatus >= 400) {
     throw new Error(`MyMemory translation failed: ${data.responseDetails || data.responseStatus}`);
   }
+  // Quota warnings sometimes arrive as a «translation» — never store them as content.
+  if (/^MYMEMORY WARNING/i.test(data.responseData?.translatedText || '')) {
+    throw new Error('MyMemory translation failed with 429: daily quota exceeded');
+  }
   return data.responseData?.translatedText || text;
 };
 
@@ -131,14 +137,94 @@ const translateWithLibreTranslate = async (text: string, from: SupportedLanguage
   return data.translatedText || text;
 };
 
-const translateWithProvider = async (provider: TranslationProvider, text: string, from: SupportedLanguage, to: SupportedLanguage) => {
+const callProvider = (provider: TranslationProvider, text: string, from: SupportedLanguage, to: SupportedLanguage) => {
   if (provider === 'google') return translateWithGoogle(text, from, to);
   if (provider === 'libretranslate') return translateWithLibreTranslate(text, from, to);
   return translateWithMyMemory(text, from, to);
 };
 
-const translateText = async (text: string, from: SupportedLanguage, to: SupportedLanguage) => {
+// The free endpoints rate-limit bursts (HTTP 429). Several documents/languages are translated
+// in parallel, so cap the number of simultaneous requests per process and retry throttled
+// requests with a growing pause instead of failing the whole translation.
+const MAX_CONCURRENT_REQUESTS = Math.max(1, Number(process.env.TRANSLATION_MAX_CONCURRENCY || 3));
+const RETRY_DELAYS_MS = [1000, 3000, 7000];
+let activeRequests = 0;
+const requestQueue: Array<() => void> = [];
+
+const withRequestSlot = async <T>(operation: () => Promise<T>): Promise<T> => {
+  if (activeRequests >= MAX_CONCURRENT_REQUESTS) {
+    await new Promise<void>((resolve) => requestQueue.push(resolve));
+  }
+  activeRequests += 1;
+  try {
+    return await operation();
+  } finally {
+    activeRequests -= 1;
+    requestQueue.shift()?.();
+  }
+};
+
+const isRetryable = (error: unknown) => /\b(429|500|502|503|504)\b|timeout|aborted|fetch failed/i.test(String((error as Error)?.message || ''));
+
+// A provider that keeps answering 429 after the retries is skipped for a while, so a blocked
+// endpoint doesn't add long waits to every single string of every document.
+const PROVIDER_COOLDOWN_MS = 10 * 60_000;
+const providerCooldownUntil = new Map<TranslationProvider, number>();
+
+const translateWithProvider = async (provider: TranslationProvider, text: string, from: SupportedLanguage, to: SupportedLanguage) => {
+  const cooldownUntil = providerCooldownUntil.get(provider) || 0;
+  if (cooldownUntil > Date.now()) {
+    throw new Error(`${provider} is rate limited, retry after ${new Date(cooldownUntil).toISOString()}`);
+  }
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      return await withRequestSlot(() => callProvider(provider, text, from, to));
+    } catch (error) {
+      const quotaExceeded = /quota/i.test(String((error as Error)?.message || ''));
+      if (quotaExceeded || attempt >= RETRY_DELAYS_MS.length || !isRetryable(error)) {
+        if (/\b429\b/.test(String((error as Error)?.message || ''))) {
+          providerCooldownUntil.set(provider, Date.now() + PROVIDER_COOLDOWN_MS);
+        }
+        throw error;
+      }
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAYS_MS[attempt]));
+    }
+  }
+};
+
+// The free translation endpoints take the text in the URL: long descriptions are sent
+// paragraph by paragraph so a request never exceeds the URL length limits.
+const MAX_CHUNK_LENGTH = 1500;
+
+const splitIntoChunks = (text: string) => {
+  const parts = text.split(/(\n+)/);
+  const chunks: string[] = [];
+  let current = '';
+  for (const part of parts) {
+    if (current && current.length + part.length > MAX_CHUNK_LENGTH) {
+      chunks.push(current);
+      current = '';
+    }
+    current += part;
+  }
+  if (current) chunks.push(current);
+  return chunks;
+};
+
+const translateText = async (text: string, from: SupportedLanguage, to: SupportedLanguage): Promise<string> => {
   if (!shouldTranslateString(text) || from === to) return text;
+  if (text.length > MAX_CHUNK_LENGTH) {
+    const translated: string[] = [];
+    for (const chunk of splitIntoChunks(text)) {
+      translated.push(/^\n+$/.test(chunk) ? chunk : await translateSingleText(chunk, from, to));
+    }
+    return translated.join('');
+  }
+  return translateSingleText(text, from, to);
+};
+
+const translateSingleText = async (text: string, from: SupportedLanguage, to: SupportedLanguage) => {
+  if (!shouldTranslateString(text)) return text;
   const errors: string[] = [];
   for (const provider of providerOrder()) {
     try {

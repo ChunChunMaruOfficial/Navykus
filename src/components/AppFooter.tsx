@@ -59,12 +59,12 @@ const AppFooter = ({ contactSettings, onNavigate }: AppFooterProps) => {
             </h4>
             <ul className="space-y-1.5 text-xs text-brand-slate font-normal md:font-light">
               <li>
-                Email:{' '}
+                {t('ui.app.footerEmailLabel')}{' '}
                 <a
-                  href={`mailto:${contactSettings?.email || 'info@navykus.org'}`}
+                  href={`mailto:${contactSettings?.email || 'info@navykus.tech'}`}
                   className="hover:text-[#bc4638] transition-colors"
                 >
-                  {contactSettings?.email || 'info@navykus.org'}
+                  {contactSettings?.email || 'info@navykus.tech'}
                 </a>
               </li>
             </ul>

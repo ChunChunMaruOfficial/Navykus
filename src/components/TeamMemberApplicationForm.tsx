@@ -12,7 +12,6 @@ const FIELD_CLASS =
 const UPLOAD_CLASS =
   'group relative flex w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-[#d8d1cc] bg-white/70 px-4 py-3.5 transition-colors hover:bg-white focus-within:border-brand-dark/45 focus-within:bg-white';
 
-const CONTACT_TYPES = ['telegram', 'email'] as const;
 const ROLE_OPTIONS: TeamRole[] = ['developer', 'designer', 'researcher', 'product_manager', 'marketer', 'team_lead', 'analyst', 'other'];
 
 const ROLE_LABELS: Record<TeamRole, string> = {
@@ -120,7 +119,6 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
     const age = Number(form.age);
     if (!form.age.trim() || Number.isNaN(age) || age < 10 || age > 24) nextErrors.push(t('ui.championshippage.7b04173c40'));
     if (!form.country.trim()) nextErrors.push(t('ui.app.92ca287f55'));
-    if (!form.contact.trim()) nextErrors.push(t('ui.app.a4bae5e597'));
     if (!form.shortBio.trim()) nextErrors.push(t('ui.findteampage.bioRequired', { defaultValue: 'Add a short bio' }));
     if (!isParticipationForm && !form.whyLooking.trim()) nextErrors.push(t('ui.findteampage.whyRequired', { defaultValue: 'Explain why you are looking for a team' }));
     if (!isParticipationForm && !form.targetRoles.length) nextErrors.push(t('ui.findteampage.rolesRequired', { defaultValue: 'Choose a role' }));
@@ -189,7 +187,7 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
           <input value={form.name} onChange={(event) => setField('name', event.target.value)} className={FIELD_CLASS} required />
         </label>
         <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
-          Email*
+          {t('ui.applicationmodal.emailLabel')}*
           <input type="email" value={form.email} onChange={(event) => setField('email', event.target.value)} className={FIELD_CLASS} required />
         </label>
         <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
@@ -204,18 +202,6 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
           {t('ui.championshippage.450778ada1')}
           <input value={form.city} onChange={(event) => setField('city', event.target.value)} className={FIELD_CLASS} />
         </label>
-        <div className="grid grid-cols-[120px_minmax(0,1fr)] gap-2">
-          <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
-            {t('ui.findteampage.c8d0e2f4a7')}*
-            <select value={form.contactType} onChange={(event) => setField('contactType', event.target.value as ApplicationForm['contactType'])} className={FIELD_CLASS}>
-              {CONTACT_TYPES.map((type) => <option key={type} value={type}>{type}</option>)}
-            </select>
-          </label>
-          <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
-            {t('ui.findteampage.3765795ef8')}*
-            <input value={form.contact} onChange={(event) => setField('contact', event.target.value)} className={FIELD_CLASS} required />
-          </label>
-        </div>
       </div>
 
       <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
@@ -230,14 +216,14 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
             <input value={skillsInput} onChange={(event) => {
               setSkillsInput(event.target.value);
               setField('skills', splitList(event.target.value));
-            }} placeholder="React, design, research" className={FIELD_CLASS} />
+            }} placeholder={t('ui.applicationmodal.skillsPlaceholder')} className={FIELD_CLASS} />
           </label>
           <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
             {t('ui.findteampage.a6b8c0d2e5')}
             <input value={interestsInput} onChange={(event) => {
               setInterestsInput(event.target.value);
               setField('interests', splitList(event.target.value));
-            }} placeholder="urbanism, tech, social" className={FIELD_CLASS} />
+            }} placeholder={t('ui.applicationmodal.interestsPlaceholder')} className={FIELD_CLASS} />
           </label>
         </div>
       )}
@@ -345,7 +331,7 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
         ) : (
           <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
             {t('ui.championshippage.40aa3bf48b')}
-            <input value={form.portfolioLink || ''} onChange={(event) => setField('portfolioLink', event.target.value)} placeholder="Behance, GitHub, Google Drive..." className={FIELD_CLASS} />
+            <input value={form.portfolioLink || ''} onChange={(event) => setField('portfolioLink', event.target.value)} placeholder={t('ui.applicationmodal.portfolioPlaceholder')} className={FIELD_CLASS} />
           </label>
         )}
       </div>

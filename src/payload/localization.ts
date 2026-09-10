@@ -14,10 +14,6 @@ export const SUPPORTED_CONTENT_COLLECTIONS = [
   'experts',
   'faqs',
   'opportunities',
-  'pillars',
-  'scenarios',
-  'stats',
-  'trust-points',
   'tournaments',
   'page-texts',
 ] as const;
@@ -71,12 +67,13 @@ const LOCALIZATION_CONFIGS: Record<SupportedContentCollection, LocalizationConfi
   activities: {
     collection: 'activities',
     sourceLanguageField: 'originalLanguage',
-    fields: ['title', 'shortDescription', 'fullDescription', 'format', 'date', 'category', 'status', 'who', 'benefits', 'prerequisites', 'ctaText', 'seoTitle', 'seoDescription'],
+    fields: ['title', 'shortDescription', 'fullDescription', 'format', 'date', 'who', 'benefits', 'prerequisites', 'ctaText', 'seoTitle', 'seoDescription'],
   },
   events: {
     collection: 'events',
     sourceLanguageField: 'originalLanguage',
-    fields: ['title', 'slug', 'shortDescription', 'fullDescription', 'eventType', 'displayDate', 'country', 'venue', 'speaker', 'languages', 'materials', 'audience', 'outcomesText', 'prerequisites', 'seoTitle', 'seoDescription'],
+    // Codes (slug, eventType, format, languages) are never translated — the site maps them itself.
+    fields: ['title', 'shortDescription', 'fullDescription', 'displayDate', 'country', 'venue', 'speaker', 'materials', 'audience', 'outcomesText', 'prerequisites'],
   },
   experts: {
     collection: 'experts',
@@ -91,32 +88,13 @@ const LOCALIZATION_CONFIGS: Record<SupportedContentCollection, LocalizationConfi
   opportunities: {
     collection: 'opportunities',
     sourceLanguageField: 'originalLanguage',
-    fields: ['title', 'slug', 'opportunityType', 'shortDescription', 'fullDescription', 'country', 'cost', 'languages', 'requirements', 'benefits', 'documents', 'seoTitle', 'seoDescription'],
-  },
-  pillars: {
-    collection: 'pillars',
-    sourceLanguageField: 'originalLanguage',
-    fields: ['label', 'title', 'description', 'seoTitle', 'seoDescription'],
-  },
-  scenarios: {
-    collection: 'scenarios',
-    sourceLanguageField: 'originalLanguage',
-    fields: ['title', 'who', 'why', 'ctaText', 'actionType', 'seoTitle', 'seoDescription'],
-  },
-  stats: {
-    collection: 'stats',
-    sourceLanguageField: 'originalLanguage',
-    fields: ['value', 'label', 'seoTitle', 'seoDescription'],
-  },
-  'trust-points': {
-    collection: 'trust-points',
-    sourceLanguageField: 'originalLanguage',
-    fields: ['title', 'description', 'seoTitle', 'seoDescription'],
+    // Codes (slug, category, cost, languages, …) are never translated — the site maps them itself.
+    fields: ['title', 'organization', 'shortDescription', 'fullDescription', 'country', 'city', 'skills', 'requirements', 'benefits', 'documents'],
   },
   tournaments: {
     collection: 'tournaments',
     sourceLanguageField: 'originalLanguage',
-    fields: ['title', 'slug', 'type', 'description', 'pitch', 'date', 'registrationDeadline', 'skills', 'suitableFor', 'format', 'targetAudience', 'ageLimit', 'teamsAllowed', 'language', 'expectedResult', 'themesText', 'evaluationCriteriaText', 'seoTitle', 'seoDescription'],
+    fields: ['title', 'type', 'description', 'pitch', 'aboutHeading', 'date', 'registrationDeadline', 'skills', 'suitableFor', 'format', 'ageLimit', 'teamsAllowed', 'language', 'expectedResult', 'themesText', 'evaluationCriteriaText', 'seoTitle', 'seoDescription'],
   },
   'page-texts': {
     collection: 'page-texts',
@@ -174,6 +152,10 @@ const isPayloadNotFound = (error: unknown) => {
   const current = error as { status?: unknown; message?: unknown };
   return current?.status === 404 || String(current?.message || '').toLowerCase() === 'not found';
 };
+
+// Marks a record that can never succeed so the worker stops retrying it.
+const PERMANENT_FAILURE_ATTEMPTS = 999;
+const FAILED_RETRY_DELAY_MS = 2 * 60_000;
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -353,7 +335,7 @@ export const processContentLocalizationRecord = async (
     await payload.update({
       collection: 'content-localizations' as any,
       id: payloadId(record.id as string | number),
-      data: { translationStatus: 'failed', errorMessage: 'Source document is not eligible for localization' },
+      data: { translationStatus: 'failed', attempts: PERMANENT_FAILURE_ATTEMPTS, errorMessage: 'Source document is not eligible for localization' },
       overrideAccess: true,
     });
     return;
@@ -374,7 +356,7 @@ export const processContentLocalizationRecord = async (
     await payload.update({
       collection: 'content-localizations' as any,
       id: payloadId(record.id as string | number),
-      data: { translationStatus: 'failed', errorMessage: 'Source document has no localizable content' },
+      data: { translationStatus: 'failed', attempts: PERMANENT_FAILURE_ATTEMPTS, errorMessage: 'Source document has no localizable content' },
       overrideAccess: true,
     });
     return;
@@ -406,8 +388,8 @@ export const processPendingContentLocalizations = async (
   payload: Payload,
   options: ProcessContentLocalizationOptions = {},
 ) => {
-  const batchSize = Math.max(1, Math.min(10, options.batchSize || Number(process.env.TRANSLATION_WORKER_BATCH_SIZE || 3)));
-  const maxAttempts = Math.max(1, options.maxAttempts || Number(process.env.TRANSLATION_WORKER_MAX_ATTEMPTS || 5));
+  const batchSize = Math.max(1, Math.min(10, options.batchSize || Number(process.env.TRANSLATION_WORKER_BATCH_SIZE || SUPPORTED_LANGUAGES.length - 1)));
+  const maxAttempts = Math.max(1, options.maxAttempts || Number(process.env.TRANSLATION_WORKER_MAX_ATTEMPTS || 8));
   const staleInProgressMs = Math.max(60_000, options.staleInProgressMs || Number(process.env.TRANSLATION_WORKER_STALE_MS || 15 * 60_000));
   const staleDate = new Date(Date.now() - staleInProgressMs).toISOString();
 
@@ -430,19 +412,34 @@ export const processPendingContentLocalizations = async (
         {
           or: [
             { translationStatus: { equals: 'pending' } },
-            { translationStatus: { equals: 'failed' } },
+            {
+              and: [
+                { translationStatus: { equals: 'failed' } },
+                { updatedAt: { less_than: new Date(Date.now() - FAILED_RETRY_DELAY_MS).toISOString() } },
+              ],
+            },
           ],
         },
         { attempts: { less_than: maxAttempts } },
       ],
     },
-    limit: batchSize,
+    limit: batchSize * 5,
     sort: 'updatedAt',
     overrideAccess: true,
   });
 
-  let processed = 0;
-  for (const record of result.docs as Array<Record<string, unknown>>) {
+  // Failed records back off exponentially (2, 4, 8 … min, max 2 h): the free translators
+  // rate-limit bursts, and a few quiet minutes are usually enough to recover.
+  const now = Date.now();
+  const isDue = (record: Record<string, unknown>) => {
+    if (record.translationStatus !== 'failed') return true;
+    const attempts = Math.max(1, Number(record.attempts || 1));
+    const delay = Math.min(FAILED_RETRY_DELAY_MS * 2 ** (attempts - 1), 2 * 60 * 60_000);
+    return new Date(String(record.updatedAt || 0)).getTime() + delay <= now;
+  };
+  // Records of one batch are independent (different documents/languages): translate them in parallel.
+  const docs = (result.docs as Array<Record<string, unknown>>).filter(isDue).slice(0, batchSize);
+  await Promise.all(docs.map(async (record) => {
     try {
       await processContentLocalizationRecord(payload, record);
     } catch (error) {
@@ -451,15 +448,16 @@ export const processPendingContentLocalizations = async (
         id: payloadId(record.id as string | number),
         data: {
           translationStatus: 'failed',
+          // Count the attempt, otherwise a record that always throws is retried forever.
+          attempts: Number(record.attempts || 0) + 1,
           errorMessage: (error as Error).message?.slice(0, 500) || 'Translation failed',
         },
         overrideAccess: true,
       }).catch(() => undefined);
     }
-    processed += 1;
-  }
+  }));
 
-  return { processed, remaining: Math.max(0, result.totalDocs - processed) };
+  return { processed: docs.length, remaining: Math.max(0, result.totalDocs - docs.length) };
 };
 
 export const enqueueContentLocalizations = async (
@@ -497,10 +495,82 @@ export const enqueueContentLocalizations = async (
   }
 };
 
-export const localizedAfterChange = (collection: SupportedContentCollection) => async ({ doc, req }: { doc: Record<string, unknown>; req: { payload: Payload } }) => {
+const payloadIdValue = (value: unknown) => payloadId(String(value ?? ''));
+
+/**
+ * Translates every queued language of one document right away (languages in parallel)
+ * instead of waiting for the background worker. With `force`, finished and failed
+ * translations are redone too. Safe to call without awaiting.
+ */
+export const translateSourceNow = async (
+  payload: Payload,
+  collection: SupportedContentCollection,
+  sourceId: string | number,
+  { force = false }: { force?: boolean } = {},
+) => {
+  if (force) {
+    const source = await payload.findByID({
+      collection: collection as any,
+      id: payloadIdValue(sourceId),
+      depth: 0,
+      overrideAccess: true,
+    }).catch(() => undefined) as Record<string, unknown> | undefined;
+    if (!source) return;
+    await enqueueContentLocalizations(payload, collection, source);
+    await withSqliteBusyRetry(() => payload.update({
+      collection: 'content-localizations' as any,
+      where: {
+        and: [
+          { sourceCollection: { equals: collection } },
+          { sourceId: { equals: String(sourceId) } },
+        ],
+      },
+      data: { translationStatus: 'pending', attempts: 0, errorMessage: '' },
+      overrideAccess: true,
+    }));
+  }
+
+  const queued = await withSqliteBusyRetry(() => payload.find({
+    collection: 'content-localizations' as any,
+    where: {
+      and: [
+        { sourceCollection: { equals: collection } },
+        { sourceId: { equals: String(sourceId) } },
+        { translationStatus: { in: ['pending', 'failed'] } },
+      ],
+    },
+    limit: SUPPORTED_LANGUAGES.length,
+    overrideAccess: true,
+  }));
+
+  await Promise.all((queued.docs as Array<Record<string, unknown>>).map((record) =>
+    processContentLocalizationRecord(payload, record).catch((error) => {
+      console.error(`[content-localization] ${collection}:${String(sourceId)} ${String(record.language)} failed:`, error);
+    }),
+  ));
+};
+
+export const localizedAfterChange = (collection: SupportedContentCollection) => async ({ doc, req, context }: {
+  doc: Record<string, unknown>;
+  req: { payload: Payload };
+  context?: Record<string, unknown>;
+}) => {
   await enqueueContentLocalizations(req.payload, collection, doc).catch((error) => {
     console.error(`[content-localization] ${collection}:${String(doc?.id || '')} enqueue failed:`, error);
   });
+  // Start translating right away in the background; the periodic worker is only a safety net.
+  // The short delay lets the save transaction commit first, so the translator reads the new text.
+  if (doc?.id != null && !context?.skipImmediateTranslation) {
+    void wait(1500).then(() => translateSourceNow(req.payload, collection, doc.id as string | number)).catch((error) => {
+      console.error(`[content-localization] ${collection}:${String(doc.id)} immediate translation failed:`, error);
+    });
+  }
+};
+
+/** Language the document was written in (the source for the automatic translations). */
+export const localizationSourceLanguage = (collection: SupportedContentCollection, doc: Record<string, unknown>) => {
+  const config = LOCALIZATION_CONFIGS[collection];
+  return asSupportedLanguage(config.sourceLanguageField ? doc[config.sourceLanguageField] : undefined);
 };
 
 export const localizedAfterDelete = (collection: SupportedContentCollection) => async ({ doc, req }: { doc: Record<string, unknown>; req: { payload: Payload } }) => {

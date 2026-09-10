@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "api-test",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["cross-env", "API_PORT=4100", "CORS_ORIGIN=http://localhost:3100", "TRANSLATION_WORKER_ENABLED=true", "tsx", "server/index.ts"],
+      "port": 4100
+    },
+    {
+      "name": "site-test",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["cross-env", "VITE_DEV_API_URL=http://localhost:4100", "vite", "--port=3100", "--strictPort"],
+      "port": 3100
+    },
+    {
+      "name": "admin",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:admin"],
+      "port": 3001
+    }
+  ]
+}

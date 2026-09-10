@@ -30,7 +30,6 @@ import { ActivityCategory, ActivityItem, ActivityStatus, ParticipationScenario, 
 import { useCmsEvents } from '../hooks/useCmsEvents';
 import { useCmsOpportunities } from '../hooks/useCmsOpportunities';
 import { useCmsPageTexts } from '../hooks/useCmsPageTexts';
-import { useCmsScenarios } from '../hooks/useCmsScenarios';
 
 
 type CategoryFilter = ActivityCategory | 'all';
@@ -138,11 +137,23 @@ export default function ActivitiesPage({
   onNavigateToSection,
   onOpenApplyModal,
 }: ActivitiesPageProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   useCmsPageTexts(['activities']);
   const { events: activities, isLoading: activitiesLoading } = useCmsEvents();
   const { opportunities: cmsOpportunities } = useCmsOpportunities();
-  const scenarios = useCmsScenarios();
+  // Participation scenarios are page texts now (editable in «Дерево текстов» → «Активности»).
+  // Computed on every render: CMS overrides land in i18n silently, then useCmsPageTexts re-renders.
+  const optionalText = (key: string) => (i18n.exists(key) ? t(key).trim() : '');
+  const scenarios: ParticipationScenario[] = (['apply', 'team'] as const)
+    .map((actionType, index) => ({
+      id: `scenario-${index + 1}`,
+      title: optionalText(`ui.activitiespage.scenario${index + 1}Title`),
+      who: optionalText(`ui.activitiespage.scenario${index + 1}Text`),
+      why: '',
+      ctaText: optionalText(`ui.activitiespage.scenario${index + 1}Cta`),
+      actionType,
+    }))
+    .filter((scenario) => scenario.title);
   const [activeView, setActiveView] = useState<ActivityView>(getInitialActivityView);
   const [routePath, setRoutePath] = useState(getCurrentPath);
   const [selectedCategory, setSelectedCategory] = useState<CategoryFilter>('all');
@@ -554,7 +565,6 @@ function ActivityDetailsModal({
       <button
         type="button"
         disabled
-        title="CTA link is not configured in CMS"
         className={`${className} cursor-not-allowed opacity-60`}
       >
         <span>{t('ui.aboutprojectpage.2805697540')}</span>
@@ -677,6 +687,18 @@ function ActivityDetailsModal({
           {activity.prerequisites && (
             <DetailBlock title={t('ui.activitiespage.160919e620')}>
               <p>{activity.prerequisites}</p>
+            </DetailBlock>
+          )}
+
+          {activity.speaker && (
+            <DetailBlock title={t('ui.activitiespage.speakerLabel')}>
+              <p>{activity.speaker}</p>
+            </DetailBlock>
+          )}
+
+          {(activity.languages?.length ?? 0) > 0 && (
+            <DetailBlock title={t('ui.activitiespage.languagesLabel')}>
+              <p>{activity.languages?.join(', ')}</p>
             </DetailBlock>
           )}
 

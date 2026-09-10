@@ -17,12 +17,8 @@ import { OperatorSettings } from './payload/collections/OperatorSettings';
 import { Opportunities } from './payload/collections/Opportunities';
 import { PageMediaSlots } from './payload/collections/PageMediaSlots';
 import { PageTexts } from './payload/collections/PageTexts';
-import { Pillars } from './payload/collections/Pillars';
-import { Scenarios } from './payload/collections/Scenarios';
-import { Stats } from './payload/collections/Stats';
 import { TeamMembers } from './payload/collections/TeamMembers';
 import { Tournaments } from './payload/collections/Tournaments';
-import { TrustPoints } from './payload/collections/TrustPoints';
 import { Users } from './payload/collections/Users';
 
 import { databaseUrl } from './payload/paths';
@@ -95,6 +91,7 @@ export default buildConfig({
       afterDashboard: ['../../../src/admin/components/VersionBadge#VersionBadge'],
       afterNavLinks: [
         '../../../src/admin/components/VersionBadge#VersionBadge',
+        '../../../src/admin/components/ChampionshipArchiveNavLink#ChampionshipArchiveNavLink',
         '../../../src/admin/components/PageTextsTreeNavLink#PageTextsTreeNavLink',
         '../../../src/admin/components/MediaTreeNavLink#MediaTreeNavLink',
         '../../../src/admin/components/TeamMembersModerationNavLink#TeamMembersModerationNavLink',
@@ -118,6 +115,15 @@ export default buildConfig({
             description: 'Иерархический редактор медиа сайта',
           },
         },
+        'championship-archive': {
+          Component: '../../../src/admin/components/ChampionshipArchive#default',
+          path: '/championship-archive',
+          exact: true,
+          meta: {
+            title: 'Архив чемпионатов | Navykus',
+            description: 'Прошлые чемпионаты и выбор активного',
+          },
+        },
         'team-members-moderation': {
           Component: '../../../src/admin/components/TeamMembersModeration#default',
           path: '/team-members-moderation',
@@ -136,13 +142,18 @@ export default buildConfig({
   },
   email: smtpEnabled
     ? nodemailerAdapter({
-        defaultFromAddress: process.env.SMTP_FROM || 'noreply@navykus.tech',
+        // Hostinger (like most providers) only lets the authenticated mailbox be the sender.
+        defaultFromAddress: process.env.SMTP_FROM || smtpUser || 'info@navykus.tech',
         defaultFromName: process.env.SMTP_FROM_NAME || 'Navykus',
         skipVerify: process.env.SMTP_SKIP_VERIFY !== 'false',
         transportOptions: {
           host: smtpHost,
           port: Number(process.env.SMTP_PORT) || 587,
           secure: process.env.SMTP_SECURE === 'true',
+          // Fail fast instead of hanging for minutes when the SMTP server is unreachable.
+          connectionTimeout: 20_000,
+          greetingTimeout: 20_000,
+          socketTimeout: 45_000,
           auth: {
             user: smtpUser,
             pass: smtpPass,
@@ -171,10 +182,6 @@ export default buildConfig({
     Events,
     Opportunities,
     TeamMembers,
-    TrustPoints,
-    Pillars,
-    Scenarios,
-    Stats,
     ContactSettings,
     OperatorSettings,
     AuditLogs,

@@ -15,8 +15,6 @@ export const publicPreview = (collection: string) => (doc: Record<string, unknow
   if (collection === 'activities') return `${origin}/activities/events?previewId=${previewId}`;
   if (collection === 'team-members') return `${origin}/find-team?previewId=${previewId}`;
   if (collection === 'experts') return `${origin}/championship?previewId=${previewId}`;
-  if (collection === 'pillars' || collection === 'stats' || collection === 'trust-points') return `${origin}/?previewId=${previewId}`;
-  if (collection === 'scenarios') return `${origin}/activities/events?previewId=${previewId}`;
   if (collection === 'faqs') {
     const page = value(doc, 'page') || 'about';
     return `${origin}/${page === 'home' ? '' : page}?previewId=${previewId}`;

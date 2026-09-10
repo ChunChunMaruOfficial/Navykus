@@ -65,12 +65,12 @@ export const TeamMembers: CollectionConfig = {
     },
     { name: 'targetProject', label: 'Целевой проект', type: 'text' },
     { name: 'whyLooking', label: 'Почему ищет команду', type: 'textarea', required: true },
-    { name: 'contact', label: 'Контакт', type: 'text', required: true },
+    { name: 'contact', label: 'Контакт', type: 'text', required: false },
     {
       name: 'contactType',
       label: 'Тип контакта',
       type: 'select',
-      required: true,
+      required: false,
       options: [
         { label: 'Telegram', value: 'telegram' },
         { label: 'Email', value: 'email' },

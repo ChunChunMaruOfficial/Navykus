@@ -128,6 +128,7 @@ const TeamMembersModerationView = () => {
   const [rejectError, setRejectError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | number | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [testingMail, setTestingMail] = useState(false);
 
   const authHeaders = useMemo(() => (token ? { Authorization: `JWT ${token}` } : {}), [token]);
 
@@ -178,6 +179,25 @@ const TeamMembersModerationView = () => {
     all: items.length,
   }), [items]);
 
+  // Sends a test letter to the signed-in moderator and shows the real SMTP result.
+  const testMail = async () => {
+    clearFeedback();
+    setTestingMail(true);
+    try {
+      const res = await makeRequest('/payload-api/users/test-email', { method: 'POST', body: JSON.stringify({}) });
+      const json = await res.json().catch(() => ({}));
+      if (res.ok && json.ok) {
+        setNotice(`Тестовое письмо отправлено с ${json.from} на ${json.to}. Если его нет во «Входящих», проверьте «Спам».`);
+      } else {
+        setError(`Письмо не отправлено: ${json.error || `ошибка ${res.status}`}`);
+      }
+    } catch (e) {
+      setError(`Письмо не отправлено: ${(e as Error).message}`);
+    } finally {
+      setTestingMail(false);
+    }
+  };
+
   const clearFeedback = () => {
     setNotice(null);
     setError(null);
@@ -197,7 +217,7 @@ const TeamMembersModerationView = () => {
         }),
       });
       if (!res.ok) throw new Error(`Не удалось одобрить анкету (${res.status})`);
-      setNotice(`Анкета «${item.name}» одобрена, опубликована в разделе «Найти команду» и отправлено письмо-подтверждение на ${item.email}.`);
+      setNotice(`Анкета «${item.name}» одобрена и опубликована в разделе «Найти команду». Письмо-подтверждение отправляется на ${item.email}.`);
       setExpandedId(null);
       await loadItems();
     } catch (e) {
@@ -242,7 +262,7 @@ const TeamMembersModerationView = () => {
         }),
       });
       if (!res.ok) throw new Error(`Не удалось отклонить анкету (${res.status})`);
-      setNotice(`Анкета «${item.name}» отклонена. Типизированное письмо с причиной отправлено на ${item.email} от info@navykus.tech.`);
+      setNotice(`Анкета «${item.name}» отклонена. Письмо с причиной отправляется на ${item.email}.`);
       cancelReject();
       await loadItems();
     } catch (e) {
@@ -484,8 +504,25 @@ const TeamMembersModerationView = () => {
       <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600 }}>Модерация анкет</h1>
       <p style={{ marginTop: 8, color: 'var(--theme-elevation-500)', fontSize: 13 }}>
         Непроверенные анкеты участников. Одобрение публикует анкету в разделе «Найти команду»,
-        отклонение отправляет участнику типизированное письмо с причиной от info@navykus.tech.
+        отклонение отправляет участнику письмо с причиной от info@navykus.tech.
       </p>
+      <button
+        type="button"
+        onClick={testMail}
+        disabled={testingMail}
+        style={{
+          marginTop: 4,
+          padding: '6px 12px',
+          borderRadius: 6,
+          border: '1px solid var(--theme-elevation-250)',
+          background: 'var(--theme-elevation-50)',
+          color: 'var(--theme-text)',
+          fontSize: 12,
+          cursor: 'pointer',
+        }}
+      >
+        {testingMail ? 'Отправка…' : 'Проверить отправку писем (тест на мой email)'}
+      </button>
 
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', margin: '16px 0' }}>
         {FILTER_OPTIONS.map((option) => (

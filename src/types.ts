@@ -6,6 +6,8 @@ export interface Tournament {
   registrationDeadline: string;
   description: string;
   pitch?: string;
+  /** Heading of the «О чемпионате» block. */
+  aboutHeading?: string;
   skills: string[];
   mentors: string[];
   maxParticipants: number;
@@ -22,7 +24,11 @@ export interface Tournament {
   coverImage?: string;
   /** URL of the championship's own hero image (championship page). Falls back to the media tree slot. */
   heroImage?: string;
+  /** URL of the image of the «О чемпионате» block. Falls back to the media tree slot. */
+  aboutImage?: string;
   registrationStatus?: 'open' | 'suspended' | 'closed';
+  seoTitle?: string;
+  seoDescription?: string;
 }
 
 export interface ApplicationForm {
@@ -127,6 +133,9 @@ export interface ActivityItem {
   prerequisites: string;
   ctaText: string;
   ctaLink?: string;
+  /** Events only: shown as separate blocks in the details modal. */
+  speaker?: string;
+  languages?: string[];
 }
 
 export type ActivityCategory =

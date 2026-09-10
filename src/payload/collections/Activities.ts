@@ -11,6 +11,9 @@ export const Activities: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     group: 'Content',
+    // Legacy collection: the public «Активности» page is fed by the `events` collection
+    // (labelled «Активности» in the CMS). Hidden so editors don't edit records the site never shows.
+    hidden: true,
     defaultColumns: ['title', 'category', 'status', 'date', 'isPublished'],
     preview: publicPreview('activities'),
   },

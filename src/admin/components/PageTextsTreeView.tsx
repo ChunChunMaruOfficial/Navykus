@@ -62,7 +62,7 @@ const PageTextsTreeView = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await makeRequest('/payload-api/page-texts?limit=1000&depth=0');
+      const res = await makeRequest('/payload-api/page-texts?pagination=false&depth=0');
       if (!res.ok) throw new Error(`fetch failed ${res.status}`);
       const json = await res.json();
       const docs = (json.docs as PageTextRecord[]).filter((d) => Boolean(d.translationKey));

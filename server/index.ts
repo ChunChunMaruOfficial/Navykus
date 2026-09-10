@@ -35,12 +35,8 @@ import {
   normalizeActivity,
   normalizeExpert,
   normalizeFaq,
-  normalizePillar,
-  normalizeScenario,
-  normalizeStat,
   normalizeTeamMember,
   normalizeTournament,
-  normalizeTrustPoint,
 } from './normalizers';
 
 const app = express();
@@ -57,12 +53,8 @@ const publicReadOnlyApiPrefixes = [
   '/api/faqs',
   '/api/page-texts',
   '/api/page-media',
-  '/api/pillars',
-  '/api/scenarios',
   '/api/experts',
-  '/api/trust-points',
   '/api/team-members',
-  '/api/stats',
   '/api/contact-settings',
   '/api/operator-settings',
 ];
@@ -231,10 +223,6 @@ const VERSIONED_COLLECTIONS = new Set([
 const IS_PUBLISHED_FLAG_COLLECTIONS = new Set([
   'activities',
   'page-texts',
-  'pillars',
-  'scenarios',
-  'stats',
-  'trust-points',
 ]);
 
 export const publicCollectionWhere = (collection: string, where: Record<string, unknown> = {}) => {
@@ -371,13 +359,25 @@ echo "=== [5/5] Deploy finished ==="
   });
 }));
 
-// Read-only diagnostics so the deploy can be verified remotely without SSH.
-app.get('/api/deploy/log', asyncRoute(async (_req, res) => {
+// Read-only diagnostics so the deploy can be verified remotely without SSH. They expose the
+// process list and build output, so they require the same secret as the deploy webhook.
+const isDeployAuthorized = (req: Request) =>
+  Boolean(DEPLOY_SECRET) && (req.headers['authorization'] || '') === `Bearer ${DEPLOY_SECRET}`;
+
+app.get('/api/deploy/log', asyncRoute(async (req, res) => {
+  if (!isDeployAuthorized(req)) {
+    res.status(401).json({ code: 'DEPLOY_UNAUTHORIZED' });
+    return;
+  }
   const content = await fs.promises.readFile('/tmp/navykus-deploy.log', 'utf-8').catch(() => '');
   res.type('text/plain').send(content.slice(-30000));
 }));
 
-app.get('/api/deploy/status', asyncRoute(async (_req, res) => {
+app.get('/api/deploy/status', asyncRoute(async (req, res) => {
+  if (!isDeployAuthorized(req)) {
+    res.status(401).json({ code: 'DEPLOY_UNAUTHORIZED' });
+    return;
+  }
   try {
     const raw = execSync('pm2 jlist 2>/dev/null', { encoding: 'utf-8', timeout: 8000 });
     const apps = (JSON.parse(raw) as Array<{
@@ -409,14 +409,11 @@ app.get('/api/health', asyncRoute(async (_req, res) => {
 app.get('/api/content/home', asyncRoute(async (req, res) => {
   const payload = await getPayloadClient();
   const language = languageFromRequest(req);
-  const [tournaments, activities, experts, teamMembers, trustPoints, pillars, stats] = await Promise.all([
+  const [tournaments, activities, experts, teamMembers] = await Promise.all([
     findPublished('tournaments'),
     findPublished('activities'),
     findPublished('experts'),
     findApprovedTeamMembers(),
-    findPublished('trust-points'),
-    findPublished('pillars'),
-    findPublished('stats'),
   ]);
 
   await Promise.all([
@@ -424,9 +421,6 @@ app.get('/api/content/home', asyncRoute(async (req, res) => {
     applyLocalizations(payload, 'activities', activities as Array<Record<string, unknown>>, language),
     applyLocalizations(payload, 'team-members', teamMembers as Array<Record<string, unknown>>, language),
     applyLocalizations(payload, 'experts', experts as Array<Record<string, unknown>>, language),
-    applyLocalizations(payload, 'trust-points', trustPoints as Array<Record<string, unknown>>, language),
-    applyLocalizations(payload, 'pillars', pillars as Array<Record<string, unknown>>, language),
-    applyLocalizations(payload, 'stats', stats as Array<Record<string, unknown>>, language),
   ]);
 
   res.json({
@@ -434,9 +428,6 @@ app.get('/api/content/home', asyncRoute(async (req, res) => {
     activities: activities.map(normalizeActivity),
     experts: experts.map(normalizeExpert),
     teamMembers: teamMembers.map(normalizeTeamMember),
-    trustPoints: trustPoints.map(normalizeTrustPoint),
-    pillars: pillars.map(normalizePillar),
-    stats: stats.map(normalizeStat),
   });
 }));
 
@@ -461,29 +452,43 @@ app.get('/api/championships', asyncRoute(async (req, res) => {
   res.json(result);
 }));
 
-app.get('/api/championships/featured', asyncRoute(async (req, res) => {
+// The single active championship (CMS: «Чемпионат»). Returned as a 0/1-item array so the site
+// can treat «no active championship» as an empty state rather than an error.
+const findActiveChampionship = async (req: Request) => {
   const payload = await getPayloadClient();
   const result = await payload.find({
     collection: 'tournaments' as any,
     depth: 1,
     limit: 1,
+    sort: '-updatedAt',
     where: publicCollectionWhere('tournaments', { isFeatured: { equals: true } }),
     overrideAccess: true,
   });
-  if (result.docs.length === 0) {
+  await applyLocalizations(payload, 'tournaments', result.docs as Array<Record<string, unknown>>, languageFromRequest(req));
+  return result.docs.map(normalizeTournament);
+};
+
+app.get('/api/championships/active', asyncRoute(async (req, res) => {
+  res.json(await findActiveChampionship(req));
+}));
+
+// Backwards-compatible shape for older clients.
+app.get('/api/championships/featured', asyncRoute(async (req, res) => {
+  const [doc] = await findActiveChampionship(req);
+  if (!doc) {
     res.status(404).json({ code: 'NO_FEATURED_CHAMPIONSHIP' });
     return;
   }
-  await applyLocalizations(payload, 'tournaments', result.docs as Array<Record<string, unknown>>, languageFromRequest(req));
-  const doc = result.docs[0] as Record<string, unknown>;
-  res.json({
-    doc: {
-      ...doc,
-      coverImage: mediaUrlFromRelation(doc.coverImage),
-      heroImage: mediaUrlFromRelation(doc.heroImage),
-    },
-  });
+  res.json({ doc });
 }));
+
+// Events and opportunities: an uploaded image wins over the legacy «image URL» text field.
+const withUploadedImage = (doc: unknown) => {
+  const record = doc as Record<string, unknown>;
+  const uploaded = mediaUrlFromRelation(record.image);
+  // onlineLink (the stream link) is for organisers only and never leaves the API.
+  return { ...record, image: undefined, onlineLink: undefined, imageUrl: uploaded || record.imageUrl || null };
+};
 
 app.get('/api/events', asyncRoute(async (req, res) => {
   const payload = await getPayloadClient();
@@ -497,7 +502,7 @@ app.get('/api/events', asyncRoute(async (req, res) => {
     overrideAccess: true,
   });
   await applyLocalizations(payload, 'events', result.docs as Array<Record<string, unknown>>, languageFromRequest(req));
-  res.json(result);
+  res.json({ ...result, docs: result.docs.map(withUploadedImage) });
 }));
 
 app.get('/api/opportunities', asyncRoute(async (req, res) => {
@@ -512,7 +517,7 @@ app.get('/api/opportunities', asyncRoute(async (req, res) => {
     overrideAccess: true,
   });
   await applyLocalizations(payload, 'opportunities', result.docs as Array<Record<string, unknown>>, languageFromRequest(req));
-  res.json(result);
+  res.json({ ...result, docs: result.docs.map(withUploadedImage) });
 }));
 
 app.get('/api/activities', asyncRoute(async (req, res) => {
@@ -543,6 +548,11 @@ app.get('/api/faqs', asyncRoute(async (req, res) => {
   );
 }));
 
+// Every page load asks for (almost) all texts; a short cache keeps that cheap while CMS
+// edits still show up on the site within seconds.
+const PAGE_TEXTS_CACHE_MS = 15_000;
+const pageTextsCache = new Map<string, { texts: Record<string, string>; expiresAt: number }>();
+
 app.get('/api/page-texts', asyncRoute(async (req, res) => {
   const payload = await getPayloadClient();
   const requestedLanguage = typeof req.query.lang === 'string' ? req.query.lang.split('-')[0] : '';
@@ -552,10 +562,17 @@ app.get('/api/page-texts', asyncRoute(async (req, res) => {
     res.json({ language, pages, texts: {} });
     return;
   }
+  const cacheKey = `${language}|${pages.join(',')}`;
+  const cached = pageTextsCache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) {
+    res.json({ language, pages, texts: cached.texts });
+    return;
+  }
   const result = await payload.find({
     collection: 'page-texts' as any,
     depth: 0,
-    limit: 500,
+    // There are well over 500 texts: a page limit silently dropped part of the CMS edits.
+    pagination: false,
     sort: 'sortOrder',
     where: {
       and: [
@@ -573,6 +590,7 @@ app.get('/api/page-texts', asyncRoute(async (req, res) => {
     return acc;
   }, {});
 
+  pageTextsCache.set(cacheKey, { texts, expiresAt: Date.now() + PAGE_TEXTS_CACHE_MS });
   res.json({ language, pages, texts });
 }));
 
@@ -587,7 +605,7 @@ app.get('/api/page-media', asyncRoute(async (req, res) => {
   const result = await payload.find({
     collection: 'page-media-slots' as any,
     depth: 1,
-    limit: 500,
+    pagination: false,
     where: pages.length ? { page: { in: pages } } : {},
     overrideAccess: true,
   });
@@ -613,20 +631,6 @@ app.get('/api/page-media', asyncRoute(async (req, res) => {
   res.json({ pages, media });
 }));
 
-app.get('/api/pillars', asyncRoute(async (req, res) => {
-  const payload = await getPayloadClient();
-  const docs = await findPublished('pillars');
-  await applyLocalizations(payload, 'pillars', docs as Array<Record<string, unknown>>, languageFromRequest(req));
-  res.json(docs.map(normalizePillar));
-}));
-
-app.get('/api/scenarios', asyncRoute(async (req, res) => {
-  const payload = await getPayloadClient();
-  const docs = await findPublished('scenarios');
-  await applyLocalizations(payload, 'scenarios', docs as Array<Record<string, unknown>>, languageFromRequest(req));
-  res.json(docs.map(normalizeScenario));
-}));
-
 app.get('/api/experts', asyncRoute(async (req, res) => {
   const payload = await getPayloadClient();
   const tournamentId = typeof req.query.tournamentId === 'string' ? req.query.tournamentId.trim() : '';
@@ -637,25 +641,11 @@ app.get('/api/experts', asyncRoute(async (req, res) => {
   res.json(filtered);
 }));
 
-app.get('/api/trust-points', asyncRoute(async (req, res) => {
-  const payload = await getPayloadClient();
-  const docs = await findPublished('trust-points');
-  await applyLocalizations(payload, 'trust-points', docs as Array<Record<string, unknown>>, languageFromRequest(req));
-  res.json(docs.map(normalizeTrustPoint));
-}));
-
-app.get('/api/stats', asyncRoute(async (req, res) => {
-  const payload = await getPayloadClient();
-  const docs = await findPublished('stats');
-  await applyLocalizations(payload, 'stats', docs as Array<Record<string, unknown>>, languageFromRequest(req));
-  res.json(docs.map(normalizeStat));
-}));
-
 app.get('/api/contact-settings', asyncRoute(async (req, res) => {
   const payload = await getPayloadClient();
   const result = await payload.find({
     collection: 'contact-settings' as any,
-    depth: Number(req.query.depth || 0),
+    depth: Math.min(2, Math.max(0, Number(req.query.depth) || 0)),
     limit: Math.min(10, Math.max(1, Number(req.query.limit || 1))),
     sort: '-updatedAt',
     overrideAccess: true,
@@ -667,7 +657,7 @@ app.get('/api/operator-settings', asyncRoute(async (req, res) => {
   const payload = await getPayloadClient();
   const result = await payload.find({
     collection: 'operator-settings' as any,
-    depth: Number(req.query.depth || 0),
+    depth: Math.min(2, Math.max(0, Number(req.query.depth) || 0)),
     limit: Math.min(10, Math.max(1, Number(req.query.limit || 1))),
     sort: '-updatedAt',
     overrideAccess: true,
@@ -687,7 +677,7 @@ app.post('/api/team-members', upload.array('portfolioFiles', 5), asyncRoute(asyn
   const body = req.body || {};
   const files = Array.isArray(req.files) ? req.files : [];
 
-  if (!body.name || !body.email || !body.age || !body.country || !body.shortBio || !body.contact || !body.whyLooking) {
+  if (!body.name || !body.email || !body.age || !body.country || !body.shortBio || !body.whyLooking) {
     await removeUploadedFiles(files);
     res.status(400).json({ code: 'TEAM_MEMBER_REQUIRED_FIELDS' });
     return;
@@ -698,6 +688,13 @@ app.post('/api/team-members', upload.array('portfolioFiles', 5), asyncRoute(asyn
       res.status(415).json({ code: 'UNSUPPORTED_FILE_TYPE' });
       return;
     }
+  }
+
+  // The decision letters go to this address — reject obvious typos early.
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(body.email).trim())) {
+    await removeUploadedFiles(files);
+    res.status(400).json({ code: 'TEAM_MEMBER_INVALID_EMAIL' });
+    return;
   }
 
   const age = Number(body.age);
@@ -744,8 +741,8 @@ app.post('/api/team-members', upload.array('portfolioFiles', 5), asyncRoute(asyn
         targetRoles: listFromBody(body.targetRoles).length ? listFromBody(body.targetRoles) : ['other'],
         targetProject: typeof body.targetProject === 'string' ? body.targetProject.trim() : undefined,
         whyLooking: String(body.whyLooking).trim(),
-        contact: String(body.contact).trim(),
-        contactType: ['telegram', 'email'].includes(body.contactType) ? body.contactType : 'telegram',
+        contact: typeof body.contact === 'string' && body.contact.trim() ? body.contact.trim() : undefined,
+        contactType: ['telegram', 'email'].includes(body.contactType) ? body.contactType : undefined,
         portfolioLink: typeof body.portfolioLink === 'string' ? body.portfolioLink.trim() : undefined,
         portfolioFiles: portfolioFileIds,
         sourceType: typeof body.sourceType === 'string' ? body.sourceType : 'api',

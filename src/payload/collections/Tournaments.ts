@@ -1,26 +1,48 @@
-import type { CollectionConfig } from 'payload';
-
-import type { Field } from 'payload';
+import type { CollectionConfig, Field } from 'payload';
 
 import { adminOrModerator, anyone } from '../access';
-import { newlineListField, publicContentVersions, publishedField, seoFields, sortOrderField, syncPublishedDraftBeforeChange, textListField } from '../fields';
+import {
+  archiveOtherChampionshipsAfterChange,
+  defaultIsActiveChampionship,
+  promoteChampionshipAfterDelete,
+} from '../championship';
+import {
+  fillNotNullDefaults,
+  newlineListField,
+  publicContentVersions,
+  publishedField,
+  seoFields,
+  sortOrderField,
+  syncPublishedDraftBeforeChange,
+  textListField,
+  translationStatusField,
+} from '../fields';
 import { auditAfterChange, auditAfterDelete } from '../audit';
 import { localizedAfterChange, localizedAfterDelete, originalLanguageField } from '../localization';
 import { publicPreview } from '../preview';
 import { slugBeforeValidate } from '../slug';
 
+// One record = one championship. The sidebar entry «Чемпионат» always opens the ACTIVE one
+// (see ChampionshipRedirect); older championships live in «Архив чемпионатов».
 export const Tournaments: CollectionConfig = {
   slug: 'tournaments',
   labels: {
     singular: 'Чемпионат',
-    plural: 'Чемпионаты',
+    plural: 'Чемпионат',
   },
   admin: {
     useAsTitle: 'title',
     group: 'Content',
-    description: 'Чемпионаты и кубки для школьников. Один чемпионат = одна запись. Отметьте «Показывать на главной», чтобы он появился на главной странице и на странице «Чемпионат».',
-    defaultColumns: ['title', 'type', 'date', 'registrationDeadline', 'maxParticipants', 'isFeatured', 'isPublished'],
+    description: 'Текущий чемпионат: всё, что показывается в блоке чемпионата на главной и на странице «Чемпионат». Прошлые чемпионаты — в разделе «Архив чемпионатов».',
+    defaultColumns: ['title', 'date', 'registrationStatus', 'isFeatured', 'updatedAt'],
     preview: publicPreview('tournaments'),
+    components: {
+      views: {
+        list: {
+          Component: '../../../src/admin/components/ChampionshipRedirect#default',
+        },
+      },
+    },
   },
   versions: publicContentVersions,
   access: {
@@ -31,105 +53,126 @@ export const Tournaments: CollectionConfig = {
   },
   hooks: {
     beforeValidate: [slugBeforeValidate('tournaments')],
-    beforeChange: [syncPublishedDraftBeforeChange],
-    afterChange: [localizedAfterChange('tournaments'), auditAfterChange('tournaments')],
-    afterDelete: [localizedAfterDelete('tournaments'), auditAfterDelete('tournaments')],
+    beforeChange: [
+      syncPublishedDraftBeforeChange,
+      fillNotNullDefaults({ title: '', type: '', description: '', date: '', registrationDeadline: '', maxParticipants: 0 }),
+    ],
+    afterChange: [archiveOtherChampionshipsAfterChange, localizedAfterChange('tournaments'), auditAfterChange('tournaments')],
+    afterDelete: [promoteChampionshipAfterDelete, localizedAfterDelete('tournaments'), auditAfterDelete('tournaments')],
   },
   fields: [
-    sortOrderField,
-    publishedField,
-    originalLanguageField,
     {
       name: 'isFeatured',
       type: 'checkbox',
-      label: 'Показывать на главной',
-      defaultValue: false,
+      label: 'Активный чемпионат (показывается на сайте)',
+      defaultValue: defaultIsActiveChampionship,
       admin: {
         position: 'sidebar',
-        description: 'Отметьте, чтобы чемпионат появился на главной странице',
+        readOnly: true,
+        description: 'Активный чемпионат может быть только один. Чтобы сделать активным другой, откройте «Архив чемпионатов» и нажмите «Сделать активным» — текущий автоматически уйдёт в архив.',
       },
     } as Field,
+    translationStatusField,
+    publishedField,
+    originalLanguageField,
+    { ...sortOrderField, admin: { ...(sortOrderField as { admin?: Record<string, unknown> }).admin, hidden: true } } as Field,
     {
       type: 'tabs',
       tabs: [
         {
-          label: 'Основное',
+          label: 'Шапка и регистрация',
+          description: 'Верх страницы «Чемпионат» и заголовок карточки на главной.',
           fields: [
-            { name: 'title', label: 'Название', type: 'text', required: true, admin: { description: 'Показывается в шапке страницы чемпионата и в карточке на главной.' } },
-            { name: 'slug', label: 'Slug', type: 'text', unique: true, index: true, admin: { description: 'Генерируется автоматически из названия, если пусто.' } },
-            { name: 'type', label: 'Тип', type: 'text', required: true, admin: { description: 'Например: «Кейс-чемпионат», «Хакатон»' } },
-            { name: 'description', label: 'Описание', type: 'textarea', required: true, admin: { rows: 10, description: 'Основной текст о чемпионате: полностью — в блоке «О чемпионате» на странице чемпионата, в укороченном виде — в карточке на главной.' } },
-            { name: 'pitch', label: 'Короткий текст для шапки', type: 'textarea', admin: { rows: 6, description: 'Одно-два предложения под названием в шапке страницы чемпионата. Если пусто, используется описание.' } },
-          ],
-        },
-        {
-          label: 'Фото',
-          description: 'Фотографии чемпионата. Если поле пустое — используется изображение из «Дерева медиа».',
-          fields: [
+            { name: 'title', label: 'Название', type: 'text', required: true, admin: { description: 'Крупный заголовок в шапке страницы чемпионата и в карточке на главной.' } },
+            { name: 'pitch', label: 'Короткий текст под названием', type: 'textarea', admin: { rows: 3, description: 'Одно-два предложения под названием в шапке страницы чемпионата. Если пусто — показывается «Описание».' } },
             {
-              name: 'coverImage',
-              label: 'Обложка для главной страницы',
-              type: 'upload',
-              relationTo: 'media',
-              admin: { description: 'Широкая обложка в карточке чемпионата на главной (пропорции примерно 32:7).' },
+              type: 'row',
+              fields: [
+                {
+                  name: 'registrationStatus',
+                  label: 'Статус регистрации',
+                  type: 'select',
+                  required: true,
+                  defaultValue: 'open',
+                  options: [
+                    { label: 'Открыта — форма заявки работает', value: 'open' },
+                    { label: 'Приостановлена — лимит почти исчерпан', value: 'suspended' },
+                    { label: 'Закрыта — форма скрыта', value: 'closed' },
+                  ],
+                  admin: { width: '50%', description: 'Плашка в шапке и доступность формы заявки.' },
+                },
+                { name: 'registrationDeadline', label: 'Дедлайн заявок', type: 'text', required: true, admin: { width: '50%', placeholder: '24 июля 2026', description: 'Текстом. Показывается в плашке «Подача анкет открыта • До …», в карточке фактов и на главной.' } },
+              ],
             },
             {
               name: 'heroImage',
-              label: 'Фото в шапке страницы чемпионата',
+              label: 'Фото в шапке страницы',
               type: 'upload',
               relationTo: 'media',
-              admin: { description: 'Основное фото в шапке страницы чемпионата (пропорции примерно 4:3).' },
+              admin: { description: 'Справа от названия, пропорции примерно 4:3. Если пусто — берётся обложка, затем фото из «Дерева медиа».' },
             },
+            { name: 'slug', label: 'Адрес (slug)', type: 'text', unique: true, index: true, admin: { description: 'Заполняется автоматически из названия.' } },
           ],
         },
         {
-          label: 'Расписание',
+          label: 'Карточки фактов',
+          description: 'Шесть карточек под шапкой страницы чемпионата. Пустое поле — карточка скрыта или показывает прочерк.',
           fields: [
-            { name: 'date', label: 'Дата проведения', type: 'text', required: true, admin: { description: 'Даты события (текстом)' } },
-            { name: 'registrationDeadline', label: 'Дедлайн регистрации', type: 'text', required: true, admin: { description: 'Дата окончания регистрации' } },
             {
-              name: 'registrationStatus',
-              label: 'Статус регистрации',
-              type: 'select',
-              required: true,
-              defaultValue: 'open',
-              options: [
-                { label: 'Открыта', value: 'open' },
-                { label: 'Приостановлена', value: 'suspended' },
-                { label: 'Закрыта', value: 'closed' },
+              type: 'row',
+              fields: [
+                { name: 'date', label: 'Даты проведения', type: 'text', required: true, admin: { width: '50%', placeholder: '1–30 сентября 2026', description: 'Карточка «Даты проведения» и строка «Сроки» на главной.' } },
+                { name: 'format', label: 'Формат участия', type: 'text', admin: { width: '50%', placeholder: 'Онлайн', description: 'Карточка «Формат участия» и плашка в карточке на главной.' } },
+              ],
+            },
+            {
+              type: 'row',
+              fields: [
+                { name: 'ageLimit', label: 'Возраст участников', type: 'text', admin: { width: '33%', placeholder: '14–18 лет', description: 'Карточка «Кто участвует».' } },
+                { name: 'language', label: 'Язык кубка', type: 'text', admin: { width: '33%', placeholder: 'Русский, English' } },
+                { name: 'teamsAllowed', label: 'Состав команды', type: 'text', admin: { width: '33%', placeholder: '1–5 человек' } },
               ],
             },
           ],
         },
         {
-          label: 'Детали',
+          label: 'О чемпионате',
+          description: 'Большой блок «О чемпионате» на странице чемпионата.',
           fields: [
-            { name: 'maxParticipants', label: 'Максимум участников', type: 'number', required: true },
-            textListField('skills', 'Необходимые навыки'),
-            textListField('mentors', 'Наставники'),
-            { name: 'suitableFor', label: 'Кому подходит', type: 'textarea', admin: { rows: 5 } },
+            { name: 'aboutHeading', label: 'Заголовок блока', type: 'text', admin: { placeholder: 'Разберитесь в реальных вызовах экологии и урбанистики', description: 'Если пусто — используется стандартный заголовок из «Дерева текстов».' } },
+            { name: 'description', label: 'Описание', type: 'textarea', required: true, admin: { rows: 8, description: 'Основной текст о чемпионате. Также показывается в карточке на главной.' } },
             {
-              name: 'format',
-              label: 'Формат участия',
-              type: 'textarea',
-              admin: {
-                rows: 4,
-                description: 'Карточка "Формат участия" на странице чемпионата. Первая строка - крупный текст, остальные строки - подпись. Пустое поле скрывает карточку.',
-              },
+              name: 'aboutImage',
+              label: 'Фото блока',
+              type: 'upload',
+              relationTo: 'media',
+              admin: { description: 'Слева от описания, пропорции примерно 16:10. Если пусто — фото из «Дерева медиа».' },
             },
-            { name: 'targetAudience', label: 'Целевая аудитория', type: 'textarea' },
-            { name: 'ageLimit', label: 'Возраст', type: 'text' },
-            { name: 'teamsAllowed', label: 'Команды', type: 'text' },
-            { name: 'language', label: 'Язык', type: 'text' },
-            { name: 'expectedResult', label: 'Что получите / результат', type: 'textarea' },
-            newlineListField('themesText', 'Темы кейса'),
-            newlineListField('evaluationCriteriaText', 'Критерии оценки'),
-            ...seoFields,
+            { ...newlineListField('themesText', 'Темы кейса'), admin: { rows: 5, description: 'Одна тема на строку. Каждая строка — отдельная пронумерованная карточка.' } } as Field,
+            { ...newlineListField('evaluationCriteriaText', 'Что оценивает жюри'), admin: { rows: 5, description: 'Один критерий на строку.' } } as Field,
+            { name: 'expectedResult', label: 'Ожидаемый результат', type: 'textarea', admin: { rows: 3, description: 'Блок «Ожидаемый результат». Пустое поле скрывает блок.' } },
           ],
         },
         {
-          label: 'Жюри и наставники',
-          description: 'Члены жюри, наставники и эксперты этого чемпионата. Показываются на странице чемпионата и на главной.',
+          label: 'Карточка на главной',
+          description: 'Блок «Ближайшее мероприятие» на главной странице. Название, описание и даты берутся из других вкладок.',
+          fields: [
+            {
+              name: 'coverImage',
+              label: 'Обложка',
+              type: 'upload',
+              relationTo: 'media',
+              admin: { description: 'Широкая полоса сверху карточки (примерно 32:7). Если пусто — фото из «Дерева медиа».' },
+            },
+            { name: 'suitableFor', label: 'Кому подходит', type: 'textarea', admin: { rows: 3, description: 'Колонка «Кому подходит». Пустое поле скрывает колонку.' } },
+            { name: 'maxParticipants', label: 'Мест в отборе', type: 'number', required: true, defaultValue: 0, min: 0, admin: { description: 'Колонка «Осталось мест». 0 — колонка скрыта.' } },
+            { ...textListField('skills', 'Навыки (теги)'), admin: { description: 'Теги внизу карточки на главной. Если на странице чемпионата не заполнены «Темы кейса», показываются они.' } } as Field,
+            { name: 'type', label: 'Тип чемпионата', type: 'text', required: true, defaultValue: 'Кейс-чемпионат', admin: { description: 'Например «Кейс-чемпионат». Используется в фильтре на странице «Поиск команды».' } },
+          ],
+        },
+        {
+          label: 'Жюри',
+          description: 'Члены жюри и эксперты этого чемпионата. Показываются на странице чемпионата и в карточке на главной (первые три).',
           fields: [
             {
               name: 'jury',
@@ -138,10 +181,20 @@ export const Tournaments: CollectionConfig = {
               on: 'tournamentId',
               label: 'Состав',
               admin: {
-                description: 'Каждая карточка — отдельный человек. Кнопка «Создать» сразу привяжет его к этому чемпионату. Порядок задаётся полем «Порядок» внутри карточки.',
+                description: 'Каждая строка — отдельный человек. Кнопка «Создать» сразу привяжет его к этому чемпионату. Порядок задаётся полем «Порядок» внутри карточки.',
                 defaultColumns: ['name', 'type', 'role'],
               },
             } as Field,
+          ],
+        },
+        {
+          label: 'SEO',
+          description: 'Заголовок вкладки браузера и описание для поисковиков на странице «Чемпионат». Если пусто — используются общие тексты сайта и короткий текст под названием.',
+          fields: [
+            ...seoFields,
+            // Legacy fields no longer shown on the site; kept so existing data is not lost.
+            { ...textListField('mentors', 'Наставники (устарело)'), admin: { hidden: true } } as Field,
+            { name: 'targetAudience', label: 'Целевая аудитория (устарело)', type: 'textarea', admin: { hidden: true } },
           ],
         },
       ],

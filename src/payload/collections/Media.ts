@@ -9,6 +9,9 @@ export const Media: CollectionConfig = {
   admin: {
     useAsTitle: 'alt',
     group: 'Content',
+    // Not listed in the sidebar: images are managed through «Дерево медиа» and through the
+    // upload fields of championships/activities/opportunities (their pickers still work).
+    hidden: true,
     description: 'Медиафайлы, привязанные к страницам. Используйте «Дерево медиа» в боковом меню для иерархического просмотра и редактирования.',
     defaultColumns: ['page', 'blockName', 'alt', 'filename', 'mimeType', 'filesize', 'updatedAt'],
   },
@@ -40,6 +43,10 @@ export const Media: CollectionConfig = {
       label: 'Страница',
       type: 'select',
       index: true,
+      // Some databases have `media.page` as NOT NULL (legacy manual column). Uploads from
+      // record fields (championship cover, activity image, portfolio files) have no page, so
+      // default to «Общие тексты» instead of failing with a constraint error.
+      defaultValue: 'global',
       options: EDITABLE_PAGE_TEXT_PAGES as unknown as Array<{ label: string; value: string }>,
       admin: {
         position: 'sidebar',

@@ -27,7 +27,7 @@ import { I18nGate } from './components/I18nGate';
 import CookieConsent from './components/CookieConsent';
 import useScrollBehavior from './hooks/useScrollBehavior';
 import usePageMeta from './hooks/usePageMeta';
-import { apiUrl, fetchContactSettings, type ContactSettings } from './api';
+import { fetchContactSettings, type ContactSettings } from './api';
 import {
   LANGUAGE_FLAGS,
   SUPPORTED_LANGUAGES,
@@ -38,11 +38,8 @@ import {
   savePreferredLanguage,
   type SupportedLanguage,
 } from './i18n/languages';
-import { useCmsTournaments } from './hooks/useCmsTournaments';
-import { useCmsPillars } from './hooks/useCmsPillars';
+import { useActiveChampionship } from './hooks/useCmsTournaments';
 import { useCmsExperts } from './hooks/useCmsExperts';
-import { useCmsTrustPoints } from './hooks/useCmsTrustPoints';
-import { useCmsStats } from './hooks/useCmsStats';
 import { useCmsPageTexts } from './hooks/useCmsPageTexts';
 import { ALL_EDITABLE_PAGE_TEXT_PAGES } from './page-texts';
 import {
@@ -148,25 +145,28 @@ function PageFallback({ page }: { page: Page }) {
 export default function App() {
   const { t } = useTranslation();
   const { i18n } = useTranslation();
-  const cmsTournaments = useCmsTournaments();
-  const pillars = useCmsPillars();
+  const { championship: nearestTournament } = useActiveChampionship();
   const experts = useCmsExperts();
-  const trustPoints = useCmsTrustPoints();
-  const stats = useCmsStats();
   const { texts: homePageTexts } = useCmsPageTexts(ALL_EDITABLE_PAGE_TEXT_PAGES);
-  const [featuredTournament, setFeaturedTournament] = useState<Record<string, unknown> | null>(null);
+  // Jury of the active championship only; experts not bound to any championship are a fallback.
   const featuredExperts = useMemo(() => {
-    const tournamentIds = [
-      featuredTournament?.id != null ? String(featuredTournament.id) : undefined,
-      cmsTournaments?.[0]?.id,
-    ].filter((id): id is string => Boolean(id));
-    if (tournamentIds.length === 0) return experts || [];
-    const tournamentIdSet = new Set(tournamentIds);
-    const scopedExperts = experts?.filter(e => e.tournamentId && tournamentIdSet.has(String(e.tournamentId))) || [];
+    if (!nearestTournament) return [];
+    const scopedExperts = experts.filter((e) => e.tournamentId && String(e.tournamentId) === nearestTournament.id);
     if (scopedExperts.length > 0) return scopedExperts;
-    const unscopedExperts = experts?.filter(e => !e.tournamentId) || [];
-    return unscopedExperts.length > 0 ? unscopedExperts : (experts || []);
-  }, [experts, featuredTournament, cmsTournaments]);
+    return experts.filter((e) => !e.tournamentId);
+  }, [experts, nearestTournament]);
+  // Texts that used to live in the removed CMS collections (pillars / stats / trust points)
+  // are now regular page texts, editable in «Дерево текстов» → «Главная».
+  const optionalText = (key: string) => (i18n.exists(key) ? t(key).trim() : '');
+  const pillars = [1, 2, 3]
+    .map((n) => ({
+      label: optionalText(`ui.app.pillar${n}Label`),
+      title: optionalText(`ui.app.pillar${n}Title`),
+      description: optionalText(`ui.app.pillar${n}Text`),
+    }))
+    .filter((pillar) => pillar.title || pillar.description);
+  const stats = [{ value: optionalText('ui.app.statValue'), label: optionalText('ui.app.statLabel') }]
+    .filter((stat) => stat.value || stat.label);
   const [currentPage, setCurrentPage] = useState<Page>(getPageFromPath);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [applicationContext, setApplicationContext] = useState<TeamApplicationContext | undefined>(undefined);
@@ -177,11 +177,11 @@ export default function App() {
   const navContainerRef = useRef<HTMLElement | null>(null);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
   const [contactSettings, setContactSettings] = useState<ContactSettings | null>(null);
-  const displayedTrustPoints = (trustPoints || [])
-    .map((item) => ({
-      ...item,
-      title: item.title?.trim() || '',
-      description: item.description?.trim() || '',
+  const displayedTrustPoints = [1, 2, 3, 4, 5, 6]
+    .map((n) => ({
+      id: `trust-${n}`,
+      title: optionalText(`ui.app.trust${n}Title`),
+      description: optionalText(`ui.app.trust${n}Text`),
     }))
     .filter((item) => item.title || item.description);
   const trustBlockTitle = homePageTexts['ui.app.19816f01']?.trim() || '';
@@ -218,20 +218,6 @@ export default function App() {
     fetchContactSettings().then(setContactSettings);
   }, []);
 
-  useEffect(() => {
-    const language = (i18n.resolvedLanguage || i18n.language || 'ru').split('-')[0];
-    fetch(apiUrl(`/api/championships/featured?lang=${encodeURIComponent(language)}`))
-      .then((res) => {
-        if (!res.ok) throw new Error('No featured championship');
-        return res.json();
-      })
-      .then((data: { doc: Record<string, unknown> }) => {
-        setFeaturedTournament(data.doc);
-      })
-      .catch(() => {
-        setFeaturedTournament(null);
-      });
-  }, [i18n.resolvedLanguage, i18n.language]);
 
     usePageMeta(currentPage, t, i18n);
 
@@ -340,6 +326,12 @@ export default function App() {
   };
 
   const scrollToSection = (id: string) => {
+    // «Найти команду» buttons (championship page, participation scenarios) point here;
+    // the home page has no such section any more — open the team search page instead.
+    if (id === 'scenarios' || id === 'find-team') {
+      navigateToPage('find-team');
+      return;
+    }
     if (currentPage !== 'home') {
       setCurrentPage('home');
       updatePath('home');
@@ -361,23 +353,7 @@ export default function App() {
     }
   };
 
-  const firstCmsTournament = cmsTournaments[0];
-  const nearestTournament = featuredTournament
-    ? {
-        id: featuredTournament.id != null ? String(featuredTournament.id) : String(firstCmsTournament?.id || ''),
-        title: String(featuredTournament.title || firstCmsTournament?.title || ''),
-        type: String(featuredTournament.type || firstCmsTournament?.type || ''),
-        date: String(featuredTournament.date || firstCmsTournament?.date || ''),
-        registrationDeadline: String(featuredTournament.registrationDeadline || firstCmsTournament?.registrationDeadline || ''),
-        description: String(featuredTournament.description || firstCmsTournament?.description || ''),
-        skills: Array.isArray(featuredTournament.skills) ? featuredTournament.skills.map((s: unknown) => typeof s === 'string' ? s : String((s as { value?: string }).value || '')) : firstCmsTournament?.skills || [],
-        mentors: Array.isArray(featuredTournament.mentors) ? featuredTournament.mentors.map((m: unknown) => typeof m === 'string' ? m : String((m as { value?: string }).value || '')) : firstCmsTournament?.mentors || [],
-        maxParticipants: Number(featuredTournament.maxParticipants) || firstCmsTournament?.maxParticipants || 0,
-        suitableFor: String(featuredTournament.suitableFor || firstCmsTournament?.suitableFor || ''),
-        format: String(featuredTournament.format || firstCmsTournament?.format || ''),
-        coverImage: String(featuredTournament.coverImage || firstCmsTournament?.coverImage || ''),
-      }
-    : firstCmsTournament ?? null;
+  const nearestTournamentFormat = nearestTournament?.format.split(/\r?\n/)[0]?.trim() || '';
   const resolvedLanguage = (i18n.resolvedLanguage || i18n.language || 'ru').split('-')[0];
   const currentLanguage = isSupportedLanguage(resolvedLanguage) ? resolvedLanguage : 'ru';
   const isAutoLanguage = !getSavedPreferredLanguage();
@@ -611,7 +587,7 @@ export default function App() {
                   {stats.map((stat, idx) => (
                     <div key={idx} className="flex items-center gap-2">
                       <Globe className="w-4 h-4 text-[#bc4638]" />
-                      <span><strong>{stat.value}</strong>{stat.label}</span>
+                      <span><strong>{stat.value}</strong> {stat.label}</span>
                     </div>
                   ))}
                 </div>
@@ -639,7 +615,7 @@ export default function App() {
             </motion.div>
 
             <motion.div {...cardStaggerContainer} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {pillars?.map((pillar, index) => {
+              {pillars.map((pillar, index) => {
                 const PillarIcon = [Globe, CheckCircle2, Clock][index % 3];
                 return (
                 <motion.div
@@ -689,8 +665,10 @@ export default function App() {
               <div className="space-y-6 p-6 text-left sm:p-8 lg:p-10">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-[11px] sm:text-[10px] font-mono tracking-wider text-[#bc4638] bg-[#bc4638]/10 px-2.5 py-1 rounded-md uppercase font-semibold">{t('ui.app.8ca84fc116')}</span>
-                  <span className="text-[10px] font-mono text-brand-slate flex items-center gap-1.5 bg-white/40 px-2.5 py-1 rounded-md border border-white/60">
-                    <Clock className="w-3.5 h-3.5 text-[#bd5b82]" />{t('ui.app.aa324b069f')}</span>
+                  {nearestTournamentFormat && (
+                    <span className="text-[10px] font-mono text-brand-slate flex items-center gap-1.5 bg-white/40 px-2.5 py-1 rounded-md border border-white/60">
+                      <Clock className="w-3.5 h-3.5 text-[#bd5b82]" />{nearestTournamentFormat}</span>
+                  )}
                 </div>
 
                 <h3 className="text-2xl sm:text-3xl lg:text-4xl font-serif text-brand-dark tracking-tight leading-tight">
@@ -702,24 +680,31 @@ export default function App() {
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="space-y-1.5">
-                    <div className="text-[11px] sm:text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.app.411ef17e3a')}</div>
-                    <div className="text-xs text-brand-slate font-normal md:font-light">{nearestTournament.suitableFor}</div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <div className="text-[11px] sm:text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.app.7f93cb9828')}</div>
-                    <div className="text-xs text-brand-slate font-normal md:font-light">
-                      <strong>{t('ui.app.b7ba3e2581')}</strong> {nearestTournament.date}<br />
-                      <strong>{t('ui.app.2c0ba7b4a0')}</strong> {nearestTournament.registrationDeadline}
+                  {nearestTournament.suitableFor && (
+                    <div className="space-y-1.5">
+                      <div className="text-[11px] sm:text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.app.411ef17e3a')}</div>
+                      <div className="text-xs text-brand-slate font-normal md:font-light">{nearestTournament.suitableFor}</div>
                     </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <div className="text-[11px] sm:text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.app.40c83f7ed9')}</div>
-                    <div className="text-xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#bc4638] to-[#bd5b82]">
-                      {nearestTournament.maxParticipants}{t('ui.app.1995337599')}</div>
-                  </div>
+                  )}
+                  {(nearestTournament.date || nearestTournament.registrationDeadline) && (
+                    <div className="space-y-1.5">
+                      <div className="text-[11px] sm:text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.app.7f93cb9828')}</div>
+                      <div className="text-xs text-brand-slate font-normal md:font-light">
+                        {nearestTournament.date && (<><strong>{t('ui.app.b7ba3e2581')}</strong> {nearestTournament.date}<br /></>)}
+                        {nearestTournament.registrationDeadline && (<><strong>{t('ui.app.2c0ba7b4a0')}</strong> {nearestTournament.registrationDeadline}</>)}
+                      </div>
+                    </div>
+                  )}
+                  {nearestTournament.maxParticipants > 0 && (
+                    <div className="space-y-1.5">
+                      <div className="text-[11px] sm:text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.app.40c83f7ed9')}</div>
+                      <div className="text-xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#bc4638] to-[#bd5b82]">
+                        {nearestTournament.maxParticipants} {t('ui.app.1995337599')}</div>
+                    </div>
+                  )}
                 </div>
 
+                {featuredExperts.length > 0 && (
                 <div className="rounded-2xl border border-white/60 bg-white/35 p-4 surface-elevated-soft backdrop-blur-md">
                   <div className="mb-3">
                     <h4 className="text-xl font-serif font-semibold leading-tight text-brand-dark sm:text-2xl">
@@ -727,7 +712,7 @@ export default function App() {
                     </h4>
                   </div>
                   <div className="grid gap-3 md:grid-cols-3">
-                    {featuredExperts?.slice(0, 3).map((expert) => (
+                    {featuredExperts.slice(0, 3).map((expert) => (
                       <div key={expert.id} data-preview-id={expert.id} className="rounded-xl border border-white/55 bg-white/45 p-3">
                         <div className="font-serif text-lg font-semibold leading-tight text-brand-dark">{expert.name}</div>
                         <div className="mt-1.5 text-xs leading-relaxed text-brand-slate">{expert.role}</div>
@@ -735,6 +720,7 @@ export default function App() {
                     ))}
                   </div>
                 </div>
+                )}
 
                 <div className="flex flex-wrap gap-2 pt-3">
                   {nearestTournament.skills.map((skill, sIdx) => (

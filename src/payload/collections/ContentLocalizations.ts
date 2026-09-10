@@ -1,8 +1,13 @@
 import type { CollectionConfig } from 'payload';
 
-import { adminOrModerator } from '../access';
+import { adminOrModerator, isAdmin, isModerator } from '../access';
 import { SUPPORTED_LANGUAGES } from '../../i18n/languages';
-import { SUPPORTED_CONTENT_COLLECTIONS, TRANSLATION_STATUSES } from '../localization';
+import {
+  SUPPORTED_CONTENT_COLLECTIONS,
+  TRANSLATION_STATUSES,
+  translateSourceNow,
+  type SupportedContentCollection,
+} from '../localization';
 
 export const ContentLocalizations: CollectionConfig = {
   slug: 'content-localizations',
@@ -18,6 +23,30 @@ export const ContentLocalizations: CollectionConfig = {
     update: adminOrModerator,
     delete: adminOrModerator,
   },
+  endpoints: [
+    {
+      // POST /payload-api/content-localizations/translate-now { collection, id }
+      // Used by the «Переводы» panel in the edit sidebar: redo all translations of one document now.
+      path: '/translate-now',
+      method: 'post',
+      handler: async (req) => {
+        if (!(isAdmin(req.user) || isModerator(req.user))) {
+          return Response.json({ message: 'Forbidden' }, { status: 403 });
+        }
+        const body = (typeof req.json === 'function' ? await req.json().catch(() => ({})) : {}) as Record<string, unknown>;
+        const collection = String(body.collection || '');
+        const id = String(body.id || '');
+        if (!(SUPPORTED_CONTENT_COLLECTIONS as readonly string[]).includes(collection) || !id) {
+          return Response.json({ message: 'Unknown document' }, { status: 400 });
+        }
+        // Runs in the background; the panel polls the statuses.
+        void translateSourceNow(req.payload, collection as SupportedContentCollection, id, { force: true }).catch((error) => {
+          console.error(`[content-localization] translate-now ${collection}:${id} failed:`, error);
+        });
+        return Response.json({ status: 'started' }, { status: 202 });
+      },
+    },
+  ],
   fields: [
     {
       name: 'sourceCollection',

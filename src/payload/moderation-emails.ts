@@ -1,10 +1,11 @@
 import type { Payload } from 'payload';
 
 import { SUPPORTED_LANGUAGES, type SupportedLanguage } from '../i18n/languages';
+import { MAIL_FROM_ADDRESS, sendMail, type MailResult } from './mailer';
 
 // The moderation mailbox. Every notification letter is sent on behalf of this
 // address so applicants can reply directly to the moderation team.
-export const MODERATION_FROM_EMAIL = 'info@navykus.tech';
+export const MODERATION_FROM_EMAIL = MAIL_FROM_ADDRESS;
 
 export const SITE_ORIGIN = (
   process.env.PUBLIC_SITE_URL
@@ -176,11 +177,13 @@ const card = (text: string, background: string, color: string) =>
 
 const emailHtml = ({
   texts,
+  language,
   name,
   decision,
   reason,
 }: {
   texts: EmailLocalization;
+  language: SupportedLanguage;
   name: string;
   decision: Decision;
   reason?: string | null;
@@ -194,7 +197,7 @@ const emailHtml = ({
     : '';
 
   return `<!doctype html>
-<html lang="ru">
+<html lang="${language}" dir="${language === 'ar' ? 'rtl' : 'ltr'}">
 <body style="margin:0;padding:0;background:#fdf6f4;">
   <div style="display:none;max-height:0;overflow:hidden;">${escapeHtml(texts.subject(decision))}</div>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fdf6f4;padding:32px 12px;">
@@ -260,31 +263,31 @@ export const sendModerationDecisionEmail = async (
     moderationComment?: string | null;
     originalLanguage?: string | null;
   },
-): Promise<void> => {
+): Promise<MailResult | undefined> => {
   try {
     const to = String(doc.email || '').trim();
-    if (!to) return;
+    if (!to) return undefined;
 
     const decision: Decision | undefined = doc.moderationStatus === 'approved'
       ? 'approved'
       : doc.moderationStatus === 'rejected'
         ? 'rejected'
         : undefined;
-    if (!decision) return;
+    if (!decision) return undefined;
 
     const language = asLanguage(doc.originalLanguage);
     const texts = L[language];
     const name = String(doc.name || '').trim() || to.split('@')[0];
 
-    await payload.sendEmail({
+    return await sendMail(payload, {
       to,
-      from: MODERATION_FROM_EMAIL,
       subject: texts.subject(decision),
-      html: emailHtml({ texts, name, decision, reason: doc.moderationComment }),
+      html: emailHtml({ texts, language, name, decision, reason: doc.moderationComment }),
       text: emailText({ texts, name, decision, reason: doc.moderationComment }),
     });
   } catch (error) {
-    console.error('[moderation-emails] failed to send decision email:', error);
+    console.error('[moderation-emails] failed to build decision email:', error);
+    return { ok: false, error: (error as Error).message };
   }
 };
 
@@ -312,5 +315,7 @@ export const moderationDecisionEmailAfterChange = async ({
   if (status !== 'approved' && status !== 'rejected') return;
   if (previousDoc && previousDoc.moderationStatus === status) return;
 
-  await sendModerationDecisionEmail(req.payload, doc as Parameters<typeof sendModerationDecisionEmail>[1]);
+  // Sent in the background: a slow or unreachable SMTP server must not hold the moderation
+  // request (the moderator's click) hostage. The outcome is logged by sendMail.
+  void sendModerationDecisionEmail(req.payload, doc as Parameters<typeof sendModerationDecisionEmail>[1]);
 };
