@@ -1,3 +1,4 @@
+import type { JuryMember } from '../types';
 import { useCmsCollection, useCmsLanguage } from './useCmsCollection';
 
 export type CmsTournamentDoc = {
@@ -27,6 +28,7 @@ export type CmsTournamentDoc = {
   registrationStatus?: 'open' | 'suspended' | 'closed';
   seoTitle?: string;
   seoDescription?: string;
+  jury?: Array<{ id?: string; name?: string; role?: string; photo?: string }>;
 };
 
 export type CmsMappedTournament = {
@@ -56,6 +58,7 @@ export type CmsMappedTournament = {
   registrationStatus: 'open' | 'suspended' | 'closed';
   seoTitle: string;
   seoDescription: string;
+  jury: JuryMember[];
 };
 
 const listValues = (items: unknown): string[] => {
@@ -98,6 +101,9 @@ const mapCmsDoc = (doc: CmsTournamentDoc): CmsMappedTournament => ({
     : 'open',
   seoTitle: text(doc.seoTitle),
   seoDescription: text(doc.seoDescription),
+  jury: (Array.isArray(doc.jury) ? doc.jury : [])
+    .map((member, index) => ({ id: String(member.id || index), name: text(member.name), role: text(member.role), photo: text(member.photo) }))
+    .filter((member) => member.name),
 });
 
 const hasVisibleTournamentText = (doc: CmsMappedTournament) =>

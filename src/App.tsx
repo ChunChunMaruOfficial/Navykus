@@ -39,7 +39,7 @@ import {
   type SupportedLanguage,
 } from './i18n/languages';
 import { useActiveChampionship } from './hooks/useCmsTournaments';
-import { useCmsExperts } from './hooks/useCmsExperts';
+import JuryCards from './components/JuryCards';
 import { useCmsPageTexts } from './hooks/useCmsPageTexts';
 import { ALL_EDITABLE_PAGE_TEXT_PAGES } from './page-texts';
 import {
@@ -146,15 +146,9 @@ export default function App() {
   const { t } = useTranslation();
   const { i18n } = useTranslation();
   const { championship: nearestTournament } = useActiveChampionship();
-  const experts = useCmsExperts();
   const { texts: homePageTexts } = useCmsPageTexts(ALL_EDITABLE_PAGE_TEXT_PAGES);
-  // Jury of the active championship only; experts not bound to any championship are a fallback.
-  const featuredExperts = useMemo(() => {
-    if (!nearestTournament) return [];
-    const scopedExperts = experts.filter((e) => e.tournamentId && String(e.tournamentId) === nearestTournament.id);
-    if (scopedExperts.length > 0) return scopedExperts;
-    return experts.filter((e) => !e.tournamentId);
-  }, [experts, nearestTournament]);
+  // Jury of the active championship (filled in right inside the championship in the CMS).
+  const featuredJury = nearestTournament?.jury ?? [];
   // Texts that used to live in the removed CMS collections (pillars / stats / trust points)
   // are now regular page texts, editable in «Дерево текстов» → «Главная».
   const optionalText = (key: string) => (i18n.exists(key) ? t(key).trim() : '');
@@ -704,21 +698,14 @@ export default function App() {
                   )}
                 </div>
 
-                {featuredExperts.length > 0 && (
+                {featuredJury.length > 0 && (
                 <div className="rounded-2xl border border-white/60 bg-white/35 p-4 surface-elevated-soft backdrop-blur-md">
                   <div className="mb-3">
                     <h4 className="text-xl font-serif font-semibold leading-tight text-brand-dark sm:text-2xl">
                       {t('ui.app.2060fe9f62')}
                     </h4>
                   </div>
-                  <div className="grid gap-3 md:grid-cols-3">
-                    {featuredExperts.slice(0, 3).map((expert) => (
-                      <div key={expert.id} data-preview-id={expert.id} className="rounded-xl border border-white/55 bg-white/45 p-3">
-                        <div className="font-serif text-lg font-semibold leading-tight text-brand-dark">{expert.name}</div>
-                        <div className="mt-1.5 text-xs leading-relaxed text-brand-slate">{expert.role}</div>
-                      </div>
-                    ))}
-                  </div>
+                  <JuryCards members={featuredJury.slice(0, 3)} />
                 </div>
                 )}
 

@@ -87,11 +87,7 @@ export interface Config {
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {
-    tournaments: {
-      jury: 'experts';
-    };
-  };
+  collectionsJoins: {};
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -250,9 +246,6 @@ export interface Tournament {
    * Справа от названия, пропорции примерно 4:3. Если пусто — берётся обложка, затем фото из «Дерева медиа».
    */
   heroImage?: (number | null) | Media;
-  /**
-   * Заполняется автоматически из названия.
-   */
   slug?: string | null;
   /**
    * Карточка «Даты проведения» и строка «Сроки» на главной.
@@ -318,13 +311,19 @@ export interface Tournament {
    */
   type: string;
   /**
-   * Каждая строка — отдельный человек. Кнопка «Создать» сразу привяжет его к этому чемпионату. Порядок задаётся полем «Порядок» внутри карточки.
+   * Добавьте по карточке на каждого человека. Порядок на сайте — как здесь (перетаскивайте карточки).
    */
-  jury?: {
-    docs?: (number | Expert)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
+  juryMembers?:
+    | {
+        name: string;
+        role?: string | null;
+        /**
+         * Небольшой портрет, лучше квадратный. Необязательно.
+         */
+        photo?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
   seoTitle?: string | null;
   seoDescription?: string | null;
   mentors?:
@@ -334,40 +333,6 @@ export interface Tournament {
       }[]
     | null;
   targetAudience?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "experts".
- */
-export interface Expert {
-  id: number;
-  sortOrder?: number | null;
-  isPublished?: boolean | null;
-  /**
-   * Язык, используемый как источник для AI-перевода.
-   */
-  originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
-  name: string;
-  /**
-   * Роль в чемпионате: жюри, наставник или эксперт
-   */
-  type: 'jury' | 'mentor' | 'expert';
-  role: string;
-  /**
-   * К какому чемпионату привязан эксперт
-   */
-  tournamentId?: (number | null) | Tournament;
-  expertise: string;
-  description: string;
-  /**
-   * Фото эксперта, наставника или жюри
-   */
-  photo?: (number | null) | Media;
-  seoTitle?: string | null;
-  seoDescription?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -406,6 +371,40 @@ export interface Activity {
   seoDescription?: string | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "experts".
+ */
+export interface Expert {
+  id: number;
+  sortOrder?: number | null;
+  isPublished?: boolean | null;
+  /**
+   * Язык, используемый как источник для AI-перевода.
+   */
+  originalLanguage: 'ru' | 'en' | 'kk' | 'uz' | 'ar' | 'de' | 'es' | 'tr';
+  name: string;
+  /**
+   * Роль в чемпионате: жюри, наставник или эксперт
+   */
+  type: 'jury' | 'mentor' | 'expert';
+  role: string;
+  /**
+   * К какому чемпионату привязан эксперт
+   */
+  tournamentId?: (number | null) | Tournament;
+  expertise: string;
+  description: string;
+  /**
+   * Фото эксперта, наставника или жюри
+   */
+  photo?: (number | null) | Media;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -459,13 +458,7 @@ export interface Event {
    * Обложка карточки (16:9). Если пусто — цветной фон категории.
    */
   image?: (number | null) | Media;
-  /**
-   * Необязательно: ссылка на картинку, если файл не загружен выше.
-   */
   imageUrl?: string | null;
-  /**
-   * Заполняется автоматически из названия.
-   */
   slug?: string | null;
   /**
    * По ней сайт сортирует активности и ставит статус «Скоро» / «Завершено».
@@ -578,13 +571,7 @@ export interface Opportunity {
    * Обложка карточки (16:9).
    */
   image?: (number | null) | Media;
-  /**
-   * Если файл не загружен.
-   */
   imageUrl?: string | null;
-  /**
-   * Запасной вариант картинки.
-   */
   logoUrl?: string | null;
   /**
    * Плашка на карточке.
@@ -662,9 +649,6 @@ export interface Opportunity {
    * Куда ведёт кнопка подачи заявки.
    */
   officialUrl: string;
-  /**
-   * Заполняется автоматически из названия.
-   */
   slug?: string | null;
   /**
    * Не показываются, но помогают найти возможность поиском.
@@ -1158,7 +1142,14 @@ export interface TournamentsSelect<T extends boolean = true> {
         id?: T;
       };
   type?: T;
-  jury?: T;
+  juryMembers?:
+    | T
+    | {
+        name?: T;
+        role?: T;
+        photo?: T;
+        id?: T;
+      };
   seoTitle?: T;
   seoDescription?: T;
   mentors?:

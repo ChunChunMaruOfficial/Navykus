@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -175,6 +175,34 @@ const ensureDevelopmentSchema = async () => {
   await ensureColumn('_tournaments_v', 'version_about_heading', 'text');
   await ensureColumn('_tournaments_v', 'version_about_image_id', 'integer REFERENCES media(id) ON DELETE set null');
   await executeSafe('CREATE INDEX IF NOT EXISTS _tournaments_v_version_version_about_image_idx ON _tournaments_v (version_about_image_id);');
+  // Жюри чемпионата: карточки прямо в чемпионате (раньше — общая коллекция experts).
+  await executeSafe(`CREATE TABLE IF NOT EXISTS tournaments_jury_members (
+    _order integer NOT NULL,
+    _parent_id integer NOT NULL,
+    id text PRIMARY KEY NOT NULL,
+    name text,
+    role text,
+    photo_id integer REFERENCES media(id) ON DELETE set null,
+    FOREIGN KEY (_parent_id) REFERENCES tournaments(id) ON DELETE cascade
+  );`);
+  await executeSafe('CREATE INDEX IF NOT EXISTS tournaments_jury_members_order_idx ON tournaments_jury_members (_order);');
+  await executeSafe('CREATE INDEX IF NOT EXISTS tournaments_jury_members_parent_id_idx ON tournaments_jury_members (_parent_id);');
+  await executeSafe('CREATE INDEX IF NOT EXISTS tournaments_jury_members_photo_idx ON tournaments_jury_members (photo_id);');
+  if (await hasTable('_tournaments_v')) {
+    await executeSafe(`CREATE TABLE IF NOT EXISTS _tournaments_v_version_jury_members (
+      _order integer NOT NULL,
+      _parent_id integer NOT NULL,
+      id integer PRIMARY KEY NOT NULL,
+      name text,
+      role text,
+      photo_id integer REFERENCES media(id) ON DELETE set null,
+      _uuid text,
+      FOREIGN KEY (_parent_id) REFERENCES _tournaments_v(id) ON DELETE cascade
+    );`);
+    await executeSafe('CREATE INDEX IF NOT EXISTS _tournaments_v_version_jury_members_order_idx ON _tournaments_v_version_jury_members (_order);');
+    await executeSafe('CREATE INDEX IF NOT EXISTS _tournaments_v_version_jury_members_parent_id_idx ON _tournaments_v_version_jury_members (_parent_id);');
+    await executeSafe('CREATE INDEX IF NOT EXISTS _tournaments_v_version_jury_members_photo_idx ON _tournaments_v_version_jury_members (photo_id);');
+  }
   // Активности и возможности: картинка загружается файлом (раньше — только ссылкой).
   await ensureColumn('events', 'image_id', 'integer REFERENCES media(id) ON DELETE set null');
   await executeSafe('CREATE INDEX IF NOT EXISTS events_image_idx ON events (image_id);');
@@ -402,7 +430,60 @@ const ensureDevelopmentSchema = async () => {
   await migrateLegacyContentToPageTexts();
   await ensurePageTextRows();
   await ensureSingleActiveChampionship();
+  await migrateExpertsToChampionshipJury();
   await normalizeEventAndOpportunityCodes();
+};
+
+/**
+ * The jury used to be a shared «experts» collection linked to championships. It is now an
+ * array of cards inside each championship (tournaments.juryMembers). Copies the published
+ * experts into their championship once — into the live row and into its latest version, which
+ * is what the admin edits (otherwise the next save would drop the copied jury again).
+ * Experts not linked to any championship (the old fallback on the home page) go to the active one.
+ */
+const migrateExpertsToChampionshipJury = async () => {
+  if (!(await hasTable('experts')) || !(await hasTable('tournaments_jury_members'))) return;
+  await runOnce('experts-to-championship-jury', async () => {
+    const client = getSchemaClient();
+    const hasVersions = await hasTable('_tournaments_v_version_jury_members');
+    const tournaments = (await client.execute('SELECT id, is_featured FROM tournaments')).rows as unknown as Array<{ id: number; is_featured: number | null }>;
+    const experts = (await client.execute(
+      `SELECT id, name, role, photo_id, tournament_id_id FROM experts
+       WHERE (is_published = 1 OR is_published IS NULL) AND (_status = 'published' OR _status IS NULL)
+       ORDER BY sort_order, id`,
+    )).rows as unknown as Array<{ name: string | null; role: string | null; photo_id: number | null; tournament_id_id: number | null }>;
+
+    for (const tournament of tournaments) {
+      const alreadyHasJury = await getFirst<{ c?: number }>('SELECT COUNT(*) as c FROM tournaments_jury_members WHERE _parent_id = ?', [tournament.id]);
+      if (Number(alreadyHasJury?.c || 0) > 0) continue;
+      let members = experts.filter((expert) => expert.tournament_id_id === tournament.id);
+      if (!members.length && tournament.is_featured) members = experts.filter((expert) => expert.tournament_id_id == null);
+      const latestVersion = hasVersions
+        ? await getFirst<{ id?: number }>('SELECT id FROM _tournaments_v WHERE parent_id = ? ORDER BY latest DESC, id DESC LIMIT 1', [tournament.id])
+        : undefined;
+      for (const [order, member] of members.entries()) {
+        const name = String(member.name || '').trim();
+        if (!name) continue;
+        const rowId = randomBytes(12).toString('hex');
+        const args = [order + 1, tournament.id, rowId, name, String(member.role || '').trim() || null, member.photo_id ?? null];
+        await client.execute({
+          sql: 'INSERT INTO tournaments_jury_members (_order, _parent_id, id, name, role, photo_id) VALUES (?, ?, ?, ?, ?, ?)',
+          args,
+        });
+        if (latestVersion?.id != null) {
+          await client.execute({
+            sql: 'INSERT INTO _tournaments_v_version_jury_members (_order, _parent_id, name, role, photo_id, _uuid) VALUES (?, ?, ?, ?, ?, ?)',
+            args: [order + 1, latestVersion.id, name, args[4], args[5], rowId],
+          });
+        }
+      }
+    }
+    // The jury is part of the championship translation now: retranslate once.
+    if (await hasTable('content_localizations')) {
+      await executeSafe("UPDATE content_localizations SET translation_status = 'pending', attempts = 0, error_message = '' WHERE source_collection = 'tournaments';");
+      await executeSafe("DELETE FROM content_localizations WHERE source_collection = 'experts';");
+    }
+  });
 };
 
 /**

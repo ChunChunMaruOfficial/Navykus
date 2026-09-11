@@ -23,11 +23,11 @@ import {
   Lock,
   ChevronDown,
 } from 'lucide-react';
-import { useCmsExperts } from '../hooks/useCmsExperts';
+import JuryCards from './JuryCards';
 import { useCmsFaqs } from '../hooks/useCmsFaqs';
 import { useCmsPageTexts } from '../hooks/useCmsPageTexts';
 import { useActiveChampionship } from '../hooks/useCmsTournaments';
-import type { Expert, TeamApplicationContext } from '../types';
+import type { TeamApplicationContext } from '../types';
 import CmsImage from './CmsImage';
 import TeamMemberApplicationForm from './TeamMemberApplicationForm';
 
@@ -125,8 +125,8 @@ export default function ChampionshipPage({
     if (meta && description) meta.content = description.slice(0, 180);
   }, [tourney]);
 
-  // The API already scopes experts to this championship (tournamentId filter).
-  const juryMembers: Expert[] = useCmsExperts(cmsData?.id);
+  // Jury cards are part of the championship itself (CMS tab «Жюри»).
+  const juryMembers = tourney?.jury ?? [];
 
   // Interactive UI states (scenarios, tabs, accordions)
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
@@ -334,14 +334,7 @@ export default function ChampionshipPage({
               {juryMembers.length > 0 && (
                 <div className="space-y-3">
                   <span className="text-sm sm:text-base font-mono uppercase tracking-wider text-brand-dark font-semibold block">{t('ui.enhancements.championshipJuryHeading')}</span>
-                  <div className="grid gap-3 md:grid-cols-3">
-                    {juryMembers.map((member) => (
-                      <div key={member.id} className="rounded-xl border border-white/55 bg-white/45 p-3">
-                        <div className="font-serif text-lg font-semibold leading-tight text-brand-dark">{member.name}</div>
-                        {member.role && <div className="mt-1.5 text-xs leading-relaxed text-brand-slate">{member.role}</div>}
-                      </div>
-                    ))}
-                  </div>
+                  <JuryCards members={juryMembers} />
                 </div>
               )}
 

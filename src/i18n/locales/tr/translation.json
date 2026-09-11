@@ -421,6 +421,7 @@
       "maxFilesError": "{{count}} dosyaya kadar ekleyebilirsiniz",
       "submitError": "Anket gönderilemedi. Tekrar deneyin.",
       "moderationSuccess": "Anket moderasyona gönderildi. İncelemeden sonra ekip arama sayfasında görünecektir.",
+      "submittedToast": "Anket moderasyona gönderildi. İncelemeden sonra size e-posta göndereceğiz ve anketiniz diğerlerinin arasında görünecek.",
       "privacyConsentLabel": "Gizlilik Politikasını kabul ediyorsunuz"
     },
     "championshippage": {

@@ -236,24 +236,142 @@ const translateSingleText = async (text: string, from: SupportedLanguage, to: Su
   throw new Error(`Translation failed: ${errors.join('; ')}`);
 };
 
-const translateValue = async (value: unknown, from: SupportedLanguage, to: SupportedLanguage, key?: string): Promise<unknown> => {
+// Batch mode: every string of a document goes to Google in ONE POST request (many `q` params),
+// instead of one GET per string. A championship has ~20 strings × 7 languages — sending them
+// one by one is what made the free endpoint answer 429 («сервис перевода занят»).
+const DEFAULT_GOOGLE_BATCH_URL = 'https://translate.googleapis.com/translate_a/t';
+const MAX_BATCH_CHARS = 4500;
+const MAX_BATCH_ITEMS = 64;
+
+const translateBatchWithGoogle = async (texts: string[], from: SupportedLanguage, to: SupportedLanguage) => {
+  const url = new URL(process.env.GOOGLE_TRANSLATE_BATCH_URL || DEFAULT_GOOGLE_BATCH_URL);
+  url.searchParams.set('client', 'gtx');
+  url.searchParams.set('sl', LANGUAGE_CODES[from]);
+  url.searchParams.set('tl', LANGUAGE_CODES[to]);
+  url.searchParams.set('format', 'text');
+  const body = new URLSearchParams();
+  for (const text of texts) body.append('q', text);
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+    body,
+    signal: AbortSignal.timeout(30000),
+  });
+  const raw = await response.text();
+  if (!response.ok) {
+    const details = raw.trimStart().startsWith('<') ? (response.status === 429 ? 'rate limited' : 'HTML error page') : raw.slice(0, 200);
+    throw new Error(`Google Translate failed with ${response.status}: ${details}`);
+  }
+  const data = JSON.parse(raw) as unknown;
+  const items = Array.isArray(data) ? data : [data];
+  // With a known source language each item is a string; with sl=auto it is [text, detectedLang].
+  const translated = items.map((item) => (Array.isArray(item) ? item[0] : item));
+  if (translated.length !== texts.length || translated.some((item) => typeof item !== 'string')) {
+    throw new Error('Google Translate batch returned an unexpected response');
+  }
+  return translated as string[];
+};
+
+const translateBatchWithProvider = async (texts: string[], from: SupportedLanguage, to: SupportedLanguage) => {
+  const cooldownUntil = providerCooldownUntil.get('google') || 0;
+  if (cooldownUntil > Date.now()) throw new Error(`google is rate limited, retry after ${new Date(cooldownUntil).toISOString()}`);
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      return await withRequestSlot(() => translateBatchWithGoogle(texts, from, to));
+    } catch (error) {
+      if (attempt >= RETRY_DELAYS_MS.length || !isRetryable(error)) {
+        if (/\b429\b/.test(String((error as Error)?.message || ''))) {
+          providerCooldownUntil.set('google', Date.now() + PROVIDER_COOLDOWN_MS);
+        }
+        throw error;
+      }
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAYS_MS[attempt]));
+    }
+  }
+};
+
+const collectStrings = (value: unknown, into: Set<string>) => {
   if (typeof value === 'string') {
-    const translated = await translateText(value, from, to);
+    if (shouldTranslateString(value)) {
+      if (value.length > MAX_CHUNK_LENGTH) splitIntoChunks(value).forEach((chunk) => { if (shouldTranslateString(chunk)) into.add(chunk); });
+      else into.add(value);
+    }
+  } else if (Array.isArray(value)) {
+    value.forEach((item) => collectStrings(item, into));
+  } else if (isPlainObject(value)) {
+    Object.values(value).forEach((item) => collectStrings(item, into));
+  }
+};
+
+/** Pre-translates every string of the content with as few requests as possible. */
+const translateAllStrings = async (content: Record<string, unknown>, from: SupportedLanguage, to: SupportedLanguage) => {
+  const unique = new Set<string>();
+  collectStrings(content, unique);
+  const texts = [...unique];
+  const dictionary = new Map<string, string>();
+  if (!texts.length || normalizeProvider(process.env.TRANSLATION_PROVIDER) !== 'google') return dictionary;
+
+  const batches: string[][] = [];
+  let current: string[] = [];
+  let currentChars = 0;
+  for (const text of texts) {
+    if (current.length && (currentChars + text.length > MAX_BATCH_CHARS || current.length >= MAX_BATCH_ITEMS)) {
+      batches.push(current);
+      current = [];
+      currentChars = 0;
+    }
+    current.push(text);
+    currentChars += text.length;
+  }
+  if (current.length) batches.push(current);
+
+  for (const batch of batches) {
+    try {
+      const translated = await translateBatchWithProvider(batch, from, to);
+      batch.forEach((text, index) => dictionary.set(text, translated[index] || text));
+    } catch (error) {
+      // Leave the rest to the per-string path (which also falls back to other providers).
+      console.warn(`[translator] batch ${from}->${to} failed, falling back to single requests:`, (error as Error).message);
+      break;
+    }
+  }
+  return dictionary;
+};
+
+const translateValue = async (value: unknown, from: SupportedLanguage, to: SupportedLanguage, key: string | undefined, dictionary: Map<string, string>): Promise<unknown> => {
+  if (typeof value === 'string') {
+    const translated = await translateTextCached(value, from, to, dictionary);
     return key === 'slug' ? slugify(translated) : translated;
   }
   if (Array.isArray(value)) {
     const translatedItems = [];
-    for (const item of value) translatedItems.push(await translateValue(item, from, to));
+    for (const item of value) translatedItems.push(await translateValue(item, from, to, undefined, dictionary));
     return translatedItems;
   }
   if (isPlainObject(value)) {
     const translatedEntries: Array<[string, unknown]> = [];
     for (const [nestedKey, nestedValue] of Object.entries(value)) {
-      translatedEntries.push([nestedKey, await translateValue(nestedValue, from, to, nestedKey)]);
+      translatedEntries.push([nestedKey, await translateValue(nestedValue, from, to, nestedKey, dictionary)]);
     }
     return Object.fromEntries(translatedEntries);
   }
   return value;
+};
+
+const translateTextCached = async (text: string, from: SupportedLanguage, to: SupportedLanguage, dictionary: Map<string, string>): Promise<string> => {
+  if (!shouldTranslateString(text) || from === to) return text;
+  const hit = dictionary.get(text);
+  if (hit !== undefined) return hit;
+  if (text.length > MAX_CHUNK_LENGTH) {
+    const translated: string[] = [];
+    for (const chunk of splitIntoChunks(text)) {
+      if (/^\n+$/.test(chunk) || !shouldTranslateString(chunk)) translated.push(chunk);
+      else translated.push(dictionary.get(chunk) ?? await translateSingleText(chunk, from, to));
+    }
+    return translated.join('');
+  }
+  return translateText(text, from, to);
 };
 
 export const translateStructuredContent = async ({
@@ -269,9 +387,10 @@ export const translateStructuredContent = async ({
   const targetLanguage = normalizeLocale(to);
   if (sourceLanguage === targetLanguage) return content;
 
+  const dictionary = await translateAllStrings(content, sourceLanguage, targetLanguage);
   const localizedEntries: Array<[string, unknown]> = [];
   for (const [key, value] of Object.entries(content)) {
-    localizedEntries.push([key, await translateValue(value, sourceLanguage, targetLanguage, key)]);
+    localizedEntries.push([key, await translateValue(value, sourceLanguage, targetLanguage, key, dictionary)]);
   }
   return Object.fromEntries(localizedEntries);
 };

@@ -7,11 +7,13 @@ import {
   promoteChampionshipAfterDelete,
 } from '../championship';
 import {
+  autoSeoBeforeChange,
   fillNotNullDefaults,
+  imageField,
   newlineListField,
   publicContentVersions,
   publishedField,
-  seoFields,
+  hiddenSeoFields,
   sortOrderField,
   syncPublishedDraftBeforeChange,
   textListField,
@@ -56,6 +58,7 @@ export const Tournaments: CollectionConfig = {
     beforeChange: [
       syncPublishedDraftBeforeChange,
       fillNotNullDefaults({ title: '', type: '', description: '', date: '', registrationDeadline: '', maxParticipants: 0 }),
+      autoSeoBeforeChange('title', ['pitch', 'description']),
     ],
     afterChange: [archiveOtherChampionshipsAfterChange, localizedAfterChange('tournaments'), auditAfterChange('tournaments')],
     afterDelete: [promoteChampionshipAfterDelete, localizedAfterDelete('tournaments'), auditAfterDelete('tournaments')],
@@ -104,14 +107,8 @@ export const Tournaments: CollectionConfig = {
                 { name: 'registrationDeadline', label: 'Дедлайн заявок', type: 'text', required: true, admin: { width: '50%', placeholder: '24 июля 2026', description: 'Текстом. Показывается в плашке «Подача анкет открыта • До …», в карточке фактов и на главной.' } },
               ],
             },
-            {
-              name: 'heroImage',
-              label: 'Фото в шапке страницы',
-              type: 'upload',
-              relationTo: 'media',
-              admin: { description: 'Справа от названия, пропорции примерно 4:3. Если пусто — берётся обложка, затем фото из «Дерева медиа».' },
-            },
-            { name: 'slug', label: 'Адрес (slug)', type: 'text', unique: true, index: true, admin: { description: 'Заполняется автоматически из названия.' } },
+            imageField('heroImage', 'Фото в шапке страницы', 'Справа от названия, пропорции примерно 4:3. Если пусто — берётся обложка, затем фото из «Дерева медиа».'),
+            { name: 'slug', label: 'Адрес (slug)', type: 'text', unique: true, index: true, admin: { hidden: true } }, // generated from the title (slugBeforeValidate)
           ],
         },
         {
@@ -141,13 +138,7 @@ export const Tournaments: CollectionConfig = {
           fields: [
             { name: 'aboutHeading', label: 'Заголовок блока', type: 'text', admin: { placeholder: 'Разберитесь в реальных вызовах экологии и урбанистики', description: 'Если пусто — используется стандартный заголовок из «Дерева текстов».' } },
             { name: 'description', label: 'Описание', type: 'textarea', required: true, admin: { rows: 8, description: 'Основной текст о чемпионате. Также показывается в карточке на главной.' } },
-            {
-              name: 'aboutImage',
-              label: 'Фото блока',
-              type: 'upload',
-              relationTo: 'media',
-              admin: { description: 'Слева от описания, пропорции примерно 16:10. Если пусто — фото из «Дерева медиа».' },
-            },
+            imageField('aboutImage', 'Фото блока', 'Слева от описания, пропорции примерно 16:10. Если пусто — фото из «Дерева медиа».'),
             { ...newlineListField('themesText', 'Темы кейса'), admin: { rows: 5, description: 'Одна тема на строку. Каждая строка — отдельная пронумерованная карточка.' } } as Field,
             { ...newlineListField('evaluationCriteriaText', 'Что оценивает жюри'), admin: { rows: 5, description: 'Один критерий на строку.' } } as Field,
             { name: 'expectedResult', label: 'Ожидаемый результат', type: 'textarea', admin: { rows: 3, description: 'Блок «Ожидаемый результат». Пустое поле скрывает блок.' } },
@@ -157,13 +148,7 @@ export const Tournaments: CollectionConfig = {
           label: 'Карточка на главной',
           description: 'Блок «Ближайшее мероприятие» на главной странице. Название, описание и даты берутся из других вкладок.',
           fields: [
-            {
-              name: 'coverImage',
-              label: 'Обложка',
-              type: 'upload',
-              relationTo: 'media',
-              admin: { description: 'Широкая полоса сверху карточки (примерно 32:7). Если пусто — фото из «Дерева медиа».' },
-            },
+            imageField('coverImage', 'Обложка', 'Широкая полоса сверху карточки (примерно 32:7). Если пусто — фото из «Дерева медиа».'),
             { name: 'suitableFor', label: 'Кому подходит', type: 'textarea', admin: { rows: 3, description: 'Колонка «Кому подходит». Пустое поле скрывает колонку.' } },
             { name: 'maxParticipants', label: 'Мест в отборе', type: 'number', required: true, defaultValue: 0, min: 0, admin: { description: 'Колонка «Осталось мест». 0 — колонка скрыта.' } },
             { ...textListField('skills', 'Навыки (теги)'), admin: { description: 'Теги внизу карточки на главной. Если на странице чемпионата не заполнены «Темы кейса», показываются они.' } } as Field,
@@ -172,32 +157,37 @@ export const Tournaments: CollectionConfig = {
         },
         {
           label: 'Жюри',
-          description: 'Члены жюри и эксперты этого чемпионата. Показываются на странице чемпионата и в карточке на главной (первые три).',
+          description: 'Члены жюри этого чемпионата. Показываются на странице чемпионата и в карточке на главной (первые три).',
           fields: [
             {
-              name: 'jury',
-              type: 'join',
-              collection: 'experts',
-              on: 'tournamentId',
-              label: 'Состав',
+              name: 'juryMembers',
+              label: 'Состав жюри',
+              type: 'array',
+              labels: { singular: 'Член жюри', plural: 'Члены жюри' },
               admin: {
-                description: 'Каждая строка — отдельный человек. Кнопка «Создать» сразу привяжет его к этому чемпионату. Порядок задаётся полем «Порядок» внутри карточки.',
-                defaultColumns: ['name', 'type', 'role'],
+                initCollapsed: false,
+                description: 'Добавьте по карточке на каждого человека. Порядок на сайте — как здесь (перетаскивайте карточки).',
+                components: { RowLabel: '../../../src/admin/components/JuryRowLabel#JuryRowLabel' },
               },
-            } as Field,
-          ],
-        },
-        {
-          label: 'SEO',
-          description: 'Заголовок вкладки браузера и описание для поисковиков на странице «Чемпионат». Если пусто — используются общие тексты сайта и короткий текст под названием.',
-          fields: [
-            ...seoFields,
-            // Legacy fields no longer shown on the site; kept so existing data is not lost.
-            { ...textListField('mentors', 'Наставники (устарело)'), admin: { hidden: true } } as Field,
-            { name: 'targetAudience', label: 'Целевая аудитория (устарело)', type: 'textarea', admin: { hidden: true } },
+              fields: [
+                {
+                  type: 'row',
+                  fields: [
+                    { name: 'name', label: 'Имя и фамилия', type: 'text', required: true, admin: { width: '50%' } },
+                    { name: 'role', label: 'Кто это', type: 'text', admin: { width: '50%', placeholder: 'Эколог, преподаватель МГУ' } },
+                  ],
+                },
+                imageField('photo', 'Фото', 'Небольшой портрет, лучше квадратный. Необязательно.'),
+              ],
+            },
           ],
         },
       ],
     },
+    // SEO is generated from the Russian title/description on save (autoSeoBeforeChange) — not editable.
+    ...hiddenSeoFields,
+    // Legacy fields no longer shown on the site; kept so existing data is not lost.
+    { ...textListField('mentors', 'Наставники (устарело)'), admin: { hidden: true } } as Field,
+    { name: 'targetAudience', label: 'Целевая аудитория (устарело)', type: 'textarea', admin: { hidden: true } },
   ],
 };

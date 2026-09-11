@@ -169,7 +169,7 @@ export const TranslationStatusField = () => {
             const record = byLanguage.get(code);
             const throttled = record?.translationStatus === 'failed' && /429|rate limit|quota/i.test(record.errorMessage || '');
             const status = throttled
-              ? { text: 'сервис перевода занят — повторим автоматически', color: '#b54708' }
+              ? STATUS.pending
               : STATUS[record?.translationStatus || 'missing'];
             return (
               <li

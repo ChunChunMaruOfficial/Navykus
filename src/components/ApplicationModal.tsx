@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { X } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import type { TeamApplicationContext } from '../types';
@@ -26,6 +26,19 @@ export default function ApplicationModal({ isOpen, onClose, context }: Applicati
   const modalRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const isParticipationModal = Boolean(context?.sourceType && PARTICIPATION_MODAL_SOURCE_TYPES.includes(context.sourceType));
+  // After a successful submit the modal closes and a small notice slides in at the top instead.
+  const [showNotice, setShowNotice] = useState(false);
+
+  const handleSubmitted = useCallback(() => {
+    onClose();
+    setShowNotice(true);
+  }, [onClose]);
+
+  useEffect(() => {
+    if (!showNotice) return undefined;
+    const timer = window.setTimeout(() => setShowNotice(false), 8000);
+    return () => window.clearTimeout(timer);
+  }, [showNotice]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -77,7 +90,7 @@ export default function ApplicationModal({ isOpen, onClose, context }: Applicati
   return (
     <AnimatePresence>
       {isOpen && (
-        <div id="modal-portal" className="fixed inset-0 z-50 flex justify-center overflow-y-auto p-4">
+        <div key="application-modal" id="modal-portal" className="fixed inset-0 z-50 flex justify-center overflow-y-auto p-4">
           <motion.div
             id="modal-overlay"
             initial={{ opacity: 0 }}
@@ -113,13 +126,36 @@ export default function ApplicationModal({ isOpen, onClose, context }: Applicati
                     {t('ui.championshippage.795d6a19a2')}
                   </h2>
                 </div>
-                <TeamMemberApplicationForm compact context={context} />
+                <TeamMemberApplicationForm compact context={context} onSubmitted={handleSubmitted} />
               </div>
             ) : (
-              <TeamMemberApplicationForm context={context} titleId="application-modal-title" />
+              <TeamMemberApplicationForm context={context} titleId="application-modal-title" onSubmitted={handleSubmitted} />
             )}
           </motion.div>
         </div>
+      )}
+      {showNotice && (
+        <motion.div
+          key="application-submitted-notice"
+          role="status"
+          aria-live="polite"
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -16 }}
+          transition={{ duration: 0.25, ease: 'easeOut' }}
+          className="fixed inset-x-0 top-20 z-[60] mx-auto flex w-[92%] max-w-md items-start gap-3 rounded-xl border border-emerald-200/80 bg-white/90 px-4 py-3 text-sm text-emerald-800 shadow-[0_12px_40px_rgba(27,24,22,0.12)] backdrop-blur-md sm:top-24"
+        >
+          <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+          <span className="flex-1 leading-relaxed">{t('ui.applicationmodal.submittedToast')}</span>
+          <button
+            type="button"
+            onClick={() => setShowNotice(false)}
+            className="-mr-1 -mt-0.5 rounded-full p-1 text-emerald-700/70 transition-colors hover:bg-emerald-50 hover:text-emerald-800"
+            aria-label={t('ui.applicationmodal.877618185f')}
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </motion.div>
       )}
     </AnimatePresence>
   );

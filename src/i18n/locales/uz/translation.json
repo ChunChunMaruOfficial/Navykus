@@ -421,6 +421,7 @@
       "maxFilesError": "{{count}} tagacha fayl biriktirish mumkin",
       "submitError": "Anketani yuborib bo‘lmadi. Yana urinib ko‘ring.",
       "moderationSuccess": "Anketa moderatsiyaga yuborildi. Tekshiruvdan keyin jamoa qidiruv sahifasida paydo bo‘ladi.",
+      "submittedToast": "Anketa moderatsiyaga yuborildi. Tekshiruvdan so‘ng pochtangizga xat yuboramiz va anketa boshqalar qatorida paydo bo‘ladi.",
       "privacyConsentLabel": "Maxfiylik siyosatini qabul qilasiz"
     },
     "championshippage": {

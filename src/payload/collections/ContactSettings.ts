@@ -7,6 +7,8 @@ export const ContactSettings: CollectionConfig = {
   admin: {
     useAsTitle: 'label',
     group: 'Settings',
+    // Hidden from the admin: the footer keeps reading the stored email (default info@navykus.tech).
+    hidden: true,
     description: 'Contact information displayed in the site footer.',
     defaultColumns: ['label', 'email', 'updatedAt'],
   },

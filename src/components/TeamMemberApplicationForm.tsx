@@ -142,7 +142,9 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
         whyLooking: isParticipationForm && !form.whyLooking.trim() ? participationReason : form.whyLooking,
         sourceContext: sourceLabel || form.sourceContext,
       }, language);
-      setStatus('success');
+      // A parent that handles the submit itself (the modal closes and shows its own notice)
+      // gets no inline success block — it would flash inside the closing modal.
+      setStatus(onSubmitted ? 'idle' : 'success');
       setForm(emptyForm(context));
       setSkillsInput('');
       setInterestsInput('');

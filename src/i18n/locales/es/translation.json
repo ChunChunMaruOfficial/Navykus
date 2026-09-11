@@ -421,6 +421,7 @@
       "maxFilesError": "Puedes adjuntar hasta {{count}} archivos",
       "submitError": "No se pudo enviar el cuestionario. Inténtalo de nuevo.",
       "moderationSuccess": "El cuestionario se envió a moderación. Después de la revisión aparecerá en la página de búsqueda de equipo.",
+      "submittedToast": "El cuestionario se envió a moderación. Tras la revisión te enviaremos un correo y el cuestionario aparecerá junto a los demás.",
       "privacyConsentLabel": "Aceptas la Política de Privacidad"
     },
     "championshippage": {

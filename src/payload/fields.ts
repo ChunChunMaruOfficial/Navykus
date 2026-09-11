@@ -42,6 +42,20 @@ export const newlineListField = (name: string, label: string): Field => ({
   },
 });
 
+/** Picture field that can only be filled by uploading a file from the computer (see ImageUploadField). */
+export const imageField = (name: string, label: string, description?: string): Field => ({
+  name,
+  label,
+  type: 'upload',
+  relationTo: 'media',
+  admin: {
+    description,
+    components: {
+      Field: '../../../src/admin/components/ImageUploadField#ImageUploadField',
+    },
+  },
+});
+
 /** Sidebar panel with the state of the automatic translations into every site language. */
 export const translationStatusField: Field = {
   name: 'translationStatus',
@@ -68,6 +82,35 @@ export const seoFields: Field[] = [
     maxLength: 180,
   },
 ];
+
+/** SEO fields are not edited by hand: they stay in the DB but are hidden in the admin. */
+export const hiddenSeoFields: Field[] = seoFields.map((field) => ({ ...field, admin: { hidden: true } }) as Field);
+
+const clip = (value: string, max: number) => {
+  const text = value.replace(/\s+/g, ' ').trim();
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max - 1);
+  const lastSpace = cut.lastIndexOf(' ');
+  return `${(lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).replace(/[\s,.;:—-]+$/, '')}…`;
+};
+
+/**
+ * Fills seoTitle / seoDescription automatically on every save from the document's own
+ * (Russian, source-language) title and description.
+ */
+export const autoSeoBeforeChange = (titleField: string, descriptionFields: string[]): CollectionBeforeChangeHook =>
+  ({ data, originalDoc }) => {
+    if (!data) return data;
+    const read = (field: string) => {
+      const value = data[field] ?? originalDoc?.[field];
+      return typeof value === 'string' ? value.trim() : '';
+    };
+    const title = read(titleField);
+    if (title) data.seoTitle = clip(/navykus|навыкус/i.test(title) ? title : `${title} — Navykus`, 80);
+    const description = descriptionFields.map(read).find(Boolean);
+    if (description) data.seoDescription = clip(description, 180);
+    return data;
+  };
 
 export const publicContentVersions = {
   drafts: true,

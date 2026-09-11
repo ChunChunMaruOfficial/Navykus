@@ -2,7 +2,9 @@ import type { CollectionBeforeValidateHook, CollectionConfig, Field } from 'payl
 
 import { adminOrModerator, anyone } from '../access';
 import {
+  autoSeoBeforeChange,
   fillNotNullDefaults,
+  imageField,
   publicContentVersions,
   publishedField,
   sortOrderField,
@@ -50,6 +52,7 @@ export const Opportunities: CollectionConfig = {
     beforeValidate: [slugBeforeValidate('opportunities'), opportunityTypeFromCategory],
     beforeChange: [
       syncPublishedDraftBeforeChange,
+      autoSeoBeforeChange('title', ['shortDescription', 'fullDescription']),
       fillNotNullDefaults({ title: '', organization: '', opportunityType: 'projects', shortDescription: '' }),
     ],
     afterChange: [localizedAfterChange('opportunities'), auditAfterChange('opportunities')],
@@ -99,21 +102,10 @@ export const Opportunities: CollectionConfig = {
               ],
             },
             { name: 'shortDescription', label: 'Короткое описание', type: 'textarea', required: true, admin: { rows: 3, description: '1–2 предложения для карточки.' } },
-            {
-              name: 'image',
-              label: 'Картинка',
-              type: 'upload',
-              relationTo: 'media',
-              admin: { description: 'Обложка карточки (16:9).' },
-            },
-            {
-              type: 'row',
-              admin: { condition: (_, siblingData) => !siblingData?.image },
-              fields: [
-                { name: 'imageUrl', label: 'Картинка по ссылке', type: 'text', admin: { width: '50%', description: 'Если файл не загружен.' } },
-                { name: 'logoUrl', label: 'Логотип по ссылке', type: 'text', admin: { width: '50%', description: 'Запасной вариант картинки.' } },
-              ],
-            },
+            imageField('image', 'Картинка', 'Обложка карточки (16:9).'),
+            // Legacy picture links: hidden (pictures are only uploaded as files), still used by the site as a fallback.
+            { name: 'imageUrl', label: 'Картинка по ссылке', type: 'text', admin: { hidden: true } },
+            { name: 'logoUrl', label: 'Логотип по ссылке', type: 'text', admin: { hidden: true } },
             {
               type: 'row',
               fields: [
@@ -235,7 +227,7 @@ export const Opportunities: CollectionConfig = {
         {
           label: 'Дополнительно',
           fields: [
-            { name: 'slug', label: 'Адрес (slug)', type: 'text', unique: true, index: true, admin: { description: 'Заполняется автоматически из названия.' } },
+            { name: 'slug', label: 'Адрес (slug)', type: 'text', unique: true, index: true, admin: { hidden: true } }, // generated from the title (slugBeforeValidate)
             { ...textListField('keywords', 'Ключевые слова для поиска'), admin: { description: 'Не показываются, но помогают найти возможность поиском.' } } as Field,
             {
               type: 'row',
@@ -250,7 +242,7 @@ export const Opportunities: CollectionConfig = {
             { name: 'seats', label: 'Мест (устарело)', type: 'number', defaultValue: 0, admin: { hidden: true } },
             { name: 'funding', label: 'Есть финансирование (устарело)', type: 'checkbox', defaultValue: false, index: true, admin: { hidden: true } },
             { name: 'internalApplicationsEnabled', label: 'Внутренние заявки (устарело)', type: 'checkbox', defaultValue: false, admin: { hidden: true } },
-            // Legacy SEO fields: opportunities open in a modal inside the catalogue, so they are not used.
+            // SEO fields: generated automatically on save (autoSeoBeforeChange), never edited.
             { name: 'seoTitle', label: 'SEO-заголовок', type: 'text', admin: { hidden: true } },
             { name: 'seoDescription', label: 'SEO-описание', type: 'textarea', admin: { hidden: true } },
           ],

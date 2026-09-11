@@ -3,6 +3,7 @@ import type { CollectionConfig } from 'payload';
 import { EDITABLE_PAGE_TEXT_PAGES } from '../../page-texts';
 import { adminOrModerator, anyone } from '../access';
 import { auditAfterChange, auditAfterDelete } from '../audit';
+import { imageField } from '../fields';
 
 /**
  * Slots for page images that the site renders in fixed places (hero pictures,
@@ -75,15 +76,7 @@ export const PageMediaSlots: CollectionConfig = {
         description: 'Человеческое описание места на сайте.',
       },
     },
-    {
-      name: 'image',
-      label: 'Изображение',
-      type: 'upload',
-      relationTo: 'media',
-      admin: {
-        description: 'Загруженное изображение, которое заменит стандартное.',
-      },
-    },
+    imageField('image', 'Изображение', 'Загруженное изображение, которое заменит стандартное.'),
     {
       name: 'hidden',
       label: 'Скрыть на сайте',

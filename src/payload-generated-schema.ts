@@ -144,6 +144,30 @@ export const tournaments_skills = sqliteTable(
   ],
 );
 
+export const tournaments_jury_members = sqliteTable(
+  "tournaments_jury_members",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: text("id").primaryKey(),
+    name: text("name"),
+    role: text("role"),
+    photo: integer("photo_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+  },
+  (columns) => [
+    index("tournaments_jury_members_order_idx").on(columns._order),
+    index("tournaments_jury_members_parent_id_idx").on(columns._parentID),
+    index("tournaments_jury_members_photo_idx").on(columns.photo),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [tournaments.id],
+      name: "tournaments_jury_members_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
 export const tournaments_mentors = sqliteTable(
   "tournaments_mentors",
   {
@@ -241,6 +265,33 @@ export const _tournaments_v_version_skills = sqliteTable(
       columns: [columns["_parentID"]],
       foreignColumns: [_tournaments_v.id],
       name: "_tournaments_v_version_skills_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _tournaments_v_version_jury_members = sqliteTable(
+  "_tournaments_v_version_jury_members",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: integer("id").primaryKey(),
+    name: text("name"),
+    role: text("role"),
+    photo: integer("photo_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    _uuid: text("_uuid"),
+  },
+  (columns) => [
+    index("_tournaments_v_version_jury_members_order_idx").on(columns._order),
+    index("_tournaments_v_version_jury_members_parent_id_idx").on(
+      columns._parentID,
+    ),
+    index("_tournaments_v_version_jury_members_photo_idx").on(columns.photo),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [_tournaments_v.id],
+      name: "_tournaments_v_version_jury_members_parent_id_fk",
     }).onDelete("cascade"),
   ],
 );
@@ -2347,6 +2398,21 @@ export const relations_tournaments_skills = relations(
     }),
   }),
 );
+export const relations_tournaments_jury_members = relations(
+  tournaments_jury_members,
+  ({ one }) => ({
+    _parentID: one(tournaments, {
+      fields: [tournaments_jury_members._parentID],
+      references: [tournaments.id],
+      relationName: "juryMembers",
+    }),
+    photo: one(media, {
+      fields: [tournaments_jury_members.photo],
+      references: [media.id],
+      relationName: "photo",
+    }),
+  }),
+);
 export const relations_tournaments_mentors = relations(
   tournaments_mentors,
   ({ one }) => ({
@@ -2378,6 +2444,9 @@ export const relations_tournaments = relations(
     skills: many(tournaments_skills, {
       relationName: "skills",
     }),
+    juryMembers: many(tournaments_jury_members, {
+      relationName: "juryMembers",
+    }),
     mentors: many(tournaments_mentors, {
       relationName: "mentors",
     }),
@@ -2390,6 +2459,21 @@ export const relations__tournaments_v_version_skills = relations(
       fields: [_tournaments_v_version_skills._parentID],
       references: [_tournaments_v.id],
       relationName: "version_skills",
+    }),
+  }),
+);
+export const relations__tournaments_v_version_jury_members = relations(
+  _tournaments_v_version_jury_members,
+  ({ one }) => ({
+    _parentID: one(_tournaments_v, {
+      fields: [_tournaments_v_version_jury_members._parentID],
+      references: [_tournaments_v.id],
+      relationName: "version_juryMembers",
+    }),
+    photo: one(media, {
+      fields: [_tournaments_v_version_jury_members.photo],
+      references: [media.id],
+      relationName: "photo",
     }),
   }),
 );
@@ -2428,6 +2512,9 @@ export const relations__tournaments_v = relations(
     }),
     version_skills: many(_tournaments_v_version_skills, {
       relationName: "version_skills",
+    }),
+    version_juryMembers: many(_tournaments_v_version_jury_members, {
+      relationName: "version_juryMembers",
     }),
     version_mentors: many(_tournaments_v_version_mentors, {
       relationName: "version_mentors",
@@ -3068,9 +3155,11 @@ type DatabaseSchema = {
   users: typeof users;
   media: typeof media;
   tournaments_skills: typeof tournaments_skills;
+  tournaments_jury_members: typeof tournaments_jury_members;
   tournaments_mentors: typeof tournaments_mentors;
   tournaments: typeof tournaments;
   _tournaments_v_version_skills: typeof _tournaments_v_version_skills;
+  _tournaments_v_version_jury_members: typeof _tournaments_v_version_jury_members;
   _tournaments_v_version_mentors: typeof _tournaments_v_version_mentors;
   _tournaments_v: typeof _tournaments_v;
   activities_benefits: typeof activities_benefits;
@@ -3128,9 +3217,11 @@ type DatabaseSchema = {
   relations_users: typeof relations_users;
   relations_media: typeof relations_media;
   relations_tournaments_skills: typeof relations_tournaments_skills;
+  relations_tournaments_jury_members: typeof relations_tournaments_jury_members;
   relations_tournaments_mentors: typeof relations_tournaments_mentors;
   relations_tournaments: typeof relations_tournaments;
   relations__tournaments_v_version_skills: typeof relations__tournaments_v_version_skills;
+  relations__tournaments_v_version_jury_members: typeof relations__tournaments_v_version_jury_members;
   relations__tournaments_v_version_mentors: typeof relations__tournaments_v_version_mentors;
   relations__tournaments_v: typeof relations__tournaments_v;
   relations_activities_benefits: typeof relations_activities_benefits;

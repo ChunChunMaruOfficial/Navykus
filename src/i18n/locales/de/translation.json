@@ -421,6 +421,7 @@
       "maxFilesError": "Sie können bis zu {{count}} Dateien anhängen",
       "submitError": "Der Fragebogen konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
       "moderationSuccess": "Der Fragebogen wurde zur Moderation gesendet. Nach der Prüfung erscheint er auf der Teamsuche-Seite.",
+      "submittedToast": "Der Fragebogen wurde zur Moderation gesendet. Nach der Prüfung schicken wir Ihnen eine E-Mail, und der Fragebogen erscheint bei den anderen.",
       "privacyConsentLabel": "Sie stimmen der Datenschutzerklärung zu"
     },
     "championshippage": {

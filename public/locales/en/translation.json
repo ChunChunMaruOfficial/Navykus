@@ -413,6 +413,7 @@
       "maxFilesError": "You can attach up to {{count}} files",
       "submitError": "Could not send the questionnaire. Try again.",
       "moderationSuccess": "The questionnaire was sent for moderation. After review, it will appear on the team search page.",
+      "submittedToast": "Your form has been sent for moderation. Once it is reviewed, we will email you and your profile will appear alongside the others.",
       "privacyConsentLabel": "You agree to the Privacy Policy"
     },
     "championshippage": {

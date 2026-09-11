@@ -2,6 +2,7 @@ import type {
   ActivityItem,
   Expert,
   FaqItem,
+  JuryMember,
   TeamMember,
   Tournament,
 } from '../src/types';
@@ -35,6 +36,15 @@ export const mediaUrlFromRelation = (relation: unknown): string | null => {
   return null;
 };
 
+const normalizeJury = (rows: unknown): JuryMember[] => (Array.isArray(rows) ? rows : [])
+  .map((row: any, index) => ({
+    id: String(row?.id || index),
+    name: typeof row?.name === 'string' ? row.name.trim() : '',
+    role: typeof row?.role === 'string' ? row.role.trim() : '',
+    photo: mediaUrlFromRelation(row?.photo) || '',
+  }))
+  .filter((member) => member.name);
+
 export const normalizeTournament = (doc: any): Tournament => ({
   id: publicId(doc),
   title: doc.title,
@@ -62,6 +72,7 @@ export const normalizeTournament = (doc: any): Tournament => ({
   registrationStatus: ['open', 'suspended', 'closed'].includes(doc.registrationStatus) ? doc.registrationStatus : 'open',
   seoTitle: doc.seoTitle || undefined,
   seoDescription: doc.seoDescription || undefined,
+  jury: normalizeJury(doc.juryMembers),
 });
 
 export const normalizeActivity = (doc: any): ActivityItem => ({

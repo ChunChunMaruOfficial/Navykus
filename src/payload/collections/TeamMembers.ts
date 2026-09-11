@@ -1,7 +1,7 @@
 import type { CollectionConfig } from 'payload';
 
 import { adminOrModerator } from '../access';
-import { publicContentVersions, seoFields, sortOrderField, syncTeamMemberPublicationBeforeChange, textListField } from '../fields';
+import { autoSeoBeforeChange, hiddenSeoFields, publicContentVersions, sortOrderField, syncTeamMemberPublicationBeforeChange, textListField } from '../fields';
 import { auditAfterChange, auditAfterDelete } from '../audit';
 import { localizedAfterChange, localizedAfterDelete, originalLanguageField } from '../localization';
 import { moderationDecisionEmailAfterChange } from '../moderation-emails';
@@ -27,7 +27,7 @@ export const TeamMembers: CollectionConfig = {
     delete: adminOrModerator,
   },
   hooks: {
-    beforeChange: [syncTeamMemberPublicationBeforeChange],
+    beforeChange: [syncTeamMemberPublicationBeforeChange, autoSeoBeforeChange('name', ['shortBio'])],
     afterChange: [
       localizedAfterChange('team-members'),
       auditAfterChange('team-members'),
@@ -173,6 +173,6 @@ export const TeamMembers: CollectionConfig = {
         description: 'К какому чемпионату привязана заявка',
       },
     },
-    ...seoFields,
+    ...hiddenSeoFields,
   ],
 };

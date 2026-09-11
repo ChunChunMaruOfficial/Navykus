@@ -2,7 +2,9 @@ import type { CollectionConfig, Field } from 'payload';
 
 import { adminOrModerator, anyone } from '../access';
 import {
+  autoSeoBeforeChange,
   fillNotNullDefaults,
+  imageField,
   newlineListField,
   publicContentVersions,
   publishedField,
@@ -43,6 +45,7 @@ export const Events: CollectionConfig = {
     beforeValidate: [slugBeforeValidate('events')],
     beforeChange: [
       syncPublishedDraftBeforeChange,
+      autoSeoBeforeChange('title', ['shortDescription', 'fullDescription']),
       fillNotNullDefaults({
         title: '',
         shortDescription: '',
@@ -97,20 +100,10 @@ export const Events: CollectionConfig = {
               ],
             },
             { name: 'shortDescription', label: 'Короткое описание', type: 'textarea', required: true, admin: { rows: 3, description: '1–2 предложения для карточки.' } },
-            {
-              name: 'image',
-              label: 'Картинка',
-              type: 'upload',
-              relationTo: 'media',
-              admin: { description: 'Обложка карточки (16:9). Если пусто — цветной фон категории.' },
-            },
-            {
-              name: 'imageUrl',
-              label: 'Картинка по ссылке (если не загружена)',
-              type: 'text',
-              admin: { condition: (_, siblingData) => !siblingData?.image, description: 'Необязательно: ссылка на картинку, если файл не загружен выше.' },
-            },
-            { name: 'slug', label: 'Адрес (slug)', type: 'text', unique: true, index: true, admin: { description: 'Заполняется автоматически из названия.' } },
+            imageField('image', 'Картинка', 'Обложка карточки (16:9). Если пусто — цветной фон категории.'),
+            // Legacy picture link: hidden (pictures are only uploaded as files), still used by the site as a fallback.
+            { name: 'imageUrl', label: 'Картинка по ссылке', type: 'text', admin: { hidden: true } },
+            { name: 'slug', label: 'Адрес (slug)', type: 'text', unique: true, index: true, admin: { hidden: true } }, // generated from the title (slugBeforeValidate)
           ],
         },
         {
@@ -207,7 +200,7 @@ export const Events: CollectionConfig = {
               ],
             },
             { ...textListField('materials', 'Материалы'), admin: { description: 'Добавляются в блок «Что вы получите».' } } as Field,
-            // Legacy SEO fields: activities open in a modal on /activities, so they are not used.
+            // SEO fields: generated automatically on save (autoSeoBeforeChange), never edited.
             { name: 'seoTitle', label: 'SEO-заголовок', type: 'text', admin: { hidden: true } },
             { name: 'seoDescription', label: 'SEO-описание', type: 'textarea', admin: { hidden: true } },
           ],

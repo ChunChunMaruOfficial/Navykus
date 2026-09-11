@@ -11,6 +11,9 @@ export const Experts: CollectionConfig = {
   admin: {
     useAsTitle: 'name',
     group: 'Content',
+    // Legacy shared jury database: the jury is now filled in right inside each championship
+    // (tournaments.juryMembers). Hidden from the admin; the table is kept as a backup.
+    hidden: true,
     defaultColumns: ['name', 'type', 'tournamentId', 'role'],
     preview: publicPreview('experts'),
   },

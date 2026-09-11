@@ -1,4 +1,6 @@
 import { TranslationStatusField as TranslationStatusField_b6191cc9cac6e2081a99f38da79a7c17 } from '../../../../src/admin/components/TranslationStatusField'
+import { ImageUploadField as ImageUploadField_0fb2fa30e7760529e0549479b2a83cc6 } from '../../../../src/admin/components/ImageUploadField'
+import { JuryRowLabel as JuryRowLabel_37a29042a707bb1d31c1bbcbe121a73c } from '../../../../src/admin/components/JuryRowLabel'
 import { default as default_ee58455c7745d879ad241d92a763142a } from '../../../../src/admin/components/ChampionshipRedirect'
 import { PublishTeamMemberCell as PublishTeamMemberCell_633c02a419cc0e45cd6d0ac8291fd99b } from '../../../../src/admin/components/PublishTeamMemberCell'
 import { VersionBadge as VersionBadge_4cefed6e55bb28d2cc1bb7ef562506a9 } from '../../../../src/admin/components/VersionBadge'
@@ -15,6 +17,8 @@ import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } f
 /** @type import('payload').ImportMap */
 export const importMap = {
   "../../../src/admin/components/TranslationStatusField#TranslationStatusField": TranslationStatusField_b6191cc9cac6e2081a99f38da79a7c17,
+  "../../../src/admin/components/ImageUploadField#ImageUploadField": ImageUploadField_0fb2fa30e7760529e0549479b2a83cc6,
+  "../../../src/admin/components/JuryRowLabel#JuryRowLabel": JuryRowLabel_37a29042a707bb1d31c1bbcbe121a73c,
   "../../../src/admin/components/ChampionshipRedirect#default": default_ee58455c7745d879ad241d92a763142a,
   "../../../src/admin/components/PublishTeamMemberCell#PublishTeamMemberCell": PublishTeamMemberCell_633c02a419cc0e45cd6d0ac8291fd99b,
   "../../../src/admin/components/VersionBadge#VersionBadge": VersionBadge_4cefed6e55bb28d2cc1bb7ef562506a9,

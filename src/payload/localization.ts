@@ -94,7 +94,7 @@ const LOCALIZATION_CONFIGS: Record<SupportedContentCollection, LocalizationConfi
   tournaments: {
     collection: 'tournaments',
     sourceLanguageField: 'originalLanguage',
-    fields: ['title', 'type', 'description', 'pitch', 'aboutHeading', 'date', 'registrationDeadline', 'skills', 'suitableFor', 'format', 'ageLimit', 'teamsAllowed', 'language', 'expectedResult', 'themesText', 'evaluationCriteriaText', 'seoTitle', 'seoDescription'],
+    fields: ['title', 'type', 'description', 'pitch', 'aboutHeading', 'date', 'registrationDeadline', 'skills', 'suitableFor', 'format', 'ageLimit', 'teamsAllowed', 'language', 'expectedResult', 'themesText', 'evaluationCriteriaText', 'seoTitle', 'seoDescription', 'juryMembers'],
   },
   'page-texts': {
     collection: 'page-texts',
@@ -111,8 +111,21 @@ const asSupportedLanguage = (value: unknown): SupportedLanguage => {
 
 const payloadId = (value: string | number) => (typeof value === 'number' ? value : /^\d+$/.test(value) ? Number(value) : value);
 
+const isRowObject = (item: unknown): item is Record<string, unknown> =>
+  Boolean(item && typeof item === 'object' && !Array.isArray(item) && !('value' in (item as object)));
+
+// Rows of an array of objects (e.g. the jury: name + role + photo): only their text
+// sub-fields are translated; ids and uploads stay out. The order is kept, so the
+// translation is merged back into the rows by position.
+const rowTexts = (items: unknown[]) => items.map((item) => Object.fromEntries(
+  Object.entries(item as Record<string, unknown>)
+    .filter(([key, value]) => key !== 'id' && typeof value === 'string' && value.trim())
+    .map(([key, value]) => [key, (value as string).trim()]),
+));
+
 const fieldValue = (doc: Record<string, unknown>, field: string) => {
   const value = doc[field];
+  if (Array.isArray(value) && value.some(isRowObject)) return rowTexts(value);
   if (Array.isArray(value)) return textList(value);
   if (typeof value === 'string') return value.trim();
   return value;
@@ -156,6 +169,10 @@ const isPayloadNotFound = (error: unknown) => {
 // Marks a record that can never succeed so the worker stops retrying it.
 const PERMANENT_FAILURE_ATTEMPTS = 999;
 const FAILED_RETRY_DELAY_MS = 2 * 60_000;
+
+const THROTTLED_ATTEMPTS_CAP = 3;
+const THROTTLED_MAX_RETRY_DELAY_MS = 10 * 60_000;
+export const isThrottledMessage = (message: unknown) => /\b429\b|rate limit|quota/i.test(String(message || ''));
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -285,13 +302,17 @@ const processLocalization = async (
     }
   } catch (error) {
     if (isPayloadNotFound(error)) return;
+    const message = (error as Error).message?.slice(0, 500) || 'Translation failed';
     try {
       await withSqliteBusyRetry(() => payload.update({
         collection: 'content-localizations' as any,
         id: payloadId(recordId),
         data: {
           translationStatus: 'failed',
-          errorMessage: (error as Error).message?.slice(0, 500) || 'Translation failed',
+          errorMessage: message,
+          // A busy/throttled translator is temporary: never let it use up the attempts,
+          // otherwise the record is abandoned while the admin still says «повторим автоматически».
+          ...(isThrottledMessage(message) ? { attempts: Math.min(nextAttempts, THROTTLED_ATTEMPTS_CAP) } : {}),
         },
         overrideAccess: true,
       }));
@@ -434,7 +455,8 @@ export const processPendingContentLocalizations = async (
   const isDue = (record: Record<string, unknown>) => {
     if (record.translationStatus !== 'failed') return true;
     const attempts = Math.max(1, Number(record.attempts || 1));
-    const delay = Math.min(FAILED_RETRY_DELAY_MS * 2 ** (attempts - 1), 2 * 60 * 60_000);
+    const maxDelay = isThrottledMessage(record.errorMessage) ? THROTTLED_MAX_RETRY_DELAY_MS : 2 * 60 * 60_000;
+    const delay = Math.min(FAILED_RETRY_DELAY_MS * 2 ** (attempts - 1), maxDelay);
     return new Date(String(record.updatedAt || 0)).getTime() + delay <= now;
   };
   // Records of one batch are independent (different documents/languages): translate them in parallel.

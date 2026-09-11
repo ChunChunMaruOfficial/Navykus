@@ -29,6 +29,16 @@ export interface Tournament {
   registrationStatus?: 'open' | 'suspended' | 'closed';
   seoTitle?: string;
   seoDescription?: string;
+  /** Jury cards filled in right inside the championship (CMS tab «Жюри»). */
+  jury: JuryMember[];
+}
+
+export interface JuryMember {
+  id: string;
+  name: string;
+  role: string;
+  /** URL of the small portrait, empty when no photo was uploaded. */
+  photo: string;
 }
 
 export interface ApplicationForm {

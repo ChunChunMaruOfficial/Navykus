@@ -44,7 +44,16 @@ const mergeLocalizedData = (
   for (const [key, value] of Object.entries(localizedData)) {
     // Older translations may still carry fields that are no longer translated (slug, codes…).
     if (!allowedFields.has(key)) continue;
-    if (Array.isArray(value)) {
+    const rows = doc[key];
+    if (Array.isArray(value) && Array.isArray(rows) && rows.some((row) => row && typeof row === 'object' && !('value' in row))) {
+      // Array of objects (the jury): merge the translated text sub-fields into the rows by position.
+      doc[key] = rows.map((row, index) => {
+        const translated = value[index];
+        return translated && typeof translated === 'object' && !Array.isArray(translated)
+          ? { ...(row as Record<string, unknown>), ...(translated as Record<string, unknown>) }
+          : row;
+      });
+    } else if (Array.isArray(value)) {
       doc[key] = value.flatMap((item) => {
         if (Array.isArray(item)) return item;
         if (item && typeof item === 'object' && 'value' in item) return (item as Record<string, unknown>).value;
