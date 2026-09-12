@@ -583,10 +583,18 @@ app.get('/api/page-texts', asyncRoute(async (req, res) => {
     overrideAccess: true,
   });
   const docs = result.docs as PageTextDoc[];
+  // A text the editor cleared in the CMS («Скрыть на сайте») is sent as '' — the site then hides
+  // it in every language. Decided on the Russian source, before translations are applied: a
+  // translation that is still pending also comes out empty, but must fall back to the built-in text.
+  const hiddenKeys = new Set(
+    docs.filter((doc) => doc.translationKey && !String(doc.value ?? '').trim()).map((doc) => doc.translationKey),
+  );
   await applyLocalizations(payload, 'page-texts', docs as Array<Record<string, unknown>>, language);
   const texts = docs.reduce<Record<string, string>>((acc, doc) => {
     const value = typeof doc.value === 'string' ? doc.value.trim() : '';
-    if (doc.translationKey && value) acc[doc.translationKey] = value;
+    if (!doc.translationKey) return acc;
+    if (hiddenKeys.has(doc.translationKey)) acc[doc.translationKey] = '';
+    else if (value) acc[doc.translationKey] = value;
     return acc;
   }, {});
 

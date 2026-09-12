@@ -40,8 +40,9 @@ export const useCmsPageTexts = (pages: readonly EditablePageTextPage[]) => {
         const incoming = payload.texts || {};
         const texts: Record<string, string> = {};
         for (const [key, value] of Object.entries(incoming)) {
-          const trimmed = typeof value === 'string' ? value.trim() : '';
-          if (!trimmed) continue;
+          if (typeof value !== 'string') continue;
+          // '' = the editor hid this text in the CMS: it disappears from the site (t() returns '').
+          const trimmed = value.trim();
           texts[key] = trimmed;
           i18n.addResource(language, 'translation', key, trimmed, { silent: true });
         }

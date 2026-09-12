@@ -40,7 +40,7 @@ const PageTextsTreeView = () => {
   const [draftValue, setDraftValue] = useState('');
   const [draftBlockName, setDraftBlockName] = useState('');
   const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState<string | number | null>(null);
+  const [busyId, setBusyId] = useState<string | number | null>(null);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [query, setQuery] = useState('');
 
@@ -213,21 +213,60 @@ const PageTextsTreeView = () => {
     }
   };
 
-  const deleteRecord = async (id: string | number) => {
-    if (!window.confirm('Удалить этот текст? Это действие необратимо.')) return;
-    setDeleting(id);
+  // Texts are never deleted: a deleted row only dropped the CMS copy, so the site kept showing its
+  // built-in text and the row vanished from the tree. An empty text is hidden on the site instead.
+  const hideRecord = async (r: PageTextRecord) => {
+    if (!window.confirm('Скрыть этот текст на сайте? Его можно будет вернуть кнопкой «Вернуть исходный текст».')) return;
+    setBusyId(r.id);
     try {
-      const res = await makeRequest(`/payload-api/page-texts/${id}`, {
-        method: 'DELETE',
+      const res = await makeRequest(`/payload-api/page-texts/${r.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ value: '' }),
       });
-      if (!res.ok) throw new Error(`delete failed ${res.status}`);
-      setRecords((prev) => prev.filter((p) => p.id !== id));
+      if (!res.ok) throw new Error(`hide failed ${res.status}`);
+      setRecords((prev) => prev.map((p) => (p.id === r.id ? { ...p, value: '' } : p)));
     } catch (e) {
-      setError((e as Error).message || 'delete error');
+      setError((e as Error).message || 'hide error');
     } finally {
-      setDeleting(null);
+      setBusyId(null);
     }
   };
+
+  const restoreRecord = async (r: PageTextRecord) => {
+    setBusyId(r.id);
+    try {
+      const res = await makeRequest('/payload-api/page-texts/restore-default', {
+        method: 'POST',
+        body: JSON.stringify({ id: r.id }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json?.message || `restore failed ${res.status}`);
+      const value = (json.doc as PageTextRecord | undefined)?.value ?? '';
+      setRecords((prev) => prev.map((p) => (p.id === r.id ? { ...p, value } : p)));
+    } catch (e) {
+      setError((e as Error).message || 'restore error');
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const renderActions = (r: PageTextRecord) => (
+    <div style={{ marginTop: 6 }}>
+      <button onClick={() => startEdit(r)} style={{ ...btnStyle, marginRight: 8 }}>Редактировать</button>
+      {r.value ? (
+        <button onClick={() => hideRecord(r)} disabled={busyId === r.id} style={{ ...btnStyle, marginRight: 8 }}>
+          {busyId === r.id ? 'Сохранение…' : 'Скрыть на сайте'}
+        </button>
+      ) : (
+        <button onClick={() => restoreRecord(r)} disabled={busyId === r.id} style={{ ...btnStyle, marginRight: 8 }}>
+          {busyId === r.id ? 'Сохранение…' : 'Вернуть исходный текст'}
+        </button>
+      )}
+      <span style={{ fontSize: 11, color: 'var(--theme-elevation-500)' }}>
+        {r.isPublished === false ? 'не опубликовано' : r.value ? 'опубликовано' : 'скрыто на сайте'}
+      </span>
+    </div>
+  );
 
   const themeVars: React.CSSProperties = {
     background: 'var(--theme-bg)',
@@ -283,6 +322,7 @@ const PageTextsTreeView = () => {
       <h1 style={{ fontSize: 24, marginBottom: 8, marginTop: 0 }}>Тексты страниц</h1>
       <p style={{ color: 'var(--theme-elevation-600)', marginTop: 0, marginBottom: 16 }}>
         Иерархический редактор текстов: Страница → Блок → Текст. Все изменения вносятся на русском; переводы на другие языки создаются автоматически в очереди переводов.
+        Чтобы убрать текст с сайта, нажмите «Скрыть на сайте» (на всех языках); вернуть его можно кнопкой «Вернуть исходный текст».
       </p>
 
       <div style={{ marginBottom: 16 }}>
@@ -337,21 +377,9 @@ const PageTextsTreeView = () => {
 ) : (
                       <div>
                         <div style={{ whiteSpace: 'pre-wrap', fontSize: 14, color: 'var(--theme-text)' }}>
-                          {record.value || <span style={{ color: 'var(--theme-error-500)' }}>(пусто — блок скрыт на сайте)</span>}
+                          {record.value || <span style={{ color: 'var(--theme-error-500)' }}>(пусто — текст скрыт на сайте)</span>}
                         </div>
-                        <div style={{ marginTop: 6 }}>
-                          <button onClick={() => startEdit(record)} style={{ ...btnStyle, marginRight: 8 }}>Редактировать</button>
-                          <button
-                            onClick={() => deleteRecord(record.id)}
-                            disabled={deleting === record.id}
-                            style={{ ...btnStyle, marginRight: 8, background: 'var(--theme-error-100)', color: 'var(--theme-error-500)', borderColor: 'var(--theme-error-300)' }}
-                          >
-                            {deleting === record.id ? 'Удаление...' : 'Удалить'}
-                          </button>
-                          <span style={{ fontSize: 11, color: 'var(--theme-elevation-500)' }}>
-                            {record.isPublished === false ? 'не опубликовано' : 'опубликовано'}
-                          </span>
-                        </div>
+                        {renderActions(record)}
                       </div>
                     )}
               </div>
@@ -453,21 +481,9 @@ const PageTextsTreeView = () => {
                                     ) : (
                                       <div>
                                         <div style={{ whiteSpace: 'pre-wrap', fontSize: 14, color: 'var(--theme-text)' }}>
-                                          {r.value || <span style={{ color: 'var(--theme-error-500)' }}>(пусто — блок скрыт на сайте)</span>}
+                                          {r.value || <span style={{ color: 'var(--theme-error-500)' }}>(пусто — текст скрыт на сайте)</span>}
                                         </div>
-                                        <div style={{ marginTop: 6 }}>
-                                          <button onClick={() => startEdit(r)} style={{ ...btnStyle, marginRight: 8 }}>Редактировать</button>
-                                          <button
-                                            onClick={() => deleteRecord(r.id)}
-                                            disabled={deleting === r.id}
-                                            style={{ ...btnStyle, marginRight: 8, background: 'var(--theme-error-100)', color: 'var(--theme-error-500)', borderColor: 'var(--theme-error-300)' }}
-                                          >
-                                            {deleting === r.id ? 'Удаление...' : 'Удалить'}
-                                          </button>
-                                          <span style={{ fontSize: 11, color: 'var(--theme-elevation-500)' }}>
-                                            {r.isPublished === false ? 'не опубликовано' : 'опубликовано'}
-                                          </span>
-                                        </div>
+                                        {renderActions(r)}
                                       </div>
                                     )}
                                   </div>

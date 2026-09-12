@@ -1,7 +1,23 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 import type { CollectionConfig } from 'payload';
 
-import { EDITABLE_PAGE_TEXT_PAGES } from '../../page-texts';
-import { adminOrModerator, anyone } from '../access';
+import { EDITABLE_PAGE_TEXT_PAGES, flattenLocaleText } from '../../page-texts';
+import { adminOrModerator, anyone, isAdmin, isModerator } from '../access';
+import { projectRoot } from '../paths';
+
+/** The Russian text a key has in the site's built-in locale file (what the site shows by default). */
+const defaultRussianText = (translationKey: string) => {
+  try {
+    const localePath = path.join(projectRoot, 'src', 'i18n', 'locales', 'ru', 'translation.json');
+    const flat = flattenLocaleText(JSON.parse(fs.readFileSync(localePath, 'utf8')), '', { includeArrays: true });
+    const value = flat[translationKey];
+    return typeof value === 'string' && value.trim() ? value : undefined;
+  } catch {
+    return undefined;
+  }
+};
 import { auditAfterChange, auditAfterDelete } from '../audit';
 import { localizedAfterChange, localizedAfterDelete } from '../localization';
 
@@ -24,6 +40,34 @@ export const PageTexts: CollectionConfig = {
     afterChange: [localizedAfterChange('page-texts'), auditAfterChange('page-texts')],
     afterDelete: [localizedAfterDelete('page-texts'), auditAfterDelete('page-texts')],
   },
+  endpoints: [
+    {
+      // POST /payload-api/page-texts/restore-default { id }
+      // «Вернуть исходный текст» in «Дерево текстов»: puts back the text the site shipped with.
+      path: '/restore-default',
+      method: 'post',
+      handler: async (req) => {
+        if (!(isAdmin(req.user) || isModerator(req.user))) {
+          return Response.json({ message: 'Forbidden' }, { status: 403 });
+        }
+        const body = (typeof req.json === 'function' ? await req.json().catch(() => ({})) : {}) as Record<string, unknown>;
+        const id = String(body.id || '');
+        if (!id) return Response.json({ message: 'Unknown text' }, { status: 400 });
+        const current = await req.payload.findByID({ collection: 'page-texts' as any, id, depth: 0, overrideAccess: true })
+          .catch(() => null) as { translationKey?: string } | null;
+        const defaultValue = current?.translationKey ? defaultRussianText(current.translationKey) : undefined;
+        if (!defaultValue) return Response.json({ message: 'Исходный текст не найден' }, { status: 404 });
+        const doc = await req.payload.update({
+          collection: 'page-texts' as any,
+          id,
+          data: { value: defaultValue },
+          overrideAccess: true,
+          req,
+        });
+        return Response.json({ doc });
+      },
+    },
+  ],
   fields: [
     {
       name: 'legacyId',
