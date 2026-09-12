@@ -404,7 +404,6 @@ const seed = async () => {
         tr('ui.championshippage.c3ab1eab18'),
         tr('ui.championshippage.bdbee4fdad'),
       ].join('\n'),
-      skills: list(item.skills),
       mentors: list(item.mentors),
     });
   }

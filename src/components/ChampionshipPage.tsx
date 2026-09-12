@@ -27,6 +27,7 @@ import JuryCards from './JuryCards';
 import { useCmsFaqs } from '../hooks/useCmsFaqs';
 import { useCmsPageTexts } from '../hooks/useCmsPageTexts';
 import { useActiveChampionship } from '../hooks/useCmsTournaments';
+import { championshipDirections } from '../championship-directions';
 import type { TeamApplicationContext } from '../types';
 import CmsImage from './CmsImage';
 import TeamMemberApplicationForm from './TeamMemberApplicationForm';
@@ -88,7 +89,7 @@ export default function ChampionshipPage({
   } = useActiveChampionship();
   const cmsData = useMemo<ChampionshipData | null>(() => {
     if (!tourney) return null;
-    const themes = splitCmsList(tourney.themesText);
+    const themes = championshipDirections(tourney.themesText);
     const evaluationCriteria = splitCmsList(tourney.evaluationCriteriaText);
 
     return {
@@ -108,7 +109,7 @@ export default function ChampionshipPage({
       maxParticipants: tourney.maxParticipants,
       expectedResult: tourney.expectedResult,
       evaluationCriteria: evaluationCriteria.length ? evaluationCriteria : tourney.mentors,
-      themes: themes.length ? themes : tourney.skills,
+      themes,
       heroImage: tourney.heroImage || '',
       coverImage: tourney.coverImage || '',
       aboutImage: tourney.aboutImage || '',
@@ -154,7 +155,10 @@ export default function ChampionshipPage({
     { key: 'language', label: t('ui.championshippage.d48444dfb4'), value: cmsData.lang },
     { key: 'deadline', label: t('ui.championshippage.4ec991f17a'), value: cmsData.registrationDeadline, accent: true },
     { key: 'team', label: t('ui.championshippage.a7fbd7c9e4'), value: cmsData.teamsAllowed },
+    { key: 'seats', label: t('ui.championshippage.seatsLabel'), value: cmsData.maxParticipants > 0 ? String(cmsData.maxParticipants) : '' },
   ].filter((card) => card.value);
+  // Six cards fit one row; with the seats card there are seven — two even rows read better.
+  const keyInfoGridClass = keyInfoCards.length > 6 ? 'lg:grid-cols-4' : 'lg:grid-cols-6';
 
   return (
     <div className="relative w-full text-brand-dark pb-16 pt-24">
@@ -235,7 +239,7 @@ export default function ChampionshipPage({
 
         {/* 2. COMPACT KEY INFO CARDS BLOCK */}
         <section className="relative z-10 max-w-7xl mx-auto px-[6%] md:px-[10%]">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className={`grid grid-cols-2 md:grid-cols-3 ${keyInfoGridClass} gap-4`}>
             {keyInfoCards.map((card, index) => (
               <motion.div
                 key={card.key}
@@ -364,6 +368,7 @@ export default function ChampionshipPage({
                   sourceId: cmsData.id,
                   sourceTitle: cmsData.title,
                   tournamentId: cmsData.id,
+                  directions: cmsData.themes,
                 }}
               />
             )}

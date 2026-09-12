@@ -11,7 +11,6 @@ export type CmsTournamentDoc = {
   date: string;
   registrationDeadline: string;
   maxParticipants: number;
-  skills?: Array<{ value: string }> | string[];
   mentors?: Array<{ value: string }> | string[];
   suitableFor?: string;
   format?: string;
@@ -41,7 +40,6 @@ export type CmsMappedTournament = {
   date: string;
   registrationDeadline: string;
   maxParticipants: number;
-  skills: string[];
   mentors: string[];
   suitableFor: string;
   format: string;
@@ -82,7 +80,6 @@ const mapCmsDoc = (doc: CmsTournamentDoc): CmsMappedTournament => ({
   date: text(doc.date),
   registrationDeadline: text(doc.registrationDeadline),
   maxParticipants: Number(doc.maxParticipants) || 0,
-  skills: listValues(doc.skills),
   mentors: listValues(doc.mentors),
   suitableFor: text(doc.suitableFor),
   format: text(doc.format),

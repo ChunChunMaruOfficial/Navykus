@@ -25,6 +25,7 @@ for (const key of requiredEnv) {
 import { execSync, spawn } from 'node:child_process';
 
 import type { PageKey } from '../src/types';
+import { championshipDirections } from '../src/championship-directions';
 import { isSupportedLanguage, SUPPORTED_LANGUAGES } from '../src/i18n/languages';
 import { EDITABLE_PAGE_TEXT_PAGES, type EditablePageTextPage, type PageTextDoc } from '../src/page-texts';
 import { getPayloadClient } from './payload';
@@ -734,6 +735,17 @@ app.post('/api/team-members', upload.array('portfolioFiles', 5), asyncRoute(asyn
     ? body.originalLanguage
     : 'ru';
 
+  const tournamentId = /^\d+$/.test(String(body.tournamentId || '').trim()) ? Number(String(body.tournamentId).trim()) : undefined;
+  // The form sends the index of the chosen key direction; the text is taken from the championship
+  // itself (the language it was written in), so moderators see it as it is in the CMS.
+  let championshipDirection: string | undefined;
+  const directionIndex = Number(body.championshipDirectionIndex);
+  if (tournamentId !== undefined && String(body.championshipDirectionIndex ?? '').trim() !== '' && Number.isInteger(directionIndex)) {
+    const tournament = await payload.findByID({ collection: 'tournaments' as any, id: tournamentId, depth: 0, overrideAccess: true })
+      .catch(() => null) as { themesText?: string | null } | null;
+    championshipDirection = championshipDirections(tournament?.themesText)[directionIndex];
+  }
+
   try {
     const member = await payload.create({
       collection: 'team-members' as any,
@@ -756,7 +768,8 @@ app.post('/api/team-members', upload.array('portfolioFiles', 5), asyncRoute(asyn
         sourceType: typeof body.sourceType === 'string' ? body.sourceType : 'api',
         sourceContext: typeof body.sourceContext === 'string' ? body.sourceContext.trim() : undefined,
         sourceId: typeof body.sourceId === 'string' ? body.sourceId.trim() : undefined,
-        tournamentId: /^\d+$/.test(String(body.tournamentId || '').trim()) ? Number(String(body.tournamentId).trim()) : undefined,
+        tournamentId,
+        championshipDirection,
         originalLanguage,
         moderationStatus: 'pending',
         isApproved: false,

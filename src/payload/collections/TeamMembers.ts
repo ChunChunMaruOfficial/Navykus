@@ -1,7 +1,7 @@
 import type { CollectionConfig } from 'payload';
 
 import { adminOrModerator } from '../access';
-import { autoSeoBeforeChange, hiddenSeoFields, publicContentVersions, sortOrderField, syncTeamMemberPublicationBeforeChange, textListField } from '../fields';
+import { autoSeoBeforeChange, fillNotNullDefaults, hiddenSeoFields, publicContentVersions, sortOrderField, syncTeamMemberPublicationBeforeChange, textListField } from '../fields';
 import { auditAfterChange, auditAfterDelete } from '../audit';
 import { localizedAfterChange, localizedAfterDelete, originalLanguageField } from '../localization';
 import { moderationDecisionEmailAfterChange } from '../moderation-emails';
@@ -27,7 +27,9 @@ export const TeamMembers: CollectionConfig = {
     delete: adminOrModerator,
   },
   hooks: {
-    beforeChange: [syncTeamMemberPublicationBeforeChange, autoSeoBeforeChange('name', ['shortBio'])],
+    // The public form no longer asks for a separate contact (the email is the contact), but the
+    // legacy columns contact / contact_type are NOT NULL in older databases.
+    beforeChange: [syncTeamMemberPublicationBeforeChange, fillNotNullDefaults({ contact: '', contactType: 'email' }), autoSeoBeforeChange('name', ['shortBio'])],
     afterChange: [
       localizedAfterChange('team-members'),
       auditAfterChange('team-members'),
@@ -171,6 +173,15 @@ export const TeamMembers: CollectionConfig = {
       admin: {
         position: 'sidebar',
         description: 'К какому чемпионату привязана заявка',
+      },
+    },
+    {
+      name: 'championshipDirection',
+      label: 'Направление чемпионата',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        description: 'Ключевое направление, выбранное в анкете (строка из «Темы кейса» чемпионата на момент подачи).',
       },
     },
     ...hiddenSeoFields,

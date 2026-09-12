@@ -376,6 +376,9 @@
     "applicationmodal": {
       "emailLabel": "البريد الإلكتروني",
       "skillsPlaceholder": "React، التصميم، البحث",
+      "directionLabel": "مسار البطولة",
+      "directionPlaceholder": "اختر مسارًا",
+      "directionRequired": "اختر مسارًا من مسارات البطولة",
       "interestsPlaceholder": "العمران، التكنولوجيا، المشاريع الاجتماعية",
       "portfolioPlaceholder": "Behance، GitHub، Google Drive…",
       "bc84a155": "MB",
@@ -510,6 +513,7 @@
       "4ec991f17a": "الموعد النهائي لتقديم الطلبات",
       "593bb47761": "حتى الساعة 23:59 بتوقيت موسكو",
       "a7fbd7c9e4": "تكوين الفريق",
+      "seatsLabel": "المقاعد في التصفيات",
       "0df738a56f": "1-5 أشخاص",
       "04aa324d68": "سنساعدك في العثور على",
       "4cd7e0a138": "ما هو موضوع البطولة؟",

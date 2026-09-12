@@ -87,6 +87,8 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
   const sourceLabel = useMemo(() => context?.sourceTitle || form.sourceContext || '', [context?.sourceTitle, form.sourceContext]);
 
   const isParticipationForm = isParticipationSourceType(context?.sourceType);
+  // Championship applications pick one of the championship's key directions (from the CMS).
+  const directions = context?.sourceType === 'championship' ? context.directions ?? [] : [];
 
   const setField = <K extends keyof ApplicationForm>(key: K, value: ApplicationForm[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -119,6 +121,7 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
     const age = Number(form.age);
     if (!form.age.trim() || Number.isNaN(age) || age < 10 || age > 24) nextErrors.push(t('ui.championshippage.7b04173c40'));
     if (!form.country.trim()) nextErrors.push(t('ui.app.92ca287f55'));
+    if (directions.length && form.championshipDirectionIndex === undefined) nextErrors.push(t('ui.applicationmodal.directionRequired'));
     if (!form.shortBio.trim()) nextErrors.push(t('ui.findteampage.bioRequired', { defaultValue: 'Add a short bio' }));
     if (!isParticipationForm && !form.whyLooking.trim()) nextErrors.push(t('ui.findteampage.whyRequired', { defaultValue: 'Explain why you are looking for a team' }));
     if (!isParticipationForm && !form.targetRoles.length) nextErrors.push(t('ui.findteampage.rolesRequired', { defaultValue: 'Choose a role' }));
@@ -205,6 +208,23 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
           <input value={form.city} onChange={(event) => setField('city', event.target.value)} className={FIELD_CLASS} />
         </label>
       </div>
+
+      {directions.length > 0 && (
+        <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
+          {t('ui.applicationmodal.directionLabel')}*
+          <select
+            value={form.championshipDirectionIndex ?? ''}
+            onChange={(event) => setField('championshipDirectionIndex', event.target.value === '' ? undefined : Number(event.target.value))}
+            className={`${FIELD_CLASS} normal-case tracking-normal font-sans ${form.championshipDirectionIndex === undefined ? 'text-brand-slate/60' : ''}`}
+            required
+          >
+            <option value="" disabled>{t('ui.applicationmodal.directionPlaceholder')}</option>
+            {directions.map((direction, index) => (
+              <option key={`${index}-${direction}`} value={index}>{direction}</option>
+            ))}
+          </select>
+        </label>
+      )}
 
       <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
         {t('ui.findteampage.53fa567ce7')}*

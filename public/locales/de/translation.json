@@ -376,6 +376,9 @@
     "applicationmodal": {
       "emailLabel": "E-Mail",
       "skillsPlaceholder": "React, Design, Forschung",
+      "directionLabel": "Richtung der Meisterschaft",
+      "directionPlaceholder": "Richtung wählen",
+      "directionRequired": "Wählen Sie eine Richtung der Meisterschaft",
       "interestsPlaceholder": "Urbanistik, Technik, soziale Projekte",
       "portfolioPlaceholder": "Behance, GitHub, Google Drive…",
       "bc84a155": "MB",
@@ -510,6 +513,7 @@
       "4ec991f17a": "Bewerbungsschluss",
       "593bb47761": "Bis 23:59 Uhr Moskauer Zeit",
       "a7fbd7c9e4": "Teamzusammensetzung",
+      "seatsLabel": "Plätze in der Auswahl",
       "0df738a56f": "1–5 Personen",
       "04aa324d68": "Wir helfen Ihnen bei der Suche",
       "4cd7e0a138": "Worum geht es bei der Meisterschaft?",

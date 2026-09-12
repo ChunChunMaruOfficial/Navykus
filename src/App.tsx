@@ -39,6 +39,7 @@ import {
   type SupportedLanguage,
 } from './i18n/languages';
 import { useActiveChampionship } from './hooks/useCmsTournaments';
+import { championshipDirections } from './championship-directions';
 import JuryCards from './components/JuryCards';
 import { useCmsPageTexts } from './hooks/useCmsPageTexts';
 import { ALL_EDITABLE_PAGE_TEXT_PAGES } from './page-texts';
@@ -721,16 +722,8 @@ export default function App() {
                 </div>
                 )}
 
-                <div className="flex flex-wrap gap-2 pt-3">
-                  {nearestTournament.skills.map((skill, sIdx) => (
-                    <span key={`${skill}-${sIdx}`} className="text-xs font-mono font-medium tracking-wide bg-[#bc4638]/8 text-[#bc4638] border border-[#bc4638]/25 px-3 py-1 rounded-full shadow-[0_2px_4px_rgba(188,70,56,0.04)]">
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-4">
-                  <button onClick={() => openApplyModal({ sourceType: 'championship', sourceId: nearestTournament.id, tournamentId: nearestTournament.id, sourceTitle: nearestTournament.title })} className="px-6 py-3 bg-[#bc4638] text-white hover:bg-[#bc4638]/90 text-xs sm:text-sm font-mono tracking-wider rounded-xl transition-all shadow-md shadow-[#bc4638]/15 cursor-pointer text-center font-medium">{t('ui.app.762a52a7bb')}</button>
+                  <button onClick={() => openApplyModal({ sourceType: 'championship', sourceId: nearestTournament.id, tournamentId: nearestTournament.id, sourceTitle: nearestTournament.title, directions: championshipDirections(nearestTournament.themesText) })} className="px-6 py-3 bg-[#bc4638] text-white hover:bg-[#bc4638]/90 text-xs sm:text-sm font-mono tracking-wider rounded-xl transition-all shadow-md shadow-[#bc4638]/15 cursor-pointer text-center font-medium">{t('ui.app.762a52a7bb')}</button>
                   <button onClick={() => { setCurrentPage('championship'); updatePath('championship'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="px-6 py-3 bg-white/40 border border-[#d8d1cc] text-[#5b6472] hover:border-brand-dark/40 text-xs sm:text-sm font-mono tracking-wider rounded-xl transition-all cursor-pointer text-center">{t('ui.app.2f57076dbe')}</button>
                   <button onClick={() => { setCurrentPage('find-team'); updatePath('find-team'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="px-6 py-3 bg-white/40 border border-[#d8d1cc] text-[#5b6472] hover:border-brand-dark/40 text-xs sm:text-sm font-mono tracking-wider rounded-xl transition-all cursor-pointer text-center">{t('ui.app.d13f387e64')}</button>
                 </div>

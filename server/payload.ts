@@ -302,6 +302,9 @@ const ensureDevelopmentSchema = async () => {
   await ensureColumn('team_members', 'moderation_status', "text DEFAULT 'pending' NOT NULL");
   await ensureColumn('team_members', 'moderation_comment', 'text');
   await ensureColumn('team_members', 'reviewed_at', 'text');
+  // Key direction of the championship chosen in the application form.
+  await ensureColumn('team_members', 'championship_direction', 'text');
+  await ensureColumn('_team_members_v', 'version_championship_direction', 'text');
   await executeSafe(`CREATE TABLE IF NOT EXISTS team_members_rels (
     id integer PRIMARY KEY,
     \`order\` integer,
@@ -815,7 +818,7 @@ const ensurePageTextRows = async () => {
   const localePath = path.join(projectRoot, 'src', 'i18n', 'locales', 'ru', 'translation.json');
   if (!fs.existsSync(localePath)) return;
   const flatLocale = flattenLocaleText(JSON.parse(fs.readFileSync(localePath, 'utf8')), '', { includeArrays: true });
-  const existingRows = (await getSchemaClient().execute('SELECT translation_key, block_name FROM page_texts')).rows as unknown as Array<{ translation_key: string; block_name: string | null }>;
+  const existingRows = (await getSchemaClient().execute('SELECT page, translation_key, block_name FROM page_texts')).rows as unknown as Array<{ page: string | null; translation_key: string; block_name: string | null }>;
   const existing = new Set(existingRows.map((row) => row.translation_key));
   const archivedKeys = new Set(existingRows.filter((row) => row.block_name === ARCHIVE_BLOCK).map((row) => row.translation_key));
   const blockNameFor = (page: string, key: string) => {
@@ -828,6 +831,41 @@ const ensurePageTextRows = async () => {
           ? 'Политика конфиденциальности'
           : PAGE_TEXT_KEY_INFO[key]?.page === page ? PAGE_TEXT_KEY_INFO[key].blockName : PAGE_FALLBACK_BLOCK[page];
   };
+
+  // Rows created before block names existed have none (or an automatic «… — Прочее»):
+  // «Дерево текстов» piled them all into one block, so e.g. the texts of «Наша миссия» could not
+  // be found under their block. Such rows get the block of the site section the text is in; names
+  // an editor typed in the tree are kept (only a different letter case is aligned).
+  const blockFixes = existingRows.flatMap((row) => {
+    if (!row.page || !row.translation_key) return [];
+    const current = String(row.block_name ?? '').trim();
+    const target = blockNameFor(row.page, row.translation_key) || PAGE_FALLBACK_BLOCK[row.page];
+    if (!target || current === target || current === ARCHIVE_BLOCK) return [];
+    const isAutomatic = !current || current.endsWith('— Прочее') || current.toLowerCase() === target.toLowerCase();
+    if (!isAutomatic) return [];
+    return [{
+      sql: 'UPDATE page_texts SET block_name = ? WHERE translation_key = ? AND page = ?',
+      args: [target, row.translation_key, row.page],
+    }];
+  });
+  if (blockFixes.length) await getSchemaClient().batch(blockFixes, 'write');
+
+  // The quote of «Наша миссия» was emptied («Скрыть на сайте») and the editors could not find the
+  // row to bring it back (it sat in «Прочее», see above). Restore the built-in text once.
+  await runOnce('restore-about-mission-quote', async () => {
+    const key = 'ui.aboutprojectpage.3841022721';
+    const value = flatLocale[key];
+    if (typeof value !== 'string' || !value.trim()) return;
+    const restored = await getSchemaClient().execute({
+      sql: `UPDATE page_texts SET value = ?, updated_at = ${nowSql} WHERE translation_key = ? AND COALESCE(TRIM(value), '') = ''`,
+      args: [value, key],
+    });
+    if (restored.rowsAffected && await hasTable('content_localizations')) {
+      await executeSafe(`UPDATE content_localizations SET translation_status = 'pending', attempts = 0, error_message = ''
+        WHERE source_collection = 'page-texts'
+          AND source_id IN (SELECT CAST(id AS TEXT) FROM page_texts WHERE translation_key = '${key}');`);
+    }
+  });
   for (const { value: page } of EDITABLE_PAGE_TEXT_PAGES) {
     for (const key of getEditablePageTextKeys(page, flatLocale)) {
       if (archivedKeys.has(key)) {

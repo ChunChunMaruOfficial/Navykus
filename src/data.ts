@@ -11,7 +11,8 @@ import type {
 
 const data = ru.data;
 
-export const TOURNAMENTS = data.tournaments as Tournament[];
+// Seed data only: the locale copy still carries the removed «skills» tags.
+export const TOURNAMENTS = data.tournaments as unknown as Tournament[];
 export const PILLARS = data.pillars as Pillar[];
 export const EXPERTS = data.experts as Expert[];
 export const SCENARIOS = data.scenarios as ParticipationScenario[];

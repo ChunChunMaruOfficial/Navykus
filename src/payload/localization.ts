@@ -94,7 +94,7 @@ const LOCALIZATION_CONFIGS: Record<SupportedContentCollection, LocalizationConfi
   tournaments: {
     collection: 'tournaments',
     sourceLanguageField: 'originalLanguage',
-    fields: ['title', 'type', 'description', 'pitch', 'aboutHeading', 'date', 'registrationDeadline', 'skills', 'suitableFor', 'format', 'ageLimit', 'teamsAllowed', 'language', 'expectedResult', 'themesText', 'evaluationCriteriaText', 'seoTitle', 'seoDescription', 'juryMembers'],
+    fields: ['title', 'type', 'description', 'pitch', 'aboutHeading', 'date', 'registrationDeadline', 'suitableFor', 'format', 'ageLimit', 'teamsAllowed', 'language', 'expectedResult', 'themesText', 'evaluationCriteriaText', 'seoTitle', 'seoDescription', 'juryMembers'],
   },
   'page-texts': {
     collection: 'page-texts',

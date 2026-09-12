@@ -368,6 +368,9 @@
     "applicationmodal": {
       "emailLabel": "Email",
       "skillsPlaceholder": "React, дизайн, исследования",
+      "directionLabel": "Направление чемпионата",
+      "directionPlaceholder": "Выберите направление",
+      "directionRequired": "Выберите направление чемпионата",
       "interestsPlaceholder": "урбанистика, технологии, социальные проекты",
       "portfolioPlaceholder": "Behance, GitHub, Google Диск…",
       "bc84a155": "MB",
@@ -502,6 +505,7 @@
       "4ec991f17a": "Дедлайн заявок",
       "593bb47761": "До 23:59 по МСК",
       "a7fbd7c9e4": "Состав команды",
+      "seatsLabel": "Мест в отборе",
       "0df738a56f": "1–5 человек",
       "04aa324d68": "Поможем найти",
       "4cd7e0a138": "О ЧЁМ ЧЕМПИОНАТ",

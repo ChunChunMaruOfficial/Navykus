@@ -24,6 +24,7 @@ type ModerationItem = {
   portfolioLink?: string | null;
   sourceType?: string | null;
   sourceContext?: string | null;
+  championshipDirection?: string | null;
   originalLanguage?: string | null;
   moderationStatus?: string | null;
   moderationComment?: string | null;
@@ -325,6 +326,7 @@ const TeamMembersModerationView = () => {
               <div>Город: <strong>{item.city || '—'}</strong></div>
               <div>Контакт: <strong>{item.contact || '—'}</strong> ({item.contactType || '—'})</div>
               <div>Источник: <strong>{source}</strong>{item.sourceContext ? ` — ${item.sourceContext}` : ''}</div>
+              {item.championshipDirection && <div>Направление: <strong>{item.championshipDirection}</strong></div>}
               <div>Создана: <strong>{formatDate(item.createdAt)}</strong></div>
               {item.reviewedAt && <div>Проверена: <strong>{formatDate(item.reviewedAt)}</strong></div>}
             </div>

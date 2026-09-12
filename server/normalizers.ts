@@ -54,7 +54,6 @@ export const normalizeTournament = (doc: any): Tournament => ({
   description: doc.description,
   pitch: doc.pitch,
   aboutHeading: doc.aboutHeading || undefined,
-  skills: listValues(doc.skills),
   mentors: listValues(doc.mentors),
   maxParticipants: Number(doc.maxParticipants || 0),
   suitableFor: doc.suitableFor,

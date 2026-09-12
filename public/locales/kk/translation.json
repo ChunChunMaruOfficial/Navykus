@@ -376,6 +376,9 @@
     "applicationmodal": {
       "emailLabel": "Email",
       "skillsPlaceholder": "React, дизайн, зерттеу",
+      "directionLabel": "Чемпионат бағыты",
+      "directionPlaceholder": "Бағытты таңдаңыз",
+      "directionRequired": "Чемпионат бағытын таңдаңыз",
       "interestsPlaceholder": "урбанистика, технология, әлеуметтік жобалар",
       "portfolioPlaceholder": "Behance, GitHub, Google Drive…",
       "bc84a155": "MB",
@@ -510,6 +513,7 @@
       "4ec991f17a": "Өтінім беру мерзімі",
       "593bb47761": "Мәскеу уақытымен 23:59-ға дейін",
       "a7fbd7c9e4": "Команда құрамы",
+      "seatsLabel": "Іріктеудегі орындар",
       "0df738a56f": "1-5 адам",
       "04aa324d68": "Біз сізге табуға көмектесеміз",
       "4cd7e0a138": "ЧЕМПИОНАТ НЕ ТУРАЛЫ?",

@@ -376,6 +376,9 @@
     "applicationmodal": {
       "emailLabel": "Email",
       "skillsPlaceholder": "React, dizayn, tadqiqot",
+      "directionLabel": "Chempionat yoʻnalishi",
+      "directionPlaceholder": "Yoʻnalishni tanlang",
+      "directionRequired": "Chempionat yoʻnalishini tanlang",
       "interestsPlaceholder": "urbanistika, texnologiya, ijtimoiy loyihalar",
       "portfolioPlaceholder": "Behance, GitHub, Google Drive…",
       "bc84a155": "MB",
@@ -510,6 +513,7 @@
       "4ec991f17a": "Ariza topshirish muddati",
       "593bb47761": "Moskva vaqti bilan 23:59 gacha",
       "a7fbd7c9e4": "Jamoa tarkibi",
+      "seatsLabel": "Saralashdagi oʻrinlar",
       "0df738a56f": "1-5 kishi",
       "04aa324d68": "Biz sizga topishga yordam beramiz",
       "4cd7e0a138": "CHEMPIONAT NIMA HAQIDA?",

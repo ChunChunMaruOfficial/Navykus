@@ -8,7 +8,6 @@ export interface Tournament {
   pitch?: string;
   /** Heading of the «О чемпионате» block. */
   aboutHeading?: string;
-  skills: string[];
   mentors: string[];
   maxParticipants: number;
   suitableFor?: string;
@@ -60,6 +59,8 @@ export interface ApplicationForm {
   sourceType?: 'modal' | 'championship' | 'event' | 'opportunity' | 'find-team' | 'home' | 'about' | 'activities';
   sourceId?: string;
   tournamentId?: string;
+  /** Index of the chosen key direction of the championship (a line of its «Темы кейса»). */
+  championshipDirectionIndex?: number;
   portfolioFiles?: File[];
   privacyConsent: boolean;
 }
@@ -69,6 +70,8 @@ export type TeamApplicationContext = {
   sourceTitle?: string;
   sourceId?: string;
   tournamentId?: string;
+  /** Key directions of the championship (in the visitor's language); the form offers them in a select. */
+  directions?: string[];
 };
 
 export interface Ticket {

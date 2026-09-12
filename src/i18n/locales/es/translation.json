@@ -376,6 +376,9 @@
     "applicationmodal": {
       "emailLabel": "Correo electrónico",
       "skillsPlaceholder": "React, diseño, investigación",
+      "directionLabel": "Dirección del campeonato",
+      "directionPlaceholder": "Elige una dirección",
+      "directionRequired": "Elige una dirección del campeonato",
       "interestsPlaceholder": "urbanismo, tecnología, proyectos sociales",
       "portfolioPlaceholder": "Behance, GitHub, Google Drive…",
       "bc84a155": "MB",
@@ -510,6 +513,7 @@
       "4ec991f17a": "Fecha límite de solicitud",
       "593bb47761": "Hasta las 23:59 hora de Moscú",
       "a7fbd7c9e4": "Composición del equipo",
+      "seatsLabel": "Plazas en la selección",
       "0df738a56f": "1 a 5 personas",
       "04aa324d68": "Te ayudaremos a encontrar",
       "4cd7e0a138": "¿DE QUÉ SE TRATA EL CAMPEONATO?",

@@ -113,7 +113,7 @@ export const Tournaments: CollectionConfig = {
         },
         {
           label: 'Карточки фактов',
-          description: 'Шесть карточек под шапкой страницы чемпионата. Пустое поле — карточка скрыта или показывает прочерк.',
+          description: 'Карточки под шапкой страницы чемпионата. Пустое поле (или 0 мест) — карточка скрыта.',
           fields: [
             {
               type: 'row',
@@ -130,6 +130,7 @@ export const Tournaments: CollectionConfig = {
                 { name: 'teamsAllowed', label: 'Состав команды', type: 'text', admin: { width: '33%', placeholder: '1–5 человек' } },
               ],
             },
+            { name: 'maxParticipants', label: 'Мест в отборе', type: 'number', required: true, defaultValue: 0, min: 0, admin: { step: 1, placeholder: '120', description: 'Просто число. Карточка «Мест в отборе» на странице чемпионата и колонка в карточке на главной. 0 — не показывается.' } },
           ],
         },
         {
@@ -139,19 +140,17 @@ export const Tournaments: CollectionConfig = {
             { name: 'aboutHeading', label: 'Заголовок блока', type: 'text', admin: { placeholder: 'Разберитесь в реальных вызовах экологии и урбанистики', description: 'Если пусто — показывается название чемпионата.' } },
             { name: 'description', label: 'Описание', type: 'textarea', required: true, admin: { rows: 8, description: 'Основной текст о чемпионате. Также показывается в карточке на главной.' } },
             imageField('aboutImage', 'Фото блока', 'Слева от описания, пропорции примерно 16:10. Если пусто — фото из «Дерева медиа».'),
-            { ...newlineListField('themesText', 'Темы кейса'), admin: { rows: 5, description: 'Одна тема на строку. Каждая строка — отдельная пронумерованная карточка.' } } as Field,
+            { ...newlineListField('themesText', 'Темы кейса'), admin: { rows: 5, description: 'Ключевые направления: одно на строку. Каждая строка — отдельная пронумерованная карточка и вариант в поле «Направление» анкеты участника.' } } as Field,
             { ...newlineListField('evaluationCriteriaText', 'Что оценивает жюри'), admin: { rows: 5, description: 'Один критерий на строку.' } } as Field,
             { name: 'expectedResult', label: 'Ожидаемый результат', type: 'textarea', admin: { rows: 3, description: 'Блок «Ожидаемый результат». Пустое поле скрывает блок.' } },
           ],
         },
         {
           label: 'Карточка на главной',
-          description: 'Блок «Ближайшее мероприятие» на главной странице. Название, описание и даты берутся из других вкладок.',
+          description: 'Блок «Ближайшее мероприятие» на главной странице. Название, описание, даты и число мест берутся из других вкладок.',
           fields: [
             imageField('coverImage', 'Обложка', 'Широкая полоса сверху карточки (примерно 32:7). Если пусто — фото из «Дерева медиа».'),
             { name: 'suitableFor', label: 'Кому подходит', type: 'textarea', admin: { rows: 3, description: 'Колонка «Кому подходит». Пустое поле скрывает колонку.' } },
-            { name: 'maxParticipants', label: 'Мест в отборе', type: 'number', required: true, defaultValue: 0, min: 0, admin: { description: 'Колонка «Осталось мест». 0 — колонка скрыта.' } },
-            { ...textListField('skills', 'Навыки (теги)'), admin: { description: 'Теги внизу карточки на главной. Если на странице чемпионата не заполнены «Темы кейса», показываются они.' } } as Field,
             { name: 'type', label: 'Тип чемпионата', type: 'text', required: true, defaultValue: 'Кейс-чемпионат', admin: { description: 'Например «Кейс-чемпионат». Используется в фильтре на странице «Поиск команды».' } },
           ],
         },

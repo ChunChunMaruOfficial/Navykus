@@ -376,6 +376,9 @@
     "applicationmodal": {
       "emailLabel": "E-posta",
       "skillsPlaceholder": "React, tasarım, araştırma",
+      "directionLabel": "Şampiyona yönü",
+      "directionPlaceholder": "Bir yön seçin",
+      "directionRequired": "Bir şampiyona yönü seçin",
       "interestsPlaceholder": "şehircilik, teknoloji, sosyal projeler",
       "portfolioPlaceholder": "Behance, GitHub, Google Drive…",
       "bc84a155": "MB",
@@ -510,6 +513,7 @@
       "4ec991f17a": "Son başvuru tarihi",
       "593bb47761": "Moskova saatiyle 23:59'a kadar",
       "a7fbd7c9e4": "Takım bileşimi",
+      "seatsLabel": "Seçimdeki kontenjan",
       "0df738a56f": "1-5 kişi",
       "04aa324d68": "Bulmanıza yardımcı olacağız",
       "4cd7e0a138": "ŞAMPİYONLUK NE KONUSUNDA?",

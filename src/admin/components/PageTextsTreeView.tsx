@@ -31,6 +31,10 @@ const PAGE_LABELS: Record<string, string> = {
 
 const FAVORITE_PAGES = ['global', 'home', 'about', 'championship', 'activities', 'find-team', 'legal'];
 
+// A row without its own block name goes to the block the text belongs to on the site, not «Прочее».
+const blockOf = (r: PageTextRecord) =>
+  r.blockName?.trim() || PAGE_TEXT_KEY_INFO[r.translationKey]?.blockName || 'Прочее';
+
 const PageTextsTreeView = () => {
   const { token } = useAuth();
   const [records, setRecords] = useState<PageTextRecord[]>([]);
@@ -100,7 +104,7 @@ const PageTextsTreeView = () => {
     const byPageThenBlock: Record<string, Record<string, PageTextRecord[]>> = {};
     for (const r of records) {
       const page = r.page || 'global';
-      const block = r.blockName || 'Прочее';
+      const block = blockOf(r);
       byPageThenBlock[page] = byPageThenBlock[page] || {};
       byPageThenBlock[page][block] = byPageThenBlock[page][block] || [];
       byPageThenBlock[page][block].push(r);
@@ -148,7 +152,7 @@ const PageTextsTreeView = () => {
       const haystack = `${r.value || ''} ${r.translationKey || ''} ${r.label || ''} ${r.blockName || ''}`.toLowerCase();
       if (haystack.includes(normalizedQuery)) {
         const page = r.page || 'global';
-        const block = r.blockName || 'Прочее';
+        const block = blockOf(r);
         matches.set(String(r.id), { page, block, record: r });
       }
     }
@@ -184,7 +188,7 @@ const PageTextsTreeView = () => {
   const startEdit = (r: PageTextRecord) => {
     setEditingId(r.id);
     setDraftValue(r.value || '');
-    setDraftBlockName(r.blockName || '');
+    setDraftBlockName(r.blockName?.trim() || PAGE_TEXT_KEY_INFO[r.translationKey]?.blockName || '');
   };
   const cancelEdit = () => {
     setEditingId(null);

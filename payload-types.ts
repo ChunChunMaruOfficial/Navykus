@@ -262,7 +262,11 @@ export interface Tournament {
   language?: string | null;
   teamsAllowed?: string | null;
   /**
-   * Если пусто — используется стандартный заголовок из «Дерева текстов».
+   * Просто число. Карточка «Мест в отборе» на странице чемпионата и колонка в карточке на главной. 0 — не показывается.
+   */
+  maxParticipants: number;
+  /**
+   * Если пусто — показывается название чемпионата.
    */
   aboutHeading?: string | null;
   /**
@@ -274,7 +278,7 @@ export interface Tournament {
    */
   aboutImage?: (number | null) | Media;
   /**
-   * Одна тема на строку. Каждая строка — отдельная пронумерованная карточка.
+   * Ключевые направления: одно на строку. Каждая строка — отдельная пронумерованная карточка и вариант в поле «Направление» анкеты участника.
    */
   themesText?: string | null;
   /**
@@ -293,19 +297,6 @@ export interface Tournament {
    * Колонка «Кому подходит». Пустое поле скрывает колонку.
    */
   suitableFor?: string | null;
-  /**
-   * Колонка «Осталось мест». 0 — колонка скрыта.
-   */
-  maxParticipants: number;
-  /**
-   * Теги внизу карточки на главной. Если на странице чемпионата не заполнены «Темы кейса», показываются они.
-   */
-  skills?:
-    | {
-        value: string;
-        id?: string | null;
-      }[]
-    | null;
   /**
    * Например «Кейс-чемпионат». Используется в фильтре на странице «Поиск команды».
    */
@@ -750,6 +741,10 @@ export interface TeamMember {
    * К какому чемпионату привязана заявка
    */
   tournamentId?: (number | null) | Tournament;
+  /**
+   * Ключевое направление, выбранное в анкете (строка из «Темы кейса» чемпионата на момент подачи).
+   */
+  championshipDirection?: string | null;
   seoTitle?: string | null;
   seoDescription?: string | null;
   updatedAt: string;
@@ -1126,6 +1121,7 @@ export interface TournamentsSelect<T extends boolean = true> {
   ageLimit?: T;
   language?: T;
   teamsAllowed?: T;
+  maxParticipants?: T;
   aboutHeading?: T;
   description?: T;
   aboutImage?: T;
@@ -1134,13 +1130,6 @@ export interface TournamentsSelect<T extends boolean = true> {
   expectedResult?: T;
   coverImage?: T;
   suitableFor?: T;
-  maxParticipants?: T;
-  skills?:
-    | T
-    | {
-        value?: T;
-        id?: T;
-      };
   type?: T;
   juryMembers?:
     | T
@@ -1409,6 +1398,7 @@ export interface TeamMembersSelect<T extends boolean = true> {
   sourceId?: T;
   sourceContext?: T;
   tournamentId?: T;
+  championshipDirection?: T;
   seoTitle?: T;
   seoDescription?: T;
   updatedAt?: T;

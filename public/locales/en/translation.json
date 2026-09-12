@@ -368,6 +368,9 @@
     "applicationmodal": {
       "emailLabel": "Email",
       "skillsPlaceholder": "React, design, research",
+      "directionLabel": "Championship track",
+      "directionPlaceholder": "Choose a track",
+      "directionRequired": "Choose a championship track",
       "interestsPlaceholder": "urbanism, tech, social projects",
       "portfolioPlaceholder": "Behance, GitHub, Google Drive…",
       "bc84a155": "MB",
@@ -502,6 +505,7 @@
       "4ec991f17a": "Application deadline",
       "593bb47761": "Until 23:59 Moscow time",
       "a7fbd7c9e4": "Team composition",
+      "seatsLabel": "Selection spots",
       "0df738a56f": "1–5 people",
       "04aa324d68": "We'll help you find",
       "4cd7e0a138": "WHAT IS THE CHAMPIONSHIP ABOUT?",
