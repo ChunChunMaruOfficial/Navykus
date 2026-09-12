@@ -42,6 +42,7 @@ import {
 } from '../motion-animations';
 import type { SupportedLanguage } from '../i18n/languages';
 import { useCmsOpportunities } from '../hooks/useCmsOpportunities';
+import useModalBehavior from '../hooks/useModalBehavior';
 import { toExternalUrl } from '../api';
 import BrandImage from './BrandImage';
 
@@ -1035,11 +1036,6 @@ export default function OpportunitiesPage({
     });
   }, [allOpportunities, debouncedQuery, filters, language, sortBy]);
 
-  const recommended = useMemo(
-    () => allOpportunities.filter((opportunity) => opportunity.recommended).slice(0, 4),
-    [allOpportunities],
-  );
-
   const urgent = useMemo(
     () => allOpportunities.filter((opportunity) => {
       const days = getDaysLeft(opportunity.deadline);
@@ -1233,12 +1229,15 @@ export default function OpportunitiesPage({
             <div className="text-xs font-mono uppercase tracking-widest text-brand-slate" aria-live="polite">
               <strong className="text-brand-dark">{filtered.length}</strong> {pick(UI.results, language)}
             </div>
-            <SelectField label={pick(UI.sort, language)} value={sortBy} onChange={(value) => { setSortBy(value as SortId); syncFiltersToUrl(filters, value as SortId); }} options={[
-              { value: 'recommended', label: pick(UI.recommended, language) },
-              { value: 'deadline', label: pick(UI.deadline, language) },
-              { value: 'newest', label: pick(UI.newest, language) },
-              { value: 'popular', label: pick(UI.popular, language) },
-            ]} />
+            <div className="flex items-end gap-2">
+              {compare.length > 0 && renderHeaderActions()}
+              <SelectField label={pick(UI.sort, language)} value={sortBy} onChange={(value) => { setSortBy(value as SortId); syncFiltersToUrl(filters, value as SortId); }} options={[
+                { value: 'recommended', label: pick(UI.recommended, language) },
+                { value: 'deadline', label: pick(UI.deadline, language) },
+                { value: 'newest', label: pick(UI.newest, language) },
+                { value: 'popular', label: pick(UI.popular, language) },
+              ]} />
+            </div>
           </div>
           {isLoading || cmsOpportunitiesLoading ? (
             <SkeletonGrid />
@@ -1267,28 +1266,6 @@ export default function OpportunitiesPage({
           )}
         </div>
       </section>
-
-      {recommended.length > 0 && (
-        <section className={`${catalogSectionClass} py-8`}>
-          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-2xl font-serif font-semibold text-brand-dark">{pick(UI.recommended, language)}</h2>
-            {renderHeaderActions()}
-          </div>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {recommended.map((opportunity) => (
-              <button
-                key={opportunity.id} data-preview-id={opportunity.id} onClick={() => openOpportunityDetails(opportunity)} className="rounded-2xl border border-white/60 bg-white/40 p-4 text-left surface-elevated-soft backdrop-blur-md transition-transform hover:-translate-y-0.5"
-              >
-                <span className="mb-3 inline-flex rounded-full bg-[#bc4638]/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#8d3026]">
-                  {getSourceLabel(opportunity.source, language)}
-                </span>
-                <h3 className="text-base font-serif font-semibold leading-tight text-brand-dark">{pick(opportunity.title, language)}</h3>
-                <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-brand-slate">{pick(opportunity.summary, language)}</p>
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
 
     </>
   );
@@ -1426,18 +1403,7 @@ function OpportunityDetailsModal({
   language: SupportedLanguage;
   onClose: () => void;
 }) {
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [onClose]);
+  useModalBehavior(onClose);
 
   const detailExternalUrl = toExternalUrl(opportunity.externalUrl);
 

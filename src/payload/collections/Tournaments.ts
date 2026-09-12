@@ -136,7 +136,7 @@ export const Tournaments: CollectionConfig = {
           label: 'О чемпионате',
           description: 'Большой блок «О чемпионате» на странице чемпионата.',
           fields: [
-            { name: 'aboutHeading', label: 'Заголовок блока', type: 'text', admin: { placeholder: 'Разберитесь в реальных вызовах экологии и урбанистики', description: 'Если пусто — используется стандартный заголовок из «Дерева текстов».' } },
+            { name: 'aboutHeading', label: 'Заголовок блока', type: 'text', admin: { placeholder: 'Разберитесь в реальных вызовах экологии и урбанистики', description: 'Если пусто — показывается название чемпионата.' } },
             { name: 'description', label: 'Описание', type: 'textarea', required: true, admin: { rows: 8, description: 'Основной текст о чемпионате. Также показывается в карточке на главной.' } },
             imageField('aboutImage', 'Фото блока', 'Слева от описания, пропорции примерно 16:10. Если пусто — фото из «Дерева медиа».'),
             { ...newlineListField('themesText', 'Темы кейса'), admin: { rows: 5, description: 'Одна тема на строку. Каждая строка — отдельная пронумерованная карточка.' } } as Field,

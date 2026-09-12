@@ -41,6 +41,7 @@ const heroFadeUpLarge = {
 import { useCmsFaqs } from '../hooks/useCmsFaqs';
 import { useCmsTeamMembers } from '../hooks/useCmsTeamMembers';
 import { useCmsTournaments } from '../hooks/useCmsTournaments';
+import useModalBehavior from '../hooks/useModalBehavior';
 import type { TeamApplicationContext, TeamMember, TeamRole, TeamIntent } from '../types';
 import TeamMemberApplicationForm from './TeamMemberApplicationForm';
 
@@ -214,6 +215,7 @@ function DetailedProfileModal({
 }) {
   const { t } = useTranslation();
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  useModalBehavior(onClose);
 
   useEffect(() => {
     if (!toastMessage) return;
@@ -566,6 +568,7 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
 
 function TeamProfileModal({ onClose }: { onClose: () => void }) {
   const { t } = useTranslation();
+  useModalBehavior(onClose);
 
   return (
     <AnimatePresence>
@@ -597,6 +600,16 @@ function TeamProfileModal({ onClose }: { onClose: () => void }) {
     </AnimatePresence>
   );
 }
+
+/** «участник / участника / участников» (and the other languages' singular/plural) for a count. */
+const participantsWordKey = (count: number, language: string) => {
+  let rule = 'other';
+  try { rule = new Intl.PluralRules(language).select(count); } catch { /* unknown locale */ }
+  if (rule === 'one') return 'ui.findteampage.762a11aca5';
+  if (rule === 'few') return 'ui.findteampage.1e5680932c';
+  return 'ui.findteampage.eef8a6796e';
+};
+
 export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
   const { t, i18n } = useTranslation();
   const tournaments = useCmsTournaments();
@@ -1234,10 +1247,10 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
         <section id="profiles-section" className="relative z-10 pt-2 md:pt-2 pb-8 md:pb-12 max-w-7xl mx-auto px-[6%] md:px-[10%]">
           {/* Results count */}
           <div className="mb-6 flex items-center justify-between">
-            <span className="text-xs font-mono text-brand-slate">{t('ui.findteampage.b62712adf3')}<strong className="text-brand-dark">{filteredMembers.length}</strong>
-              {filteredMembers.length === 1 && t('ui.findteampage.762a11aca5')}
-              {filteredMembers.length >= 2 && filteredMembers.length <= 4 && t('ui.findteampage.1e5680932c')}
-              {filteredMembers.length >= 5 && t('ui.findteampage.eef8a6796e')}
+            <span className="text-xs font-mono text-brand-slate">
+              {t('ui.findteampage.b62712adf3')}{' '}
+              <strong className="text-brand-dark">{filteredMembers.length}</strong>{' '}
+              {t(participantsWordKey(filteredMembers.length, i18n.resolvedLanguage || i18n.language))}
             </span>
           </div>
 
@@ -1338,7 +1351,11 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
         <DetailedProfileModal
           member={selectedProfile}
           onClose={() => setSelectedProfile(null)}
-          onOpenApplyModal={onOpenApplyModal}
+          onOpenApplyModal={() => {
+            // Close the profile first: two stacked popups scrolled and blurred each other.
+            setSelectedProfile(null);
+            onOpenApplyModal();
+          }}
           onContacted={markContacted}
         />
       )}

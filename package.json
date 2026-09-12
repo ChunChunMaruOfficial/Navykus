@@ -24,6 +24,7 @@
     "locales:sync": "tsx scripts/sync-locales-cli.ts",
     "smtp:check": "node scripts/check-smtp.cjs",
     "gen:pagetext-blocks": "node scripts/generate-page-text-blocks.mjs",
+    "gen:pagetext-usage": "tsx scripts/generate-page-text-usage.mjs",
     "admin:reset-primary": "tsx scripts/reset-primary-admin-password.ts"
   },
   "dependencies": {

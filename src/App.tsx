@@ -241,6 +241,18 @@ export default function App() {
     };
   }, [isLangDropdownOpen]);
 
+  // Esc closes the header language list and the mobile menu (popups use useModalBehavior).
+  useEffect(() => {
+    if (!isLangDropdownOpen && !isMobileMenuOpen) return undefined;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || isModalOpen) return;
+      setIsLangDropdownOpen(false);
+      setIsMobileMenuOpen(false);
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isLangDropdownOpen, isMobileMenuOpen, isModalOpen]);
+
   const openApplyModal = (context?: TeamApplicationContext | string) => {
     setApplicationContext(typeof context === 'string' ? { tournamentId: context, sourceId: context, sourceType: 'championship' } : context);
     setIsModalOpen(true);

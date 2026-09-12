@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { Check, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+import useModalBehavior from '../hooks/useModalBehavior';
 import type { TeamApplicationContext } from '../types';
 import TeamMemberApplicationForm from './TeamMemberApplicationForm';
 
@@ -40,26 +41,22 @@ export default function ApplicationModal({ isOpen, onClose, context }: Applicati
     return () => window.clearTimeout(timer);
   }, [showNotice]);
 
+  useModalBehavior(onClose, isOpen);
+
   useEffect(() => {
     if (!isOpen) return;
 
     previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
 
     window.setTimeout(() => {
       const firstFocusable = modalRef.current?.querySelector<HTMLElement>(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
       );
-      firstFocusable?.focus();
+      firstFocusable?.focus({ preventScroll: true });
     }, 0);
 
+    // Keeps keyboard focus inside the popup.
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-        return;
-      }
-
       if (event.key !== 'Tab' || !modalRef.current) return;
       const focusable = Array.from(
         modalRef.current.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'),
@@ -82,22 +79,22 @@ export default function ApplicationModal({ isOpen, onClose, context }: Applicati
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = previousOverflow;
-      previousFocusRef.current?.focus();
+      previousFocusRef.current?.focus({ preventScroll: true });
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <div key="application-modal" id="modal-portal" className="fixed inset-0 z-50 flex justify-center overflow-y-auto p-4">
+        <div key="application-modal" id="modal-portal" className="fixed inset-0 z-50 flex justify-center overflow-y-auto overscroll-contain p-4">
+          {/* `fixed`, not `absolute`: the backdrop must stay put while the tall form scrolls. */}
           <motion.div
             id="modal-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-brand-dark/20 backdrop-blur-md"
+            className="fixed inset-0 bg-brand-dark/20 backdrop-blur-md"
           />
 
           <motion.div

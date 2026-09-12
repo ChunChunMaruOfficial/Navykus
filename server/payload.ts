@@ -539,8 +539,6 @@ const syncCmsTextFixes = async () => {
   // --- Тексты страницы «О проекте», которых не было в дереве «Тексты страниц» -
   const aboutRows: Array<[string, string, string]> = [
     ['ui.aboutprojectpage.faqHeading', 'Часто задаваемые вопросы', 'Часто задаваемые вопросы'],
-    ['ui.aboutprojectpage.ctaApply', 'Подать заявку', 'Финальный призыв'],
-    ['ui.aboutprojectpage.ctaFindTeam', 'НАЙТИ КОМАНДУ', 'Финальный призыв'],
   ];
   for (const [key, value, blockName] of aboutRows) {
     await client.execute({
@@ -804,6 +802,8 @@ const PAGE_FALLBACK_BLOCK: Record<string, string> = {
   legal: 'Юридические страницы — Прочее',
 };
 
+const ARCHIVE_BLOCK = 'Архив (не на сайте)';
+
 /**
  * «Дерево текстов» only lists rows of `page_texts`. Every interface text of the site that is
  * editable (see src/page-texts.ts) gets a row here — new texts shipped with the code appear in
@@ -815,23 +815,33 @@ const ensurePageTextRows = async () => {
   const localePath = path.join(projectRoot, 'src', 'i18n', 'locales', 'ru', 'translation.json');
   if (!fs.existsSync(localePath)) return;
   const flatLocale = flattenLocaleText(JSON.parse(fs.readFileSync(localePath, 'utf8')), '', { includeArrays: true });
-  const existing = new Set(
-    ((await getSchemaClient().execute('SELECT translation_key FROM page_texts')).rows as unknown as Array<{ translation_key: string }>)
-      .map((row) => row.translation_key),
-  );
+  const existingRows = (await getSchemaClient().execute('SELECT translation_key, block_name FROM page_texts')).rows as unknown as Array<{ translation_key: string; block_name: string | null }>;
+  const existing = new Set(existingRows.map((row) => row.translation_key));
+  const archivedKeys = new Set(existingRows.filter((row) => row.block_name === ARCHIVE_BLOCK).map((row) => row.translation_key));
+  const blockNameFor = (page: string, key: string) => {
+    const policySection = key.match(/^privacypolicy\.sections\.(\d+)\./)?.[1];
+    return key.startsWith('ui.opportunitiespage.')
+      ? 'Каталог «Возможности»'
+      : policySection !== undefined
+        ? `Политика: ${Number(policySection) + 1}. ${(flatLocale[`privacypolicy.sections.${policySection}.title`] || '').slice(0, 60)}`
+        : key.startsWith('privacypolicy.')
+          ? 'Политика конфиденциальности'
+          : PAGE_TEXT_KEY_INFO[key]?.page === page ? PAGE_TEXT_KEY_INFO[key].blockName : PAGE_FALLBACK_BLOCK[page];
+  };
   for (const { value: page } of EDITABLE_PAGE_TEXT_PAGES) {
     for (const key of getEditablePageTextKeys(page, flatLocale)) {
+      if (archivedKeys.has(key)) {
+        // Rows labelled «Архив (не на сайте)» by an old migration although the site does use them.
+        await getSchemaClient().execute({
+          sql: 'UPDATE page_texts SET block_name = ? WHERE translation_key = ? AND block_name = ?',
+          args: [blockNameFor(page, key) || PAGE_FALLBACK_BLOCK[page], key, ARCHIVE_BLOCK],
+        });
+        archivedKeys.delete(key);
+      }
       if (existing.has(key)) continue;
       const value = flatLocale[key];
       if (typeof value !== 'string' || !value.trim()) continue;
-      const policySection = key.match(/^privacypolicy\.sections\.(\d+)\./)?.[1];
-      const blockName = key.startsWith('ui.opportunitiespage.')
-        ? 'Каталог «Возможности»'
-        : policySection !== undefined
-          ? `Политика: ${Number(policySection) + 1}. ${(flatLocale[`privacypolicy.sections.${policySection}.title`] || '').slice(0, 60)}`
-          : key.startsWith('privacypolicy.')
-            ? 'Политика конфиденциальности'
-            : PAGE_TEXT_KEY_INFO[key]?.page === page ? PAGE_TEXT_KEY_INFO[key].blockName : PAGE_FALLBACK_BLOCK[page];
+      const blockName = blockNameFor(page, key);
       await getSchemaClient().execute({
         sql: `INSERT INTO page_texts (page, translation_key, label, value, block_name, is_published, sort_order, updated_at, created_at)
               VALUES (?, ?, ?, ?, ?, 1, 900, ${nowSql}, ${nowSql})`,

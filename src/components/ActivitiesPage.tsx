@@ -30,6 +30,7 @@ import { ActivityCategory, ActivityItem, ActivityStatus, ParticipationScenario, 
 import { useCmsEvents } from '../hooks/useCmsEvents';
 import { useCmsOpportunities } from '../hooks/useCmsOpportunities';
 import { useCmsPageTexts } from '../hooks/useCmsPageTexts';
+import useModalBehavior from '../hooks/useModalBehavior';
 
 
 type CategoryFilter = ActivityCategory | 'all';
@@ -572,19 +573,7 @@ function ActivityDetailsModal({
       </button>
     );
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [onClose]);
+  useModalBehavior(onClose);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -701,8 +690,6 @@ function ActivityDetailsModal({
               <p>{activity.languages?.join(', ')}</p>
             </DetailBlock>
           )}
-
-          {canRegister && renderParticipateCta("inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-[11px] font-bold uppercase tracking-widest text-white shadow-lg shadow-[#bc4638]/12 transition-all hover:opacity-95")}
         </div>
       </motion.div>
     </div>

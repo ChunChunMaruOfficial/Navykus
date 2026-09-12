@@ -22,7 +22,6 @@ import {
 } from 'lucide-react';
 import {
   fadeUp,
-  fadeInScale,
   heroFadeUp,
   cardStaggerContainer,
   cardItemFadeUp,
@@ -452,31 +451,6 @@ export default function AboutProjectPage({
               </div>
             ))}
           </div>
-        </section>
-
-        {/* 7. FINAL CALL TO ACTION */}
-        <section className="relative z-10 py-16 md:py-24 max-w-5xl mx-auto">
-          <motion.div
-            {...fadeInScale}
-            className="bg-gradient-to-br from-[#bc4638]/8 via-white/[0.12] to-[#bd5b82]/8 glass-xl surface-elevated border border-white/[0.15] rounded-3xl p-8 sm:p-12 text-center space-y-6"
-          >
-            <span className="text-[10px] font-mono tracking-[0.2em] text-[#bc4638] uppercase font-bold">{t('ui.aboutprojectpage.4d545fb6ff')}</span>
-            
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif text-brand-dark tracking-tight leading-tight max-w-2xl mx-auto">
-              {t('ui.aboutprojectpage.d1728b4c')}</h2>
-            <p className="text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed max-w-md mx-auto">{t('ui.aboutprojectpage.7cea9cf73e')}</p>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              <button
-                onClick={onOpenApplyModal}
-                className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white hover:opacity-95 text-xs font-mono tracking-widest rounded-xl transition-all shadow-lg shadow-[#bc4638]/15 cursor-pointer font-bold uppercase"
-              >{t('ui.aboutprojectpage.ctaApply')}</button>
-              <button
-                onClick={() => handleNavigateFromAbout('scenarios')}
-                className="w-full sm:w-auto px-8 py-3.5 bg-white/50 border border-[#d8d1cc] text-[#5b6472] hover:border-[#bc4638]/60 text-xs font-mono tracking-widest rounded-xl transition-all cursor-pointer uppercase font-semibold"
-              >{t('ui.aboutprojectpage.ctaFindTeam')}</button>
-            </div>
-          </motion.div>
         </section>
 
       </div>

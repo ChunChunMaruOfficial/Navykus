@@ -1,4 +1,5 @@
 import type { SupportedLanguage } from './i18n/languages';
+import { UNUSED_PAGE_TEXT_KEYS } from './page-text-unused.generated';
 
 export type EditablePageTextPage = 'global' | 'home' | 'about' | 'championship' | 'activities' | 'find-team' | 'legal';
 
@@ -79,12 +80,7 @@ const ABOUT_PAGE_KEYS = [
   'ui.aboutprojectpage.48d877aa9c',
   'ui.aboutprojectpage.3ba567b6ee',
   'ui.aboutprojectpage.20a478bc7a',
-  'ui.aboutprojectpage.4d545fb6ff',
-  'ui.aboutprojectpage.d1728b4c',
-  'ui.aboutprojectpage.7cea9cf73e',
   'ui.aboutprojectpage.faqHeading',
-  'ui.aboutprojectpage.ctaApply',
-  'ui.aboutprojectpage.ctaFindTeam',
   'ui.enhancements.aboutHeroAlt',
   'ui.enhancements.aboutMissionAlt',
 ] as const;
@@ -150,7 +146,7 @@ export const editablePageTextKeys: Record<EditablePageTextPage, readonly string[
   legal: LEGAL_PAGE_KEYS,
 };
 
-const pageTextKeyMatchers: Record<EditablePageTextPage, readonly ((key: string) => boolean)[]> = {
+export const pageTextKeyMatchers: Record<EditablePageTextPage, readonly ((key: string) => boolean)[]> = {
   global: [
     (key) => key.startsWith('common.'),
     (key) => key.startsWith('languages.'),
@@ -255,7 +251,7 @@ export const getEditablePageTextKeys = (
   );
 
   return Array.from(new Set([...configuredKeys, ...matchedKeys]))
-    .filter((key) => typeof flatLocale[key] === 'string')
+    .filter((key) => typeof flatLocale[key] === 'string' && !UNUSED_PAGE_TEXT_KEYS.has(key))
     .sort((left, right) => {
       const leftIndex = configuredKeys.indexOf(left);
       const rightIndex = configuredKeys.indexOf(right);

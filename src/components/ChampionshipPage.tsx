@@ -153,7 +153,7 @@ export default function ChampionshipPage({
     { key: 'age', label: t('ui.championshippage.e70496e65c'), value: cmsData.ageLimit ? `${t('ui.championshippage.ff03252b22')} ${cmsData.ageLimit}`.trim() : '' },
     { key: 'language', label: t('ui.championshippage.d48444dfb4'), value: cmsData.lang },
     { key: 'deadline', label: t('ui.championshippage.4ec991f17a'), value: cmsData.registrationDeadline, accent: true },
-    { key: 'team', label: t('ui.championshippage.a7fbd7c9e4'), value: cmsData.teamsAllowed || t('ui.championshippage.0df738a56f') },
+    { key: 'team', label: t('ui.championshippage.a7fbd7c9e4'), value: cmsData.teamsAllowed },
   ].filter((card) => card.value);
 
   return (
@@ -274,7 +274,7 @@ export default function ChampionshipPage({
                 />
               </div>
               <div className="lg:col-span-7 space-y-4">
-                <h2 className="text-3xl lg:text-4xl font-serif text-brand-dark leading-tight">{cmsData.aboutHeading || t('ui.championshippage.f30417ddf0')}</h2>
+                <h2 className="text-3xl lg:text-4xl font-serif text-brand-dark leading-tight">{cmsData.aboutHeading || cmsData.title}</h2>
                 <p className="text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed max-w-2xl">
                   {cmsData.description}
                 </p>

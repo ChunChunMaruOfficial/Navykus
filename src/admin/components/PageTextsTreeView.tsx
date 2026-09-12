@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useAuth } from '@payloadcms/ui';
 
+import { UNUSED_PAGE_TEXT_KEYS } from '../../page-text-unused.generated';
 import { PAGE_TEXT_KEY_INFO, PAGE_TEXT_SOURCE_ORDER } from '../pageTextBlockMap';
 
 type PageTextRecord = {
@@ -65,7 +66,14 @@ const PageTextsTreeView = () => {
       const res = await makeRequest('/payload-api/page-texts?pagination=false&depth=0');
       if (!res.ok) throw new Error(`fetch failed ${res.status}`);
       const json = await res.json();
-      const docs = (json.docs as PageTextRecord[]).filter((d) => Boolean(d.translationKey));
+      // Texts the site does not use (mostly old copies of championship / FAQ / jury content that
+      // now lives in the CMS collections) are not shown: that content is edited on its own tab.
+      // Used texts are moved out of the archive block on server start, so it only holds dead rows.
+      const docs = (json.docs as PageTextRecord[]).filter(
+        (d) => Boolean(d.translationKey)
+          && !UNUSED_PAGE_TEXT_KEYS.has(d.translationKey)
+          && d.blockName !== 'Архив (не на сайте)',
+      );
       setRecords(docs);
     } catch (e) {
       setError((e as Error).message || 'load error');
