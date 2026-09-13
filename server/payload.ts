@@ -50,6 +50,15 @@ const ensureColumn = async (table: string, column: string, definition: string) =
   await getSchemaClient().execute(`ALTER TABLE \`${table.replace(/`/g, '``')}\` ADD \`${column.replace(/`/g, '``')}\` ${definition};`);
 };
 
+const dropColumn = async (table: string, column: string) => {
+  const columnRow = await getFirst<{ name?: string }>(
+    `SELECT name FROM pragma_table_info('${table.replace(/'/g, "''")}') WHERE name = ? LIMIT 1`,
+    [column],
+  );
+  if (!columnRow?.name) return;
+  await getSchemaClient().execute(`ALTER TABLE \`${table.replace(/`/g, '``')}\` DROP COLUMN \`${column.replace(/`/g, '``')}\`;`);
+};
+
 const executeSafe = async (query: string) => {
   await getSchemaClient().execute(query);
 };
@@ -203,15 +212,24 @@ const ensureDevelopmentSchema = async () => {
     await executeSafe('CREATE INDEX IF NOT EXISTS _tournaments_v_version_jury_members_parent_id_idx ON _tournaments_v_version_jury_members (_parent_id);');
     await executeSafe('CREATE INDEX IF NOT EXISTS _tournaments_v_version_jury_members_photo_idx ON _tournaments_v_version_jury_members (photo_id);');
   }
-  // Активности и возможности: картинка загружается файлом (раньше — только ссылкой).
+  // Активности: картинка загружается файлом (раньше — только ссылкой).
   await ensureColumn('events', 'image_id', 'integer REFERENCES media(id) ON DELETE set null');
   await executeSafe('CREATE INDEX IF NOT EXISTS events_image_idx ON events (image_id);');
   await ensureColumn('_events_v', 'version_image_id', 'integer REFERENCES media(id) ON DELETE set null');
   await executeSafe('CREATE INDEX IF NOT EXISTS _events_v_version_version_image_idx ON _events_v (version_image_id);');
-  await ensureColumn('opportunities', 'image_id', 'integer REFERENCES media(id) ON DELETE set null');
-  await executeSafe('CREATE INDEX IF NOT EXISTS opportunities_image_idx ON opportunities (image_id);');
-  await ensureColumn('_opportunities_v', 'version_image_id', 'integer REFERENCES media(id) ON DELETE set null');
-  await executeSafe('CREATE INDEX IF NOT EXISTS _opportunities_v_version_version_image_idx ON _opportunities_v (version_image_id);');
+  // «Возможности» have no pictures at all any more: the upload and the legacy picture/logo links are gone.
+  await executeSafe('DROP INDEX IF EXISTS opportunities_image_idx;');
+  await executeSafe('DROP INDEX IF EXISTS _opportunities_v_version_version_image_idx;');
+  for (const [table, column] of [
+    ['opportunities', 'image_id'],
+    ['opportunities', 'image_url'],
+    ['opportunities', 'logo_url'],
+    ['_opportunities_v', 'version_image_id'],
+    ['_opportunities_v', 'version_image_url'],
+    ['_opportunities_v', 'version_logo_url'],
+  ] as const) {
+    await dropColumn(table, column);
+  }
   await ensureColumn('events', 'original_language', "text DEFAULT 'ru'");
   await ensureColumn('events', '_status', "text DEFAULT 'published'");
   await ensureColumn('opportunities', 'original_language', "text DEFAULT 'ru'");
@@ -221,7 +239,6 @@ const ensureDevelopmentSchema = async () => {
   await ensureColumn('opportunities', 'direction', "text DEFAULT 'social'");
   await ensureColumn('opportunities', 'participation', "text DEFAULT 'both'");
   await ensureColumn('opportunities', 'city', 'text');
-  await ensureColumn('opportunities', 'image_url', 'text');
   await ensureColumn('opportunities', 'start_date', 'text');
   await ensureColumn('opportunities', 'final_deadline', 'integer DEFAULT false');
   await ensureColumn('opportunities', 'registration_open', 'integer DEFAULT true');
@@ -248,7 +265,6 @@ const ensureDevelopmentSchema = async () => {
     ['version_direction', "text DEFAULT 'social'"],
     ['version_participation', "text DEFAULT 'both'"],
     ['version_city', 'text'],
-    ['version_image_url', 'text'],
     ['version_start_date', 'text'],
     ['version_final_deadline', 'integer DEFAULT false'],
     ['version_registration_open', 'integer DEFAULT true'],

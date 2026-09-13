@@ -163,8 +163,6 @@ const OPPORTUNITY_SEED = OPPORTUNITIES.map((item) => ({
   participation: item.participation,
   shortDescription: pickRu(item.summary),
   fullDescription: pickRu(item.description),
-  logoUrl: item.imageUrl,
-  imageUrl: item.imageUrl,
   country: pickRu(item.country),
   city: pickRu(item.city),
   format: item.format,
@@ -269,7 +267,7 @@ const ensureOpportunitySeed = async (
 
   const existingDoc = existing.docs[0] as Record<string, unknown> | undefined;
   if (existingDoc) {
-    const missingCardFields = !existingDoc.source || !existingDoc.category || !existingDoc.imageUrl;
+    const missingCardFields = !existingDoc.source || !existingDoc.category;
     if (missingCardFields) {
       await payload.update({
         collection: 'opportunities' as any,

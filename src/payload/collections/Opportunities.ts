@@ -4,7 +4,6 @@ import { adminOrModerator, anyone } from '../access';
 import {
   autoSeoBeforeChange,
   fillNotNullDefaults,
-  imageField,
   publicContentVersions,
   publishedField,
   sortOrderField,
@@ -102,10 +101,6 @@ export const Opportunities: CollectionConfig = {
               ],
             },
             { name: 'shortDescription', label: 'Короткое описание', type: 'textarea', required: true, admin: { rows: 3, description: '1–2 предложения для карточки.' } },
-            imageField('image', 'Картинка', 'Обложка карточки (16:9).'),
-            // Legacy picture links: hidden (pictures are only uploaded as files), still used by the site as a fallback.
-            { name: 'imageUrl', label: 'Картинка по ссылке', type: 'text', admin: { hidden: true } },
-            { name: 'logoUrl', label: 'Логотип по ссылке', type: 'text', admin: { hidden: true } },
             {
               type: 'row',
               fields: [

@@ -44,7 +44,6 @@ import type { SupportedLanguage } from '../i18n/languages';
 import { useCmsOpportunities } from '../hooks/useCmsOpportunities';
 import useModalBehavior from '../hooks/useModalBehavior';
 import { toExternalUrl } from '../api';
-import BrandImage from './BrandImage';
 
 const catalogStaggerContainer = {
   ...cardStaggerContainer,
@@ -106,7 +105,6 @@ type Opportunity = {
   registrationOpen: boolean;
   seats: number;
   savedCount: number;
-  imageUrl: string;
   editorPick: boolean;
   recommended: boolean;
   requirements: LText[];
@@ -314,7 +312,6 @@ export const OPPORTUNITIES: Opportunity[] = [
     registrationOpen: true,
     seats: 96,
     savedCount: 318,
-    imageUrl: '/images/championship/championship-presentation.jpg',
     editorPick: true,
     recommended: true,
     requirements: [skill('\u041a\u043e\u043c\u0430\u043d\u0434\u0430 3-5 \u0447\u0435\u043b\u043e\u0432\u0435\u043a \u0438\u043b\u0438 \u0433\u043e\u0442\u043e\u0432\u043d\u043e\u0441\u0442\u044c \u043d\u0430\u0439\u0442\u0438 \u043a\u043e\u043c\u0430\u043d\u0434\u0443', 'Team of 3-5 or readiness to find one', '3-5 \u0430\u0434\u0430\u043c\u043d\u0430\u043d \u043a\u043e\u043c\u0430\u043d\u0434\u0430 \u043d\u0435\u043c\u0435\u0441\u0435 \u043e\u043d\u044b \u0442\u0430\u0431\u0443\u0493\u0430 \u0434\u0430\u0439\u044b\u043d\u0434\u044b\u049b', '3-5 kishilik jamoa yoki jamoa topishga tayyorlik', 'فريق من 3-5 أو استعداد لإيجاد فريق', 'Team von 3-5 oder Bereitschaft zur Teamsuche', 'Equipo de 3-5 o disposición a encontrar uno', '3-5 kişilik takım veya takım bulma isteği')],
@@ -349,7 +346,6 @@ export const OPPORTUNITIES: Opportunity[] = [
     registrationOpen: true,
     seats: 40,
     savedCount: 204,
-    imageUrl: '/images/activities/cover-educational.svg',
     editorPick: true,
     recommended: true,
     requirements: [skill('\u0418\u043d\u0442\u0435\u0440\u0435\u0441 \u043a \u0438\u0441\u0441\u043b\u0435\u0434\u043e\u0432\u0430\u0442\u0435\u043b\u044c\u0441\u043a\u043e\u0439 \u0442\u0435\u043c\u0435', 'Interest in a research topic', '\u0417\u0435\u0440\u0442\u0442\u0435\u0443 \u0442\u0430\u049b\u044b\u0440\u044b\u0431\u044b\u043d\u0430 \u049b\u044b\u0437\u044b\u0493\u0443\u0448\u044b\u043b\u044b\u049b', 'Tadqiqot mavzusiga qiziqish', 'اهتمام بموضوع بحثي', 'Interesse an einem Forschungsthema', 'Interés por un tema de investigación', 'Araştırma konusuna ilgi')],
@@ -384,7 +380,6 @@ export const OPPORTUNITIES: Opportunity[] = [
     registrationOpen: true,
     seats: 160,
     savedCount: 411,
-    imageUrl: '/images/championship/technology-case.jpg',
     editorPick: true,
     recommended: true,
     requirements: [skill('\u041d\u043e\u0443\u0442\u0431\u0443\u043a \u0438 \u0431\u0430\u0437\u043e\u0432\u044b\u0439 \u043e\u043f\u044b\u0442 \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u043c\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u044f', 'Laptop and basic coding experience', '\u041d\u043e\u0443\u0442\u0431\u0443\u043a \u0436\u04d9\u043d\u0435 \u0431\u0430\u0493\u0434\u0430\u0440\u043b\u0430\u043c\u0430\u043b\u0430\u0443 \u043d\u0435\u0433\u0456\u0437\u0434\u0435\u0440\u0456', 'Noutbuk va dasturlash asoslari', 'حاسوب وخبرة برمجة أساسية', 'Laptop und Coding-Grundlagen', 'Portátil y programación básica', 'Dizüstü bilgisayar ve temel kodlama')],
@@ -420,7 +415,6 @@ export const OPPORTUNITIES: Opportunity[] = [
     registrationOpen: true,
     seats: 24,
     savedCount: 156,
-    imageUrl: '/images/activities/cover-educational.svg',
     editorPick: false,
     recommended: true,
     requirements: [skill('\u041a\u043e\u0440\u043e\u0442\u043a\u043e\u0435 \u043c\u043e\u0442\u0438\u0432\u0430\u0446\u0438\u043e\u043d\u043d\u043e\u0435 \u043f\u0438\u0441\u044c\u043c\u043e', 'Short motivation letter', '\u049a\u044b\u0441\u049b\u0430 \u043c\u043e\u0442\u0438\u0432\u0430\u0446\u0438\u044f\u043b\u044b\u049b \u0445\u0430\u0442', 'Qisqa motivatsion xat', 'رسالة دافع قصيرة', 'Kurzes Motivationsschreiben', 'Carta breve de motivación', 'Kısa motivasyon mektubu')],
@@ -456,7 +450,6 @@ export const OPPORTUNITIES: Opportunity[] = [
     registrationOpen: true,
     seats: 30,
     savedCount: 92,
-    imageUrl: '/images/activities/cover-project.svg',
     editorPick: false,
     recommended: false,
     requirements: [skill('\u041f\u043e\u0440\u0442\u0444\u043e\u043b\u0438\u043e \u0438\u043b\u0438 \u043a\u043e\u0440\u043e\u0442\u043a\u043e\u0435 \u0434\u0438\u0437\u0430\u0439\u043d-\u0437\u0430\u0434\u0430\u043d\u0438\u0435', 'Portfolio or short design task', '\u041f\u043e\u0440\u0442\u0444\u043e\u043b\u0438\u043e \u043d\u0435\u043c\u0435\u0441\u0435 \u049b\u044b\u0441\u049b\u0430 \u0434\u0438\u0437\u0430\u0439\u043d \u0442\u0430\u043f\u0441\u044b\u0440\u043c\u0430\u0441\u044b', 'Portfolio yoki qisqa dizayn vazifasi', 'ملف أو مهمة تصميم قصيرة', 'Portfolio oder kurze Designaufgabe', 'Portafolio o tarea breve', 'Portfolyo veya kısa tasarım görevi')],
@@ -491,7 +484,6 @@ export const OPPORTUNITIES: Opportunity[] = [
     registrationOpen: true,
     seats: 120,
     savedCount: 187,
-    imageUrl: '/images/opportunities/volunteer-project.jpg',
     editorPick: false,
     recommended: true,
     requirements: [skill('2-3 \u0447\u0430\u0441\u0430 \u0432 \u043d\u0435\u0434\u0435\u043b\u044e', '2-3 hours per week', '\u0410\u043f\u0442\u0430\u0441\u044b\u043d\u0430 2-3 \u0441\u0430\u0493\u0430\u0442', 'Haftasiga 2-3 soat', '2-3 ساعات أسبوعياً', '2-3 Stunden pro Woche', '2-3 horas por semana', 'Haftada 2-3 saat')],
@@ -527,7 +519,6 @@ export const OPPORTUNITIES: Opportunity[] = [
     registrationOpen: true,
     seats: 500,
     savedCount: 275,
-    imageUrl: '/images/activities/cover-educational.svg',
     editorPick: false,
     recommended: false,
     requirements: [skill('\u0411\u0430\u0437\u043e\u0432\u0430\u044f \u043c\u0430\u0442\u0435\u043c\u0430\u0442\u0438\u043a\u0430 \u0438 \u0432\u043d\u0438\u043c\u0430\u0442\u0435\u043b\u044c\u043d\u043e\u0441\u0442\u044c', 'Basic math and attention', '\u041d\u0435\u0433\u0456\u0437\u0433\u0456 \u043c\u0430\u0442\u0435\u043c\u0430\u0442\u0438\u043a\u0430 \u0436\u04d9\u043d\u0435 \u043c\u04b1\u049b\u0438\u044f\u0442\u0442\u044b\u049b', 'Asosiy matematika va e’tibor', 'رياضيات أساسية وانتباه', 'Grundlagenmathe und Aufmerksamkeit', 'Matemática básica y atención', 'Temel matematik ve dikkat')],
@@ -710,18 +701,8 @@ function OpportunityCard({
     <motion.article
       {...cardItemFadeUp}
       data-preview-id={opportunity.id}
-      className="group relative flex h-full min-h-[520px] flex-col overflow-hidden rounded-[1.35rem] border border-white/65 bg-white/46 surface-elevated-soft backdrop-blur-xl transition-transform duration-300 hover:-translate-y-1"
+      className="group relative flex h-full min-h-[320px] flex-col overflow-hidden rounded-[1.35rem] border border-white/65 bg-white/46 surface-elevated-soft backdrop-blur-xl transition-transform duration-300 hover:-translate-y-1"
     >
-      <div className="overflow-hidden bg-white/36">
-        <BrandImage
-          src={opportunity.imageUrl}
-          alt={pick(opportunity.title, language)}
-          aspectRatio="16 / 9"
-          objectPosition={opportunity.category === 'volunteering' ? '50% 48%' : '50% 50%'}
-          sizes="(min-width: 1024px) 30vw, 100vw"
-          className="rounded-none border-0 shadow-none"
-        />
-      </div>
       <div className="flex min-h-0 flex-1 flex-col p-5 sm:p-6">
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wider ${
@@ -862,7 +843,6 @@ export default function OpportunitiesPage({
       registrationOpen: doc.registrationOpen ?? (!doc.deadline || new Date(doc.deadline) > new Date()),
       seats: doc.seats,
       savedCount: doc.savedCount,
-      imageUrl: doc.imageUrl || doc.logoUrl || '',
       editorPick: doc.editorPick,
       recommended: doc.recommended,
       requirements: localizedList(doc.requirements),
@@ -1451,23 +1431,7 @@ function OpportunityDetailsModal({
           <X className="h-5 w-5" />
         </button>
 
-        <div className="grid gap-5 p-5 pr-16 sm:p-8 sm:pr-20 md:grid-cols-[240px_minmax(0,1fr)] md:items-start">
-          <div className="overflow-hidden rounded-[1.25rem] border border-white/60 bg-white/36">
-            {opportunity.imageUrl ? (
-              <BrandImage
-                src={opportunity.imageUrl}
-                alt={pick(opportunity.title, language)}
-                aspectRatio="4 / 3"
-                objectPosition={opportunity.category === 'volunteering' ? '50% 48%' : '50% 50%'}
-                loading="eager"
-                sizes="(min-width: 768px) 240px, 100vw"
-                className="rounded-none border-0 shadow-none"
-              />
-            ) : (
-              <div className="aspect-[4/3] w-full bg-gradient-to-br from-[#bc4638]/15 to-[#bd5b82]/15" />
-            )}
-          </div>
-
+        <div className="p-5 pr-16 sm:p-8 sm:pr-20">
           <div className="space-y-4 text-left">
             <div className="flex flex-wrap items-center gap-2">
               <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wider ${

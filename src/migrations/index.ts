@@ -30,6 +30,7 @@ import * as migration_20260909_020000_add_page_media_slots from './20260909_0200
 import * as migration_20260910_000000_add_tournament_images from './20260910_000000_add_tournament_images';
 import * as migration_20260910_010000_championship_about_and_activity_images from './20260910_010000_championship_about_and_activity_images';
 import * as migration_20260912_000000_add_team_member_championship_direction from './20260912_000000_add_team_member_championship_direction';
+import * as migration_20260913_000000_remove_opportunity_images from './20260913_000000_remove_opportunity_images';
 
 export const migrations = [
   {
@@ -191,5 +192,10 @@ export const migrations = [
     up: migration_20260912_000000_add_team_member_championship_direction.up,
     down: migration_20260912_000000_add_team_member_championship_direction.down,
     name: '20260912_000000_add_team_member_championship_direction',
+  },
+  {
+    up: migration_20260913_000000_remove_opportunity_images.up,
+    down: migration_20260913_000000_remove_opportunity_images.down,
+    name: '20260913_000000_remove_opportunity_images',
   },
 ];

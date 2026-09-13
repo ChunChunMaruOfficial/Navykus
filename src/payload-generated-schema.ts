@@ -1105,11 +1105,6 @@ export const opportunities = sqliteTable(
       enum: ["business", "science", "tech", "social", "creative", "leadership"],
     }).default("social"),
     shortDescription: text("short_description"),
-    image: integer("image_id").references(() => media.id, {
-      onDelete: "set null",
-    }),
-    imageUrl: text("image_url"),
-    logoUrl: text("logo_url"),
     source: text("source", {
       enum: ["navykus", "verified", "partner"],
     }).default("verified"),
@@ -1167,7 +1162,6 @@ export const opportunities = sqliteTable(
   (columns) => [
     index("opportunities_original_language_idx").on(columns.originalLanguage),
     index("opportunities_organization_idx").on(columns.organization),
-    index("opportunities_image_idx").on(columns.image),
     index("opportunities_deadline_idx").on(columns.deadline),
     index("opportunities_format_idx").on(columns.format),
     index("opportunities_country_idx").on(columns.country),
@@ -1375,11 +1369,6 @@ export const _opportunities_v = sqliteTable(
       enum: ["business", "science", "tech", "social", "creative", "leadership"],
     }).default("social"),
     version_shortDescription: text("version_short_description"),
-    version_image: integer("version_image_id").references(() => media.id, {
-      onDelete: "set null",
-    }),
-    version_imageUrl: text("version_image_url"),
-    version_logoUrl: text("version_logo_url"),
     version_source: text("version_source", {
       enum: ["navykus", "verified", "partner"],
     }).default("verified"),
@@ -1461,9 +1450,6 @@ export const _opportunities_v = sqliteTable(
     ),
     index("_opportunities_v_version_version_organization_idx").on(
       columns.version_organization,
-    ),
-    index("_opportunities_v_version_version_image_idx").on(
-      columns.version_image,
     ),
     index("_opportunities_v_version_version_deadline_idx").on(
       columns.version_deadline,
@@ -2651,37 +2637,29 @@ export const relations_opportunities_keywords = relations(
     }),
   }),
 );
-export const relations_opportunities = relations(
-  opportunities,
-  ({ one, many }) => ({
-    image: one(media, {
-      fields: [opportunities.image],
-      references: [media.id],
-      relationName: "image",
-    }),
-    languages: many(opportunities_languages, {
-      relationName: "languages",
-    }),
-    grades: many(opportunities_grades, {
-      relationName: "grades",
-    }),
-    skills: many(opportunities_skills, {
-      relationName: "skills",
-    }),
-    requirements: many(opportunities_requirements, {
-      relationName: "requirements",
-    }),
-    benefits: many(opportunities_benefits, {
-      relationName: "benefits",
-    }),
-    documents: many(opportunities_documents, {
-      relationName: "documents",
-    }),
-    keywords: many(opportunities_keywords, {
-      relationName: "keywords",
-    }),
+export const relations_opportunities = relations(opportunities, ({ many }) => ({
+  languages: many(opportunities_languages, {
+    relationName: "languages",
   }),
-);
+  grades: many(opportunities_grades, {
+    relationName: "grades",
+  }),
+  skills: many(opportunities_skills, {
+    relationName: "skills",
+  }),
+  requirements: many(opportunities_requirements, {
+    relationName: "requirements",
+  }),
+  benefits: many(opportunities_benefits, {
+    relationName: "benefits",
+  }),
+  documents: many(opportunities_documents, {
+    relationName: "documents",
+  }),
+  keywords: many(opportunities_keywords, {
+    relationName: "keywords",
+  }),
+}));
 export const relations__opportunities_v_version_languages = relations(
   _opportunities_v_version_languages,
   ({ one }) => ({
@@ -2759,11 +2737,6 @@ export const relations__opportunities_v = relations(
       fields: [_opportunities_v.parent],
       references: [opportunities.id],
       relationName: "parent",
-    }),
-    version_image: one(media, {
-      fields: [_opportunities_v.version_image],
-      references: [media.id],
-      relationName: "version_image",
     }),
     version_languages: many(_opportunities_v_version_languages, {
       relationName: "version_languages",

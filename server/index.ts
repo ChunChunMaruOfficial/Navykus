@@ -483,7 +483,7 @@ app.get('/api/championships/featured', asyncRoute(async (req, res) => {
   res.json({ doc });
 }));
 
-// Events and opportunities: an uploaded image wins over the legacy «image URL» text field.
+// Events: an uploaded image wins over the legacy «image URL» text field.
 const withUploadedImage = (doc: unknown) => {
   const record = doc as Record<string, unknown>;
   const uploaded = mediaUrlFromRelation(record.image);
@@ -511,14 +511,14 @@ app.get('/api/opportunities', asyncRoute(async (req, res) => {
   const where = publicCollectionWhere('opportunities', req.query.format ? { format: { equals: req.query.format } } : {});
   const result = await payload.find({
     collection: 'opportunities' as any,
-    depth: 1,
+    depth: 0,
     limit: queryLimit(req.query.limit),
     sort: req.query.sort === 'deadline' ? 'deadline' : '-createdAt',
     where,
     overrideAccess: true,
   });
   await applyLocalizations(payload, 'opportunities', result.docs as Array<Record<string, unknown>>, languageFromRequest(req));
-  res.json({ ...result, docs: result.docs.map(withUploadedImage) });
+  res.json(result);
 }));
 
 app.get('/api/activities', asyncRoute(async (req, res) => {

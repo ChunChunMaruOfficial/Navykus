@@ -1,4 +1,3 @@
-import { apiAssetUrl } from '../api';
 import { useCmsCollection, useCmsLanguage } from './useCmsCollection';
 
 export type CmsOpportunityDoc = {
@@ -9,8 +8,6 @@ export type CmsOpportunityDoc = {
   opportunityType: string;
   shortDescription: string;
   fullDescription?: string;
-  logoUrl?: string;
-  imageUrl?: string;
   country?: string;
   city?: string;
   format?: string;
@@ -52,8 +49,6 @@ export type CmsMappedOpportunity = {
   type: string;
   shortDescription: string;
   fullDescription: string;
-  logoUrl?: string;
-  imageUrl?: string;
   country: string;
   city: string;
   format: string;
@@ -104,9 +99,6 @@ const mapCmsDoc = (doc: CmsOpportunityDoc): CmsMappedOpportunity => ({
   type: doc.opportunityType || '',
   shortDescription: doc.shortDescription || '',
   fullDescription: doc.fullDescription || '',
-  logoUrl: doc.logoUrl,
-  // Uploaded CMS images come as /media/… and are served by the API.
-  imageUrl: doc.imageUrl?.startsWith('/media/') ? apiAssetUrl(doc.imageUrl) : doc.imageUrl,
   country: doc.country || 'Global',
   city: doc.city || '',
   format: doc.format || 'online',

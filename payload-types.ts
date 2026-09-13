@@ -559,12 +559,6 @@ export interface Opportunity {
    */
   shortDescription: string;
   /**
-   * Обложка карточки (16:9).
-   */
-  image?: (number | null) | Media;
-  imageUrl?: string | null;
-  logoUrl?: string | null;
-  /**
    * Плашка на карточке.
    */
   source?: ('navykus' | 'verified' | 'partner') | null;
@@ -1282,9 +1276,6 @@ export interface OpportunitiesSelect<T extends boolean = true> {
   category?: T;
   direction?: T;
   shortDescription?: T;
-  image?: T;
-  imageUrl?: T;
-  logoUrl?: T;
   source?: T;
   editorPick?: T;
   recommended?: T;
