@@ -2,29 +2,15 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Users, 
-  Target, 
   ChevronDown, 
   CheckCircle2, 
   ArrowRight, 
-  GraduationCap, 
-  Globe, 
-  Award, 
-  Briefcase, 
-  Shield, 
-  Activity, 
-  Compass, 
-  Calendar, 
-  BookOpen, 
-  MessageSquare,
   ChevronRight,
   ArrowUpRight
 } from 'lucide-react';
 import {
   fadeUp,
   heroFadeUp,
-  cardStaggerContainer,
-  cardItemFadeUp,
 } from '../motion-animations';
 import { useCmsFaqs } from '../hooks/useCmsFaqs';
 import { useCmsPageTexts } from '../hooks/useCmsPageTexts';
@@ -40,13 +26,6 @@ interface Segment {
   ctaText: string;
   targetRole: string;
 }
-
-interface ActivityItem {
-  id: string;
-  title: string;
-  description: string;
-}
-
 
 const AUDIENCE_SEGMENTS: Segment[] = [
   {
@@ -89,40 +68,6 @@ const AUDIENCE_SEGMENTS: Segment[] = [
     targetRole: "contact"
   }
 ];
-
-const ACTIVITIES_ITEMS: ActivityItem[] = [
-  {
-    id: "act-1",
-    title: 'ui.aboutprojectpage.b95ecb3c05',
-    description: 'ui.aboutprojectpage.9d86488fb6'
-  },
-  {
-    id: "act-2",
-    title: 'ui.aboutprojectpage.c03dfac430',
-    description: 'ui.aboutprojectpage.9915e585a3'
-  },
-  {
-    id: "act-3",
-    title: 'ui.aboutprojectpage.f353fc8fab',
-    description: 'ui.aboutprojectpage.66695efbd6'
-  },
-  {
-    id: "act-4",
-    title: 'ui.aboutprojectpage.8c5ce0253e',
-    description: 'ui.aboutprojectpage.c22bfce55b'
-  },
-  {
-    id: "act-5",
-    title: 'ui.aboutprojectpage.3e7c3a9f22',
-    description: 'ui.aboutprojectpage.48d877aa9c'
-  },
-  {
-    id: "act-6",
-    title: 'ui.aboutprojectpage.3ba567b6ee',
-    description: 'ui.aboutprojectpage.20a478bc7a'
-  }
-];
-
 
 interface AboutProjectPageProps {
   onBackToHome: () => void;
@@ -354,57 +299,6 @@ export default function AboutProjectPage({
             </div>
 
           </div>
-        </section>
-
-        {/* 4. WHAT CAN YOU DO BLOCK */}
-        <section className="relative z-10 py-16 md:py-24">
-          <motion.div 
-            {...fadeUp}
-            className="text-center space-y-4 mb-10 max-w-3xl mx-auto"
-          >
-            <h2 className="text-3xl sm:text-4xl font-serif text-brand-dark tracking-tight">{t('ui.aboutprojectpage.b23f0c7c43')}</h2>
-            <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light">{t('ui.aboutprojectpage.d5362b6b2b')}</p>
-          </motion.div>
-
-          {/* Bento Grid */}
-          <motion.div {...cardStaggerContainer} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {ACTIVITIES_ITEMS.map((item, idx) => {
-              const icons = [Award, Compass, Users, GraduationCap, Calendar, Activity];
-              const iconColors = [
-                'text-[#bc4638]/[0.14]',
-                'text-[#bd5b82]/[0.14]',
-                'text-[#2f6f73]/[0.13]',
-                'text-[#c08a3e]/[0.15]',
-                'text-[#5b6472]/[0.14]',
-                'text-[#8d3026]/[0.13]',
-              ];
-              const SelectedIcon = icons[idx % icons.length];
-
-              return (
-                <motion.div 
-                  key={item.id}
-                  variants={cardItemFadeUp.variants}
-                  className="group relative overflow-hidden bg-white/[0.12] glass-card surface-elevated-soft border border-white/[0.15] hover:border-brand-terracotta/25 rounded-2xl p-6 text-left flex flex-col justify-between space-y-4"
-                >
-                  <SelectedIcon
-                    className={`pointer-events-none absolute right-5 top-4 h-16 w-16 select-none transition-transform duration-500 group-hover:scale-110 ${iconColors[idx % iconColors.length]}`}
-                    aria-hidden="true"
-                    strokeWidth={1.5}
-                  />
-                  <div className="space-y-3 pr-12">
-                    <h3 className="text-lg sm:text-xl font-serif font-semibold leading-tight text-brand-dark">
-                      {t(item.title)}
-                    </h3>
-                    <div className="space-y-1">
-                      <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">
-                        {t(item.description)}
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </motion.div>
         </section>
 
         {/* 6. FAQ BLOCK */}
