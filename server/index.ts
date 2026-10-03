@@ -28,6 +28,7 @@ import type { PageKey } from '../src/types';
 import { championshipDirections } from '../src/championship-directions';
 import { isSupportedLanguage, SUPPORTED_LANGUAGES } from '../src/i18n/languages';
 import { EDITABLE_PAGE_TEXT_PAGES, type EditablePageTextPage, type PageTextDoc } from '../src/page-texts';
+import { mediaUploadDir } from '../src/payload/paths';
 import { getPayloadClient } from './payload';
 import { startTranslationWorker } from './translation-worker';
 import { applyLocalizations, languageFromRequest } from './content-localizations';
@@ -204,7 +205,8 @@ app.use((_req, res, next) => {
 });
 
 app.use(express.json({ limit: '1mb' }));
-app.use('/media', express.static(path.resolve(process.cwd(), 'uploads', 'media')));
+// Same folder Payload writes uploads to (anchored at the repo root, not the working directory).
+app.use('/media', express.static(mediaUploadDir));
 
 startTranslationWorker(getPayloadClient);
 
@@ -630,7 +632,7 @@ app.get('/api/page-media', asyncRoute(async (req, res) => {
     const filename = image && typeof image.filename === 'string' ? image.filename : '';
     const rawUrl = image && typeof image.url === 'string' ? image.url : '';
     acc[slotKey] = {
-      url: filename ? `/media/${filename}` : (rawUrl || null),
+      url: filename ? `/media/${encodeURIComponent(filename)}` : (rawUrl || null),
       alt: image && typeof image.alt === 'string' ? image.alt : null,
       hidden: Boolean(doc.hidden),
     };

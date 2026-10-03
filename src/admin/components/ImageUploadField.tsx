@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { FieldDescription, FieldLabel, useAuth, useField } from '@payloadcms/ui';
 
-type MediaDoc = { id: number | string; url?: string | null; filename?: string | null; mimeType?: string | null };
+import { IMAGE_ACCEPT, mediaFileUrl, uploadMediaFile, type UploadedMedia as MediaDoc } from '../uploadMedia';
 
 type Props = {
   path: string;
@@ -26,7 +26,7 @@ const mediaId = (value: unknown): string | number | null => {
   return value as string | number;
 };
 
-const mediaUrl = (doc: MediaDoc | null) => (doc ? doc.url || (doc.filename ? `/media/${doc.filename}` : null) : null);
+const mediaUrl = (doc: MediaDoc | null) => (doc ? doc.url || (doc.filename ? mediaFileUrl(doc.filename) : null) : null);
 
 /**
  * Replacement for Payload's upload field: the only way to set a picture is to pick a file
@@ -64,14 +64,8 @@ export const ImageUploadField = ({ path, field, readOnly }: Props) => {
     setBusy(true);
     setError(null);
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('alt', typeof field.label === 'string' ? field.label : file.name);
-      const res = await fetch('/payload-api/media', { method: 'POST', credentials: 'include', headers: authHeaders, body: formData });
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(json?.errors?.[0]?.message || json?.message || `Загрузка не удалась (${res.status})`);
-      const uploaded = (json?.doc ?? json) as MediaDoc;
-      if (!uploaded?.id) throw new Error('Не удалось получить загруженный файл');
+      const alt = typeof field.label === 'string' && field.label.trim() ? field.label : file.name;
+      const uploaded = await uploadMediaFile(file, { alt }, authHeaders, { imageOnly: true });
       setDoc(uploaded);
       setValue(uploaded.id);
     } catch (e) {
@@ -109,7 +103,7 @@ export const ImageUploadField = ({ path, field, readOnly }: Props) => {
         <input
           ref={input}
           type="file"
-          accept="image/*"
+          accept={IMAGE_ACCEPT}
           style={{ display: 'none' }}
           onChange={(event) => {
             const file = event.target.files?.[0];

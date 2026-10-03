@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '@payloadcms/ui';
 
 import { PAGE_MEDIA_SLOTS, type PageImageSlot } from '../../page-media';
+import { IMAGE_ACCEPT, mediaFileUrl as encodedMediaUrl, uploadMediaFile } from '../uploadMedia';
 
 type SlotRow = {
   id: string | number;
@@ -43,7 +44,7 @@ const mediaFileUrl = (image: SlotRow['image']): string | null => {
   // Payload's own URL is served by the admin app; fall back to the site's
   // static /media mount only when it is missing.
   if (image.url) return image.url;
-  if (image.filename) return `/media/${image.filename}`;
+  if (image.filename) return encodedMediaUrl(image.filename);
   return null;
 };
 
@@ -156,24 +157,13 @@ const MediaTreeView = () => {
       setBusySlot(slot.slotKey);
       setError(null);
       try {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('alt', slot.label);
-        formData.append('page', slot.page);
-        formData.append('blockName', slot.blockName);
-        const uploadRes = await fetch('/payload-api/media', {
-          method: 'POST',
-          credentials: 'include',
-          headers: { ...authHeaders },
-          body: formData,
-        });
-        if (!uploadRes.ok) {
-          const body = await uploadRes.json().catch(() => ({}));
-          throw new Error(body?.errors?.[0]?.message || body?.message || `upload → ${uploadRes.status}`);
-        }
-        const uploaded = await uploadRes.json();
-        const mediaId = uploaded?.doc?.id ?? uploaded?.id;
-        if (!mediaId) throw new Error('Не удалось получить ID загруженного файла');
+        const uploaded = await uploadMediaFile(
+          file,
+          { alt: slot.label, page: slot.page, blockName: slot.blockName },
+          authHeaders,
+          { imageOnly: true },
+        );
+        const mediaId = uploaded.id;
         await upsertRow(slot, { image: mediaId, hidden: false });
         await loadRows();
       } catch (e) {
@@ -327,7 +317,7 @@ const MediaTreeView = () => {
                   fileInputs.current[slot.slotKey] = el;
                 }}
                 type="file"
-                accept="image/*"
+                accept={IMAGE_ACCEPT}
                 style={{ display: 'none' }}
                 onChange={(e) => {
                   const file = e.target.files?.[0];

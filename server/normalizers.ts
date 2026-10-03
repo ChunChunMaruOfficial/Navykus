@@ -31,7 +31,7 @@ export const mediaUrlFromRelation = (relation: unknown): string | null => {
   if (typeof relation === 'string') return relation || null;
   if (!relation || typeof relation !== 'object') return null;
   const record = relation as Record<string, unknown>;
-  if (typeof record.filename === 'string' && record.filename) return `/media/${record.filename}`;
+  if (typeof record.filename === 'string' && record.filename) return `/media/${encodeURIComponent(record.filename)}`;
   if (typeof record.url === 'string' && record.url) return record.url;
   return null;
 };
