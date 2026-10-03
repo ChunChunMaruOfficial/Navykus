@@ -48,6 +48,8 @@ import {
   fadeUpLarge,
   fadeInScale,
   heroFadeUpLarge,
+  cardStaggerContainer,
+  cardItemFadeUp,
 } from './motion-animations';
 import type { TeamApplicationContext } from './types';
 
@@ -62,48 +64,6 @@ const REMOVED_PLATFORM_PATHS = ['/login', '/register', '/forgot-password', '/res
 
 const ACTIVITIES_EVENTS_PATH = '/activities/events';
 const ACTIVITIES_OPPORTUNITIES_PATH = '/activities/opportunities';
-
-const cardEase: [number, number, number, number] = [0.22, 1, 0.36, 1];
-
-const cardStaggerContainer = {
-  initial: 'hidden',
-  whileInView: 'visible',
-  viewport: {
-    once: true,
-    amount: 0.18,
-    margin: '0px 0px -80px 0px',
-  },
-  variants: {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: 0.08,
-        delayChildren: 0.05,
-      },
-    },
-  },
-};
-
-const cardItemFadeUp = {
-  variants: {
-    hidden: {
-      opacity: 0,
-      y: 24,
-      scale: 0.985,
-      filter: 'blur(6px)',
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      filter: 'blur(0px)',
-      transition: {
-        duration: 0.55,
-        ease: cardEase,
-      },
-    },
-  },
-};
 
 const isPagePath = (value: string): value is typeof PAGE_PATHS[number] => {
   return (PAGE_PATHS as readonly string[]).includes(value);
@@ -404,12 +364,12 @@ export default function App() {
             className="flex items-center gap-2 group cursor-pointer"
           >
                         <Logo
-              className="w-5 h-6 sm:w-6 sm:h-7 drop-shadow-[0_4px_12px_rgba(188,70,56,0.15)] transition-transform duration-500 ease-out group-hover:scale-110"
+              className="w-5 h-6 sm:w-6 sm:h-7 drop-shadow-[0_4px_12px_rgba(188,70,56,0.15)] transition-transform duration-500 ease-out"
             />
             <span className="font-semibold tracking-tight text-sm sm:text-base text-[#111111]">{t('ui.app.b1a2ec16fe')}</span>
           </button>
 
-          <nav ref={navContainerRef} className="relative hidden md:flex items-center gap-4 lg:gap-8 text-[11px] lg:text-[12px] font-medium text-[#5b6472] uppercase tracking-wider">
+          <nav ref={navContainerRef} className="relative hidden md:flex items-center gap-4 lg:gap-8 text-xs lg:text-[12px] font-medium text-[#5b6472]">
             <button
               ref={(el) => { navRefs.current['about'] = el; }}
               onClick={() => navigateToPage('about')}
@@ -446,7 +406,7 @@ export default function App() {
                   e.stopPropagation();
                   setIsLangDropdownOpen(!isLangDropdownOpen);
                 }}
-                className="flex items-center gap-1 bg-white/20 hover:bg-white/35 border border-white/40 px-2 sm:px-3 py-1.5 rounded-full text-[12px] font-mono shadow-[inset_0_1px_2px_rgba(255,255,255,0.2)] transition-all cursor-pointer text-brand-dark"
+                className="flex items-center gap-1 bg-white/20 hover:bg-white/35 border border-white/40 px-2 sm:px-3 py-1.5 rounded-full text-[12px] font-mono shadow-[inset_0_1px_2px_rgba(255,255,255,0.2)] transition cursor-pointer text-brand-dark"
               >
                 <span>{LANGUAGE_FLAGS[currentLanguage]}</span>
                 <span className="font-semibold tracking-wider text-[11px] sm:text-[12px]">{currentLanguage.toUpperCase()}</span>
@@ -470,7 +430,7 @@ export default function App() {
                           void i18n.changeLanguage(detectSupportedLanguageFromBrowser());
                           setIsLangDropdownOpen(false);
                         }}
-                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all text-left cursor-pointer ${isAutoLanguage
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition text-left cursor-pointer ${isAutoLanguage
                             ? 'bg-brand-dark text-white font-medium'
                             : 'text-brand-slate hover:bg-white/40 hover:text-brand-dark'
                           }`}
@@ -479,7 +439,7 @@ export default function App() {
                           <span>{LANGUAGE_FLAGS[autoLanguage]}</span>
                           <span>{t('languages.auto')}</span>
                         </div>
-                        <span className="font-mono text-[10px] uppercase tracking-wider">{autoLanguage}</span>
+                        <span className="font-mono text-[10px] uppercase">{autoLanguage}</span>
                       </button>
                       {languages.map((l) => (
                         <button
@@ -489,7 +449,7 @@ export default function App() {
                             void i18n.changeLanguage(l.code);
                             setIsLangDropdownOpen(false);
                           }}
-                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all text-left cursor-pointer ${currentLanguage === l.code
+                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition text-left cursor-pointer ${currentLanguage === l.code
                               ? 'bg-brand-dark text-white font-medium'
                               : 'text-brand-slate hover:bg-white/40 hover:text-brand-dark'
                             }`}
@@ -512,7 +472,7 @@ export default function App() {
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen((value) => !value)}
-              className="md:hidden flex h-9 w-9 items-center justify-center rounded-full border border-white/40 bg-white/20 text-brand-dark shadow-[inset_0_1px_2px_rgba(255,255,255,0.2)] transition-all hover:bg-white/35"
+              className="md:hidden flex h-9 w-9 items-center justify-center rounded-full border border-white/40 bg-white/20 text-brand-dark shadow-[inset_0_1px_2px_rgba(255,255,255,0.2)] transition hover:bg-white/35"
               aria-label={isMobileMenuOpen ? t('ui.app.24547dfea3') : t('ui.app.625200f23b')}
               aria-expanded={isMobileMenuOpen}
             >
@@ -524,7 +484,7 @@ export default function App() {
                 setIsMobileMenuOpen(false);
                 openApplyModal({ sourceType: 'home', sourceTitle: t('ui.app.762a52a7bb') });
               }}
-              className="hidden sm:block bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white px-3 sm:px-4 lg:px-5 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-[12px] font-medium shadow-lg shadow-[#bc4638]/20 hover:scale-[1.02] transition-transform cursor-pointer whitespace-nowrap"
+              className="hidden sm:block bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white px-3 sm:px-4 lg:px-5 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-[12px] font-medium shadow-lg shadow-[#bc4638]/20 transition-transform cursor-pointer whitespace-nowrap"
             >
               <span>{t('ui.app.762a52a7bb')}</span>
             </button>
@@ -540,7 +500,7 @@ export default function App() {
               transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
               className="md:hidden mt-3 rounded-3xl border border-white/60 bg-white/75 p-3 backdrop-blur-2xl shadow-[0_18px_50px_rgba(189,91,130,0.12)]"
             >
-              <div className="grid gap-1 text-left text-xs font-mono uppercase tracking-wider text-brand-slate">
+              <div className="grid gap-1 text-left text-xs font-mono text-brand-slate">
                 <button onClick={() => navigateToPage('about')} className={`rounded-2xl px-4 py-3 text-left transition-colors ${currentPage === 'about' ? 'bg-brand-dark text-white' : 'hover:bg-white/60 hover:text-brand-dark'}`}>{t('ui.app.d1a90b77df')}</button>
                 <button onClick={() => navigateToPage('championship')} className={`rounded-2xl px-4 py-3 text-left transition-colors ${currentPage === 'championship' ? 'bg-brand-dark text-white' : 'hover:bg-white/60 hover:text-brand-dark'}`}>{t('ui.app.2f57076dbe')}</button>
                 <button onClick={() => navigateToPage('find-team')} className={`rounded-2xl px-4 py-3 text-left transition-colors ${currentPage === 'find-team' ? 'bg-brand-dark text-white' : 'hover:bg-white/60 hover:text-brand-dark'}`}>{t('ui.app.d13f387e64')}</button>
@@ -567,14 +527,14 @@ export default function App() {
                   <span className="hero-brand-word not-italic font-semibold">{heroBrand}</span>
                   {heroLeadRest ? ` ${heroLeadRest}` : ''}
                   <br />
-                  <span className="not-italic font-normal text-transparent bg-clip-text bg-gradient-to-r from-[#bc4638] to-[#bd5b82]">{t('ui.app.4e6bae67fb')}</span><br />{t('ui.app.36b5f70ec0')}</h1>
+                  <span className="not-italic font-normal text-[#bc4638]">{t('ui.app.4e6bae67fb')}</span><br />{t('ui.app.36b5f70ec0')}</h1>
                 <p className="text-[#5b6472] text-sm sm:text-base md:text-lg leading-relaxed font-normal md:font-light text-balance">{t('ui.app.ca9bce21fd')}</p>
               </div>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
                 <button
                   onClick={() => openApplyModal({ sourceType: 'home', sourceTitle: t('ui.app.24cd8dc78d') })}
-                  className="px-8 py-4 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white rounded-2xl text-[14px] font-medium shadow-xl shadow-[#bc4638]/25 hover:shadow-[#bc4638]/35 hover:scale-[1.01] transition-all flex items-center justify-center gap-2.5 cursor-pointer group"
+                  className="px-8 py-4 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white rounded-2xl text-[14px] font-medium shadow-xl shadow-[#bc4638]/25 hover:shadow-[#bc4638]/35 transition flex items-center justify-center gap-2.5 cursor-pointer group"
                 >
                   <span>{t('ui.app.24cd8dc78d')}</span>
                   <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -585,7 +545,7 @@ export default function App() {
                     setCurrentPage('find-team'); updatePath('find-team');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="px-8 py-4 bg-white/40 backdrop-blur-md border border-[#d8d1cc] hover:border-[#bc4638]/60 rounded-2xl text-[14px] font-medium text-[#5b6472] hover:text-[#bc4638] transition-all text-center cursor-pointer shadow-[0_4px_20px_rgba(0,0,0,0.01)]"
+                  className="px-8 py-4 bg-white/40 backdrop-blur-md border border-[#d8d1cc] hover:border-[#bc4638]/60 rounded-2xl text-[14px] font-medium text-[#5b6472] hover:text-[#bc4638] transition text-center cursor-pointer shadow-[0_4px_20px_rgba(0,0,0,0.01)]"
                 >{t('ui.app.d13f387e64')}</button>
               </div>
 
@@ -629,15 +589,15 @@ export default function App() {
                   key={index}
                   variants={cardItemFadeUp.variants}
                   tabIndex={0}
-                  className="group relative overflow-hidden bg-white/[0.12] glass-xl surface-elevated-soft border border-white/[0.15] p-6 sm:p-7 rounded-2xl hover:bg-white/[0.2] hover:border-[#bc4638]/25 focus-visible:ring-2 focus-visible:ring-[#bc4638]/25 transition-[background-color,border-color,box-shadow,transform] duration-300 flex flex-col justify-between hover:-translate-y-1"
+                  className="group relative overflow-hidden bg-white/[0.12] glass-xl surface-elevated-soft border border-white/[0.15] p-6 sm:p-7 rounded-2xl hover:bg-white/[0.2] hover:border-[#bc4638]/25 focus-visible:ring-2 focus-visible:ring-[#bc4638]/25 transition-[background-color,border-color,box-shadow,transform] duration-300 flex flex-col justify-between"
                 >
                   <PillarIcon
-                    className="pointer-events-none absolute right-5 top-3 h-14 w-14 select-none text-[#bc4638]/[0.11] transition-transform duration-300 group-hover:scale-105"
+                    className="pointer-events-none absolute right-5 top-3 h-14 w-14 select-none text-[#bc4638]/[0.11] transition-transform duration-300"
                     aria-hidden="true"
                     strokeWidth={1.5}
                   />
                   <div className="space-y-4 pr-10">
-                    <div className="font-mono text-[11px] sm:text-[10px] text-[#bd5b82] font-semibold tracking-wider">
+                    <div className="font-mono text-[11px] sm:text-[10px] text-[#bd5b82] font-semibold">
                       {pillar.label}
                     </div>
                     <h3 className="text-lg font-serif font-medium text-brand-dark">
@@ -671,7 +631,7 @@ export default function App() {
               />
               <div className="space-y-6 p-6 text-left sm:p-8 lg:p-10">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-[11px] sm:text-[10px] font-mono tracking-wider text-[#bc4638] bg-[#bc4638]/10 px-2.5 py-1 rounded-md uppercase font-semibold">{t('ui.app.8ca84fc116')}</span>
+                  <span className="text-xs sm:text-xs font-mono text-[#bc4638] bg-[#bc4638]/10 px-2.5 py-1 rounded-md font-semibold">{t('ui.app.8ca84fc116')}</span>
                   {nearestTournamentFormat && (
                     <span className="text-[10px] font-mono text-brand-slate flex items-center gap-1.5 bg-white/40 px-2.5 py-1 rounded-md border border-white/60">
                       <Clock className="w-3.5 h-3.5 text-[#bd5b82]" />{nearestTournamentFormat}</span>
@@ -689,13 +649,13 @@ export default function App() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {nearestTournament.suitableFor && (
                     <div className="space-y-1.5">
-                      <div className="text-[11px] sm:text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.app.411ef17e3a')}</div>
+                      <div className="text-xs sm:text-xs font-mono text-brand-dark/70">{t('ui.app.411ef17e3a')}</div>
                       <div className="text-xs text-brand-slate font-normal md:font-light">{nearestTournament.suitableFor}</div>
                     </div>
                   )}
                   {(nearestTournament.date || nearestTournament.registrationDeadline) && (
                     <div className="space-y-1.5">
-                      <div className="text-[11px] sm:text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.app.7f93cb9828')}</div>
+                      <div className="text-xs sm:text-xs font-mono text-brand-dark/70">{t('ui.app.7f93cb9828')}</div>
                       <div className="text-xs text-brand-slate font-normal md:font-light">
                         {nearestTournament.date && (<><strong>{t('ui.app.b7ba3e2581')}</strong> {nearestTournament.date}<br /></>)}
                         {nearestTournament.registrationDeadline && (<><strong>{t('ui.app.2c0ba7b4a0')}</strong> {nearestTournament.registrationDeadline}</>)}
@@ -704,8 +664,8 @@ export default function App() {
                   )}
                   {nearestTournament.maxParticipants > 0 && (
                     <div className="space-y-1.5">
-                      <div className="text-[11px] sm:text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.app.40c83f7ed9')}</div>
-                      <div className="text-xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#bc4638] to-[#bd5b82]">
+                      <div className="text-xs sm:text-xs font-mono text-brand-dark/70">{t('ui.app.40c83f7ed9')}</div>
+                      <div className="text-xl font-serif font-bold text-[#bc4638]">
                         {nearestTournament.maxParticipants} {t('ui.app.1995337599')}</div>
                     </div>
                   )}
@@ -723,9 +683,9 @@ export default function App() {
                 )}
 
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-4">
-                  <button onClick={() => openApplyModal({ sourceType: 'championship', sourceId: nearestTournament.id, tournamentId: nearestTournament.id, sourceTitle: nearestTournament.title, directions: championshipDirections(nearestTournament.themesText) })} className="px-6 py-3 bg-[#bc4638] text-white hover:bg-[#bc4638]/90 text-xs sm:text-sm font-mono tracking-wider rounded-xl transition-all shadow-md shadow-[#bc4638]/15 cursor-pointer text-center font-medium">{t('ui.app.762a52a7bb')}</button>
-                  <button onClick={() => { setCurrentPage('championship'); updatePath('championship'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="px-6 py-3 bg-white/40 border border-[#d8d1cc] text-[#5b6472] hover:border-brand-dark/40 text-xs sm:text-sm font-mono tracking-wider rounded-xl transition-all cursor-pointer text-center">{t('ui.app.2f57076dbe')}</button>
-                  <button onClick={() => { setCurrentPage('find-team'); updatePath('find-team'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="px-6 py-3 bg-white/40 border border-[#d8d1cc] text-[#5b6472] hover:border-brand-dark/40 text-xs sm:text-sm font-mono tracking-wider rounded-xl transition-all cursor-pointer text-center">{t('ui.app.d13f387e64')}</button>
+                  <button onClick={() => openApplyModal({ sourceType: 'championship', sourceId: nearestTournament.id, tournamentId: nearestTournament.id, sourceTitle: nearestTournament.title, directions: championshipDirections(nearestTournament.themesText) })} className="px-6 py-3 bg-[#bc4638] text-white hover:bg-[#bc4638]/90 text-xs sm:text-sm font-mono rounded-xl transition shadow-md shadow-[#bc4638]/15 cursor-pointer text-center font-medium">{t('ui.app.762a52a7bb')}</button>
+                  <button onClick={() => { setCurrentPage('championship'); updatePath('championship'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="px-6 py-3 bg-white/40 border border-[#d8d1cc] text-[#5b6472] hover:border-brand-dark/40 text-xs sm:text-sm font-mono rounded-xl transition cursor-pointer text-center">{t('ui.app.2f57076dbe')}</button>
+                  <button onClick={() => { setCurrentPage('find-team'); updatePath('find-team'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="px-6 py-3 bg-white/40 border border-[#d8d1cc] text-[#5b6472] hover:border-brand-dark/40 text-xs sm:text-sm font-mono rounded-xl transition cursor-pointer text-center">{t('ui.app.d13f387e64')}</button>
                 </div>
               </div>
 
@@ -781,8 +741,8 @@ export default function App() {
                 {t('ui.app.e07687c4')}</h2>
               <p className="text-sm sm:text-base text-brand-slate font-normal md:font-light leading-relaxed max-w-md mx-auto">{t('ui.app.ec08c69dd3')}</p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-                <button onClick={() => openApplyModal({ sourceType: 'home', sourceTitle: t('ui.app.762a52a7bb') })} className="px-8 py-3.5 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white hover:opacity-95 text-xs font-mono tracking-widest rounded-xl transition-all shadow-lg shadow-[#bc4638]/15 cursor-pointer font-semibold uppercase">{t('ui.app.762a52a7bb')}</button>
-                <button onClick={() => { setCurrentPage('find-team'); updatePath('find-team'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="px-8 py-3.5 bg-white/50 border border-[#d8d1cc] text-[#5b6472] hover:border-[#bc4638]/60 text-xs font-mono tracking-widest rounded-xl transition-all cursor-pointer uppercase">{t('ui.app.d4b60991e4')}</button>
+                <button onClick={() => openApplyModal({ sourceType: 'home', sourceTitle: t('ui.app.762a52a7bb') })} className="px-8 py-3.5 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white hover:opacity-95 text-xs font-mono rounded-xl transition shadow-lg shadow-[#bc4638]/15 cursor-pointer font-semibold">{t('ui.app.762a52a7bb')}</button>
+                <button onClick={() => { setCurrentPage('find-team'); updatePath('find-team'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="px-8 py-3.5 bg-white/50 border border-[#d8d1cc] text-[#5b6472] hover:border-[#bc4638]/60 text-xs font-mono rounded-xl transition cursor-pointer">{t('ui.app.d4b60991e4')}</button>
               </div>
             </motion.div>
           </section>

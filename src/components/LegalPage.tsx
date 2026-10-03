@@ -259,7 +259,7 @@ export default function LegalPage({ page, onBackToHome }: LegalPageProps) {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 md:px-10 space-y-6">
         {/* Header */}
         <motion.header {...fadeUp} className="space-y-2">
-          <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.18em] text-brand-terracotta">
+          <span className="text-xs font-mono font-semibold text-brand-terracotta">
             {isPrivacy ? t('ui.legalpage.privacyEyebrow') : t('ui.legalpage.termsEyebrow')}
           </span>
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-light tracking-tight text-brand-dark leading-tight">
@@ -268,7 +268,7 @@ export default function LegalPage({ page, onBackToHome }: LegalPageProps) {
           <p className="text-sm text-brand-slate font-light leading-relaxed max-w-3xl">
             {isPrivacy ? t('ui.legalpage.privacySubtitle') : t('ui.legalpage.termsSubtitle')}
           </p>
-          <p className="text-[11px] font-mono text-brand-slate/60 tracking-wider pt-1">
+          <p className="text-[11px] font-mono text-brand-slate/60 pt-1">
             {t('ui.legalpage.lastUpdated')}
           </p>
         </motion.header>
@@ -298,7 +298,7 @@ export default function LegalPage({ page, onBackToHome }: LegalPageProps) {
         >
           <button
             onClick={onBackToHome}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white rounded-xl text-xs font-mono tracking-widest uppercase font-semibold shadow-lg shadow-[#bc4638]/15 hover:scale-[1.01] transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white rounded-xl text-xs font-mono font-semibold shadow-lg shadow-[#bc4638]/15 transition cursor-pointer"
           >
             <span>{t('ui.legalpage.backHome')}</span>
           </button>

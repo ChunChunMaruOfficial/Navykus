@@ -81,7 +81,7 @@ export default function GlassCrystal() {
         {/* PREMIUM MINIMALIST GLASSMORPHIC BRAND LOGO SVG */}
         <svg 
           viewBox="0 0 400 480" 
-          className="w-full h-full p-8 drop-shadow-[0_20px_50px_rgba(188,70,56,0.12)] transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+          className="w-full h-full p-8 drop-shadow-[0_20px_50px_rgba(188,70,56,0.12)] transition-transform duration-500 ease-out"
         >
           <defs>
             {/* Highly polished, multi-stop 3D glass gradients matching authentic brand colors */}
@@ -134,7 +134,7 @@ export default function GlassCrystal() {
             fill="url(#logo-left-grad)" 
             stroke="rgba(255,255,255,0.45)" 
             strokeWidth="0.75"
-            className="transition-all duration-300 hover:opacity-95"
+            className="transition duration-300 hover:opacity-95"
           />
 
           {/* Right Figure Head (Width matched perfectly to the 85px right pillar, r=42.5) */}
@@ -145,7 +145,7 @@ export default function GlassCrystal() {
             fill="url(#logo-right-grad)" 
             stroke="rgba(255,255,255,0.45)" 
             strokeWidth="0.75"
-            className="transition-all duration-300 hover:opacity-95"
+            className="transition duration-300 hover:opacity-95"
           />
 
           {/* SINGLE SEAMLESS INTEGRATED H LETTER BODY (Left/Right Pillars + Wide Connector + Filleted Corners) */}
@@ -170,7 +170,7 @@ export default function GlassCrystal() {
             fill="url(#logo-h-grad)" 
             stroke="rgba(255,255,255,0.5)" 
             strokeWidth="1"
-            className="transition-all duration-300 hover:opacity-95"
+            className="transition duration-300 hover:opacity-95"
           />
 
           {/* Dynamic 3D Overlay Highlights & Flares */}

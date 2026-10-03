@@ -292,12 +292,12 @@ function DetailedProfileModal({
 
               {/* Sections */}
               <section>
-                <h3 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-2">{t('ui.findteampage.53fa567ce7')}</h3>
+                <h3 className="text-xs font-mono text-brand-dark font-semibold mb-2">{t('ui.findteampage.53fa567ce7')}</h3>
                 <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{member.shortBio}</p>
               </section>
 
               <section>
-                <h3 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-2.5">{t('ui.findteampage.747ac9c080')}</h3>
+                <h3 className="text-xs font-mono text-brand-dark font-semibold mb-2.5">{t('ui.findteampage.747ac9c080')}</h3>
                 <div className="flex flex-wrap gap-1.5">
                   {member.interests.map((interest) => (
                     <span key={interest} className="text-xs px-3 py-1 rounded-full bg-brand-rose-deep/10 text-brand-rose-deep font-medium border border-brand-rose-deep/15">
@@ -308,7 +308,7 @@ function DetailedProfileModal({
               </section>
 
               <section>
-                <h3 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-2.5">{t('ui.findteampage.176bd58504')}</h3>
+                <h3 className="text-xs font-mono text-brand-dark font-semibold mb-2.5">{t('ui.findteampage.176bd58504')}</h3>
                 <div className="flex flex-wrap gap-1.5">
                   {member.skills.map((skill) => (
                     <span key={skill} className="text-xs px-3 py-1 rounded-full bg-brand-terracotta/10 text-brand-terracotta font-medium border border-brand-terracotta/15">
@@ -319,7 +319,7 @@ function DetailedProfileModal({
               </section>
 
               <section>
-                <h3 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-2.5">{t('ui.findteampage.20be1bd637')}</h3>
+                <h3 className="text-xs font-mono text-brand-dark font-semibold mb-2.5">{t('ui.findteampage.20be1bd637')}</h3>
                 <div className="flex flex-wrap gap-1.5">
                   {member.targetRoles.map((role) => (
                     <span key={role} className="text-xs px-3 py-1 rounded-full bg-white/40 border border-white/60 text-brand-dark font-medium">
@@ -331,13 +331,13 @@ function DetailedProfileModal({
 
               {member.targetProject && (
                 <section>
-                  <h3 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-2.5">{t('ui.findteampage.43584e6c75')}</h3>
+                  <h3 className="text-xs font-mono text-brand-dark font-semibold mb-2.5">{t('ui.findteampage.43584e6c75')}</h3>
                   <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light">{member.targetProject}</p>
                 </section>
               )}
 
               <section>
-                <h3 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold mb-2.5">{t('ui.findteampage.0d5ce0304e')}</h3>
+                <h3 className="text-xs font-mono text-brand-dark font-semibold mb-2.5">{t('ui.findteampage.0d5ce0304e')}</h3>
                 <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{member.whyLooking}</p>
               </section>
 
@@ -352,12 +352,12 @@ function DetailedProfileModal({
                   </span>
                 </div>
                 <div className="absolute bottom-4 left-4 right-4 rounded-xl border border-white/35 bg-white/18 px-3 py-2 text-left text-white shadow-sm backdrop-blur-md">
-                  <div className="text-[10px] font-mono uppercase tracking-widest text-white/70">{t('ui.findteampage.participantPhotoLabel')}</div>
+                  <div className="text-xs font-mono text-white/70">{t('ui.findteampage.participantPhotoLabel')}</div>
                   <div className="mt-0.5 truncate text-sm font-semibold">{member.name}</div>
                 </div>
               </div>                  {/* Contact Info */}
               <section className="bg-white/20 border border-white/40 rounded-2xl p-5 space-y-3">
-                <h3 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold">{t('ui.activitiespage.1f75230b6e')}</h3>
+                <h3 className="text-xs font-mono text-brand-dark font-semibold">{t('ui.activitiespage.1f75230b6e')}</h3>
                 <div className="flex items-center gap-3 rounded-xl border border-white/40 bg-white/25 px-4 py-3">
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/50">
                     {member.contactType === 'telegram' ? (
@@ -369,14 +369,14 @@ function DetailedProfileModal({
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="text-[10px] font-mono uppercase tracking-wider text-brand-slate">
+                    <div className="text-xs font-mono text-brand-slate">
                       {CONTACT_LABELS[member.contactType] || member.contactType}
                     </div>
                     <div className="truncate text-sm font-medium text-brand-dark">{member.contact}</div>
                   </div>
                   <button
                     onClick={handleOpenContact}
-                    className="shrink-0 rounded-lg border border-white/50 bg-white/40 p-2 text-brand-slate hover:text-brand-dark hover:bg-white/70 transition-all cursor-pointer"
+                    className="shrink-0 rounded-lg border border-white/50 bg-white/40 p-2 text-brand-slate hover:text-brand-dark hover:bg-white/70 transition cursor-pointer"
                     title={t('ui.findteampage.openContact')}
                   >
                     <ArrowUpRight className="h-3.5 w-3.5" />
@@ -390,12 +390,12 @@ function DetailedProfileModal({
                 <button
                   type="button"
                   onClick={handleOpenContact}
-                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white px-6 py-3 rounded-xl text-xs font-medium shadow-lg shadow-[#bc4638]/20 transition-all cursor-pointer hover:shadow-[#bc4638]/35"
+                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white px-6 py-3 rounded-xl text-xs font-medium shadow-lg shadow-[#bc4638]/20 transition cursor-pointer hover:shadow-[#bc4638]/35"
                 >
                   <Send className="w-4 h-4" />{t('ui.findteampage.3765795ef8')}</button>
                 <button
                   onClick={onOpenApplyModal}
-                  className="w-full bg-white/40 backdrop-blur-md border border-[#d8d1cc] text-[#5b6472] hover:border-brand-terracotta/60 px-6 py-3 rounded-xl text-xs font-medium transition-all cursor-pointer"
+                  className="w-full bg-white/40 backdrop-blur-md border border-[#d8d1cc] text-[#5b6472] hover:border-brand-terracotta/60 px-6 py-3 rounded-xl text-xs font-medium transition cursor-pointer"
                 >{t('ui.app.8c26059674')}</button>
               </div>
             </aside>
@@ -467,7 +467,7 @@ function ProfileCard({
               </div>
             </div>
           </div>
-          <span className={`text-[9px] font-mono tracking-wider uppercase px-2 py-0.5 rounded-full border shrink-0 ${
+          <span className={`text-[11px] font-mono px-2 py-0.5 rounded-full border shrink-0 ${
             member.targetRoles.length <= 1
               ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
               : 'bg-brand-rose-deep/10 text-brand-rose-deep border-brand-rose-deep/20'
@@ -509,7 +509,7 @@ function ProfileCard({
       {/* Contacted badge */}
       {isContacted && (
         <div className="mt-4 flex">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/70 bg-emerald-50/85 px-3 py-1 text-[10px] font-mono font-semibold uppercase tracking-[0.08em] text-emerald-700 shadow-sm shadow-emerald-900/5">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/70 bg-emerald-50/85 px-3 py-1 text-xs font-mono font-semibold text-emerald-700 shadow-sm shadow-emerald-900/5">
             <CheckCircle className="h-3.5 w-3.5" strokeWidth={2.4} />
             {t('common.contacted')}
           </span>
@@ -520,7 +520,7 @@ function ProfileCard({
       <div className="pt-4 mt-2">
         <button
           onClick={() => onOpen(member)}
-          className="w-full bg-white/40 hover:bg-white/70 border border-[#d8d1cc] hover:border-brand-terracotta/40 text-[#5b6472] hover:text-brand-terracotta text-[11px] font-mono tracking-wider py-2.5 rounded-xl transition-all duration-300 cursor-pointer text-center font-medium"
+          className="w-full bg-white/40 hover:bg-white/70 border border-[#d8d1cc] hover:border-brand-terracotta/40 text-[#5b6472] hover:text-brand-terracotta text-[11px] font-mono py-2.5 rounded-xl transition duration-300 cursor-pointer text-center font-medium"
         >{t('ui.findteampage.81dc2b6ebe')}</button>
       </div>
     </motion.div>
@@ -535,7 +535,7 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="bg-white/[0.08] glass-card surface-elevated-soft border border-white/[0.12] rounded-2xl overflow-hidden transition-all duration-300">
+    <div className="bg-white/[0.08] glass-card surface-elevated-soft border border-white/[0.12] rounded-2xl overflow-hidden transition duration-300">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between p-5 text-left font-serif font-semibold text-brand-dark text-lg sm:text-xl md:text-2xl cursor-pointer"
@@ -895,7 +895,7 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
               <button
                 onClick={handleOpenTeamProfile}
-                className="px-8 py-4 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white rounded-2xl text-sm font-medium shadow-xl shadow-[#bc4638]/25 hover:shadow-[#bc4638]/35 hover:scale-[1.01] transition-all flex items-center justify-center gap-2.5 cursor-pointer group"
+                className="px-8 py-4 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white rounded-2xl text-sm font-medium shadow-xl shadow-[#bc4638]/25 hover:shadow-[#bc4638]/35 transition flex items-center justify-center gap-2.5 cursor-pointer group"
               >{t('ui.app.762a52a7bb')}<ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </button>
               {teamMembers.length > 0 && (
@@ -904,7 +904,7 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
                     const el = document.getElementById('profiles-section');
                     el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                   }}
-                  className="px-8 py-4 bg-white/40 backdrop-blur-md border border-[#d8d1cc] hover:border-[#bc4638]/60 rounded-2xl text-sm font-medium text-[#5b6472] hover:text-[#bc4638] transition-all text-center cursor-pointer"
+                  className="px-8 py-4 bg-white/40 backdrop-blur-md border border-[#d8d1cc] hover:border-[#bc4638]/60 rounded-2xl text-sm font-medium text-[#5b6472] hover:text-[#bc4638] transition text-center cursor-pointer"
                 >{t('ui.findteampage.83874460f8')}</button>
               )}
             </div>
@@ -938,7 +938,7 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
             </div>
             <button
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className={`flex items-center gap-1.5 border rounded-xl px-3.5 py-3 sm:py-3 text-xs font-mono tracking-tight cursor-pointer transition-all whitespace-nowrap shrink-0 ${
+              className={`flex items-center gap-1.5 border rounded-xl px-3.5 py-3 sm:py-3 text-xs font-mono tracking-tight cursor-pointer transition whitespace-nowrap shrink-0 ${
                 activeAdvancedCount > 0
                   ? 'bg-brand-terracotta/10 border-brand-terracotta/30 text-brand-terracotta hover:bg-brand-terracotta/15 hover:border-brand-terracotta/50'
                   : 'bg-white/80 hover:bg-white border-[#d8d1cc] hover:border-brand-terracotta/40 text-brand-dark'
@@ -958,7 +958,7 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
           {/* Mobile filter toggle */}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="sm:hidden flex items-center gap-2 bg-white/40 backdrop-blur-md border border-white/50 rounded-xl px-4 py-2.5 text-xs font-mono text-brand-dark tracking-wider cursor-pointer"
+            className="sm:hidden flex items-center gap-2 bg-white/40 backdrop-blur-md border border-white/50 rounded-xl px-4 py-2.5 text-xs font-mono text-brand-dark cursor-pointer"
           >
             <Filter className="w-4 h-4" />{t('ui.findteampage.5412a9a9b7')}<ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${showFilters ? 'rotate-180' : ''}`} />
           </button>
@@ -978,7 +978,7 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   {/* Country */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.findteampage.d45e4de05b')}</label>
+                    <label className="text-xs font-mono text-brand-dark/70">{t('ui.findteampage.d45e4de05b')}</label>
                     <select
                       value={selectedCountry}
                       onChange={(e) => setSelectedCountry(e.target.value)}
@@ -993,7 +993,7 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
 
                   {/* Age */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.championshippage.ff03252b22')}</label>
+                    <label className="text-xs font-mono text-brand-dark/70">{t('ui.championshippage.ff03252b22')}</label>
                     <select
                       value={selectedAgeRange}
                       onChange={(e) => setSelectedAgeRange(e.target.value)}
@@ -1008,7 +1008,7 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
 
                   {/* Tournament */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.findteampage.6da0530772')}</label>
+                    <label className="text-xs font-mono text-brand-dark/70">{t('ui.findteampage.6da0530772')}</label>
                     <select
                       value={selectedTournament}
                       onChange={(e) => setSelectedTournament(e.target.value)}
@@ -1024,13 +1024,13 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
 
                   {/* Intent */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.findteampage.44e0803cef')}</label>
+                    <label className="text-xs font-mono text-brand-dark/70">{t('ui.findteampage.44e0803cef')}</label>
                     <div className="flex gap-2">
                       {(['all', 'looking_for_team', 'looking_for_members'] as const).map((intent) => (
                         <button
                           key={intent}
                           onClick={() => setSelectedIntent(intent)}
-                          className={`flex-1 text-[10px] font-mono tracking-wider py-2.5 rounded-xl border transition-all cursor-pointer text-center font-medium ${
+                          className={`flex-1 text-[10px] font-mono py-2.5 rounded-xl border transition cursor-pointer text-center font-medium ${
                             selectedIntent === intent
                               ? 'bg-brand-terracotta/10 border-brand-terracotta/30 text-brand-terracotta'
                               : 'bg-white/30 border-white/40 text-brand-slate hover:bg-white/50'
@@ -1048,7 +1048,7 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
                   {activeFilters.map((f, idx) => (
                     <span
                       key={idx}
-                      className="inline-flex items-center gap-1 text-[10px] font-mono tracking-wider bg-white/50 border border-white/60 rounded-full px-3 py-1.5 text-brand-dark"
+                      className="inline-flex items-center gap-1 text-[10px] font-mono bg-white/50 border border-white/60 rounded-full px-3 py-1.5 text-brand-dark"
                     >
                       {f.label}
                       <button onClick={f.clear} className="hover:text-brand-terracotta transition-colors cursor-pointer">
@@ -1059,7 +1059,7 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
                   {activeFilters.length > 0 && (
                     <button
                       onClick={clearAllFilters}
-                      className="text-[10px] font-mono tracking-wider text-brand-slate hover:text-brand-terracotta transition-colors cursor-pointer underline underline-offset-2"
+                      className="text-[10px] font-mono text-brand-slate hover:text-brand-terracotta transition-colors cursor-pointer underline underline-offset-2"
                     >{t('ui.findteampage.449ee8d719')}</button>
                   )}
                 </div>
@@ -1082,7 +1082,7 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {/* City */}
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.findteampage.b9c1f7e3a0')}</label>
+                      <label className="text-xs font-mono text-brand-dark/70">{t('ui.findteampage.b9c1f7e3a0')}</label>
                       <select
                         value={selectedCity}
                         onChange={(e) => setSelectedCity(e.target.value)}
@@ -1097,7 +1097,7 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
 
                     {/* Role */}
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.findteampage.c0a1b9f7e4')}</label>
+                      <label className="text-xs font-mono text-brand-dark/70">{t('ui.findteampage.c0a1b9f7e4')}</label>
                       <select
                         value={selectedRole}
                         onChange={(e) => setSelectedRole(e.target.value)}
@@ -1112,7 +1112,7 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
 
                     {/* Contact type */}
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.findteampage.c8d0e2f4a7')}</label>
+                      <label className="text-xs font-mono text-brand-dark/70">{t('ui.findteampage.c8d0e2f4a7')}</label>
                       <select
                         value={selectedContactType}
                         onChange={(e) => setSelectedContactType(e.target.value)}
@@ -1127,7 +1127,7 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
 
                     {/* Sort */}
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.findteampage.e0f2a4b6c9')}</label>
+                      <label className="text-xs font-mono text-brand-dark/70">{t('ui.findteampage.e0f2a4b6c9')}</label>
                       <select
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
@@ -1144,7 +1144,7 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     {/* Skills */}
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.findteampage.e4f6b0a2c1')}</label>
+                      <label className="text-xs font-mono text-brand-dark/70">{t('ui.findteampage.e4f6b0a2c1')}</label>
                       <div className="relative">
                         <input
                           type="text"
@@ -1177,7 +1177,7 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
                       {selectedSkills.length > 0 && (
                         <div className="flex flex-wrap gap-1.5 pt-1">
                           {selectedSkills.map((s) => (
-                            <span key={s} className="inline-flex items-center gap-1 text-[10px] font-mono tracking-wider bg-brand-terracotta/10 text-brand-terracotta border border-brand-terracotta/20 rounded-full px-3 py-1">
+                            <span key={s} className="inline-flex items-center gap-1 text-[10px] font-mono bg-brand-terracotta/10 text-brand-terracotta border border-brand-terracotta/20 rounded-full px-3 py-1">
                               {s}
                               <button onClick={() => setSelectedSkills((prev) => prev.filter((x) => x !== s))} className="hover:text-brand-terracotta transition-colors cursor-pointer">
                                 <X className="w-3 h-3" />
@@ -1190,7 +1190,7 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
 
                     {/* Interests */}
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-mono text-brand-dark/70 uppercase tracking-wider">{t('ui.findteampage.a6b8c0d2e5')}</label>
+                      <label className="text-xs font-mono text-brand-dark/70">{t('ui.findteampage.a6b8c0d2e5')}</label>
                       <div className="relative">
                         <input
                           type="text"
@@ -1223,7 +1223,7 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
                       {selectedInterests.length > 0 && (
                         <div className="flex flex-wrap gap-1.5 pt-1">
                           {selectedInterests.map((i) => (
-                            <span key={i} className="inline-flex items-center gap-1 text-[10px] font-mono tracking-wider bg-brand-rose-deep/10 text-brand-rose-deep border border-brand-rose-deep/15 rounded-full px-3 py-1">
+                            <span key={i} className="inline-flex items-center gap-1 text-[10px] font-mono bg-brand-rose-deep/10 text-brand-rose-deep border border-brand-rose-deep/15 rounded-full px-3 py-1">
                               {i}
                               <button onClick={() => setSelectedInterests((prev) => prev.filter((x) => x !== i))} className="hover:text-brand-rose-deep transition-colors cursor-pointer">
                                 <X className="w-3 h-3" />
@@ -1318,10 +1318,10 @@ export default function FindTeamPage({ onOpenApplyModal }: FindTeamPageProps) {
             <motion.div
               key={item.title}
               variants={cardItemFadeUp.variants}
-              className="group relative overflow-hidden bg-white/[0.12] glass-card surface-elevated-soft border border-white/[0.15] p-6 rounded-2xl hover:bg-white/[0.2] hover:border-[#bc4638]/25 transition-[background-color,border-color,box-shadow,transform] duration-300 hover:-translate-y-1"
+              className="group relative overflow-hidden bg-white/[0.12] glass-card surface-elevated-soft border border-white/[0.15] p-6 rounded-2xl hover:bg-white/[0.2] hover:border-[#bc4638]/25 transition-[background-color,border-color,box-shadow,transform] duration-300"
             >
               <item.Icon
-                className={`pointer-events-none absolute left-5 top-1/2 h-16 w-16 -translate-y-1/2 select-none ${item.iconColor} transition-transform duration-300 group-hover:scale-105`}
+                className={`pointer-events-none absolute left-5 top-1/2 h-16 w-16 -translate-y-1/2 select-none ${item.iconColor} transition-transform duration-300`}
                 aria-hidden="true"
                 strokeWidth={1.45}
               />

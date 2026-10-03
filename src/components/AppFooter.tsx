@@ -26,7 +26,7 @@ const AppFooter = ({ contactSettings, onNavigate }: AppFooterProps) => {
           </div>
 
           <div className="md:col-span-3 space-y-3">
-            <h4 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold">
+            <h4 className="text-xs font-mono text-brand-dark font-semibold">
               {t('ui.app.fc95125398')}
             </h4>
             <ul className="space-y-1.5 text-xs text-brand-slate font-normal md:font-light">
@@ -54,7 +54,7 @@ const AppFooter = ({ contactSettings, onNavigate }: AppFooterProps) => {
           </div>
 
           <div className="md:col-span-4 space-y-3">
-            <h4 className="text-[10px] font-mono text-brand-dark uppercase tracking-widest font-semibold">
+            <h4 className="text-xs font-mono text-brand-dark font-semibold">
               {t('ui.app.ce65e2cf6b')}
             </h4>
             <ul className="space-y-1.5 text-xs text-brand-slate font-normal md:font-light">

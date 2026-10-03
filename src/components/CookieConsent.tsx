@@ -49,7 +49,7 @@ export default function CookieConsent() {
               </div>
               <button
                 onClick={dismiss}
-                className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-brand-slate/40 hover:text-brand-dark hover:bg-white/60 transition-all cursor-pointer"
+                className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-brand-slate/40 hover:text-brand-dark hover:bg-white/60 transition cursor-pointer"
                 aria-label={t('ui.cookieconsent.close')}
               >
                 <X className="w-3.5 h-3.5" strokeWidth={1.5} />

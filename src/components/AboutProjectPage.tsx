@@ -113,14 +113,14 @@ export default function AboutProjectPage({
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
               <button
                 onClick={onOpenApplyModal}
-                className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white rounded-xl text-xs font-mono tracking-widest uppercase font-semibold shadow-lg shadow-[#bc4638]/15 hover:scale-[1.01] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white rounded-xl text-xs font-mono font-semibold shadow-lg shadow-[#bc4638]/15 transition flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>{t('ui.aboutprojectpage.2805697540')}</span>
                 <ArrowUpRight className="w-4 h-4" />
               </button>
               <button
                 onClick={() => handleNavigateFromAbout('nearest-championship')}
-                className="w-full sm:w-auto px-8 py-3.5 bg-white border border-[#d8d1cc] text-[#5b6472] hover:border-[#bc4638]/60 rounded-xl text-xs font-mono tracking-widest uppercase transition-all text-center cursor-pointer hover:text-brand-dark"
+                className="w-full sm:w-auto px-8 py-3.5 bg-white border border-[#d8d1cc] text-[#5b6472] hover:border-[#bc4638]/60 rounded-xl text-xs font-mono transition text-center cursor-pointer hover:text-brand-dark"
               >{t('ui.aboutprojectpage.0a09c52fdd')}</button>
             </div>
           </motion.div>
@@ -180,7 +180,7 @@ export default function AboutProjectPage({
                 <p className="text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">{t('ui.aboutprojectpage.c2b671bade')}</p>
               </div>
 
-              <p className="text-xs sm:text-sm font-mono tracking-wide text-[#bc4638] font-semibold">{t('ui.aboutprojectpage.4d60e65bd8')}</p>
+              <p className="text-xs sm:text-sm font-mono text-[#bc4638] font-semibold">{t('ui.aboutprojectpage.4d60e65bd8')}</p>
             </div>
           </div>
         </motion.section>
@@ -219,7 +219,7 @@ export default function AboutProjectPage({
                       setSelectedSegmentIdx((idx - 1 + AUDIENCE_SEGMENTS.length) % AUDIENCE_SEGMENTS.length);
                     }
                   }}
-                  className={`flex-shrink-0 snap-start w-64 lg:w-full text-left px-5 py-4 rounded-2xl transition-all border ${
+                  className={`flex-shrink-0 snap-start w-64 lg:w-full text-left px-5 py-4 rounded-2xl transition border ${
                     selectedSegmentIdx === idx 
                       ? 'bg-brand-dark text-white border-brand-dark shadow-md' 
                       : 'bg-white/40 text-brand-slate hover:text-brand-dark border-white/60 hover:bg-white/60'
@@ -227,7 +227,7 @@ export default function AboutProjectPage({
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="text-xs font-mono font-semibold uppercase tracking-wider">
+                      <h4 className="text-xs font-mono font-semibold">
                         {t(seg.title)}
                       </h4>
                       <p className={`text-[10px] mt-0.5 truncate max-w-[200px] ${selectedSegmentIdx === idx ? 'text-white/80' : 'text-brand-slate/70'}`}>
@@ -255,7 +255,7 @@ export default function AboutProjectPage({
                   className="bg-white/[0.15] glass-panel surface-elevated border border-white/[0.15] rounded-3xl p-6 sm:p-8 text-left space-y-6"
                 >
                   <div className="space-y-1.5 pb-4">
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-[#bc4638] font-bold">{t('ui.aboutprojectpage.7a0e44e136')}</span>
+                    <span className="text-xs font-mono text-[#bc4638] font-bold">{t('ui.aboutprojectpage.7a0e44e136')}</span>
                     <h3 className="text-xl sm:text-2xl font-serif text-brand-dark">
                       {t(AUDIENCE_SEGMENTS[selectedSegmentIdx].title)}
                     </h3>
@@ -265,7 +265,7 @@ export default function AboutProjectPage({
                   </div>
 
                   <div className="space-y-3 pt-2">
-                    <h5 className="text-[10px] font-mono text-brand-dark uppercase tracking-wider font-semibold">{t('ui.aboutprojectpage.2fed8f727b')}</h5>
+                    <h5 className="text-xs font-mono text-brand-dark font-semibold">{t('ui.aboutprojectpage.2fed8f727b')}</h5>
                     <ul className="space-y-2.5">
                       {AUDIENCE_SEGMENTS[selectedSegmentIdx].benefits.map((benefit, bIdx) => (
                         <li key={bIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-brand-slate font-normal md:font-light">
@@ -288,7 +288,7 @@ export default function AboutProjectPage({
                           onOpenApplyModal();
                         }
                       }}
-                      className="px-6 py-3 bg-brand-dark text-white hover:bg-brand-dark/90 rounded-xl text-xs font-mono tracking-widest uppercase transition-all flex items-center gap-2 cursor-pointer shadow-md"
+                      className="px-6 py-3 bg-brand-dark text-white hover:bg-brand-dark/90 rounded-xl text-xs font-mono transition flex items-center gap-2 cursor-pointer shadow-md"
                     >
                       <span>{t(AUDIENCE_SEGMENTS[selectedSegmentIdx].ctaText)}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -314,7 +314,7 @@ export default function AboutProjectPage({
             {faqItems.map((faq, idx) => (
               <div 
                 key={faq.id} 
-                className="bg-white/[0.10] glass-card surface-elevated-soft border border-white/[0.12] rounded-2xl overflow-hidden transition-all duration-300"
+                className="bg-white/[0.10] glass-card surface-elevated-soft border border-white/[0.12] rounded-2xl overflow-hidden transition duration-300"
               >
                 <button
                   onClick={() => setActiveFaqIdx(activeFaqIdx === idx ? null : idx)}

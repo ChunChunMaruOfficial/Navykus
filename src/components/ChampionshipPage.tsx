@@ -64,7 +64,7 @@ interface ChampionshipPageProps {
 
 const keyInfoCardClass =
   "bg-[#fff4ed]/82 glass-card surface-elevated-soft border border-[#bc4638]/14 p-4 sm:p-5 rounded-2xl text-left flex flex-col justify-between space-y-3";
-const keyInfoLabelClass = "text-xs sm:text-[13px] lg:text-sm font-mono uppercase tracking-wider";
+const keyInfoLabelClass = "text-xs sm:text-[13px] lg:text-sm font-mono";
 const keyInfoValueClass = "text-base sm:text-lg lg:text-xl font-serif font-bold leading-tight";
 
 const splitCmsList = (value?: string) =>
@@ -172,16 +172,16 @@ export default function ChampionshipPage({
           <div className="space-y-6 text-left">
             <div className="flex">
               {cmsData.registrationStatus === 'open' && (
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 rounded-full text-[10px] font-mono uppercase tracking-widest font-semibold animate-pulse">
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 rounded-full text-xs font-mono font-semibold">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>{t('ui.championshippage.6bdc7661d3')} {cmsData.registrationDeadline}
                 </span>
               )}
               {cmsData.registrationStatus === 'suspended' && (
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-amber-500/10 text-amber-600 border border-amber-500/20 rounded-full text-[10px] font-mono uppercase tracking-widest font-semibold">
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-amber-500/10 text-amber-600 border border-amber-500/20 rounded-full text-xs font-mono font-semibold">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>{t('ui.championshippage.04d60f7ace')}</span>
               )}
               {cmsData.registrationStatus === 'closed' && (
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-rose-500/10 text-rose-600 border border-rose-500/20 rounded-full text-[10px] font-mono uppercase tracking-widest font-semibold">
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-rose-500/10 text-rose-600 border border-rose-500/20 rounded-full text-xs font-mono font-semibold">
                   <Lock className="w-3 h-3" />{t('ui.championshippage.a9e0cfbc2d')}</span>
               )}
             </div>
@@ -208,7 +208,7 @@ export default function ChampionshipPage({
             {cmsData.registrationStatus !== 'closed' ? (
               <a
                 href="#apply-form-section"
-                className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white rounded-xl text-xs font-mono tracking-widest uppercase font-semibold shadow-lg shadow-[#bc4638]/15 hover:scale-[1.01] transition-all flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white rounded-xl text-xs font-mono font-semibold shadow-lg shadow-[#bc4638]/15 transition flex items-center justify-center gap-2"
               >
                 <span>{t('ui.app.24cd8dc78d')}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -216,13 +216,13 @@ export default function ChampionshipPage({
             ) : (
               <button
                 disabled
-                className="w-full sm:w-auto px-8 py-3.5 bg-gray-300 text-gray-500 rounded-xl text-xs font-mono tracking-widest uppercase cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-8 py-3.5 bg-gray-300 text-gray-500 rounded-xl text-xs font-mono cursor-not-allowed flex items-center justify-center gap-2"
               >{t('ui.championshippage.26e1a772ee')}</button>
             )}
 
             <button
               onClick={() => onNavigateToSection('find-team')}
-              className="w-full sm:w-auto px-8 py-3.5 bg-white border border-[#d8d1cc] text-[#5b6472] hover:border-[#bc4638]/60 hover:text-brand-dark rounded-xl text-xs font-mono tracking-widest uppercase transition-all text-center cursor-pointer"
+              className="w-full sm:w-auto px-8 py-3.5 bg-white border border-[#d8d1cc] text-[#5b6472] hover:border-[#bc4638]/60 hover:text-brand-dark rounded-xl text-xs font-mono transition text-center cursor-pointer"
             >{t('ui.app.d13f387e64')}</button>
           </div>
           </div>
@@ -243,7 +243,7 @@ export default function ChampionshipPage({
             {keyInfoCards.map((card, index) => (
               <motion.div
                 key={card.key}
-                initial={{ opacity: 0, y: 30 }}
+                initial={false}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.5, ease: "easeOut", delay: index * 0.08 }}
@@ -291,7 +291,7 @@ export default function ChampionshipPage({
               {/* Themes list from CMS */}
               {cmsData.themes.length > 0 && (
               <div className="space-y-4">
-                <span className="text-[11px] font-mono uppercase tracking-wider text-brand-dark font-semibold block">{t('ui.championshippage.5c807e4149')}</span>
+                <span className="text-xs font-mono text-brand-dark font-semibold block">{t('ui.championshippage.5c807e4149')}</span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   {cmsData.themes.map((theme, idx) => (
                     <div key={idx} className="bg-white/[0.12] glass-card surface-elevated-soft border border-white/[0.15] p-4 sm:p-5 rounded-xl text-left flex items-start gap-3">
@@ -310,7 +310,7 @@ export default function ChampionshipPage({
                 {/* Evaluation Criteria */}
                 {cmsData.evaluationCriteria.length > 0 && (
                 <div className="space-y-3">
-                  <span className="text-[11px] font-mono uppercase tracking-wider text-brand-dark font-semibold block">{t('ui.championshippage.9ab00a25e1')}</span>
+                  <span className="text-xs font-mono text-brand-dark font-semibold block">{t('ui.championshippage.9ab00a25e1')}</span>
                   <div className="space-y-2">
                     {cmsData.evaluationCriteria.map((crit, idx) => (
                       <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-brand-slate font-normal md:font-light leading-relaxed">
@@ -325,7 +325,7 @@ export default function ChampionshipPage({
                 {/* Expected Result (MVP) */}
                 {cmsData.expectedResult && (
                 <div className="p-4 sm:p-5 bg-white/[0.12] glass-panel surface-elevated-soft rounded-2xl border border-white/[0.12]">
-                  <span className="text-[11px] font-mono uppercase tracking-wider text-brand-slate block mb-1.5">{t('ui.championshippage.d50e039adb')}</span>
+                  <span className="text-xs font-mono text-brand-slate block mb-1.5">{t('ui.championshippage.d50e039adb')}</span>
                   <p className="text-sm sm:text-base text-brand-dark font-medium leading-relaxed font-serif">
                     {cmsData.expectedResult}
                   </p>
@@ -337,7 +337,7 @@ export default function ChampionshipPage({
               {/* Jury & mentors — compact cards, same style as the home page */}
               {juryMembers.length > 0 && (
                 <div className="space-y-3">
-                  <span className="text-sm sm:text-base font-mono uppercase tracking-wider text-brand-dark font-semibold block">{t('ui.enhancements.championshipJuryHeading')}</span>
+                  <span className="text-sm sm:text-base font-mono text-brand-dark font-semibold block">{t('ui.enhancements.championshipJuryHeading')}</span>
                   <JuryCards members={juryMembers} />
                 </div>
               )}
@@ -387,7 +387,7 @@ export default function ChampionshipPage({
             {faqItems.map((faq, idx) => (
               <div 
                 key={faq.id} 
-                className="bg-white/[0.08] glass-card surface-elevated-soft border border-white/[0.12] rounded-2xl overflow-hidden transition-all duration-300"
+                className="bg-white/[0.08] glass-card surface-elevated-soft border border-white/[0.12] rounded-2xl overflow-hidden transition duration-300"
               >
                 <button
                   type="button"

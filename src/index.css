@@ -83,8 +83,32 @@
     background: linear-gradient(180deg, rgba(188, 70, 56, 0.52), rgba(189, 91, 130, 0.46));
   }
 
+  html {
+    color-scheme: light;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  a, button, [role="button"], summary {
+    touch-action: manipulation;
+  }
+
+  h1, h2, h3, h4 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Keyboard focus stays visible. Text fields draw their own focus border, so
+     they are left out here. */
   :focus-visible {
     outline: none;
+  }
+
+  :where(a, button, summary, [role="button"], [tabindex]:not([tabindex="-1"])):focus-visible {
+    outline: 2px solid rgba(188, 70, 56, 0.6);
+    outline-offset: 3px;
   }
 
   @utility scrollbar-none {
@@ -175,8 +199,6 @@
     will-change: transform;
   }
 
-  /* ─── Ambient gradient blob animations ─── */
-  /* Ambient gradient spheres use transform only; opacity stays stable. */
   .hero-brand-word {
     position: relative;
     display: inline-block;
@@ -196,22 +218,11 @@
     height: 0.13em;
     border-radius: 999px;
     background: linear-gradient(90deg, rgba(188, 70, 56, 0.18), rgba(189, 91, 130, 0.28), rgba(201, 169, 110, 0.2));
-    transform: scaleX(0.96);
-    transform-origin: left center;
+    opacity: 0.8;
     z-index: -1;
-    animation: hero-brand-underline 5.5s ease-in-out infinite;
   }
 
-  @keyframes hero-brand-sheen {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-  }
-
-  @keyframes hero-brand-underline {
-    0%, 100% { opacity: 0.62; transform: scaleX(0.92); }
-    50% { opacity: 0.95; transform: scaleX(1); }
-  }
-
+  /* Ambient gradient spheres use transform only; opacity stays stable. */
   @keyframes ambient-drift-1 {
     0%, 100% { transform: translate(0px, 0px) scale(1); }
     25%      { transform: translate(40px, -30px) scale(1.05); }
@@ -272,24 +283,6 @@
     }
   }
 
-  @keyframes skeleton-float {
-    0%, 100% {
-      transform: translateY(0) scale(1);
-    }
-    50% {
-      transform: translateY(-6px) scale(1.005);
-    }
-  }
-
-  @keyframes skeleton-glow {
-    0%, 100% {
-      transform: translateX(-50%) scale(1);
-    }
-    50% {
-      transform: translateX(-50%) scale(1.06);
-    }
-  }
-
   .skeleton-bone {
     position: relative;
     background:
@@ -318,10 +311,5 @@
 
   .skeleton-card {
     position: relative;
-    animation: skeleton-float 4.8s ease-in-out infinite;
-  }
-
-  .skeleton-glow {
-    animation: skeleton-glow 6.5s ease-in-out infinite;
   }
 

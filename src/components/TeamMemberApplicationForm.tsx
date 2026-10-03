@@ -187,30 +187,30 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
       )}
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
+        <label className="grid gap-1 text-xs font-mono text-brand-dark/70">
           {t('ui.applicationmodal.34fda9e41a')}*
           <input value={form.name} onChange={(event) => setField('name', event.target.value)} className={FIELD_CLASS} required />
         </label>
-        <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
+        <label className="grid gap-1 text-xs font-mono text-brand-dark/70">
           {t('ui.applicationmodal.emailLabel')}*
           <input type="email" value={form.email} onChange={(event) => setField('email', event.target.value)} className={FIELD_CLASS} required />
         </label>
-        <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
+        <label className="grid gap-1 text-xs font-mono text-brand-dark/70">
           {t('ui.championshippage.b520139c06')}*
           <input type="number" min={10} max={24} value={form.age} onChange={(event) => setField('age', event.target.value)} className={FIELD_CLASS} required />
         </label>
-        <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
+        <label className="grid gap-1 text-xs font-mono text-brand-dark/70">
           {t('ui.findteampage.d45e4de05b')}*
           <input value={form.country} onChange={(event) => setField('country', event.target.value)} className={FIELD_CLASS} required />
         </label>
-        <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
+        <label className="grid gap-1 text-xs font-mono text-brand-dark/70">
           {t('ui.championshippage.450778ada1')}
           <input value={form.city} onChange={(event) => setField('city', event.target.value)} className={FIELD_CLASS} />
         </label>
       </div>
 
       {directions.length > 0 && (
-        <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
+        <label className="grid gap-1 text-xs font-mono text-brand-dark/70">
           {t('ui.applicationmodal.directionLabel')}*
           <select
             value={form.championshipDirectionIndex ?? ''}
@@ -226,21 +226,21 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
         </label>
       )}
 
-      <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
+      <label className="grid gap-1 text-xs font-mono text-brand-dark/70">
         {t('ui.findteampage.53fa567ce7')}*
         <textarea rows={3} value={form.shortBio} onChange={(event) => setField('shortBio', event.target.value)} className={FIELD_CLASS} required />
       </label>
 
       {!isParticipationForm && (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
+          <label className="grid gap-1 text-xs font-mono text-brand-dark/70">
             {t('ui.findteampage.e4f6b0a2c1')}
             <input value={skillsInput} onChange={(event) => {
               setSkillsInput(event.target.value);
               setField('skills', splitList(event.target.value));
             }} placeholder={t('ui.applicationmodal.skillsPlaceholder')} className={FIELD_CLASS} />
           </label>
-          <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
+          <label className="grid gap-1 text-xs font-mono text-brand-dark/70">
             {t('ui.findteampage.a6b8c0d2e5')}
             <input value={interestsInput} onChange={(event) => {
               setInterestsInput(event.target.value);
@@ -252,7 +252,7 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
 
       {!isParticipationForm && (
         <div className="space-y-2">
-          <div className="text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">{t('ui.findteampage.20be1bd637')}*</div>
+          <div className="text-xs font-mono text-brand-dark/70">{t('ui.findteampage.20be1bd637')}*</div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {ROLE_OPTIONS.map((role) => (
               <label key={role} className="flex min-h-10 items-center gap-2 rounded-xl border border-[#d8d1cc] bg-white/60 px-3 text-[11px] text-brand-slate">
@@ -274,27 +274,27 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
       )}
 
       {!isParticipationForm && (
-        <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
+        <label className="grid gap-1 text-xs font-mono text-brand-dark/70">
           {t('ui.findteampage.43584e6c75')}
           <input value={form.targetProject || ''} onChange={(event) => setField('targetProject', event.target.value)} className={FIELD_CLASS} />
         </label>
       )}
 
       {!isParticipationForm && (
-        <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
+        <label className="grid gap-1 text-xs font-mono text-brand-dark/70">
           {t('ui.findteampage.0d5ce0304e')}*
           <textarea rows={3} value={form.whyLooking} onChange={(event) => setField('whyLooking', event.target.value)} className={FIELD_CLASS} required />
         </label>
       )}
 
       <div className="space-y-2">
-        <div className="text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">{t('ui.applicationmodal.portfolioSection')}</div>
+        <div className="text-xs font-mono text-brand-dark/70">{t('ui.applicationmodal.portfolioSection')}</div>
         <div className="flex rounded-xl border border-[#d8d1cc] bg-white/55 p-1">
           <button
             type="button"
             onClick={() => setPortfolioMode('files')}
             aria-pressed={portfolioMode === 'files'}
-            className={`inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide transition-all ${
+            className={`inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
               portfolioMode === 'files' ? 'bg-brand-dark text-white shadow-md' : 'text-brand-slate hover:bg-white/70 hover:text-brand-dark'
             }`}
           >
@@ -305,7 +305,7 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
             type="button"
             onClick={() => setPortfolioMode('link')}
             aria-pressed={portfolioMode === 'link'}
-            className={`inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide transition-all ${
+            className={`inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
               portfolioMode === 'link' ? 'bg-brand-dark text-white shadow-md' : 'text-brand-slate hover:bg-white/70 hover:text-brand-dark'
             }`}
           >
@@ -351,7 +351,7 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
             {fileError && <p className="mt-2 text-xs text-rose-700">{fileError}</p>}
           </div>
         ) : (
-          <label className="grid gap-1 text-[10px] font-mono uppercase tracking-wider text-brand-dark/70">
+          <label className="grid gap-1 text-xs font-mono text-brand-dark/70">
             {t('ui.championshippage.40aa3bf48b')}
             <input value={form.portfolioLink || ''} onChange={(event) => setField('portfolioLink', event.target.value)} placeholder={t('ui.applicationmodal.portfolioPlaceholder')} className={FIELD_CLASS} />
           </label>
@@ -373,7 +373,7 @@ export default function TeamMemberApplicationForm({ context, compact = false, on
         <button
           type="submit"
           disabled={status === 'submitting'}
-          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-brand-terracotta px-6 py-3 text-sm font-medium text-white shadow-lg shadow-brand-terracotta/20 transition-all hover:bg-brand-terracotta/95 disabled:cursor-not-allowed disabled:opacity-70"
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-brand-terracotta px-6 py-3 text-sm font-medium text-white shadow-lg shadow-brand-terracotta/20 transition hover:bg-brand-terracotta/95 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {status === 'submitting' ? (
             <>

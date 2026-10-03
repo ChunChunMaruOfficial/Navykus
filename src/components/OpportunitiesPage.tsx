@@ -662,7 +662,7 @@ function SelectField({
   options: Array<{ value: string; label: string }>;
 }) {
   return (
-    <label className="grid gap-2 text-[10px] font-mono uppercase tracking-widest text-brand-dark/70">
+    <label className="grid gap-2 text-xs font-mono text-brand-dark/70">
       <span>{label}</span>
       <select
         value={value}
@@ -701,18 +701,18 @@ function OpportunityCard({
     <motion.article
       {...cardItemFadeUp}
       data-preview-id={opportunity.id}
-      className="group relative flex h-full min-h-[320px] flex-col overflow-hidden rounded-[1.35rem] border border-white/65 bg-white/46 surface-elevated-soft backdrop-blur-xl transition-transform duration-300 hover:-translate-y-1"
+      className="group relative flex h-full min-h-[320px] flex-col overflow-hidden rounded-[1.35rem] border border-white/65 bg-white/46 surface-elevated-soft backdrop-blur-xl transition-transform duration-300"
     >
       <div className="flex min-h-0 flex-1 flex-col p-5 sm:p-6">
         <div className="mb-4 flex flex-wrap items-center gap-2">
-          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wider ${
+          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
             opportunity.source === 'navykus' ? 'bg-[#bc4638]/10 text-[#8d3026]' : 'bg-emerald-500/10 text-emerald-700'
           }`}>
             {opportunity.source === 'navykus' ? <Sparkles className="h-3 w-3" /> : <BadgeCheck className="h-3 w-3" />}
             {getSourceLabel(opportunity.source, language)}
           </span>
           {opportunity.editorPick && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-[#bd5b82]/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#8a3859]">
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#bd5b82]/10 px-3 py-1 text-xs font-semibold text-[#8a3859]">
               <Star className="h-3 w-3" />
               {pick(tk('ui.opportunitiespage.editorPick'), language)}
             </span>
@@ -752,7 +752,7 @@ function OpportunityCard({
           <button
             type="button"
             onClick={onOpenDetails}
-            className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-brand-dark px-4 py-2.5 text-xs font-semibold text-white transition-transform hover:scale-[1.01]"
+            className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-brand-dark px-4 py-2.5 text-xs font-semibold text-white transition-transform"
           >
             {pick(UI.details, language)}
             <ArrowRight className="h-4 w-4" />
@@ -1142,7 +1142,7 @@ export default function OpportunitiesPage({
                 key={category.id}
                 onClick={() => updateFilters({ category: isActive ? 'all' : category.id })}
                 aria-selected={isActive}
-                className={`inline-flex min-h-12 shrink-0 items-center gap-2 rounded-2xl border px-4 py-2 text-[11px] font-semibold uppercase tracking-wide transition-all ${
+                className={`inline-flex min-h-12 shrink-0 items-center gap-2 rounded-2xl border px-4 py-2 text-xs font-semibold transition ${
                   isActive ? 'border-brand-dark bg-brand-dark text-white shadow-md' : 'border-white/60 bg-white/45 text-brand-slate hover:bg-white hover:text-brand-dark'
                 }`}
               >
@@ -1178,11 +1178,11 @@ export default function OpportunitiesPage({
             <SelectField label={pick(UI.deadline, language)} value={filters.deadline} onChange={(value) => updateFilters({ deadline: value as Filters['deadline'] })} options={[{ value: 'all', label: pick(UI.all, language) }, { value: '7', label: pick(UI.days7, language) }, { value: '14', label: pick(UI.days14, language) }, { value: '30', label: pick(UI.days30, language) }, { value: 'rolling', label: pick(UI.rolling, language) }]} />
             <SelectField label={pick(UI.countryLabel, language)} value={filters.country} onChange={(value) => updateFilters({ country: value })} options={[{ value: 'all', label: pick(UI.all, language) }, ...countries.map((country) => ({ value: country, label: country }))]} />
             <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-2">
-              <label className="grid min-w-0 gap-2 text-[10px] font-mono uppercase tracking-widest text-brand-dark/70">
+              <label className="grid min-w-0 gap-2 text-xs font-mono text-brand-dark/70">
                 {pick(UI.ageLabel, language)}
                 <input value={filters.age} onChange={(event) => updateFilters({ age: event.target.value })} inputMode="numeric" className="min-h-11 min-w-0 w-full rounded-xl border border-[#d8d1cc] bg-white/70 px-3 text-xs outline-none" />
               </label>
-              <label className="grid min-w-0 gap-2 text-[10px] font-mono uppercase tracking-widest text-brand-dark/70">
+              <label className="grid min-w-0 gap-2 text-xs font-mono text-brand-dark/70">
                 {pick(UI.gradeLabel, language)}
                 <input value={filters.grade} onChange={(event) => updateFilters({ grade: event.target.value })} inputMode="numeric" className="min-h-11 min-w-0 w-full rounded-xl border border-[#d8d1cc] bg-white/70 px-3 text-xs outline-none" />
               </label>
@@ -1206,7 +1206,7 @@ export default function OpportunitiesPage({
 
         <div>
           <div className="mb-4 flex flex-col gap-3 rounded-[1.25rem] border border-white/60 bg-white/35 p-3 surface-elevated-soft backdrop-blur-md sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-xs font-mono uppercase tracking-widest text-brand-slate" aria-live="polite">
+            <div className="text-xs font-mono text-brand-slate" aria-live="polite">
               <strong className="text-brand-dark">{filtered.length}</strong> {pick(UI.results, language)}
             </div>
             <div className="flex items-end gap-2">
@@ -1280,7 +1280,7 @@ export default function OpportunitiesPage({
                   [pick(UI.ageLabel, language), (item: Opportunity) => `${item.minAge}-${item.maxAge}`],
                 ].map(([label, getValue]) => (
                   <tr key={String(label)} className="border-b border-white/50">
-                    <th className="w-40 px-3 py-4 text-xs uppercase tracking-widest text-brand-slate">{String(label)}</th>
+                    <th className="w-40 px-3 py-4 text-xs text-brand-slate">{String(label)}</th>
                     {items.map((item) => (
                       <td key={item.id} className="px-3 py-4 text-brand-dark">{(getValue as (item: Opportunity) => string)(item)}</td>
                     ))}
@@ -1308,12 +1308,12 @@ export default function OpportunitiesPage({
         <Header title={pick(UI.submitTitle, language)} language={language} />
         <form onSubmit={submitProposal} className="grid gap-4 rounded-[1.5rem] border border-white/60 bg-white/42 p-6 surface-elevated-soft backdrop-blur-xl">
           {(['title', 'organizer', 'link'] as const).map((field) => (
-            <label key={field} className="grid gap-2 text-[10px] font-mono uppercase tracking-widest text-brand-dark/70">
+            <label key={field} className="grid gap-2 text-xs font-mono text-brand-dark/70">
               {field === 'title' ? pick(UI.titleLabel, language) : field === 'organizer' ? pick(UI.organizerLabel, language) : pick(UI.linkLabel, language)}
               <input required value={proposal[field]} onChange={(event) => setProposal({ ...proposal, [field]: event.target.value })} className="min-h-12 rounded-xl border border-[#d8d1cc] bg-white/70 px-3 text-sm normal-case tracking-normal outline-none" />
             </label>
           ))}
-          <label className="grid gap-2 text-[10px] font-mono uppercase tracking-widest text-brand-dark/70">
+          <label className="grid gap-2 text-xs font-mono text-brand-dark/70">
             {pick(UI.noteLabel, language)}
             <textarea value={proposal.note} onChange={(event) => setProposal({ ...proposal, note: event.target.value })} rows={5} className="rounded-xl border border-[#d8d1cc] bg-white/70 p-3 text-sm normal-case tracking-normal outline-none" />
           </label>
@@ -1341,7 +1341,7 @@ function Header({ title, description, language }: { title: string; description?:
   return (
     <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <button onClick={() => navigate('/opportunities')} className="mb-4 inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-brand-slate hover:text-[#bc4638]">
+        <button onClick={() => navigate('/opportunities')} className="mb-4 inline-flex items-center gap-2 text-xs font-mono text-brand-slate hover:text-[#bc4638]">
           <ArrowRight className="h-3.5 w-3.5 rotate-180" />
           {pick(OPPORTUNITIES_NAV_LABELS, language)}
         </button>
@@ -1359,7 +1359,7 @@ function Header({ title, description, language }: { title: string; description?:
 function DetailBlock({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h4 className="mb-2 text-[10px] font-bold uppercase tracking-widest text-brand-dark/70">{title}</h4>
+      <h4 className="mb-2 text-xs font-bold text-brand-dark/70">{title}</h4>
       <div className="text-xs leading-relaxed text-brand-slate">{children}</div>
     </div>
   );
@@ -1434,14 +1434,14 @@ function OpportunityDetailsModal({
         <div className="p-5 pr-16 sm:p-8 sm:pr-20">
           <div className="space-y-4 text-left">
             <div className="flex flex-wrap items-center gap-2">
-              <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wider ${
+              <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
                 opportunity.source === 'navykus' ? 'bg-[#bc4638]/10 text-[#8d3026]' : 'bg-emerald-500/10 text-emerald-700'
               }`}>
                 {opportunity.source === 'navykus' ? <Sparkles className="h-3 w-3" /> : <BadgeCheck className="h-3 w-3" />}
                 {getSourceLabel(opportunity.source, language)}
               </span>
               {opportunity.editorPick && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#bd5b82]/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#8a3859]">
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#bd5b82]/10 px-3 py-1 text-xs font-semibold text-[#8a3859]">
                   <Star className="h-3 w-3" />
                   {pick(tk('ui.opportunitiespage.editorPick'), language)}
                 </span>
@@ -1451,7 +1451,7 @@ function OpportunityDetailsModal({
               {pick(opportunity.title, language)}
             </h2>
             <p className="text-xs font-medium text-brand-slate">{pick(opportunity.organizer, language)}</p>
-            {applyContent("inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-[11px] font-bold uppercase tracking-widest text-white shadow-lg shadow-[#bc4638]/12 transition-all hover:opacity-95")}
+            {applyContent("inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-xs font-bold text-white shadow-lg shadow-[#bc4638]/12 transition hover:opacity-95")}
           </div>
         </div>
 
@@ -1519,11 +1519,11 @@ function OpportunityDetailsModal({
           </DetailBlock>
           )}
 
-          {applyContent("inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-[11px] font-bold uppercase tracking-widest text-white shadow-lg shadow-[#bc4638]/12 transition-all hover:opacity-95")}
+          {applyContent("inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-xs font-bold text-white shadow-lg shadow-[#bc4638]/12 transition hover:opacity-95")}
 
           <button
             onClick={() => navigate('/find-team')}
-            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-[#6b8f71]/25 bg-[#6b8f71]/12 px-3 py-2 text-xs font-semibold text-[#355a40] shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#6b8f71]/16"
+            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-[#6b8f71]/25 bg-[#6b8f71]/12 px-3 py-2 text-xs font-semibold text-[#355a40] shadow-sm transition hover:bg-[#6b8f71]/16"
           >
             <Users className="h-4 w-4" />
             {pick(UI.findTeam, language)}

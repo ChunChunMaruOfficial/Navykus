@@ -172,13 +172,13 @@ export default function PrivacyPolicyPage({ onBackToHome }: PrivacyPolicyPagePro
     <main className="relative z-10 pb-20 pt-32 md:pb-28 md:pt-40">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 md:px-10 space-y-6">
         <motion.header {...fadeUp} className="space-y-2">
-          <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.18em] text-brand-terracotta">
+          <span className="text-xs font-mono font-semibold text-brand-terracotta">
             {t('privacypolicy.eyebrow')}
           </span>
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-light tracking-tight text-brand-dark leading-tight">
             {t('privacypolicy.title')}
           </h1>
-          <p className="text-[11px] font-mono text-brand-slate/60 tracking-wider pt-1">
+          <p className="text-[11px] font-mono text-brand-slate/60 pt-1">
             {substitute(t('privacypolicy.lastUpdatedLabel'), values)}
           </p>
         </motion.header>
@@ -219,7 +219,7 @@ export default function PrivacyPolicyPage({ onBackToHome }: PrivacyPolicyPagePro
         >
           <button
             onClick={onBackToHome}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white rounded-xl text-xs font-mono tracking-widest uppercase font-semibold shadow-lg shadow-[#bc4638]/15 hover:scale-[1.01] transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#bc4638] to-[#bd5b82] text-white rounded-xl text-xs font-mono font-semibold shadow-lg shadow-[#bc4638]/15 transition cursor-pointer"
           >
             <span>{t('ui.legalpage.backHome')}</span>
           </button>

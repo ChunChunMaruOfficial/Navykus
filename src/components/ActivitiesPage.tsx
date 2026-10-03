@@ -246,7 +246,7 @@ export default function ActivitiesPage({
                       key={view}
                       type="button"
                       onClick={() => navigateToView(view)}
-                      className={`inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2 text-[11px] font-bold uppercase tracking-wide transition-all sm:flex-none ${
+                      className={`inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition sm:flex-none ${
                         isActive ? 'bg-brand-dark text-white shadow-md' : 'text-brand-slate hover:bg-white/60 hover:text-brand-dark'
                       }`}
                     >
@@ -303,7 +303,7 @@ export default function ActivitiesPage({
                   key={category}
                   onClick={() => setSelectedCategory(category)}
                   aria-selected={isActive}
-                  className={`inline-flex min-h-12 shrink-0 items-center gap-2 rounded-2xl border px-4 py-2 text-[11px] font-semibold uppercase tracking-wide transition-all ${
+                  className={`inline-flex min-h-12 shrink-0 items-center gap-2 rounded-2xl border px-4 py-2 text-xs font-semibold transition ${
                     isActive
                       ? 'border-brand-dark bg-brand-dark text-white shadow-md'
                       : 'border-white/60 bg-white/45 text-brand-slate hover:bg-white hover:text-brand-dark'
@@ -406,7 +406,7 @@ export default function ActivitiesPage({
                 </div>
                 <button
                   onClick={card.action}
-                  className="mt-6 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-[#d8d1cc] bg-white/58 px-4 py-2.5 text-[11px] font-bold uppercase tracking-wide text-brand-slate transition-all hover:border-[#bc4638]/45 hover:bg-white hover:text-[#8d3026]"
+                  className="mt-6 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-[#d8d1cc] bg-white/58 px-4 py-2.5 text-xs font-bold text-brand-slate transition hover:border-[#bc4638]/45 hover:bg-white hover:text-[#8d3026]"
                 >
                   <span>{card.cta}</span>
                   <ArrowRight className="h-3.5 w-3.5" />
@@ -442,7 +442,7 @@ function StatusBadge({ status }: { status: ActivityStatus }) {
   const statusInfo = STATUS_MAP[status];
 
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${statusInfo.className}`}>
+    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-bold ${statusInfo.className}`}>
       <span className={`h-1.5 w-1.5 rounded-full ${statusInfo.dot}`} />
       {t(statusInfo.label)}
     </span>
@@ -494,7 +494,7 @@ function ActivityCard({
       <div className="flex min-w-0 flex-1 flex-col p-4 sm:p-5">
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <StatusBadge status={activity.status} />
-          <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${categoryInfo.chip}`}>
+          <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ${categoryInfo.chip}`}>
             {categoryInfo.icon}
             {t(categoryInfo.label)}
           </span>
@@ -526,7 +526,7 @@ function ActivityCard({
 
         <div className="mt-auto flex justify-end pt-5">
           <span
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d8d1cc]/70 bg-white/55 text-[#8d3026] transition-all group-hover:border-[#bc4638]/35 group-hover:bg-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d8d1cc]/70 bg-white/55 text-[#8d3026] transition group-hover:border-[#bc4638]/35 group-hover:bg-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
             aria-hidden="true"
           >
             <ArrowUpRight className="h-4 w-4" />
@@ -622,7 +622,7 @@ function ActivityDetailsModal({
           <div className="space-y-4 text-left">
             <div className="flex flex-wrap items-center gap-2">
               <StatusBadge status={activity.status} />
-              <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${categoryInfo.chip}`}>
+              <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ${categoryInfo.chip}`}>
                 {categoryInfo.icon}
                 {t(categoryInfo.label)}
               </span>
@@ -630,7 +630,7 @@ function ActivityDetailsModal({
             <h2 id="activity-details-title" className="text-2xl font-serif font-semibold leading-tight text-brand-dark sm:text-4xl">
               {activity.title}
             </h2>
-            {canRegister && renderParticipateCta("inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-[11px] font-bold uppercase tracking-widest text-white shadow-lg shadow-[#bc4638]/12 transition-all hover:opacity-95")}
+            {canRegister && renderParticipateCta("inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#bc4638] to-[#bd5b82] px-5 py-3 text-xs font-bold text-white shadow-lg shadow-[#bc4638]/12 transition hover:opacity-95")}
           </div>
         </div>
 
@@ -699,7 +699,7 @@ function ActivityDetailsModal({
 function DetailBlock({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h4 className="mb-2 text-[10px] font-bold uppercase tracking-widest text-brand-dark/70">{title}</h4>
+      <h4 className="mb-2 text-xs font-bold text-brand-dark/70">{title}</h4>
       <div className="text-xs leading-relaxed text-brand-slate">{children}</div>
     </div>
   );

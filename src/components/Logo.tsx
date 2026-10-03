@@ -17,7 +17,7 @@ interface LogoProps {
 const Logo = ({ variant = 'header', className, gradientId = 'logo' }: LogoProps) => {
   const defaultClass = variant === 'mission'
     ? 'w-72 h-80 sm:w-80 sm:h-96'
-    : 'w-5 h-6 sm:w-6 sm:h-7 drop-shadow-[0_4px_12px_rgba(188,70,56,0.15)] transition-transform duration-500 ease-out group-hover:scale-110';
+    : 'w-5 h-6 sm:w-6 sm:h-7 drop-shadow-[0_4px_12px_rgba(188,70,56,0.15)] transition-transform duration-500 ease-out';
 
   return (
     <svg

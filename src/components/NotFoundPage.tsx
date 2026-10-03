@@ -20,7 +20,7 @@ const NotFoundPage = ({ onBackToHome }: NotFoundPageProps) => {
         <div className="pointer-events-none absolute -bottom-28 -right-24 h-72 w-72 rounded-full bg-[#c9a96e]/18 blur-[78px]" />
 
         <div className="relative lg:col-span-7">
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#bc4638]/15 bg-white/45 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#bc4638] shadow-[inset_0_1px_1px_rgba(255,255,255,0.52)]">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#bc4638]/15 bg-white/45 px-3 py-1.5 text-xs font-semibold text-[#bc4638] shadow-[inset_0_1px_1px_rgba(255,255,255,0.52)]">
             <SearchX className="h-3.5 w-3.5" strokeWidth={1.8} />
             {t('ui.app.notFoundEyebrow')}
           </div>
@@ -44,7 +44,7 @@ const NotFoundPage = ({ onBackToHome }: NotFoundPageProps) => {
                 404
               </div>
               <div className="mx-auto mt-4 h-px w-28 bg-gradient-to-r from-transparent via-[#bc4638]/45 to-transparent" />
-              <div className="mt-4 text-[10px] font-mono font-semibold uppercase tracking-[0.24em] text-brand-slate">
+              <div className="mt-4 text-xs font-mono font-semibold text-brand-slate">
                 {t('ui.app.notFoundCodeLabel')}
               </div>
             </div>
